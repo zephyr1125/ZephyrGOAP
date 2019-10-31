@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Classic
+namespace Classic.Game
 {
     public class BackpackComponent : MonoBehaviour
     {

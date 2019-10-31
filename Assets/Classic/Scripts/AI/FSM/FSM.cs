@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Classic.FSM
+namespace Classic.AI.FSM
 {
     public class FSM
     {

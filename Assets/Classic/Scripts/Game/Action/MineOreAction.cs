@@ -1,7 +1,8 @@
 using System;
+using Classic.AI.GOAP;
 using UnityEngine;
 
-namespace Classic.Action
+namespace Classic.Game.Action
 {
     public class MineOreAction : GoapAction
     {

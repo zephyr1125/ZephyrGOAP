@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace Classic.Action
+namespace Classic.AI.GOAP
 {
     public abstract class GoapAction : MonoBehaviour
     {

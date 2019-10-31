@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Classic.FSM
+namespace Classic.AI.FSM
 {
     public interface FSMState
     {

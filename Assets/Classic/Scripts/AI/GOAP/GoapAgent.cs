@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Classic
+namespace Classic.AI.GOAP
 {
     public class GoapAgent : MonoBehaviour
     {
