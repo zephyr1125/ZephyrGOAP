@@ -2,12 +2,11 @@ using UnityEngine;
 
 namespace Classic.Game
 {
-    public class BackpackComponent : MonoBehaviour
+    public class SupplyPileComponent : MonoBehaviour
     {
-        public GameObject tool;
+        public int numTools;
         public int numLogs;
         public int numFirewood;
         public int numOre;
-        public string toolType = "ToolAxe";
     }
 }
