@@ -59,7 +59,7 @@ namespace Classic.Game.Action
         {
             if (_targetSupplyPile.numOre >= 3)
             {
-                _targetSupplyPile.numLogs -= 3;
+                _targetSupplyPile.numOre -= 3;
                 _hasOre = true;
                 var backpack = agent.GetComponent<BackpackComponent>();
                 backpack.numOre += 3;

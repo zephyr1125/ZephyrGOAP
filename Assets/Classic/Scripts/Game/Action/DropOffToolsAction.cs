@@ -57,7 +57,7 @@ namespace Classic.Game.Action
 
         public override bool Perform(GameObject agent)
         {
-            _targetSupplyPile.numOre += 2;
+            _targetSupplyPile.numTools += 2;
             _droppedOffTools = true;
 
             return true;

@@ -15,9 +15,13 @@ namespace Classic.Game.Action
         public ForgeToolAction()
         {
             AddPrecondition("hasOre", true);
+//            AddPrecondition("hasLogs", true);
+
             AddEffect("hasNewTools", true);
+            AddEffect("hasOre", false);
+//            AddEffect("hasLogs", false);
         }
-        
+
         public override void Reset()
         {
             _forged = false;
