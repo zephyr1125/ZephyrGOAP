@@ -15,11 +15,11 @@ namespace Classic.Game.Action
         public ForgeToolAction()
         {
             AddPrecondition("hasOre", true);
-//            AddPrecondition("hasLogs", true);
+            AddPrecondition("hasLogs", true);
 
             AddEffect("hasNewTools", true);
             AddEffect("hasOre", false);
-//            AddEffect("hasLogs", false);
+            AddEffect("hasLogs", false);
         }
 
         public override void Reset()
@@ -73,7 +73,8 @@ namespace Classic.Game.Action
             if (Time.time - _startTime > forgeDuration)
             {
                 var backpack = agent.GetComponent<BackpackComponent>();
-                backpack.numOre = 0;
+                backpack.numOre -= 3;
+                backpack.numLogs -= 1;
                 _forged = true;
             }
 
