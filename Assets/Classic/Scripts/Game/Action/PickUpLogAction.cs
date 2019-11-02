@@ -1,36 +1,36 @@
+using System;
 using Classic.AI.GOAP;
 using UnityEngine;
 
 namespace Classic.Game.Action
 {
-    public class DropOffOreAction : GoapAction
+    public class PickUpLogsAction : GoapAction
     {
-        private bool _droppedOffOre = false;
+        private bool _hasLogs = false;
         private SupplyPileComponent _targetSupplyPile;
 
-        public DropOffOreAction()
+        public PickUpLogsAction()
         {
-            AddPrecondition("hasOre", true);
-            AddEffect("hasOre", false);
-            AddEffect("collectOre", true);
+            AddPrecondition("hasLogs", false);
+            AddEffect("hasLogs", true);
         }
         
         public override void Reset()
         {
-            _droppedOffOre = false;
+            _hasLogs = false;
             _targetSupplyPile = null;
         }
 
         public override bool IsDone()
         {
-            return _droppedOffOre;
+            return _hasLogs;
         }
 
         public override bool CheckProceduralPrecondition(GameObject agent)
         {
             var supplyPiles = FindObjectsOfType<SupplyPileComponent>();
             SupplyPileComponent closest = null;
-            float closestDist = 0;
+            float closestDistance = 0;
 
             foreach (var pile in supplyPiles)
             {
@@ -39,11 +39,11 @@ namespace Classic.Game.Action
                 if (closest == null)
                 {
                     closest = pile;
-                    closestDist = distance;
-                }else if (distance < closestDist)
+                    closestDistance = distance;
+                }else if(distance<closestDistance)
                 {
                     closest = pile;
-                    closestDist = distance;
+                    closestDistance = distance;
                 }
             }
 
@@ -57,12 +57,17 @@ namespace Classic.Game.Action
 
         public override bool Perform(GameObject agent)
         {
-            var backpack = agent.GetComponent<BackpackComponent>();
-            _targetSupplyPile.numOre += backpack.numOre;
-            _droppedOffOre = true;
-            backpack.numOre = 0;
+            if (_targetSupplyPile.numLogs > 0)
+            {
+                _targetSupplyPile.numLogs -= 1;
+                _hasLogs = true;
+                var backpack = agent.GetComponent<BackpackComponent>();
+                backpack.numLogs += 1;
 
-            return true;
+                return true;
+            }
+
+            return false;
         }
 
         public override bool RequiresInRange()

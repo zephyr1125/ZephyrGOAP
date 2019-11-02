@@ -3,27 +3,27 @@ using UnityEngine;
 
 namespace Classic.Game.Action
 {
-    public class DropOffOreAction : GoapAction
+    public class DropOffFirewoodAction : GoapAction
     {
-        private bool _droppedOffOre = false;
+        private bool _droppedOffFirewood = false;
         private SupplyPileComponent _targetSupplyPile;
 
-        public DropOffOreAction()
+        public DropOffFirewoodAction()
         {
-            AddPrecondition("hasOre", true);
-            AddEffect("hasOre", false);
-            AddEffect("collectOre", true);
+            AddPrecondition("hasFirewood", true);
+            AddEffect("hasFirewood", false);
+            AddEffect("collectFirewood", true);
         }
         
         public override void Reset()
         {
-            _droppedOffOre = false;
+            _droppedOffFirewood = false;
             _targetSupplyPile = null;
         }
 
         public override bool IsDone()
         {
-            return _droppedOffOre;
+            return _droppedOffFirewood;
         }
 
         public override bool CheckProceduralPrecondition(GameObject agent)
@@ -58,9 +58,9 @@ namespace Classic.Game.Action
         public override bool Perform(GameObject agent)
         {
             var backpack = agent.GetComponent<BackpackComponent>();
-            _targetSupplyPile.numOre += backpack.numOre;
-            _droppedOffOre = true;
-            backpack.numOre = 0;
+            _targetSupplyPile.numFirewood += backpack.numFirewood;
+            _droppedOffFirewood = true;
+            backpack.numFirewood = 0;
 
             return true;
         }

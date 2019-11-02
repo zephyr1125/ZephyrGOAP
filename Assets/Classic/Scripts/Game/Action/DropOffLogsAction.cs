@@ -3,27 +3,27 @@ using UnityEngine;
 
 namespace Classic.Game.Action
 {
-    public class DropOffOreAction : GoapAction
+    public class DropOffLogsAction : GoapAction
     {
-        private bool _droppedOffOre = false;
+        private bool _droppedOffLog = false;
         private SupplyPileComponent _targetSupplyPile;
 
-        public DropOffOreAction()
+        public DropOffLogsAction()
         {
-            AddPrecondition("hasOre", true);
-            AddEffect("hasOre", false);
-            AddEffect("collectOre", true);
+            AddPrecondition("hasLogs", true);
+            AddEffect("hasLogs", false);
+            AddEffect("collectLogs", true);
         }
         
         public override void Reset()
         {
-            _droppedOffOre = false;
+            _droppedOffLog = false;
             _targetSupplyPile = null;
         }
 
         public override bool IsDone()
         {
-            return _droppedOffOre;
+            return _droppedOffLog;
         }
 
         public override bool CheckProceduralPrecondition(GameObject agent)
@@ -58,9 +58,9 @@ namespace Classic.Game.Action
         public override bool Perform(GameObject agent)
         {
             var backpack = agent.GetComponent<BackpackComponent>();
-            _targetSupplyPile.numOre += backpack.numOre;
-            _droppedOffOre = true;
-            backpack.numOre = 0;
+            _targetSupplyPile.numLogs += backpack.numLogs;
+            _droppedOffLog = true;
+            backpack.numLogs = 0;
 
             return true;
         }
