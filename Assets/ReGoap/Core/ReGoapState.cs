@@ -143,7 +143,7 @@ namespace ReGoap.Core
         }
         
         /// <summary>
-        /// write differences in "difference"
+        /// 与目标进行比较之后把有区别的对方的值写入difference
         /// </summary>
         /// <param name="other"></param>
         /// <param name="difference"></param>
