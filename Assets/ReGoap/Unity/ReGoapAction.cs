@@ -23,7 +23,7 @@ namespace ReGoap.Unity
 
         protected ReGoapState<T, W> settings = null;
 
-        protected void Awake()
+        protected virtual void Awake()
         {
             enabled = false;
 
