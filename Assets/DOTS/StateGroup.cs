@@ -24,6 +24,12 @@ namespace DOTS
             }
         }
 
+        public State this[int key]
+        {
+            get => _states[key];
+            set => _states[key] = value;
+        }
+
         public int Length()
         {
             return _states.Length;

@@ -5,7 +5,6 @@ using DOTS.Test.System;
 using NUnit.Framework;
 using Unity.Collections;
 using Unity.Entities;
-using Zephyr.GOAP.Runtime.Component;
 
 namespace DOTS.Test
 {
@@ -64,7 +63,7 @@ namespace DOTS.Test
         }
 
         [Test]
-        public void TestRunCreateNode()
+        public void CreateNode()
         {
             _system.Update();
             _ECBSystem.Update();
@@ -82,6 +81,25 @@ namespace DOTS.Test
                 StringValue = new NativeString64("test")
             }, state);
             nodeEntities.Dispose();
+        }
+
+        [Test]
+        public void NoInventoryGoal_NoNode()
+        {
+            _system.GoalStates[0] = new State
+            {
+                Target = _containerEntity,
+                Trait = typeof(GatherStation),
+                StringValue = new NativeString64("test"),
+            };
+            
+            _system.Update();
+            _ECBSystem.Update();
+            EntityManager.CompleteAllJobs();
+            
+            var nodeQuery = EntityManager.CreateEntityQuery(typeof(Node));
+            var nodeEntities = nodeQuery.ToEntityArray(Allocator.TempJob);
+            Assert.AreEqual(0, nodeEntities.Length);
         }
     }
 }

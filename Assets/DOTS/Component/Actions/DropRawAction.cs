@@ -50,7 +50,7 @@ namespace DOTS.Component.Actions
 
         public void CreateNodes([ReadOnly] ref StateGroup goalStates,
             [ReadOnly] ref StackData stackData, int jobIndex,
-            EntityCommandBuffer.Concurrent ECBuffer)
+            EntityCommandBuffer.Concurrent ecBuffer)
         {
             //对于drop raw而言
             //对于每种agent拥有并且goal需要的raw，产生一个Node
@@ -75,13 +75,13 @@ namespace DOTS.Component.Actions
                     if (setting.Trait != typeof(Inventory)) continue;
                     if (!rawRequiredName.Equals(setting.StringValue)) continue;
 
-                    var nodeEntity = ECBuffer.CreateEntity(jobIndex);
-                    ECBuffer.AddComponent<Node>(jobIndex, nodeEntity);
+                    var nodeEntity = ecBuffer.CreateEntity(jobIndex);
+                    ecBuffer.AddComponent<Node>(jobIndex, nodeEntity);
                     //将变更后的states存入新node
                     var newStates = new StateGroup(goalStates, Allocator.Temp);
                     newStates.Merge(preconditions);
                     newStates.Sub(effects);
-                    var buffer = ECBuffer.AddBuffer<State>(jobIndex, nodeEntity);
+                    var buffer = ecBuffer.AddBuffer<State>(jobIndex, nodeEntity);
                     foreach (var newState in newStates)
                     {
                         buffer.Add(newState);
