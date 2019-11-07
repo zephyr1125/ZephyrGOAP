@@ -38,3 +38,4 @@ Publish/
 *.log
 /.idea/
 /Assets/Plugins/
+/PlanDebugger/

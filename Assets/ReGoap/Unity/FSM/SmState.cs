@@ -10,9 +10,19 @@ namespace ReGoap.Unity.FSM
         public List<ISmTransition> Transitions { get; set; }
         public int priority;
 
-        private void Awake()
+        protected virtual void Awake()
         {
             Transitions = new List<ISmTransition>();
+        }
+
+        protected virtual void Update()
+        {
+            
+        }
+
+        protected virtual void FixedUpdate()
+        {
+            
         }
 
         public virtual void Enter()
