@@ -1,33 +1,64 @@
+//using DOTS.ActionJob;
 //using DOTS.Component;
+//using DOTS.Component.Actions;
+//using Unity.Collections;
 //using Unity.Entities;
 //using Unity.Jobs;
 //using Zephyr.GOAP.Runtime.Component;
 //
 //namespace DOTS.System
 //{
+//    [UpdateInGroup(typeof(InitializationSystemGroup))]
 //    public class ExpandSystem : JobComponentSystem
-//    {    
+//    {
 //        /// <summary>
-//        /// 广度优先建立起用于寻路的node graph
+//        /// todo for debug
 //        /// </summary>
-//        private struct ExpandJob : IJobForEach<Goal, GoapAgent>
+//        public StateGroup GoalStates;
+//        /// <summary>
+//        /// todo for debug
+//        /// </summary>
+//        public StackData StackData;
+//        
+//        private EntityQuery _agentQuery;
+//        
+//        private EndInitializationEntityCommandBufferSystem _ecbSystem;
+//
+//        protected override void OnCreate()
 //        {
-//            public void Execute(ref Goal goal, ref GoapAgent agent)
-//            {
-//                //建立可以执行的action列表
-//                
-//                //由goal产生node
-//                //遍历action表并找到可以满足goal的action
-//                    //根据环境现状产生多个同一action的setting
-//                    //每套setting产生一个新的leaf node
-//                    //在node中存入新对比产生的goal
-//                //回到开头扩展循环或者递归
-//            }
+//            base.OnCreate();
+//            _agentQuery = GetEntityQuery(
+//                ComponentType.ReadOnly<Agent>(),
+//                ComponentType.ReadOnly<GoalPlanning>(),
+//                ComponentType.ReadOnly<Action>());
+//            _ecbSystem =
+//                World.Active.GetOrCreateSystem<EndInitializationEntityCommandBufferSystem>();
 //        }
 //        
+//        public NativeList<Agent> UnexpandedStates { get; set; }
+//
 //        protected override JobHandle OnUpdate(JobHandle inputDeps)
 //        {
+//            //主循环遍历赋予了goal的空闲agent
+//                //遍历其可以执行的action，把对应job名存入容器
+//                //从goal开始对适用的action进行expand
+//
+//            var agentEntities = _agentQuery.ToEntityArray(Allocator.TempJob);
+//            foreach (var agentEntity in agentEntities)
+//            {
+//                var bufferAction = GetBufferFromEntity<Action>(true);
+//                foreach (var action in bufferAction[agentEntity])
+//                {
+//                    var actionJob = ActionScheduler.Instance().GetJob(action.ActionJobName.ToString());
+//                    ((IActionJob) actionJob).GoalStates = GoalStates;
+//                    ((IActionJob) actionJob).StackData = StackData;
+//                    ((IActionJob)actionJob).ECBuffer = _ecbSystem.CreateCommandBuffer().ToConcurrent();
+//                    var jobHandle = actionJob.Schedule(UnexpandedStates, 0, inputDeps);
+//                    _ecbSystem.AddJobHandleForProducer(jobHandle);
+//                }
+//            }
 //            
+//            return inputDeps;
 //        }
 //    }
 //}

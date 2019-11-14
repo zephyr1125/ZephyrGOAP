@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
+using Unity.Entities;
 
 namespace DOTS
 {
@@ -19,6 +20,15 @@ namespace DOTS
         {
             _states = new NativeList<State>(copyFrom.Length(), allocator);
             foreach (var state in copyFrom._states)
+            {
+                _states.Add(state);
+            }
+        }
+        
+        public StateGroup([ReadOnly]ref DynamicBuffer<State> buffer, Allocator allocator)
+        {
+            _states = new NativeList<State>(buffer.Length, allocator);
+            foreach (var state in buffer)
             {
                 _states.Add(state);
             }
@@ -85,6 +95,14 @@ namespace DOTS
                         _states.RemoveAtSwapBack(i);
                     }
                 }
+            }
+        }
+
+        public void WriteBuffer(ref DynamicBuffer<State> buffer)
+        {
+            foreach (var state in _states)
+            {
+                buffer.Add(state);
             }
         }
 

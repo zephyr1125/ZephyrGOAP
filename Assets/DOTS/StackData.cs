@@ -6,11 +6,11 @@ namespace DOTS
     public struct StackData : IDisposable
     {
         public Entity AgentEntity;
-        public StateGroup Settings;
+        public StateGroup CurrentStates;
         
         public void Dispose()
         {
-            Settings.Dispose();
+            CurrentStates.Dispose();
         }
     }
 }

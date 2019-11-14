@@ -1,7 +1,7 @@
 namespace DOTS
 {
-    public enum StateTargetType
+    public enum StateSubjectType
     {
-        Self, Other
+        Self, Target
     }
 }
