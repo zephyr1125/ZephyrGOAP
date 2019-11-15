@@ -1,7 +1,7 @@
 using System;
 using Unity.Entities;
 
-namespace DOTS
+namespace DOTS.Struct
 {
     public struct StackData : IDisposable
     {

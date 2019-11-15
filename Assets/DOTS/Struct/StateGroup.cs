@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
 
-namespace DOTS
+namespace DOTS.Struct
 {
     public struct StateGroup : IDisposable, IEnumerable<State>
     {
+        [NativeDisableParallelForRestriction]
         private NativeList<State> _states;
 
         public StateGroup(int initialCapacity, Allocator allocator)
@@ -19,19 +20,21 @@ namespace DOTS
         public StateGroup(StateGroup copyFrom, Allocator allocator)
         {
             _states = new NativeList<State>(copyFrom.Length(), allocator);
-            foreach (var state in copyFrom._states)
+            for (var i = 0; i < copyFrom._states.Length; i++)
             {
+                var state = copyFrom._states[i];
                 _states.Add(state);
             }
         }
-        
-        public StateGroup([ReadOnly]ref DynamicBuffer<State> buffer, Allocator allocator)
+
+        public StateGroup(int length, NativeMultiHashMap<Node, State>.Enumerator copyFrom,
+            Allocator allocator)
         {
-            _states = new NativeList<State>(buffer.Length, allocator);
-            foreach (var state in buffer)
+            _states = new NativeList<State>(length, allocator);
+            do
             {
-                _states.Add(state);
-            }
+                _states.Add(copyFrom.Current);
+            } while (copyFrom.MoveNext());
         }
 
         public State this[int key]
@@ -77,7 +80,7 @@ namespace DOTS
                 if (!contained) _states.Add(otherState);
             }
         }
-        
+
         /// <summary>
         /// 相同项则移除，不同项则无视
         /// </summary>
@@ -87,7 +90,7 @@ namespace DOTS
         {
             foreach (var otherState in other._states)
             {
-                for (var i = _states.Length-1; i >= 0; i--)
+                for (var i = _states.Length - 1; i >= 0; i--)
                 {
                     var state = _states[i];
                     if (state.Equals(otherState))

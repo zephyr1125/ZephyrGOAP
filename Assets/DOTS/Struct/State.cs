@@ -1,9 +1,8 @@
-using System;
 using Unity.Entities;
 
-namespace DOTS
+namespace DOTS.Struct
 {
-    public struct State : IBufferElementData
+    public struct State
     {
         public StateSubjectType SubjectType;
         public ComponentType Trait;

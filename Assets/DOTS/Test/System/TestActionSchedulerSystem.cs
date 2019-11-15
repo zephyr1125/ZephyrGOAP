@@ -1,3 +1,5 @@
+
+using DOTS.Struct;
 #if UNITY_EDITOR
 using DOTS.ActionJob;
 using Unity.Collections;
@@ -9,29 +11,22 @@ namespace DOTS.Test.System
     public class TestActionSchedulerSystem : JobComponentSystem
     {
         [ReadOnly]
-        public NativeList<Entity> UnexpandedNodes;
+        public NativeList<Node> UnexpandedNodes;
 
         [ReadOnly]
         public StackData StackData;
 
-        public EntityCommandBufferSystem ECBufferSystem;
+        public NodeGraph NodeGraph;
 
         private ActionScheduler _actionScheduler;
-
-        protected override void OnCreate()
-        {
-            ECBufferSystem =
-                World.Active.GetOrCreateSystem<EndInitializationEntityCommandBufferSystem>();
-        }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             _actionScheduler = new ActionScheduler
             {
                 UnexpandedNodes = UnexpandedNodes,
-                BuffersState = GetBufferFromEntity<State>(true),
                 StackData = StackData,
-                ECBufferSystem = ECBufferSystem
+                NodeGraph = NodeGraph
             };
             return _actionScheduler.Schedule(inputDeps);
         }

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DOTS.Struct;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -8,28 +9,21 @@ namespace DOTS.ActionJob
     public class ActionScheduler
     {
         // Input
-        public NativeList<Entity> UnexpandedNodes;
-
         [ReadOnly]
-        public BufferFromEntity<State> BuffersState;
+        public NativeList<Node> UnexpandedNodes;
 
         [ReadOnly]
         public StackData StackData;
         
-        public EntityCommandBufferSystem ECBufferSystem;
+        public NodeGraph NodeGraph;
 
         public JobHandle Schedule(JobHandle inputDeps)
         {
             var allActionJobHandles = new NativeArray<JobHandle>(1, Allocator.TempJob)
             {
-                [0] = new DropRawActionJob(UnexpandedNodes, BuffersState, StackData,
-                    ECBufferSystem.CreateCommandBuffer().ToConcurrent()).Schedule(
+                [0] = new DropRawActionJob(UnexpandedNodes, StackData, NodeGraph).Schedule(
                     UnexpandedNodes, 0, inputDeps),
             };
-            foreach (var handle in allActionJobHandles)
-            {
-                ECBufferSystem.AddJobHandleForProducer(handle);
-            }
 
             var combinedHandle = JobHandle.CombineDependencies(allActionJobHandles);
             

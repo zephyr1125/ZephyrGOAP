@@ -1,6 +1,7 @@
 using System;
 using DOTS.Component;
 using DOTS.Component.Trait;
+using DOTS.Struct;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -13,31 +14,26 @@ namespace DOTS.ActionJob
     public struct DropRawActionJob : IJobParallelForDefer
     {
         [ReadOnly]
-        public NativeList<Entity> UnexpandedNodes;
-        
-        [ReadOnly]
-        public BufferFromEntity<State> BuffersState;
+        public NativeList<Node> UnexpandedNodes;
 
         [ReadOnly]
         public StackData StackData;
         
-        public EntityCommandBuffer.Concurrent ECBuffer;
+        public NodeGraph NodeGraph;
 
-        public DropRawActionJob(NativeList<Entity> unexpandedNodes,
-            BufferFromEntity<State> buffersState, StackData stackData,
-            EntityCommandBuffer.Concurrent ecBuffer)
+        public DropRawActionJob(NativeList<Node> unexpandedNodes, StackData stackData,
+            NodeGraph nodeGraph)
         {
             UnexpandedNodes = unexpandedNodes;
-            BuffersState = buffersState;
             StackData = stackData;
-            ECBuffer = ecBuffer;
+            NodeGraph = nodeGraph;
         }
 
         public void Execute(int jobIndex)
         {
             var unexpandedNode = UnexpandedNodes[jobIndex];
-            var bufferStates = BuffersState[unexpandedNode];
-            var targetStates = new StateGroup(ref bufferStates, Allocator.Temp);
+            var unexpandedStates = NodeGraph.NodeStates.GetValuesForKey(unexpandedNode);
+            var targetStates = new StateGroup(1, unexpandedStates, Allocator.Temp);
             
             var preconditions = new StateGroup(1, Allocator.Temp);
             var effects = new StateGroup(1, Allocator.Temp);
@@ -51,12 +47,18 @@ namespace DOTS.ActionJob
             var newStates = new StateGroup(targetStates, Allocator.Temp);
             newStates.Sub(effects);
             newStates.Merge(preconditions);
+
+            //todo node要包含其action
+            var node = new Node(default);
             
-            var nodeEntity = ECBuffer.CreateEntity(jobIndex);
-            ECBuffer.AddComponent(jobIndex, nodeEntity, new Node{parent = unexpandedNode});
-            //将变更后的states存入新node
-            var buffer = ECBuffer.AddBuffer<State>(jobIndex, nodeEntity);
-            newStates.WriteBuffer(ref buffer);
+            //NodeGraph的几个容器都移去了并行限制，小心出错
+            NodeGraph.Nodes.Add(node);
+            NodeGraph.NodeToParent[node] = unexpandedNode;
+            NodeGraph.NodeToChildren.Add(unexpandedNode, node);
+            foreach (var newState in newStates)
+            {
+                NodeGraph.NodeStates.Add(node, newState);
+            }
             
             newStates.Dispose();
             preconditions.Dispose();
