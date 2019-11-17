@@ -4,7 +4,7 @@ using Unity.Collections;
 
 namespace DOTS.Struct
 {
-    public struct NodeGraph : IDisposable
+    public struct NodeGraphGroup : IDisposable
     {
         [NativeDisableParallelForRestriction]
         public NativeList<Node> Nodes;

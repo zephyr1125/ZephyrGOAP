@@ -12,7 +12,7 @@ namespace DOTS.Test
     {
         private TestActionSchedulerSystem _system;
 
-        private NodeGraph _nodeGraph;
+        private NodeGraphGroup _nodeGraphGroup;
         private Node _goalNode;
         private NativeList<Node> _unexpandedNodes;
         
@@ -28,7 +28,7 @@ namespace DOTS.Test
             _agentEntity = EntityManager.CreateEntity();
 
             //node graph 初始创建， 只塞一个goal node
-            _nodeGraph = new NodeGraph
+            _nodeGraphGroup = new NodeGraphGroup
             {
                 Nodes = new NativeList<Node>(Allocator.Persistent),
                 NodeToParent = new NativeHashMap<Node, Node>(1, Allocator.Persistent),
@@ -36,8 +36,8 @@ namespace DOTS.Test
                 NodeStates = new NativeMultiHashMap<Node, State>(1, Allocator.Persistent)
             };
             _goalNode = new Node(default);
-            _nodeGraph.Nodes.Add(_goalNode);
-            _nodeGraph.NodeStates.Add(_goalNode, new State
+            _nodeGraphGroup.Nodes.Add(_goalNode);
+            _nodeGraphGroup.NodeStates.Add(_goalNode, new State
             {
                 Target = _containerEntity,
                 Trait = typeof(Inventory),
@@ -64,7 +64,7 @@ namespace DOTS.Test
             _system = World.GetOrCreateSystem<TestActionSchedulerSystem>();
             _system.UnexpandedNodes = _unexpandedNodes;
             _system.StackData = _stackData;
-            _system.NodeGraph = _nodeGraph;
+            _system.NodeGraphGroup = _nodeGraphGroup;
         }
 
         [TearDown]
@@ -73,7 +73,7 @@ namespace DOTS.Test
             base.TearDown();
             _unexpandedNodes.Dispose();
             _stackData.Dispose();
-            _nodeGraph.Dispose();
+            _nodeGraphGroup.Dispose();
         }
 
         [Test]
@@ -82,14 +82,14 @@ namespace DOTS.Test
             _system.Update();
             EntityManager.CompleteAllJobs();
             
-            Assert.AreEqual(2, _nodeGraph.Nodes.Length);
-            var newNode = _nodeGraph.Nodes[1];
-            Assert.AreEqual(_goalNode, _nodeGraph.NodeToParent[newNode]);
+            Assert.AreEqual(2, _nodeGraphGroup.Nodes.Length);
+            var newNode = _nodeGraphGroup.Nodes[1];
+            Assert.AreEqual(_goalNode, _nodeGraphGroup.NodeToParent[newNode]);
             
-            _nodeGraph.NodeToChildren.TryGetFirstValue(_goalNode, out var child, out var it);
+            _nodeGraphGroup.NodeToChildren.TryGetFirstValue(_goalNode, out var child, out var it);
             Assert.AreEqual(newNode, child);
 
-            _nodeGraph.NodeStates.TryGetFirstValue(child, out var childState, out it);
+            _nodeGraphGroup.NodeStates.TryGetFirstValue(child, out var childState, out it);
             Assert.AreEqual(new State
             {
                 Target = _agentEntity,
@@ -101,8 +101,8 @@ namespace DOTS.Test
         [Test]
         public void NoInventoryGoal_NoNode()
         {
-            _nodeGraph.NodeStates.Remove(_goalNode);
-            _nodeGraph.NodeStates.Add(_goalNode, new State
+            _nodeGraphGroup.NodeStates.Remove(_goalNode);
+            _nodeGraphGroup.NodeStates.Add(_goalNode, new State
             {
                 Target = _containerEntity,
                 Trait = typeof(GatherStation),
@@ -112,7 +112,7 @@ namespace DOTS.Test
             _system.Update();
             EntityManager.CompleteAllJobs();
             
-            Assert.AreEqual(1, _nodeGraph.Nodes.Length);
+            Assert.AreEqual(1, _nodeGraphGroup.Nodes.Length);
         }
     }
 }

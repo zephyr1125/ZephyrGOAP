@@ -16,7 +16,7 @@ namespace DOTS.Test.System
         [ReadOnly]
         public StackData StackData;
 
-        public NodeGraph NodeGraph;
+        public NodeGraphGroup NodeGraphGroup;
 
         private ActionScheduler _actionScheduler;
 
@@ -26,7 +26,7 @@ namespace DOTS.Test.System
             {
                 UnexpandedNodes = UnexpandedNodes,
                 StackData = StackData,
-                NodeGraph = NodeGraph
+                NodeGraphGroup = NodeGraphGroup
             };
             return _actionScheduler.Schedule(inputDeps);
         }
