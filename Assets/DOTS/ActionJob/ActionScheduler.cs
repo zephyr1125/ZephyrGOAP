@@ -15,13 +15,13 @@ namespace DOTS.ActionJob
         [ReadOnly]
         public StackData StackData;
         
-        public NodeGraphGroup NodeGraphGroup;
+        public NodeGraph NodeGraph;
 
         public JobHandle Schedule(JobHandle inputDeps)
         {
             var allActionJobHandles = new NativeArray<JobHandle>(1, Allocator.TempJob)
             {
-                [0] = new DropRawActionJob(UnexpandedNodes, StackData, NodeGraphGroup).Schedule(
+                [0] = new DropRawActionJob(UnexpandedNodes, StackData, NodeGraph).Schedule(
                     UnexpandedNodes, 0, inputDeps),
             };
 

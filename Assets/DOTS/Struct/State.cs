@@ -2,7 +2,7 @@ using Unity.Entities;
 
 namespace DOTS.Struct
 {
-    public struct State
+    public struct State : IBufferElementData
     {
         public StateSubjectType SubjectType;
         public ComponentType Trait;

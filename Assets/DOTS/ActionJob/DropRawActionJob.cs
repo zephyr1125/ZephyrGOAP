@@ -19,21 +19,20 @@ namespace DOTS.ActionJob
         [ReadOnly]
         public StackData StackData;
         
-        public NodeGraphGroup NodeGraphGroup;
+        public NodeGraph NodeGraph;
 
         public DropRawActionJob(NativeList<Node> unexpandedNodes, StackData stackData,
-            NodeGraphGroup nodeGraphGroup)
+            NodeGraph nodeGraph)
         {
             UnexpandedNodes = unexpandedNodes;
             StackData = stackData;
-            NodeGraphGroup = nodeGraphGroup;
+            NodeGraph = nodeGraph;
         }
 
         public void Execute(int jobIndex)
         {
             var unexpandedNode = UnexpandedNodes[jobIndex];
-            var unexpandedStates = NodeGraphGroup.NodeStates.GetValuesForKey(unexpandedNode);
-            var targetStates = new StateGroup(1, unexpandedStates, Allocator.Temp);
+            var targetStates = NodeGraph.GetStateGroup(unexpandedNode, Allocator.Temp);
             
             var preconditions = new StateGroup(1, Allocator.Temp);
             var effects = new StateGroup(1, Allocator.Temp);
@@ -52,13 +51,7 @@ namespace DOTS.ActionJob
             var node = new Node(default);
             
             //NodeGraph的几个容器都移去了并行限制，小心出错
-            NodeGraphGroup.Nodes.Add(node);
-            NodeGraphGroup.NodeToParent[node] = unexpandedNode;
-            NodeGraphGroup.NodeToChildren.Add(unexpandedNode, node);
-            foreach (var newState in newStates)
-            {
-                NodeGraphGroup.NodeStates.Add(node, newState);
-            }
+            NodeGraph.Add(node, ref newStates, unexpandedNode);
             
             newStates.Dispose();
             preconditions.Dispose();

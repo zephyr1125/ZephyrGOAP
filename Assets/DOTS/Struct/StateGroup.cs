@@ -31,10 +31,20 @@ namespace DOTS.Struct
             Allocator allocator)
         {
             _states = new NativeList<State>(length, allocator);
-            do
+            foreach (var state in copyFrom)
             {
-                _states.Add(copyFrom.Current);
-            } while (copyFrom.MoveNext());
+                _states.Add(state);
+            }
+        }
+        
+        public StateGroup(ref DynamicBuffer<State> statesBuffer,
+            Allocator allocator)
+        {
+            _states = new NativeList<State>(statesBuffer.Length, allocator);
+            foreach (var state in statesBuffer)
+            {
+                _states.Add(state);
+            }
         }
 
         public State this[int key]

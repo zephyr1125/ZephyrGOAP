@@ -16,19 +16,18 @@ namespace DOTS.Test.System
         [ReadOnly]
         public StackData StackData;
 
-        public NodeGraphGroup NodeGraphGroup;
+        public NodeGraph NodeGraph;
 
-        private ActionScheduler _actionScheduler;
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            _actionScheduler = new ActionScheduler
+            var actionScheduler = new ActionScheduler
             {
                 UnexpandedNodes = UnexpandedNodes,
                 StackData = StackData,
-                NodeGraphGroup = NodeGraphGroup
+                NodeGraph = NodeGraph
             };
-            return _actionScheduler.Schedule(inputDeps);
+            return actionScheduler.Schedule(inputDeps);
         }
     }
 }
