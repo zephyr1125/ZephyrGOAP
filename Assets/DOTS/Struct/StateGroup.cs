@@ -75,6 +75,7 @@ namespace DOTS.Struct
         /// <returns></returns>
         public void Merge(StateGroup other)
         {
+            //todo 还需要考虑冲突可能，即针对同一个目标的两个state不相容
             foreach (var otherState in other._states)
             {
                 var contained = false;
@@ -127,6 +128,17 @@ namespace DOTS.Struct
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        public override int GetHashCode()
+        {
+            var sum = 0;
+            foreach (var state in _states)
+            {
+                sum += state.GetHashCode();
+            }
+
+            return sum;
         }
     }
 }

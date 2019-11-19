@@ -4,6 +4,6 @@ namespace DOTS.Component.Actions
 {
     public struct Action : IBufferElementData
     {
-        public NativeString64 ActionJobName;
+        public NativeString64 ActionName;
     }
 }

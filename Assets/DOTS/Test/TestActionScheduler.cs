@@ -29,13 +29,15 @@ namespace DOTS.Test
 
             //node graph 初始创建， 只塞一个goal node
             _nodeGraph = new NodeGraph(1, Allocator.Persistent);
-            _goalNode = new Node(default);
-            _nodeGraph.Add(_goalNode, new State
+            var goalStates = new StateGroup(1, Allocator.Temp){new State
             {
                 Target = _containerEntity,
                 Trait = typeof(Inventory),
                 Value = new NativeString64("test"),
-            }, default);
+            }};
+            _goalNode = new Node(ref goalStates);
+            _nodeGraph.SetGoalNode(_goalNode, ref goalStates);
+            goalStates.Dispose();
 
             //未展开列表放入goal node
             _unexpandedNodes = new NativeList<Node>(Allocator.Persistent) {_goalNode};
@@ -67,12 +69,13 @@ namespace DOTS.Test
             EntityManager.CompleteAllJobs();
             
             Assert.AreEqual(2, _nodeGraph.Length());
-            var newNode = _nodeGraph.GetNode(1);
-            Assert.AreEqual(_goalNode, _nodeGraph.GetParent(newNode));
+            var nodes = _nodeGraph.GetNodes(Allocator.Temp);
+            var newNode = nodes[1];
+            nodes.Dispose();
             
-            var children = _nodeGraph.GetChildren(_goalNode);
-            children.MoveNext();
-            Assert.AreEqual(newNode, children.Current);
+            var edges = _nodeGraph.GetEdgeToParents(newNode);
+            edges.MoveNext();
+            Assert.AreEqual(_goalNode, edges.Current.Parent);
 
             var childStates = _nodeGraph.GetStateGroup(newNode, Allocator.Temp);
             Assert.AreEqual(new State

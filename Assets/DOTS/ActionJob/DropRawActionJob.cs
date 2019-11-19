@@ -46,12 +46,12 @@ namespace DOTS.ActionJob
             var newStates = new StateGroup(targetStates, Allocator.Temp);
             newStates.Sub(effects);
             newStates.Merge(preconditions);
-
-            //todo node要包含其action
-            var node = new Node(default);
+            
+            var node = new Node(ref newStates);
             
             //NodeGraph的几个容器都移去了并行限制，小心出错
-            NodeGraph.Add(node, ref newStates, unexpandedNode);
+            NodeGraph.AddRouteNode(node, ref newStates, unexpandedNode,
+                new NativeString64("DropRaw"));
             
             newStates.Dispose();
             preconditions.Dispose();

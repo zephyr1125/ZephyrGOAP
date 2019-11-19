@@ -1,8 +1,9 @@
+using System;
 using Unity.Entities;
 
 namespace DOTS.Struct
 {
-    public struct State : IBufferElementData
+    public struct State : IBufferElementData, IEquatable<State>
     {
         public StateSubjectType SubjectType;
         public ComponentType Trait;
@@ -10,18 +11,21 @@ namespace DOTS.Struct
         public bool IsPositive;
         
         public Entity Target;
-        
-        /// <summary>
-        /// Fit的概念表示两个State从要达成的目的角度一致，并不比较具体Entity Target
-        /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
-        public bool Fit(State other)
+
+        public override int GetHashCode()
         {
-            return SubjectType == other.SubjectType &&
-                   Trait == other.Trait &&
-                   Value.Equals(other.Value) &&
-                   IsPositive == other.IsPositive;
+            return Target.GetHashCode() + SubjectType.GetHashCode() + Trait.GetHashCode() +
+                   Value.GetHashCode() + IsPositive.GetHashCode();
+        }
+
+        public bool Equals(State other)
+        {
+            return GetHashCode() == other.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is State other && Equals(other);
         }
     }
 }
