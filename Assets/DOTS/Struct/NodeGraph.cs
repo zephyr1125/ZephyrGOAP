@@ -119,6 +119,11 @@ namespace DOTS.Struct
             var states = _nodeStates.GetValuesForKey(node);
             return new StateGroup(1, states, allocator);
         }
+
+        public Node GetStartNode()
+        {
+            return _startNode;
+        }
         
         public void Dispose()
         {
