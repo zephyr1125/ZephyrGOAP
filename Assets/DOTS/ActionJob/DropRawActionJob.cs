@@ -21,12 +21,16 @@ namespace DOTS.ActionJob
         
         public NodeGraph NodeGraph;
 
-        public DropRawActionJob(NativeList<Node> unexpandedNodes, StackData stackData,
-            NodeGraph nodeGraph)
+        [NativeDisableParallelForRestriction]
+        public NativeList<Node> NewlyExpandedNodes;
+
+        public DropRawActionJob(ref NativeList<Node> unexpandedNodes, ref StackData stackData,
+            ref NodeGraph nodeGraph, ref NativeList<Node> newlyExpandedNodes)
         {
             UnexpandedNodes = unexpandedNodes;
             StackData = stackData;
             NodeGraph = nodeGraph;
+            NewlyExpandedNodes = newlyExpandedNodes;
         }
 
         public void Execute(int jobIndex)
@@ -52,6 +56,7 @@ namespace DOTS.ActionJob
             //NodeGraph的几个容器都移去了并行限制，小心出错
             NodeGraph.AddRouteNode(node, ref newStates, unexpandedNode,
                 new NativeString64("DropRaw"));
+            NewlyExpandedNodes.Add(node);
             
             newStates.Dispose();
             preconditions.Dispose();

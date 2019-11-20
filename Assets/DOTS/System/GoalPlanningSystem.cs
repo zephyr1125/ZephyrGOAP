@@ -1,3 +1,4 @@
+using DOTS.ActionJob;
 using DOTS.Component;
 using DOTS.Component.Actions;
 using DOTS.Struct;
@@ -45,10 +46,13 @@ namespace DOTS.System
             for (var i = 0; i < planningGoals.Length; i++)
             {
                 var iteration = 0;
-                
+
+                var agentEntity = agentEntities[i];
                 var goal = planningGoals[i].Goal;
-                var goalStatesBuffer = EntityManager.GetBuffer<State>(agentEntities[i]);
+                var goalStatesBuffer = EntityManager.GetBuffer<State>(agentEntity);
                 var goalStates = new StateGroup(ref goalStatesBuffer, Allocator.Temp);
+                
+                var stackData = new StackData{AgentEntity = agentEntity};
 
                 var uncheckedNodes = new NativeList<Node>(Allocator.Temp);
                 var unexpandedNodes = new NativeList<Node>(Allocator.Temp);
@@ -69,9 +73,9 @@ namespace DOTS.System
                         ref unexpandedNodes);
 
                     //对待展开列表进行展开，并挑选进入待检查和展开后列表
-                    //对展开后列表进行失败判定并清空
+                    ExpandNodes(ref unexpandedNodes, ref stackData, ref nodeGraph,
+                        ref uncheckedNodes, ref expandedNodes);
                     //直至待展开列表为空或Early Exit
-
                     iteration++;
                 }
 
@@ -118,6 +122,26 @@ namespace DOTS.System
             }
 
             uncheckedNodes.Clear();
+        }
+
+        public void ExpandNodes(ref NativeList<Node> unexpandedNodes, ref StackData stackData,
+            ref NodeGraph nodeGraph, ref NativeList<Node> uncheckedNodes, ref NativeList<Node> expandedNodes)
+        {
+            var newlyExpandedNodes = new NativeList<Node>(Allocator.TempJob);
+            var actionScheduler = new ActionScheduler
+            {
+                UnexpandedNodes = unexpandedNodes,
+                StackData = stackData,
+                NodeGraph = nodeGraph,
+                NewlyExpandedNodes = newlyExpandedNodes
+            };
+            var handle = actionScheduler.Schedule(default);
+            handle.Complete();
+            
+            expandedNodes.AddRange(unexpandedNodes);
+            unexpandedNodes.Clear();
+            uncheckedNodes.AddRange(newlyExpandedNodes);
+            newlyExpandedNodes.Dispose();
         }
     }
 }
