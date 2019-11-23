@@ -17,13 +17,13 @@ namespace DOTS.Test
             _states0 = new StateGroup(1, Allocator.Temp){new State
             {
                 Target = Entity.Null,
-                Trait = typeof(Inventory),
+                Trait = typeof(RawSourceTrait),
                 Value = new NativeString64("test"),
             }};
             _states1 = new StateGroup(1, Allocator.Temp){new State
             {
                 Target = Entity.Null,
-                Trait = typeof(Inventory),
+                Trait = typeof(RawSourceTrait),
                 Value = new NativeString64("test"),
             }};
         }
@@ -52,7 +52,7 @@ namespace DOTS.Test
         {
             _states1.Add(new State{
                 Target = Entity.Null,
-                Trait = typeof(GatherStation),
+                Trait = typeof(GatherStationTrait),
                 Value = new NativeString64("test"),
             });
             

@@ -39,7 +39,7 @@ namespace DOTS.Test
             var goalStates = new StateGroup(1, Allocator.Temp){new State
             {
                 Target = _targetEntity,
-                Trait = typeof(Inventory),
+                Trait = typeof(RawSourceTrait),
                 Value = new NativeString64("test"),
             }};
             _goalNode = new Node(ref goalStates);
@@ -51,7 +51,7 @@ namespace DOTS.Test
             _currentStates.Add(new State
             {
                 Target = _agentEntity,
-                Trait = typeof(Inventory),
+                Trait = typeof(RawSourceTrait),
                 Value = new NativeString64("test"),
             });
             
@@ -86,7 +86,7 @@ namespace DOTS.Test
             Assert.AreEqual(new State
             {
                 Target = _agentEntity,
-                Trait = typeof(Inventory),
+                Trait = typeof(RawSourceTrait),
                 Value = new NativeString64("test")
             }, states[0]);
             
@@ -108,7 +108,7 @@ namespace DOTS.Test
             Assert.AreEqual(new State
             {
                 Target = _targetEntity,
-                Trait = typeof(Inventory),
+                Trait = typeof(RawSourceTrait),
                 Value = new NativeString64("test"),
             }, states[0]);
             

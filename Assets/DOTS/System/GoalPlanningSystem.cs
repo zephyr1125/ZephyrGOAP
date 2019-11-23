@@ -9,6 +9,7 @@ using Unity.Jobs;
 namespace DOTS.System
 {
     [UpdateInGroup(typeof(InitializationSystemGroup))]
+    [UpdateAfter(typeof(SensorSystemGroup))]
     public class GoalPlanningSystem : ComponentSystem
     {
         /// <summary>
@@ -27,14 +28,14 @@ namespace DOTS.System
                 ComponentType.ReadOnly<PlanningGoal>(),
                 ComponentType.ReadOnly<State>());
             _currentStateQuery = GetEntityQuery(
-                ComponentType.ReadOnly<CurrentState>(),
+                ComponentType.ReadOnly<CurrentStates>(),
                 ComponentType.ReadOnly<State>());
         }
 
         protected override void OnUpdate()
         {
             //todo 首先，应有goal挑选系统已经把goal分配到了各个agent身上，以及goal states也以buffer形式存于agent身上
-            //todo 并且由另外的系统提前做好CurrentState的准备
+            //todo 并且要提前做好CurrentState的准备
             var planningGoals = _agentQuery.ToComponentDataArray<PlanningGoal>(Allocator.TempJob);
             var agentEntities = _agentQuery.ToEntityArray(Allocator.TempJob);
 
@@ -42,7 +43,7 @@ namespace DOTS.System
             var currentStatesEntities = _currentStateQuery.ToEntityArray(Allocator.TempJob);
             var currentStateBuffer = EntityManager.GetBuffer<State>(currentStatesEntities[0]);
             var currentStates = new StateGroup(ref currentStateBuffer, Allocator.TempJob);
-
+            
             for (var i = 0; i < planningGoals.Length; i++)
             {
                 var iteration = 0;

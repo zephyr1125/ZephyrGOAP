@@ -3,7 +3,7 @@ using Zephyr.GOAP.Runtime.Component;
 
 namespace DOTS.Component.Trait
 {
-    public struct GatherStation : IComponentData, ITrait
+    public struct GatherStationTrait : IComponentData, ITrait
     {
         
     }
