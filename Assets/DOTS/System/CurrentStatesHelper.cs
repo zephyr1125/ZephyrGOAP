@@ -1,4 +1,5 @@
 using DOTS.Component;
+using DOTS.Struct;
 using Unity.Entities;
 
 namespace DOTS.System
@@ -24,6 +25,8 @@ namespace DOTS.System
         {
             CurrentStatesEntity =
                 EntityManager.CreateEntity(typeof(CurrentStates));
+            EntityManager.AddBuffer<State>(CurrentStatesEntity);
+            
             _removeECBufferSystem.CreateCommandBuffer().DestroyEntity(CurrentStatesEntity);
         }
     }

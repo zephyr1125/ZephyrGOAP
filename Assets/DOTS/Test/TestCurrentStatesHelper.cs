@@ -1,4 +1,5 @@
 using DOTS.Component;
+using DOTS.Struct;
 using DOTS.System;
 using NUnit.Framework;
 using Unity.Collections;
@@ -25,7 +26,7 @@ namespace DOTS.Test
             var query = EntityManager.CreateEntityQuery(typeof(CurrentStates));
             Assert.AreEqual(1, query.CalculateEntityCount());
         }
-        
+
         //在一帧结束Simulation时移除entity
         [Test]
         public void RemoveEntityAtSimulationEnd()
@@ -33,11 +34,11 @@ namespace DOTS.Test
             _system.Update();
             _system._removeECBufferSystem.Update();
             EntityManager.CompleteAllJobs();
-            
+
             var query = EntityManager.CreateEntityQuery(typeof(CurrentStates));
             Assert.AreEqual(0, query.CalculateEntityCount());
         }
-        
+
         //提供引用
         [Test]
         public void OffersStaticReferenceToEntity()
@@ -45,13 +46,23 @@ namespace DOTS.Test
             _system.Update();
 
             var query = EntityManager.CreateEntityQuery(typeof(CurrentStates));
-            
+
             Assert.AreEqual(1, query.CalculateEntityCount());
             var entities = query.ToEntityArray(Allocator.TempJob);
-            
+
             Assert.AreEqual(entities[0], CurrentStatesHelper.CurrentStatesEntity);
 
             entities.Dispose();
+        }
+
+        //创建StateBuffer
+        [Test]
+        public void CreateBuffer()
+        {
+            _system.Update();
+
+            Assert.IsTrue(EntityManager.HasComponent<State>(
+                CurrentStatesHelper.CurrentStatesEntity));
         }
     }
 }
