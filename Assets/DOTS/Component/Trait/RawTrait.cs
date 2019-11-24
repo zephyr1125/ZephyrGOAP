@@ -6,7 +6,7 @@ namespace DOTS.Component.Trait
     /// <summary>
     /// 表示一个Entity为原料来源
     /// </summary>
-    public struct RawSourceTrait : IComponentData, ITrait
+    public struct RawTrait : IComponentData, ITrait
     {
     }
 }

@@ -76,14 +76,14 @@ namespace DOTS.ActionJob
             foreach (var targetState in targetStates)
             {
                 //只针对物品请求的goal state
-                if (targetState.Trait != typeof(RawSourceTrait)) continue;
+                if (targetState.Trait != typeof(RawTrait)) continue;
 
                 var agent = stackData.AgentEntity;
                 
                 preconditions.Add(new State
                 {
                     Target = agent,
-                    Trait = typeof(RawSourceTrait),
+                    Trait = typeof(RawTrait),
                     Value = targetState.Value
                 });
 
@@ -103,13 +103,13 @@ namespace DOTS.ActionJob
         {
             foreach (var targetState in targetStates)
             {
-                //只针对物品请求的goal state
-                if (targetState.Trait != typeof(RawSourceTrait)) continue;
+                //只针对原料请求的goal state
+                if (targetState.Trait != typeof(RawTrait)) continue;
 
                 effects.Add(new State
                 {
                     Target = targetState.Target,
-                    Trait = typeof(RawSourceTrait),
+                    Trait = typeof(RawTrait),
                     Value = targetState.Value
                 });
                 

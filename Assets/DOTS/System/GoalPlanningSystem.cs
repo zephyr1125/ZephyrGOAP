@@ -35,14 +35,17 @@ namespace DOTS.System
         protected override void OnUpdate()
         {
             //todo 首先，应有goal挑选系统已经把goal分配到了各个agent身上，以及goal states也以buffer形式存于agent身上
-            //todo 并且要提前做好CurrentState的准备
+            //SensorSystemGroup提前做好CurrentState的准备
             var planningGoals = _agentQuery.ToComponentDataArray<PlanningGoal>(Allocator.TempJob);
             var agentEntities = _agentQuery.ToEntityArray(Allocator.TempJob);
 
             //从currentState的存储Entity上拿取current states
             var currentStatesEntities = _currentStateQuery.ToEntityArray(Allocator.TempJob);
             var currentStateBuffer = EntityManager.GetBuffer<State>(currentStatesEntities[0]);
-            var currentStates = new StateGroup(ref currentStateBuffer, Allocator.TempJob);
+            var stackData = new StackData
+            {
+                CurrentStates = new StateGroup(ref currentStateBuffer, Allocator.TempJob)
+            };
             
             for (var i = 0; i < planningGoals.Length; i++)
             {
@@ -52,8 +55,8 @@ namespace DOTS.System
                 var goal = planningGoals[i].Goal;
                 var goalStatesBuffer = EntityManager.GetBuffer<State>(agentEntity);
                 var goalStates = new StateGroup(ref goalStatesBuffer, Allocator.Temp);
-                
-                var stackData = new StackData{AgentEntity = agentEntity};
+
+                stackData.AgentEntity = agentEntity;
 
                 var uncheckedNodes = new NativeList<Node>(Allocator.Temp);
                 var unexpandedNodes = new NativeList<Node>(Allocator.Temp);
@@ -70,7 +73,7 @@ namespace DOTS.System
                 while (uncheckedNodes.Length > 0 && iteration < Iterations)
                 {
                     //对待检查列表进行检查（与CurrentStates比对）
-                    CheckNodes(ref uncheckedNodes, ref nodeGraph, ref currentStates,
+                    CheckNodes(ref uncheckedNodes, ref nodeGraph, ref stackData.CurrentStates,
                         ref unexpandedNodes);
 
                     //对待展开列表进行展开，并挑选进入待检查和展开后列表
@@ -89,7 +92,7 @@ namespace DOTS.System
             planningGoals.Dispose();
             agentEntities.Dispose();
             currentStatesEntities.Dispose();
-            currentStates.Dispose();
+            stackData.Dispose();
         }
 
         /// <summary>

@@ -39,7 +39,7 @@ namespace DOTS.Test
             var goalStates = new StateGroup(1, Allocator.Temp){new State
             {
                 Target = _targetEntity,
-                Trait = typeof(RawSourceTrait),
+                Trait = typeof(RawTrait),
                 Value = new NativeString64("test"),
             }};
             _goalNode = new Node(ref goalStates);
@@ -51,11 +51,11 @@ namespace DOTS.Test
             _currentStates.Add(new State
             {
                 Target = _agentEntity,
-                Trait = typeof(RawSourceTrait),
+                Trait = typeof(RawTrait),
                 Value = new NativeString64("test"),
             });
             
-            _stackData = new StackData{AgentEntity = _agentEntity};
+            _stackData = new StackData{AgentEntity = _agentEntity, CurrentStates = _currentStates};
         }
 
         [TearDown]
@@ -67,7 +67,7 @@ namespace DOTS.Test
             _expandedNodes.Dispose();
             _nodeGraph.Dispose();
             _currentStates.Dispose();
-            _stackData.Dispose();
+//            _stackData.Dispose();
         }
         
         /// <summary>
@@ -86,7 +86,7 @@ namespace DOTS.Test
             Assert.AreEqual(new State
             {
                 Target = _agentEntity,
-                Trait = typeof(RawSourceTrait),
+                Trait = typeof(RawTrait),
                 Value = new NativeString64("test")
             }, states[0]);
             
@@ -108,7 +108,7 @@ namespace DOTS.Test
             Assert.AreEqual(new State
             {
                 Target = _targetEntity,
-                Trait = typeof(RawSourceTrait),
+                Trait = typeof(RawTrait),
                 Value = new NativeString64("test"),
             }, states[0]);
             

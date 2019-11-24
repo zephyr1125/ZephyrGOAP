@@ -27,7 +27,7 @@ namespace DOTS.Test.SensorSystem
             _system = World.GetOrCreateSystem<RawSourceSensorSystem>();
             _containerEntity = EntityManager.CreateEntity();
             
-            EntityManager.AddComponentData(_containerEntity, new RawSourceTrait());
+            EntityManager.AddComponentData(_containerEntity, new RawTrait());
             EntityManager.AddComponentData(_containerEntity, new ItemContainer
             {
                 Capacity = 1, IsTransferSource = true
@@ -52,7 +52,7 @@ namespace DOTS.Test.SensorSystem
             Assert.AreEqual(new State
             {
                 Target = _containerEntity,
-                Trait = typeof(RawSourceTrait),
+                Trait = typeof(RawTrait),
                 IsPositive = true,
                 Value = new NativeString64("test")
             }, buffer[0]);
