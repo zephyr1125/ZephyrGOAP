@@ -1,6 +1,7 @@
 using DOTS.ActionJob;
 using DOTS.Component;
 using DOTS.Component.Actions;
+using DOTS.Debugger;
 using DOTS.Struct;
 using Unity.Collections;
 using Unity.Entities;
@@ -19,6 +20,8 @@ namespace DOTS.System
         
         private EntityQuery _agentQuery, _currentStateQuery;
 
+        public IGoapDebugger Debugger;
+
         protected override void OnCreate()
         {
             base.OnCreate();
@@ -36,7 +39,7 @@ namespace DOTS.System
         {
             //todo 首先，应有goal挑选系统已经把goal分配到了各个agent身上，以及goal states也以buffer形式存于agent身上
             //SensorSystemGroup提前做好CurrentState的准备
-            var planningGoals = _agentQuery.ToComponentDataArray<PlanningGoal>(Allocator.TempJob);
+            
             var agentEntities = _agentQuery.ToEntityArray(Allocator.TempJob);
 
             //从currentState的存储Entity上拿取current states
@@ -47,31 +50,32 @@ namespace DOTS.System
                 CurrentStates = new StateGroup(ref currentStateBuffer, Allocator.TempJob)
             };
             
-            for (var i = 0; i < planningGoals.Length; i++)
+            for (var i = 0; i < agentEntities.Length; i++)
             {
                 var iteration = 0;
 
                 var agentEntity = agentEntities[i];
-                var goal = planningGoals[i].Goal;
                 var goalStatesBuffer = EntityManager.GetBuffer<State>(agentEntity);
                 var goalStates = new StateGroup(ref goalStatesBuffer, Allocator.Temp);
 
                 stackData.AgentEntity = agentEntity;
 
-                var uncheckedNodes = new NativeList<Node>(Allocator.Temp);
-                var unexpandedNodes = new NativeList<Node>(Allocator.Temp);
-                var expandedNodes = new NativeList<Node>(Allocator.Temp);
+                var uncheckedNodes = new NativeList<Node>(Allocator.TempJob);
+                var unexpandedNodes = new NativeList<Node>(Allocator.TempJob);
+                var expandedNodes = new NativeList<Node>(Allocator.TempJob);
 
-                var nodeGraph = new NodeGraph(1, Allocator.Temp);
+                var nodeGraph = new NodeGraph(1, Allocator.TempJob);
 
+                var goalNode = new Node(ref goalStates, "goal");
                 //goalNode进入graph
-                nodeGraph.SetGoalNode(goal, ref goalStates);
+                nodeGraph.SetGoalNode(goalNode, ref goalStates);
 
                 //goalNode进入待检查列表
-                uncheckedNodes.Add(goal);
+                uncheckedNodes.Add(goalNode);
 
                 while (uncheckedNodes.Length > 0 && iteration < Iterations)
                 {
+                    Debugger?.Log("Loop:");
                     //对待检查列表进行检查（与CurrentStates比对）
                     CheckNodes(ref uncheckedNodes, ref nodeGraph, ref stackData.CurrentStates,
                         ref unexpandedNodes);
@@ -83,13 +87,14 @@ namespace DOTS.System
                     iteration++;
                 }
 
+                Debugger?.SetNodeGraph(ref nodeGraph);
+
                 uncheckedNodes.Dispose();
                 unexpandedNodes.Dispose();
                 expandedNodes.Dispose();
                 nodeGraph.Dispose();
             }
 
-            planningGoals.Dispose();
             agentEntities.Dispose();
             currentStatesEntities.Dispose();
             stackData.Dispose();
@@ -109,16 +114,19 @@ namespace DOTS.System
         {
             foreach (var uncheckedNode in uncheckedNodes)
             {
+                Debugger?.Log("check node: "+uncheckedNode.Name);
                 var uncheckedStates = nodeGraph.GetStateGroup(uncheckedNode, Allocator.Temp);
                 uncheckedStates.Sub(currentStates);
                 if (uncheckedStates.Length() <= 0)
                 {
                     //找到Plan，追加起点Node
-                    nodeGraph.LinkStartNode(uncheckedNode, new NativeString64());
+                    Debugger?.Log("found plan: "+uncheckedNode.Name);
+                    nodeGraph.LinkStartNode(uncheckedNode, new NativeString64("start"));
                     //todo Early Exit
                 }
                 else
                 {
+                    Debugger?.Log("add to expand: "+uncheckedNode.Name);
                     unexpandedNodes.Add(uncheckedNode);
                 }
 
@@ -131,6 +139,10 @@ namespace DOTS.System
         public void ExpandNodes(ref NativeList<Node> unexpandedNodes, ref StackData stackData,
             ref NodeGraph nodeGraph, ref NativeList<Node> uncheckedNodes, ref NativeList<Node> expandedNodes)
         {
+            foreach (var node in unexpandedNodes)
+            {
+                Debugger?.Log("expanding node: "+node.Name);
+            }
             var newlyExpandedNodes = new NativeList<Node>(Allocator.TempJob);
             var actionScheduler = new ActionScheduler
             {
@@ -141,6 +153,11 @@ namespace DOTS.System
             };
             var handle = actionScheduler.Schedule(default);
             handle.Complete();
+            
+            foreach (var node in newlyExpandedNodes)
+            {
+                Debugger?.Log("create new node: "+node.Name);
+            }
             
             expandedNodes.AddRange(unexpandedNodes);
             unexpandedNodes.Clear();

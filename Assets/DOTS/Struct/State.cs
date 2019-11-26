@@ -23,6 +23,30 @@ namespace DOTS.Struct
             return GetHashCode() == other.GetHashCode();
         }
 
+        /// <summary>
+        /// 相比Equals，Fits范围更宽
+        /// 非指定Entity的Closest与指定Entity之间也算Fit
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public bool Fits(State other)
+        {
+            if (Equals(other)) return true;
+
+            //这三项必须一致
+            if (!(Trait.Equals(other.Trait) && Value.Equals(other.Value) &&
+                  IsPositive.Equals(IsPositive)))
+            {
+                return false;
+            }
+
+            //我与对方任何一个为Closest另一个为指定Entity则算作Fit
+            if (SubjectType == StateSubjectType.Closest && other.Target != Entity.Null) return true;
+            if (Target != Entity.Null && other.SubjectType == StateSubjectType.Closest) return true;
+
+            return false;
+        }
+
         public override bool Equals(object obj)
         {
             return obj is State other && Equals(other);

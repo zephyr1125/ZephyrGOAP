@@ -26,7 +26,39 @@ namespace DOTS.Struct
             _nodeToParent = new NativeMultiHashMap<Node, Edge>(initialCapacity, allocator);
             _nodeStates = new NativeMultiHashMap<Node, State>(initialCapacity, allocator);
             _goalNode = default;
-            _startNode = new Node();
+            _startNode = new Node(){Name = new NativeString64("start")};
+        }
+
+        public NodeGraph Copy(Allocator allocator)
+        {
+            var newGraph = new NodeGraph(1, allocator);
+
+            newGraph._goalNode = _goalNode;
+            newGraph._startNode = _startNode;
+            
+            var nodeToParentKeys = _nodeToParent.GetKeyArray(Allocator.Temp);
+            foreach (var key in nodeToParentKeys)
+            {
+                var values = _nodeToParent.GetValuesForKey(key);
+                while (values.MoveNext())
+                {
+                    newGraph._nodeToParent.Add(key, values.Current);
+                }
+            }
+            nodeToParentKeys.Dispose();
+            
+            var nodeStatesKeys = _nodeStates.GetKeyArray(Allocator.Temp);
+            foreach (var key in nodeStatesKeys)
+            {
+                var values = _nodeStates.GetValuesForKey(key);
+                while (values.MoveNext())
+                {
+                    newGraph._nodeStates.Add(key, values.Current);
+                }
+            }
+            nodeStatesKeys.Dispose();
+
+            return newGraph;
         }
 
         public void SetGoalNode(Node goal, ref StateGroup stateGroup)
@@ -59,6 +91,7 @@ namespace DOTS.Struct
         public bool AddRouteNode(Node node, ref StateGroup stateGroup, Node parent,
             NativeString64 actionName)
         {
+            node.Name = actionName;
             //第一个route必须连到goal
             if (Length() == 0)
             {
@@ -123,6 +156,11 @@ namespace DOTS.Struct
         public Node GetStartNode()
         {
             return _startNode;
+        }
+
+        public Node GetGoalNode()
+        {
+            return _goalNode;
         }
         
         public void Dispose()

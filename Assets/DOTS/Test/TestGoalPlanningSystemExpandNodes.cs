@@ -38,11 +38,13 @@ namespace DOTS.Test
             
             var goalStates = new StateGroup(1, Allocator.Temp){new State
             {
+                SubjectType = StateSubjectType.Target,
                 Target = _targetEntity,
                 Trait = typeof(RawTrait),
                 Value = new NativeString64("test"),
+                IsPositive = true
             }};
-            _goalNode = new Node(ref goalStates);
+            _goalNode = new Node(ref goalStates, "goal");
             
             _nodeGraph.SetGoalNode(_goalNode, ref goalStates);
             
@@ -50,9 +52,11 @@ namespace DOTS.Test
             
             _currentStates.Add(new State
             {
+                SubjectType = StateSubjectType.Self,
                 Target = _agentEntity,
                 Trait = typeof(RawTrait),
                 Value = new NativeString64("test"),
+                IsPositive = true
             });
             
             _stackData = new StackData{AgentEntity = _agentEntity, CurrentStates = _currentStates};
@@ -85,9 +89,11 @@ namespace DOTS.Test
             Assert.AreEqual(1, states.Length());
             Assert.AreEqual(new State
             {
+                SubjectType = StateSubjectType.Self,
                 Target = _agentEntity,
                 Trait = typeof(RawTrait),
-                Value = new NativeString64("test")
+                Value = new NativeString64("test"),
+                IsPositive = true
             }, states[0]);
             
             states.Dispose();
@@ -107,9 +113,11 @@ namespace DOTS.Test
             Assert.AreEqual(1, states.Length());
             Assert.AreEqual(new State
             {
+                SubjectType = StateSubjectType.Target,
                 Target = _targetEntity,
                 Trait = typeof(RawTrait),
                 Value = new NativeString64("test"),
+                IsPositive = true
             }, states[0]);
             
             states.Dispose();

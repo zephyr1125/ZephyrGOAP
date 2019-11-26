@@ -69,7 +69,7 @@ namespace DOTS.Struct
         }
 
         /// <summary>
-        /// 相同项则无视，不同项则增加
+        /// Fit项则无视，不同项则增加
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
@@ -81,7 +81,7 @@ namespace DOTS.Struct
                 var contained = false;
                 foreach (var state in _states)
                 {
-                    if (state.Equals(otherState))
+                    if (state.Fits(otherState))
                     {
                         contained = true;
                         break;
@@ -93,7 +93,7 @@ namespace DOTS.Struct
         }
 
         /// <summary>
-        /// 相同项则移除，不同项则无视
+        /// Fit项则移除，不同项则无视
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
@@ -104,7 +104,7 @@ namespace DOTS.Struct
                 for (var i = _states.Length - 1; i >= 0; i--)
                 {
                     var state = _states[i];
-                    if (state.Equals(otherState))
+                    if (state.Fits(otherState))
                     {
                         _states.RemoveAtSwapBack(i);
                     }

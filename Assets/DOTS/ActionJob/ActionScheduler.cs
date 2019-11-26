@@ -22,18 +22,14 @@ namespace DOTS.ActionJob
 
         public JobHandle Schedule(JobHandle inputDeps)
         {
-            var allActionJobHandles = new NativeArray<JobHandle>(1, Allocator.TempJob)
-            {
-                [0] = new DropRawActionJob(ref UnexpandedNodes, ref StackData,
-                    ref NodeGraph, ref NewlyExpandedNodes).Schedule(
-                    UnexpandedNodes, 0, inputDeps),
-            };
+            var dropRawHandle = new DropRawActionJob(ref UnexpandedNodes, ref StackData,
+                ref NodeGraph, ref NewlyExpandedNodes).Schedule(
+                UnexpandedNodes, 0, inputDeps);
+            var pickRawHandle = new PickRawActionJob(ref UnexpandedNodes, ref StackData,
+                ref NodeGraph, ref NewlyExpandedNodes).Schedule(
+                UnexpandedNodes, 0, dropRawHandle);
 
-            var combinedHandle = JobHandle.CombineDependencies(allActionJobHandles);
-            
-            allActionJobHandles.Dispose();
-
-            return combinedHandle;
+            return pickRawHandle;
         }
     }
 }

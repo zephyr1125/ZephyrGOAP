@@ -40,8 +40,8 @@ namespace DOTS.Test
         [Test]
         public void SameStates_NodesAreEqual()
         {
-            var node0 = new Node(ref _states0);
-            var node1 = new Node(ref _states1);
+            var node0 = new Node(ref _states0, "node0");
+            var node1 = new Node(ref _states1, "node1");
             
             Assert.AreEqual(node1, node0);
             Assert.IsTrue(node0.Equals(node1));
@@ -56,8 +56,8 @@ namespace DOTS.Test
                 Value = new NativeString64("test"),
             });
             
-            var node0 = new Node(ref _states0);
-            var node1 = new Node(ref _states1);
+            var node0 = new Node(ref _states0, "node0");
+            var node1 = new Node(ref _states1, "node1");
             
             Assert.AreNotEqual(node1, node0);
             Assert.IsFalse(node0.Equals(node1));

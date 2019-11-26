@@ -40,7 +40,7 @@ namespace DOTS.Test
                 Trait = typeof(RawTrait),
                 Value = new NativeString64("test"),
             }};
-            _goalNode = new Node(ref goalStates);
+            _goalNode = new Node(ref goalStates,"goal");
             
             _nodeGraph.SetGoalNode(_goalNode, ref goalStates);
             
@@ -73,7 +73,7 @@ namespace DOTS.Test
                 Trait = typeof(RawTrait),
                 Value = new NativeString64("test"),
             };
-            var node = new Node(ref state);
+            var node = new Node(ref state, "route");
 
             _nodeGraph.AddRouteNode(node, ref state, _goalNode,
                 new NativeString64("route"));
@@ -108,7 +108,7 @@ namespace DOTS.Test
                 Trait = typeof(GatherStationTrait),
                 Value = new NativeString64("test"),
             };
-            var node = new Node(ref state);
+            var node = new Node(ref state, "route");
 
             _nodeGraph.AddRouteNode(node, ref state, _goalNode,
                 new NativeString64("route"));
@@ -121,5 +121,7 @@ namespace DOTS.Test
             Assert.AreEqual(2, _unexpandedNodes.Length);
             Assert.AreEqual(node, _unexpandedNodes[1]);
         }
+        
+        //对于SubjectType为Closest的state，如果能找到适合的state，算作
     }
 }
