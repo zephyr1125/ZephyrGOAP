@@ -3,9 +3,14 @@ using DOTS.Component;
 using DOTS.Component.Actions;
 using DOTS.Debugger;
 using DOTS.Struct;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using Zephyr.DOTSAStar.Runtime.Component;
+using Zephyr.DOTSAStar.Runtime.Lib;
+using MinHeapNode = DOTS.Lib.MinHeapNode;
+using NativeMinHeap = DOTS.Lib.NativeMinHeap;
 
 namespace DOTS.System
 {
@@ -16,7 +21,14 @@ namespace DOTS.System
         /// <summary>
         /// 对goal展开的层数上限
         /// </summary>
-        public int Iterations = 10;
+        public int ExpandIterations = 10;
+
+        public int PathFindingIterations = 1000;
+
+        /// <summary>
+        /// 生成路径的步数上限
+        /// </summary>
+        public int PathNodeLimit = 1000;
         
         private EntityQuery _agentQuery, _currentStateQuery;
 
@@ -50,11 +62,8 @@ namespace DOTS.System
                 CurrentStates = new StateGroup(ref currentStateBuffer, Allocator.TempJob)
             };
             
-            for (var i = 0; i < agentEntities.Length; i++)
+            foreach (var agentEntity in agentEntities)
             {
-                var iteration = 0;
-
-                var agentEntity = agentEntities[i];
                 var goalStatesBuffer = EntityManager.GetBuffer<State>(agentEntity);
                 var goalStates = new StateGroup(ref goalStatesBuffer, Allocator.Temp);
 
@@ -66,14 +75,16 @@ namespace DOTS.System
 
                 var nodeGraph = new NodeGraph(1, Allocator.TempJob);
 
-                var goalNode = new Node(ref goalStates, "goal");
+                var goalNode = new Node(ref goalStates, "goal", 0);
                 //goalNode进入graph
                 nodeGraph.SetGoalNode(goalNode, ref goalStates);
 
                 //goalNode进入待检查列表
                 uncheckedNodes.Add(goalNode);
 
-                while (uncheckedNodes.Length > 0 && iteration < Iterations)
+                var iteration = 1;    //goal node iteration is 0
+                
+                while (uncheckedNodes.Length > 0 && iteration < ExpandIterations)
                 {
                     Debugger?.Log("Loop:");
                     //对待检查列表进行检查（与CurrentStates比对）
@@ -82,17 +93,37 @@ namespace DOTS.System
 
                     //对待展开列表进行展开，并挑选进入待检查和展开后列表
                     ExpandNodes(ref unexpandedNodes, ref stackData, ref nodeGraph,
-                        ref uncheckedNodes, ref expandedNodes);
+                        ref uncheckedNodes, ref expandedNodes, iteration);
+
                     //直至待展开列表为空或Early Exit
                     iteration++;
                 }
 
                 Debugger?.SetNodeGraph(ref nodeGraph);
+                
+                //寻路
+                //todo 此处每一个agent跑一次,寻路Job没有并行
+                //应该把各个agent的nodeGraph存一起，然后一起并行跑
+//                var pathResult = new NativeList<Node>(Allocator.TempJob);
+//                var pathFindingJob = new PathFindingJob
+//                {
+//                    StartNodeId = nodeGraph.GetStartNode().GetHashCode(),
+//                    GoalNodeId = nodeGraph.GetGoalNode().GetHashCode(),
+//                    IterationLimit = PathFindingIterations,
+//                    NodeGraph = nodeGraph,
+//                    PathNodeLimit = PathNodeLimit,
+//                    Result = pathResult
+//                };
+//                var handle = pathFindingJob.Schedule();
+//                handle.Complete();
+//                
+//                Debugger?.Log(pathResult.ToString());
 
                 uncheckedNodes.Dispose();
                 unexpandedNodes.Dispose();
                 expandedNodes.Dispose();
                 nodeGraph.Dispose();
+//                pathResult.Dispose();
             }
 
             agentEntities.Dispose();
@@ -137,11 +168,12 @@ namespace DOTS.System
         }
 
         public void ExpandNodes(ref NativeList<Node> unexpandedNodes, ref StackData stackData,
-            ref NodeGraph nodeGraph, ref NativeList<Node> uncheckedNodes, ref NativeList<Node> expandedNodes)
+            ref NodeGraph nodeGraph, ref NativeList<Node> uncheckedNodes, ref NativeList<Node> expandedNodes,
+            int iteration)
         {
             foreach (var node in unexpandedNodes)
             {
-                Debugger?.Log("expanding node: "+node.Name);
+                Debugger?.Log("expanding node: "+node.Name+", "+node.GetHashCode());
             }
             var newlyExpandedNodes = new NativeList<Node>(Allocator.TempJob);
             var actionScheduler = new ActionScheduler
@@ -149,20 +181,132 @@ namespace DOTS.System
                 UnexpandedNodes = unexpandedNodes,
                 StackData = stackData,
                 NodeGraph = nodeGraph,
-                NewlyExpandedNodes = newlyExpandedNodes
+                NewlyExpandedNodes = newlyExpandedNodes,
+                Iteration = iteration
             };
             var handle = actionScheduler.Schedule(default);
             handle.Complete();
             
             foreach (var node in newlyExpandedNodes)
             {
-                Debugger?.Log("create new node: "+node.Name);
+                Debugger?.Log("create new node: "+node.Name+", "+node.GetHashCode());
             }
             
             expandedNodes.AddRange(unexpandedNodes);
             unexpandedNodes.Clear();
             uncheckedNodes.AddRange(newlyExpandedNodes);
             newlyExpandedNodes.Dispose();
+        }
+        
+        [BurstCompile]
+        public struct PathFindingJob : IJob
+        {
+            public int StartNodeId, GoalNodeId;
+            
+            [ReadOnly]
+            public NodeGraph NodeGraph;
+
+            public int IterationLimit;
+
+            public int PathNodeLimit;
+
+            private int _iterations, _pathNodeCount;
+
+            [NativeDisableParallelForRestriction]
+            public NativeList<Node> Result;
+            
+            public void Execute()
+            {
+                _iterations = 0;
+                _pathNodeCount = 0;
+
+                var graphSize = NodeGraph.Length();
+                
+                //Generate Working Containers
+                var openSet = new NativeMinHeap(graphSize, Allocator.Temp);
+                var cameFrom = new NativeArray<int>(graphSize, Allocator.Temp);
+                var costCount = new NativeArray<int>(graphSize, Allocator.Temp);
+                for (var i = 0; i < graphSize; i++)
+                {
+                    costCount[i] = int.MaxValue;
+                }
+                
+                // Path finding
+                var startId = StartNodeId;
+                var goalId = GoalNodeId;
+                
+                openSet.Push(new MinHeapNode(startId, 0));
+                costCount[startId] = 0;
+
+                var currentId = -1;
+                while (_iterations<IterationLimit && openSet.HasNext())
+                {
+                    var currentNode = openSet[openSet.Pop()];
+                    currentId = currentNode.Id;
+                    if (currentId == goalId)
+                    {
+                        break;
+                    }
+                    
+                    var neighboursId = new NativeList<int>(4, Allocator.Temp);
+                    NodeGraph[currentId].GetNeighbours(ref NodeGraph, ref neighboursId);
+
+                    foreach (var neighbourId in neighboursId)
+                    {
+                        //if cost == -1 means obstacle, skip
+                        if (NodeGraph[neighbourId].GetCost(ref NodeGraph) == -1) continue;
+
+                        var currentCost = costCount[currentId] == int.MaxValue
+                            ? 0
+                            : costCount[currentId];
+                        var newCost = currentCost + NodeGraph[neighbourId].GetCost(ref NodeGraph);
+                        //not better, skip
+                        if (costCount[neighbourId] <= newCost) continue;
+                        
+                        var priority = newCost + NodeGraph[neighbourId].Heuristic(ref NodeGraph);
+                        openSet.Push(new MinHeapNode(neighbourId, priority));
+                        cameFrom[neighbourId] = currentId;
+                        costCount[neighbourId] = newCost;
+                    }
+
+                    _iterations++;
+                    neighboursId.Dispose();
+                }
+                
+                //Construct path
+                var nodeId = goalId;
+                while (_pathNodeCount < PathNodeLimit && !nodeId.Equals(startId))
+                {
+                    Result.Add(NodeGraph[nodeId]);
+                    nodeId = cameFrom[nodeId];
+                    _pathNodeCount++;
+                }
+                
+                //Log Result
+                var success = true;
+                var log = new NativeString64("Path finding success");
+                if (!openSet.HasNext() && currentId != goalId)
+                {
+                    success = false;
+                    log = new NativeString64("Out of openset");
+                }
+                if (_iterations >= IterationLimit && currentId != goalId)
+                {
+                    success = false;
+                    log = new NativeString64("Iteration limit reached");
+                }else if (_pathNodeCount >= PathNodeLimit && !nodeId.Equals(startId))
+                {
+                    success = false;
+                    log = new NativeString64("Step limit reached");
+                }
+                
+                //Clear
+                openSet.Dispose();
+                cameFrom.Dispose();
+                costCount.Dispose();
+                NodeGraph.Dispose();
+            }
+            
         }
     }
 }

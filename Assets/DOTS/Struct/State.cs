@@ -6,21 +6,16 @@ namespace DOTS.Struct
     public struct State : IBufferElementData, IEquatable<State>
     {
         public StateSubjectType SubjectType;
+        public Entity Target;
         public ComponentType Trait;
         public NativeString64 Value;
         public bool IsPositive;
-        
-        public Entity Target;
-
-        public override int GetHashCode()
-        {
-            return Target.GetHashCode() + SubjectType.GetHashCode() + Trait.GetHashCode() +
-                   Value.GetHashCode() + IsPositive.GetHashCode();
-        }
 
         public bool Equals(State other)
         {
-            return GetHashCode() == other.GetHashCode();
+            return SubjectType.Equals(other.SubjectType) && Trait.Equals(other.Trait) &&
+                   Value.Equals(other.Value) && IsPositive.Equals(other.IsPositive) &&
+                   Target.Equals(other.Target);
         }
 
         /// <summary>
@@ -47,9 +42,15 @@ namespace DOTS.Struct
             return false;
         }
 
-        public override bool Equals(object obj)
+        public override int GetHashCode()
         {
-            return obj is State other && Equals(other);
+            int hash = 17;
+            hash = hash * 31 + SubjectType.GetHashCode();
+            hash = hash * 31 + Target.GetHashCode();
+            hash = hash * 31 + Trait.GetHashCode();
+            hash = hash * 31 + Value.GetHashCode();
+            hash = hash * 31 + IsPositive.GetHashCode();
+            return hash;
         }
     }
 }

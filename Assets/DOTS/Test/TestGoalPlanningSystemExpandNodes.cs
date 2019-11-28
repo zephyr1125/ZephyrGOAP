@@ -44,7 +44,7 @@ namespace DOTS.Test
                 Value = new NativeString64("test"),
                 IsPositive = true
             }};
-            _goalNode = new Node(ref goalStates, "goal");
+            _goalNode = new Node(ref goalStates, "goal", 0);
             
             _nodeGraph.SetGoalNode(_goalNode, ref goalStates);
             
@@ -81,7 +81,7 @@ namespace DOTS.Test
         public void NewNodeIntoUnCheckedList()
         {
             _system.ExpandNodes(ref _unexpandedNodes, ref _stackData, ref _nodeGraph,
-                ref _uncheckedNodes, ref _expandedNodes);
+                ref _uncheckedNodes, ref _expandedNodes, 1);
             
             Assert.AreEqual(2, _nodeGraph.Length());
             Assert.AreEqual(1, _uncheckedNodes.Length);
@@ -104,7 +104,7 @@ namespace DOTS.Test
         public void OldNodeIntoExpandedList()
         {
             _system.ExpandNodes(ref _unexpandedNodes, ref _stackData, ref _nodeGraph,
-                ref _uncheckedNodes, ref _expandedNodes);
+                ref _uncheckedNodes, ref _expandedNodes, 1);
             
             Assert.AreEqual(2, _nodeGraph.Length());
             Assert.AreEqual(1, _expandedNodes.Length);
@@ -129,7 +129,7 @@ namespace DOTS.Test
         public void ClearUnExpandedList()
         {
             _system.ExpandNodes(ref _unexpandedNodes, ref _stackData, ref _nodeGraph,
-                ref _uncheckedNodes, ref _expandedNodes);
+                ref _uncheckedNodes, ref _expandedNodes, 1);
             
             Assert.AreEqual(0, _unexpandedNodes.Length);
         }

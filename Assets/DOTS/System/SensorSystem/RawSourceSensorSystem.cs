@@ -39,6 +39,7 @@ namespace DOTS.System.SensorSystem
                     var buffer = ECBuffer.SetBuffer<State>(jobIndex, CurrentStatesEntity);
                     buffer.Add(new State
                     {
+                        SubjectType = StateSubjectType.Target,
                         Target = entity,
                         Trait = typeof(RawTrait),
                         IsPositive = true,

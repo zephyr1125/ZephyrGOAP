@@ -20,13 +20,15 @@ namespace DOTS.ActionJob
 
         public NativeList<Node> NewlyExpandedNodes;
 
+        public int Iteration;
+
         public JobHandle Schedule(JobHandle inputDeps)
         {
             var dropRawHandle = new DropRawActionJob(ref UnexpandedNodes, ref StackData,
-                ref NodeGraph, ref NewlyExpandedNodes).Schedule(
+                ref NodeGraph, ref NewlyExpandedNodes, Iteration).Schedule(
                 UnexpandedNodes, 0, inputDeps);
             var pickRawHandle = new PickRawActionJob(ref UnexpandedNodes, ref StackData,
-                ref NodeGraph, ref NewlyExpandedNodes).Schedule(
+                ref NodeGraph, ref NewlyExpandedNodes, Iteration).Schedule(
                 UnexpandedNodes, 0, dropRawHandle);
 
             return pickRawHandle;

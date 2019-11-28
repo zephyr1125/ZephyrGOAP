@@ -23,7 +23,7 @@ namespace DOTS.Test
                 Trait = typeof(RawTrait),
                 Value = new NativeString64("test"),
             }};
-            _goalNode = new Node(ref goalStates, "goal");
+            _goalNode = new Node(ref goalStates, "goal", 0);
             
             _nodeGraph = new NodeGraph(1, Allocator.Persistent);
             _nodeGraph.SetGoalNode(_goalNode, ref goalStates);
@@ -53,7 +53,7 @@ namespace DOTS.Test
                 Trait = typeof(RawTrait),
                 Value = new NativeString64("test"),
             };
-            var node = new Node(ref state, "next");
+            var node = new Node(ref state, "next", 1);
             _nodeGraph.AddRouteNode(node, ref state, _goalNode,
                 new NativeString64("next"));
             

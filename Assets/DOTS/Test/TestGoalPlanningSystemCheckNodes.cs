@@ -40,7 +40,7 @@ namespace DOTS.Test
                 Trait = typeof(RawTrait),
                 Value = new NativeString64("test"),
             }};
-            _goalNode = new Node(ref goalStates,"goal");
+            _goalNode = new Node(ref goalStates,"goal", 0);
             
             _nodeGraph.SetGoalNode(_goalNode, ref goalStates);
             
@@ -73,7 +73,7 @@ namespace DOTS.Test
                 Trait = typeof(RawTrait),
                 Value = new NativeString64("test"),
             };
-            var node = new Node(ref state, "route");
+            var node = new Node(ref state, "route", 1);
 
             _nodeGraph.AddRouteNode(node, ref state, _goalNode,
                 new NativeString64("route"));
@@ -108,7 +108,7 @@ namespace DOTS.Test
                 Trait = typeof(GatherStationTrait),
                 Value = new NativeString64("test"),
             };
-            var node = new Node(ref state, "route");
+            var node = new Node(ref state, "route", 1);
 
             _nodeGraph.AddRouteNode(node, ref state, _goalNode,
                 new NativeString64("route"));

@@ -12,7 +12,7 @@ namespace DOTS.Struct
         [NativeDisableParallelForRestriction]
         private NativeMultiHashMap<Node, Edge> _nodeToParent;
         [NativeDisableParallelForRestriction]
-        private NativeMultiHashMap<Node, State> _nodeStates;
+        public NativeMultiHashMap<Node, State> _nodeStates;
 
         private Node _goalNode;
 
@@ -118,13 +118,32 @@ namespace DOTS.Struct
             return existed;
         }
 
+        public Node this[int hashCode]
+        {
+            get
+            {
+                var resultNode = default(Node);
+                var keys = _nodeStates.GetKeyArray(Allocator.Temp);
+                foreach (var node in keys)
+                {
+                    if (node.GetHashCode() == hashCode)
+                    {
+                        resultNode = node;
+                        break;
+                    }
+                }
+                
+                keys.Dispose();
+                return resultNode;
+            }
+        }
+
         /// <summary>
         /// 询问node的数量
         /// </summary>
         /// <returns></returns>
         public int Length()
         {
-            //todo 存疑
             return _nodeToParent.Length + 1;
         }
 

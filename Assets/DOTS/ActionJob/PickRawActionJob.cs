@@ -11,39 +11,42 @@ namespace DOTS.ActionJob
     public struct PickRawActionJob : IJobParallelForDefer
     {
         [ReadOnly]
-        public NativeList<Node> UnexpandedNodes;
+        private NativeList<Node> _unexpandedNodes;
 
         [ReadOnly]
-        public StackData StackData;
-        
-        public NodeGraph NodeGraph;
+        private StackData _stackData;
+
+        private NodeGraph _nodeGraph;
 
         [NativeDisableParallelForRestriction]
-        public NativeList<Node> NewlyExpandedNodes;
+        private NativeList<Node> _newlyExpandedNodes;
+
+        private readonly int _iteration;
 
         public PickRawActionJob(ref NativeList<Node> unexpandedNodes, ref StackData stackData,
-            ref NodeGraph nodeGraph, ref NativeList<Node> newlyExpandedNodes)
+            ref NodeGraph nodeGraph, ref NativeList<Node> newlyExpandedNodes, int iteration)
         {
-            UnexpandedNodes = unexpandedNodes;
-            StackData = stackData;
-            NodeGraph = nodeGraph;
-            NewlyExpandedNodes = newlyExpandedNodes;
+            _unexpandedNodes = unexpandedNodes;
+            _stackData = stackData;
+            _nodeGraph = nodeGraph;
+            _newlyExpandedNodes = newlyExpandedNodes;
+            _iteration = iteration;
         }
 
         public void Execute(int jobIndex)
         {
-            var unexpandedNode = UnexpandedNodes[jobIndex];
-            var targetStates = NodeGraph.GetStateGroup(unexpandedNode, Allocator.Temp);
+            var unexpandedNode = _unexpandedNodes[jobIndex];
+            var targetStates = _nodeGraph.GetStateGroup(unexpandedNode, Allocator.Temp);
             
             var preconditions = new StateGroup(1, Allocator.Temp);
             var effects = new StateGroup(1, Allocator.Temp);
 
-            var targetState = GetTargetGoalState(ref targetStates, ref StackData);
+            var targetState = GetTargetGoalState(ref targetStates, ref _stackData);
             
             if (!targetState.Equals(default))
             {
-                GetPreconditions(ref targetState, ref StackData, ref preconditions);
-                GetEffects(ref targetState, ref StackData, ref effects);
+                GetPreconditions(ref targetState, ref _stackData, ref preconditions);
+                GetEffects(ref targetState, ref _stackData, ref effects);
 
                 if (effects.Length() == 0) return;
             
@@ -51,12 +54,12 @@ namespace DOTS.ActionJob
                 newStates.Sub(effects);
                 newStates.Merge(preconditions);
             
-                var node = new Node(ref newStates, "PickRaw");
+                var node = new Node(ref newStates, "PickRaw", _iteration);
             
                 //NodeGraph的几个容器都移去了并行限制，小心出错
-                NodeGraph.AddRouteNode(node, ref newStates, unexpandedNode,
+                _nodeGraph.AddRouteNode(node, ref newStates, unexpandedNode,
                     new NativeString64("PickRaw"));
-                NewlyExpandedNodes.Add(node);
+                _newlyExpandedNodes.Add(node);
             
                 newStates.Dispose();
             }
