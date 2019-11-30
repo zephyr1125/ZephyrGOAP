@@ -171,5 +171,15 @@ namespace DOTS.Test
             
             startNodeStates.Dispose();
         }
+
+        [Test]
+        public void GetPath()
+        {
+            _system.Update();
+            EntityManager.CompleteAllJobs();
+
+            var pathResult = _debugger.PathResult;
+            Debug.Log(pathResult);
+        }
     }
 }

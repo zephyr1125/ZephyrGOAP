@@ -104,26 +104,26 @@ namespace DOTS.System
                 //寻路
                 //todo 此处每一个agent跑一次,寻路Job没有并行
                 //应该把各个agent的nodeGraph存一起，然后一起并行跑
-//                var pathResult = new NativeList<Node>(Allocator.TempJob);
-//                var pathFindingJob = new PathFindingJob
-//                {
-//                    StartNodeId = nodeGraph.GetStartNode().GetHashCode(),
-//                    GoalNodeId = nodeGraph.GetGoalNode().GetHashCode(),
-//                    IterationLimit = PathFindingIterations,
-//                    NodeGraph = nodeGraph,
-//                    PathNodeLimit = PathNodeLimit,
-//                    Result = pathResult
-//                };
-//                var handle = pathFindingJob.Schedule();
-//                handle.Complete();
-//                
-//                Debugger?.Log(pathResult.ToString());
+                var pathResult = new NativeList<Node>(Allocator.TempJob);
+                var pathFindingJob = new PathFindingJob
+                {
+                    StartNodeId = nodeGraph.GetStartNode().GetHashCode(),
+                    GoalNodeId = nodeGraph.GetGoalNode().GetHashCode(),
+                    IterationLimit = PathFindingIterations,
+                    NodeGraph = nodeGraph,
+                    PathNodeLimit = PathNodeLimit,
+                    Result = pathResult
+                };
+                var handle = pathFindingJob.Schedule();
+                handle.Complete();
+                
+                Debugger?.SetPathResult(ref pathResult);
 
                 uncheckedNodes.Dispose();
                 unexpandedNodes.Dispose();
                 expandedNodes.Dispose();
                 nodeGraph.Dispose();
-//                pathResult.Dispose();
+                pathResult.Dispose();
             }
 
             agentEntities.Dispose();
@@ -224,13 +224,9 @@ namespace DOTS.System
                 
                 //Generate Working Containers
                 var openSet = new NativeMinHeap(graphSize, Allocator.Temp);
-                var cameFrom = new NativeArray<int>(graphSize, Allocator.Temp);
-                var costCount = new NativeArray<int>(graphSize, Allocator.Temp);
-                for (var i = 0; i < graphSize; i++)
-                {
-                    costCount[i] = int.MaxValue;
-                }
-                
+                var cameFrom = new NativeHashMap<int, int>(graphSize, Allocator.Temp);
+                var costCount = new NativeHashMap<int, int>(graphSize, Allocator.Temp);
+
                 // Path finding
                 var startId = StartNodeId;
                 var goalId = GoalNodeId;
@@ -261,7 +257,7 @@ namespace DOTS.System
                             : costCount[currentId];
                         var newCost = currentCost + NodeGraph[neighbourId].GetCost(ref NodeGraph);
                         //not better, skip
-                        if (costCount[neighbourId] <= newCost) continue;
+                        if (costCount.ContainsKey(neighbourId) && costCount[neighbourId] <= newCost) continue;
                         
                         var priority = newCost + NodeGraph[neighbourId].Heuristic(ref NodeGraph);
                         openSet.Push(new MinHeapNode(neighbourId, priority));
@@ -304,7 +300,6 @@ namespace DOTS.System
                 openSet.Dispose();
                 cameFrom.Dispose();
                 costCount.Dispose();
-                NodeGraph.Dispose();
             }
             
         }
