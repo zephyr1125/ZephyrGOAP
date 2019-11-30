@@ -118,6 +118,8 @@ namespace DOTS.System
                 handle.Complete();
                 
                 Debugger?.SetPathResult(ref pathResult);
+                
+                //保存结果
 
                 uncheckedNodes.Dispose();
                 unexpandedNodes.Dispose();

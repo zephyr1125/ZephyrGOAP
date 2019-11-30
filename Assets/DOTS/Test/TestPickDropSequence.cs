@@ -1,3 +1,4 @@
+using DOTS.ActionJob;
 using DOTS.Component;
 using DOTS.Component.Actions;
 using DOTS.Component.Trait;
@@ -48,8 +49,8 @@ namespace DOTS.Test
             EntityManager.AddComponentData(_rawSourceEntity, new RawTrait());
             EntityManager.AddComponentData(_agentEntity, new Agent());
             var actionBuffer = EntityManager.AddBuffer<Action>(_agentEntity);
-            actionBuffer.Add(new Action {ActionName = new NativeString64("PickRaw")});
-            actionBuffer.Add(new Action {ActionName = new NativeString64("DropRaw")});
+            actionBuffer.Add(new Action {ActionName = new NativeString64(nameof(PickRawActionJob))});
+            actionBuffer.Add(new Action {ActionName = new NativeString64(nameof(DropRawActionJob))});
             EntityManager.AddComponentData(_agentEntity, new PlanningGoal());
             var stateBuffer = EntityManager.AddBuffer<State>(_agentEntity);
             _goalState = new State
@@ -127,7 +128,7 @@ namespace DOTS.Test
             {
                 edgesCount++;
                 var edge = edges.Current;
-                Assert.AreEqual(new NativeString64("PickRaw"),
+                Assert.AreEqual(new NativeString64(nameof(PickRawActionJob)),
                     edge.ActionName);
                 dropNode = edge.Parent;
                 var parentStates = nodeGraph.GetStateGroup(dropNode, Allocator.Temp);
@@ -152,7 +153,7 @@ namespace DOTS.Test
             {
                 edgesCount++;
                 var edge = edges.Current;
-                Assert.AreEqual(new NativeString64("DropRaw"),
+                Assert.AreEqual(new NativeString64(nameof(DropRawActionJob)),
                     edge.ActionName);
                 goalNode = edge.Parent;
                 var parentStates = nodeGraph.GetStateGroup(goalNode, Allocator.Temp);
