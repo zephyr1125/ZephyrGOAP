@@ -12,7 +12,11 @@ namespace DOTS.Struct
         [NativeDisableParallelForRestriction]
         private NativeMultiHashMap<Node, Edge> _nodeToParent;
         [NativeDisableParallelForRestriction]
-        public NativeMultiHashMap<Node, State> _nodeStates;
+        private NativeMultiHashMap<Node, State> _nodeStates;
+        [NativeDisableParallelForRestriction]
+        private NativeMultiHashMap<Node, State> _preconditions;
+        [NativeDisableParallelForRestriction]
+        private NativeMultiHashMap<Node, State> _effects;
 
         private Node _goalNode;
 
@@ -25,6 +29,8 @@ namespace DOTS.Struct
         {
             _nodeToParent = new NativeMultiHashMap<Node, Edge>(initialCapacity, allocator);
             _nodeStates = new NativeMultiHashMap<Node, State>(initialCapacity, allocator);
+            _preconditions = new NativeMultiHashMap<Node, State>(initialCapacity, allocator);
+            _effects = new NativeMultiHashMap<Node, State>(initialCapacity, allocator);
             _goalNode = default;
             _startNode = new Node(){Name = new NativeString64("start")};
         }
@@ -57,6 +63,28 @@ namespace DOTS.Struct
                 }
             }
             nodeStatesKeys.Dispose();
+            
+            var preconditionKeys = _preconditions.GetKeyArray(Allocator.Temp);
+            foreach (var key in preconditionKeys)
+            {
+                var values = _preconditions.GetValuesForKey(key);
+                while (values.MoveNext())
+                {
+                    newGraph._preconditions.Add(key, values.Current);
+                }
+            }
+            preconditionKeys.Dispose();
+            
+            var effectKeys = _effects.GetKeyArray(Allocator.Temp);
+            foreach (var key in nodeStatesKeys)
+            {
+                var values = _effects.GetValuesForKey(key);
+                while (values.MoveNext())
+                {
+                    newGraph._effects.Add(key, values.Current);
+                }
+            }
+            effectKeys.Dispose();
 
             return newGraph;
         }
@@ -84,12 +112,14 @@ namespace DOTS.Struct
         /// 
         /// </summary>
         /// <param name="node"></param>
-        /// <param name="stateGroup"></param>
+        /// <param name="nodeStates"></param>
+        /// <param name="preconditions"></param>
+        /// <param name="effects"></param>
         /// <param name="parent"></param>
         /// <param name="actionName"></param>
         /// <returns>此node已存在</returns>
-        public bool AddRouteNode(Node node, ref StateGroup stateGroup, Node parent,
-            NativeString64 actionName)
+        public bool AddRouteNode(Node node, ref StateGroup nodeStates, ref StateGroup preconditions,
+            ref StateGroup effects, Node parent, NativeString64 actionName)
         {
             node.Name = actionName;
             //第一个route必须连到goal
@@ -102,18 +132,36 @@ namespace DOTS.Struct
             var existed = _nodeToParent.ContainsKey(node);
             _nodeToParent.Add(node, new Edge(parent, node, actionName));
             if(!existed){
-                foreach (var state in stateGroup)
+                foreach (var state in nodeStates)
                 {
                     _nodeStates.Add(node, state);
+                }
+                
+                if(!preconditions.Equals(default(StateGroup)))
+                {
+                    foreach (var state in preconditions)
+                    {
+                        _preconditions.Add(node, state);
+                    }
+                }
+
+                if (!effects.Equals(default(StateGroup)))
+                {
+                    foreach (var state in effects)
+                    {
+                        _effects.Add(node, state);
+                    }
                 }
             }
             return existed;
         }
         
-        public bool AddRouteNode(Node node, ref State state, Node parent, NativeString64 actionName)
+        public bool AddRouteNode(Node node, ref State nodeState, ref StateGroup preconditions,
+            ref StateGroup effects, Node parent, NativeString64 actionName)
         {
-            var stateGroup = new StateGroup(1, Allocator.Temp) {state};
-            var existed = AddRouteNode(node, ref stateGroup, parent, actionName);
+            var stateGroup = new StateGroup(1, Allocator.Temp) {nodeState};
+            var existed = AddRouteNode(node, ref stateGroup, ref preconditions,
+                ref effects, parent, actionName);
             stateGroup.Dispose();
             return existed;
         }

@@ -54,7 +54,9 @@ namespace DOTS.Test
                 Value = new NativeString64("test"),
             };
             var node = new Node(ref state, "next", 1);
-            _nodeGraph.AddRouteNode(node, ref state, _goalNode,
+            var preconditions = new StateGroup();
+            var effects = new StateGroup();
+            _nodeGraph.AddRouteNode(node, ref state, ref preconditions, ref effects, _goalNode,
                 new NativeString64("next"));
             
             Assert.AreEqual(2, _nodeGraph.Length());

@@ -75,7 +75,9 @@ namespace DOTS.Test
             };
             var node = new Node(ref state, "route", 1);
 
-            _nodeGraph.AddRouteNode(node, ref state, _goalNode,
+            var preconditions = new StateGroup();
+            var effects = new StateGroup();
+            _nodeGraph.AddRouteNode(node, ref state, ref preconditions, ref effects, _goalNode,
                 new NativeString64("route"));
             _uncheckedNodes.Add(node);
 
@@ -110,7 +112,9 @@ namespace DOTS.Test
             };
             var node = new Node(ref state, "route", 1);
 
-            _nodeGraph.AddRouteNode(node, ref state, _goalNode,
+            var preconditions = new StateGroup();
+            var effects = new StateGroup();
+            _nodeGraph.AddRouteNode(node, ref state, ref preconditions, ref effects, _goalNode,
                 new NativeString64("route"));
             _uncheckedNodes.Add(node);
 

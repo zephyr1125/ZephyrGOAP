@@ -78,8 +78,8 @@ namespace DOTS.ActionJob
                 var node = new Node(ref newStates, nameof(DropRawActionJob), _iteration);
             
                 //NodeGraph的几个容器都移去了并行限制，小心出错
-                _nodeGraph.AddRouteNode(node, ref newStates, unexpandedNode,
-                    new NativeString64(nameof(DropRawActionJob)));
+                _nodeGraph.AddRouteNode(node, ref newStates, ref preconditions, ref effects,
+                    unexpandedNode, new NativeString64(nameof(DropRawActionJob)));
                 NewlyExpandedNodes.Add(node);
                 
                 newStates.Dispose();
