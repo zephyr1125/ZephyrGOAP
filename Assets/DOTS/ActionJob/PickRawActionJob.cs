@@ -1,3 +1,4 @@
+using DOTS.Component.Actions;
 using DOTS.Component.Trait;
 using DOTS.Struct;
 using Unity.Burst;
@@ -23,18 +24,34 @@ namespace DOTS.ActionJob
 
         private readonly int _iteration;
 
+        [ReadOnly]
+        private DynamicBuffer<Action> _agentActions; 
+
         public PickRawActionJob(ref NativeList<Node> unexpandedNodes, ref StackData stackData,
-            ref NodeGraph nodeGraph, ref NativeList<Node> newlyExpandedNodes, int iteration)
+            ref NodeGraph nodeGraph, ref NativeList<Node> newlyExpandedNodes, int iteration, ref DynamicBuffer<Action> agentActions)
         {
             _unexpandedNodes = unexpandedNodes;
             _stackData = stackData;
             _nodeGraph = nodeGraph;
             _newlyExpandedNodes = newlyExpandedNodes;
             _iteration = iteration;
+            _agentActions = agentActions;
         }
 
         public void Execute(int jobIndex)
         {
+            //没有本action的agent不运行
+            var hasAction = false;
+            foreach (var agentAction in _agentActions)
+            {
+                if (agentAction.ActionName.Equals(new NativeString64(nameof(PickRawActionJob))))
+                {
+                    hasAction = true;
+                    break;
+                }
+            }
+            if (!hasAction) return;
+            
             var unexpandedNode = _unexpandedNodes[jobIndex];
             var targetStates = _nodeGraph.GetStateGroup(unexpandedNode, Allocator.Temp);
             

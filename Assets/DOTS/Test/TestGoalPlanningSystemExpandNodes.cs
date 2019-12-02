@@ -1,3 +1,5 @@
+using DOTS.ActionJob;
+using DOTS.Component.Actions;
 using DOTS.Component.Trait;
 using DOTS.Struct;
 using DOTS.System;
@@ -21,6 +23,8 @@ namespace DOTS.Test
         private Node _goalNode;
         private StackData _stackData;
 
+        private DynamicBuffer<Action> _agentActionsBuffer;
+
         [SetUp]
         public override void SetUp()
         {
@@ -28,6 +32,10 @@ namespace DOTS.Test
             _agentEntity = EntityManager.CreateEntity();
             _targetEntity = EntityManager.CreateEntity();
             _system = World.GetOrCreateSystem<GoalPlanningSystem>();
+
+            _agentActionsBuffer = EntityManager.AddBuffer<Action>(_agentEntity);
+            _agentActionsBuffer.Add(
+                new Action {ActionName = new NativeString64(nameof(DropRawActionJob))});
             
             _uncheckedNodes = new NativeList<Node>(Allocator.Persistent);
             _unexpandedNodes = new NativeList<Node>(Allocator.Persistent);
@@ -81,7 +89,7 @@ namespace DOTS.Test
         public void NewNodeIntoUnCheckedList()
         {
             _system.ExpandNodes(ref _unexpandedNodes, ref _stackData, ref _nodeGraph,
-                ref _uncheckedNodes, ref _expandedNodes, 1);
+                ref _uncheckedNodes, ref _expandedNodes, 1, ref _agentActionsBuffer);
             
             Assert.AreEqual(2, _nodeGraph.Length());
             Assert.AreEqual(1, _uncheckedNodes.Length);
@@ -104,7 +112,7 @@ namespace DOTS.Test
         public void OldNodeIntoExpandedList()
         {
             _system.ExpandNodes(ref _unexpandedNodes, ref _stackData, ref _nodeGraph,
-                ref _uncheckedNodes, ref _expandedNodes, 1);
+                ref _uncheckedNodes, ref _expandedNodes, 1, ref _agentActionsBuffer);
             
             Assert.AreEqual(2, _nodeGraph.Length());
             Assert.AreEqual(1, _expandedNodes.Length);
@@ -124,14 +132,39 @@ namespace DOTS.Test
         }
         
         //未展开列表清空
-        
         [Test]
         public void ClearUnExpandedList()
         {
             _system.ExpandNodes(ref _unexpandedNodes, ref _stackData, ref _nodeGraph,
-                ref _uncheckedNodes, ref _expandedNodes, 1);
+                ref _uncheckedNodes, ref _expandedNodes, 1, ref _agentActionsBuffer);
             
             Assert.AreEqual(0, _unexpandedNodes.Length);
+        }
+        
+        //不具备合适action的agent不进行expand
+        [Test]
+        public void NoSuitAction_NoExpand()
+        {
+            _agentActionsBuffer.Clear();
+            _system.ExpandNodes(ref _unexpandedNodes, ref _stackData, ref _nodeGraph,
+                ref _uncheckedNodes, ref _expandedNodes, 1, ref _agentActionsBuffer);
+            
+            Assert.AreEqual(1, _nodeGraph.Length());
+            Assert.AreEqual(1, _expandedNodes.Length);
+            Assert.AreEqual(0, _unexpandedNodes.Length);
+            Assert.AreEqual(0, _uncheckedNodes.Length);
+            var states = _nodeGraph.GetStateGroup(_expandedNodes[0], Allocator.Temp);
+            Assert.AreEqual(1, states.Length());
+            Assert.AreEqual(new State
+            {
+                SubjectType = StateSubjectType.Target,
+                Target = _targetEntity,
+                Trait = typeof(RawTrait),
+                Value = new NativeString64("test"),
+                IsPositive = true
+            }, states[0]);
+            
+            states.Dispose();
         }
     }
 }

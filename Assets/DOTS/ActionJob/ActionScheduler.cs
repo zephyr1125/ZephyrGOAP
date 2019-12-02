@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DOTS.Component.Actions;
 using DOTS.Struct;
 using Unity.Collections;
 using Unity.Entities;
@@ -22,13 +23,15 @@ namespace DOTS.ActionJob
 
         public int Iteration;
 
+        public DynamicBuffer<Action> AgentActions;
+
         public JobHandle Schedule(JobHandle inputDeps)
         {
             var dropRawHandle = new DropRawActionJob(ref UnexpandedNodes, ref StackData,
-                ref NodeGraph, ref NewlyExpandedNodes, Iteration).Schedule(
+                ref NodeGraph, ref NewlyExpandedNodes, Iteration, ref AgentActions).Schedule(
                 UnexpandedNodes, 0, inputDeps);
             var pickRawHandle = new PickRawActionJob(ref UnexpandedNodes, ref StackData,
-                ref NodeGraph, ref NewlyExpandedNodes, Iteration).Schedule(
+                ref NodeGraph, ref NewlyExpandedNodes, Iteration, ref AgentActions).Schedule(
                 UnexpandedNodes, 0, dropRawHandle);
 
             return pickRawHandle;
