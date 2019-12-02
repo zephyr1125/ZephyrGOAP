@@ -122,6 +122,11 @@ namespace DOTS.System
                 Debugger?.SetPathResult(ref pathResult);
                 
                 //保存结果
+                var nodeBuffer = EntityManager.AddBuffer<Node>(agentEntity);
+                foreach (var node in pathResult)
+                {
+                    nodeBuffer.Add(node);
+                }
 
                 uncheckedNodes.Dispose();
                 unexpandedNodes.Dispose();

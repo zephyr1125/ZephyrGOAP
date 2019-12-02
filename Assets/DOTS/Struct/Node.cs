@@ -6,7 +6,7 @@ using Action = DOTS.Component.Actions.Action;
 
 namespace DOTS.Struct
 {
-    public struct Node : IEquatable<Node>, IPathFindingNode
+    public struct Node : IEquatable<Node>, IPathFindingNode, IBufferElementData
     {
         public NativeString64 Name;
         

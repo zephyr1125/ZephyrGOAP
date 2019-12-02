@@ -182,5 +182,15 @@ namespace DOTS.Test
             var pathResult = _debugger.PathResult;
             Debug.Log(pathResult);
         }
+        
+        [Test]
+        public void SavePath()
+        {
+            _system.Update();
+            EntityManager.CompleteAllJobs();
+
+            var buffer = EntityManager.GetBuffer<Node>(_agentEntity);
+            Assert.AreEqual(3, buffer.Length);
+        }
     }
 }
