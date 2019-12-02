@@ -192,5 +192,20 @@ namespace DOTS.Test
             var buffer = EntityManager.GetBuffer<Node>(_agentEntity);
             Assert.AreEqual(3, buffer.Length);
         }
+
+        [Test]
+        public void AlreadyHasResult_NotRun()
+        {
+            var buffer = EntityManager.AddBuffer<Node>(_agentEntity);
+            buffer.Add(new Node {Name = new NativeString64("exist")});
+            
+            _system.Update();
+            EntityManager.CompleteAllJobs();
+            
+            Assert.AreEqual(default(NodeGraph), _debugger.NodeGraph);
+            Assert.IsNull(_debugger.PathResult);
+            buffer = EntityManager.GetBuffer<Node>(_agentEntity);
+            Assert.AreEqual(1, buffer.Length);
+        }
     }
 }

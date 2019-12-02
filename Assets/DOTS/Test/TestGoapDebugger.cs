@@ -28,7 +28,7 @@ namespace DOTS.Test
 
         public void Dispose()
         {
-            NodeGraph.Dispose();
+            if(!NodeGraph.Equals(default(NodeGraph)))NodeGraph.Dispose();
         }
     }
 }

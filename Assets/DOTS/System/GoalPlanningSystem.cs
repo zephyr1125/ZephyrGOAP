@@ -37,11 +37,20 @@ namespace DOTS.System
         protected override void OnCreate()
         {
             base.OnCreate();
-            _agentQuery = GetEntityQuery(
-                ComponentType.ReadOnly<Agent>(),
-                ComponentType.ReadOnly<Action>(),
-                ComponentType.ReadOnly<PlanningGoal>(),
-                ComponentType.ReadOnly<State>());
+            _agentQuery = GetEntityQuery(new EntityQueryDesc()
+            {
+                All = new []
+                {
+                    ComponentType.ReadOnly<Agent>(),
+                    ComponentType.ReadOnly<Action>(),
+                    ComponentType.ReadOnly<PlanningGoal>(),
+                    ComponentType.ReadOnly<State>()
+                },
+                None = new []
+                {
+                    ComponentType.ReadOnly<Node>(), 
+                }
+            });
             _currentStateQuery = GetEntityQuery(
                 ComponentType.ReadOnly<CurrentStates>(),
                 ComponentType.ReadOnly<State>());
