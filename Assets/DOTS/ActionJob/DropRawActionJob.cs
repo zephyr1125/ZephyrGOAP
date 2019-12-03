@@ -56,7 +56,7 @@ namespace DOTS.ActionJob
             if (!hasAction) return;
             
             var unexpandedNode = _unexpandedNodes[jobIndex];
-            var targetStates = _nodeGraph.GetStateGroup(unexpandedNode, Allocator.Temp);
+            var targetStates = _nodeGraph.GetNodeStates(unexpandedNode, Allocator.Temp);
             
             var preconditions = new StateGroup(1, Allocator.Temp);
             var effects = new StateGroup(1, Allocator.Temp);

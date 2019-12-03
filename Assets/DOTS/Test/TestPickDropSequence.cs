@@ -85,14 +85,14 @@ namespace DOTS.Test
 
             var nodeGraph = _debugger.NodeGraph;
             //goal正确
-            var goalStates = nodeGraph.GetStateGroup(nodeGraph.GetGoalNode(), Allocator.Temp);
+            var goalStates = nodeGraph.GetNodeStates(nodeGraph.GetGoalNode(), Allocator.Temp);
             Assert.AreEqual(1, goalStates.Length());
             Assert.AreEqual(_goalState, goalStates[0]);
             goalStates.Dispose();
             
             //start正确
             var startNode = nodeGraph.GetStartNode();
-            var startNodeStates = nodeGraph.GetStateGroup(startNode, Allocator.Temp);
+            var startNodeStates = nodeGraph.GetNodeStates(startNode, Allocator.Temp);
             Assert.Zero(startNodeStates.Length());
             
             //start接pick
@@ -106,7 +106,7 @@ namespace DOTS.Test
                 Assert.AreEqual(new NativeString64("start"),
                     edge.ActionName);
                 pickNode = edge.Parent;
-                var parentStates = nodeGraph.GetStateGroup(pickNode, Allocator.Temp);
+                var parentStates = nodeGraph.GetNodeStates(pickNode, Allocator.Temp);
                 Assert.AreEqual(1, parentStates.Length());
                 Assert.AreEqual(new State
                 {
@@ -131,7 +131,7 @@ namespace DOTS.Test
                 Assert.AreEqual(new NativeString64(nameof(PickRawActionJob)),
                     edge.ActionName);
                 dropNode = edge.Parent;
-                var parentStates = nodeGraph.GetStateGroup(dropNode, Allocator.Temp);
+                var parentStates = nodeGraph.GetNodeStates(dropNode, Allocator.Temp);
                 Assert.AreEqual(1, parentStates.Length());
                 Assert.AreEqual(new State
                 {
@@ -156,7 +156,7 @@ namespace DOTS.Test
                 Assert.AreEqual(new NativeString64(nameof(DropRawActionJob)),
                     edge.ActionName);
                 goalNode = edge.Parent;
-                var parentStates = nodeGraph.GetStateGroup(goalNode, Allocator.Temp);
+                var parentStates = nodeGraph.GetNodeStates(goalNode, Allocator.Temp);
                 Assert.AreEqual(1, parentStates.Length());
                 Assert.AreEqual(new State
                 {
@@ -191,6 +191,83 @@ namespace DOTS.Test
 
             var buffer = EntityManager.GetBuffer<Node>(_agentEntity);
             Assert.AreEqual(3, buffer.Length);
+        }
+
+        [Test]
+        public void SavePathStates()
+        {
+            _system.Update();
+            EntityManager.CompleteAllJobs();
+
+            var bufferNodes = EntityManager.GetBuffer<Node>(_agentEntity);
+            var bufferStates = EntityManager.GetBuffer<State>(_agentEntity);
+            
+            //1 goal state + 2 precondition + 2 effect
+            Assert.AreEqual(5, bufferStates.Length);
+            
+            //no states for goal node
+            Assert.Zero(bufferNodes[0].PreconditionsBitmask);
+            Assert.Zero(bufferNodes[0].EffectsBitmask);
+            
+            //1 is drop, 2 is pick
+            var nodeDrop = bufferNodes[1];
+            var nodePick = bufferNodes[2];
+            for (var i = 0; i < bufferStates.Length; i++)
+            {
+                //nodeDrop应该只有1个precondition
+                if ((nodeDrop.PreconditionsBitmask & (ulong)1 << i) > 0)
+                {
+                    Assert.AreEqual((ulong)1 << i, nodeDrop.PreconditionsBitmask);
+                    Assert.AreEqual(new State
+                    {
+                        SubjectType = StateSubjectType.Self,
+                        Target = _agentEntity,
+                        Trait = typeof(RawTrait),
+                        Value = new NativeString64("item"),
+                        IsPositive = true
+                    }, bufferStates[i]);
+                }
+                //和一个effect
+                if ((nodeDrop.EffectsBitmask & (ulong)1 << i) > 0)
+                {
+                    Assert.AreEqual((ulong)1 << i, nodeDrop.EffectsBitmask);
+                    Assert.AreEqual(new State
+                    {
+                        SubjectType = StateSubjectType.Target,
+                        Target = _targetContainerEntity,
+                        Trait = typeof(RawTrait),
+                        Value = new NativeString64("item"),
+                        IsPositive = true
+                    }, bufferStates[i]);
+                }
+                //nodePick应该只有1个precondition
+                if ((nodePick.PreconditionsBitmask & (ulong)1 << i) > 0)
+                {
+                    Assert.AreEqual((ulong)1 << i, nodePick.PreconditionsBitmask);
+                    Assert.AreEqual(new State
+                    {
+                        SubjectType = StateSubjectType.Closest,
+                        Target = Entity.Null,
+                        Trait = typeof(RawTrait),
+                        Value = new NativeString64("item"),
+                        IsPositive = true
+                    }, bufferStates[i]);
+                }
+                //和一个effect
+                if ((nodePick.EffectsBitmask & (ulong)1 << i) > 0)
+                {
+                    Assert.AreEqual((ulong)1 << i, nodePick.EffectsBitmask);
+                    Assert.AreEqual(new State
+                    {
+                        SubjectType = StateSubjectType.Self,
+                        Target = _agentEntity,
+                        Trait = typeof(RawTrait),
+                        Value = new NativeString64("item"),
+                        IsPositive = true
+                    }, bufferStates[i]);
+                }
+            }
+            
         }
 
         [Test]

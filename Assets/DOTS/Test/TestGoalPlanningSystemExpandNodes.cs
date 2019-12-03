@@ -93,7 +93,7 @@ namespace DOTS.Test
             
             Assert.AreEqual(2, _nodeGraph.Length());
             Assert.AreEqual(1, _uncheckedNodes.Length);
-            var states = _nodeGraph.GetStateGroup(_uncheckedNodes[0], Allocator.Temp);
+            var states = _nodeGraph.GetNodeStates(_uncheckedNodes[0], Allocator.Temp);
             Assert.AreEqual(1, states.Length());
             Assert.AreEqual(new State
             {
@@ -117,7 +117,7 @@ namespace DOTS.Test
             Assert.AreEqual(2, _nodeGraph.Length());
             Assert.AreEqual(1, _expandedNodes.Length);
             Assert.AreEqual(_goalNode, _expandedNodes[0]);
-            var states = _nodeGraph.GetStateGroup(_expandedNodes[0], Allocator.Temp);
+            var states = _nodeGraph.GetNodeStates(_expandedNodes[0], Allocator.Temp);
             Assert.AreEqual(1, states.Length());
             Assert.AreEqual(new State
             {
@@ -153,7 +153,7 @@ namespace DOTS.Test
             Assert.AreEqual(1, _expandedNodes.Length);
             Assert.AreEqual(0, _unexpandedNodes.Length);
             Assert.AreEqual(0, _uncheckedNodes.Length);
-            var states = _nodeGraph.GetStateGroup(_expandedNodes[0], Allocator.Temp);
+            var states = _nodeGraph.GetNodeStates(_expandedNodes[0], Allocator.Temp);
             Assert.AreEqual(1, states.Length());
             Assert.AreEqual(new State
             {

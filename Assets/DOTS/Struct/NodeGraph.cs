@@ -214,9 +214,21 @@ namespace DOTS.Struct
         /// </summary>
         /// <param name="node"></param>
         /// <param name="allocator"></param>
-        public StateGroup GetStateGroup(Node node, Allocator allocator)
+        public StateGroup GetNodeStates(Node node, Allocator allocator)
         {
             var states = _nodeStates.GetValuesForKey(node);
+            return new StateGroup(1, states, allocator);
+        }
+        
+        public StateGroup GetNodePreconditions(Node node, Allocator allocator)
+        {
+            var states = _preconditions.GetValuesForKey(node);
+            return new StateGroup(1, states, allocator);
+        }
+        
+        public StateGroup GetNodeEffects(Node node, Allocator allocator)
+        {
+            var states = _effects.GetValuesForKey(node);
             return new StateGroup(1, states, allocator);
         }
 
@@ -234,6 +246,8 @@ namespace DOTS.Struct
         {
             _nodeToParent.Dispose();
             _nodeStates.Dispose();
+            _preconditions.Dispose();
+            _effects.Dispose();
         }
     }
 }

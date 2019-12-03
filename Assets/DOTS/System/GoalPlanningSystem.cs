@@ -132,9 +132,29 @@ namespace DOTS.System
                 
                 //保存结果
                 var nodeBuffer = EntityManager.AddBuffer<Node>(agentEntity);
-                foreach (var node in pathResult)
+                var stateBuffer = EntityManager.GetBuffer<State>(agentEntity); //已经在创建goal的时候创建了state buffer以容纳goal state
+                for (var i = 0; i < pathResult.Length; i++)
                 {
+                    var node = pathResult[i];
+                    var preconditions = nodeGraph.GetNodePreconditions(node, Allocator.Temp);
+                    var effects = nodeGraph.GetNodeEffects(node, Allocator.Temp);
+                    
+                    foreach (var precondition in preconditions)
+                    {
+                        stateBuffer.Add(precondition);
+                        node.PreconditionsBitmask |= (ulong)1 << stateBuffer.Length-1;
+                    }
+
+                    foreach (var effect in effects)
+                    {
+                        stateBuffer.Add(effect);
+                        node.EffectsBitmask |= (ulong)1 << stateBuffer.Length-1;
+                    }
+
                     nodeBuffer.Add(node);
+                    
+                    preconditions.Dispose();
+                    effects.Dispose();
                 }
 
                 uncheckedNodes.Dispose();
@@ -164,7 +184,7 @@ namespace DOTS.System
             foreach (var uncheckedNode in uncheckedNodes)
             {
                 Debugger?.Log("check node: "+uncheckedNode.Name);
-                var uncheckedStates = nodeGraph.GetStateGroup(uncheckedNode, Allocator.Temp);
+                var uncheckedStates = nodeGraph.GetNodeStates(uncheckedNode, Allocator.Temp);
                 uncheckedStates.Sub(currentStates);
                 if (uncheckedStates.Length() <= 0)
                 {

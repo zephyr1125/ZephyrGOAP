@@ -21,6 +21,12 @@ namespace DOTS.Struct
         /// </summary>
         private readonly int _hashCode;
 
+        /// <summary>
+        /// 当node被当做path存在agent上时，用bitmask指示其preconditions和effects对应的states in buffer
+        /// </summary>
+        public ulong PreconditionsBitmask;
+        public ulong EffectsBitmask;
+
         public Node(ref StateGroup states, string name, int iteration) : this()
         {
             Name = new NativeString64(name);
