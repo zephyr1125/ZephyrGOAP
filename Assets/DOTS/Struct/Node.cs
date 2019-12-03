@@ -1,8 +1,6 @@
 using System;
 using Unity.Collections;
 using Unity.Entities;
-using Zephyr.DOTSAStar.Runtime.ComponentInterface;
-using Action = DOTS.Component.Actions.Action;
 
 namespace DOTS.Struct
 {

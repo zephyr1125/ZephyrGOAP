@@ -1,6 +1,6 @@
+using DOTS.Action;
 using DOTS.ActionJob;
 using DOTS.Component;
-using DOTS.Component.Actions;
 using DOTS.Debugger;
 using DOTS.Struct;
 using Unity.Burst;
@@ -42,7 +42,6 @@ namespace DOTS.System
                 All = new []
                 {
                     ComponentType.ReadOnly<Agent>(),
-                    ComponentType.ReadOnly<Action>(),
                     ComponentType.ReadOnly<PlanningGoal>(),
                     ComponentType.ReadOnly<State>()
                 },
@@ -73,8 +72,6 @@ namespace DOTS.System
             
             foreach (var agentEntity in agentEntities)
             {
-                var agentActionsBuffer = EntityManager.GetBuffer<Action>(agentEntity);
-                
                 var goalStatesBuffer = EntityManager.GetBuffer<State>(agentEntity);
                 var goalStates = new StateGroup(ref goalStatesBuffer, Allocator.Temp);
 
@@ -104,7 +101,7 @@ namespace DOTS.System
 
                     //对待展开列表进行展开，并挑选进入待检查和展开后列表
                     ExpandNodes(ref unexpandedNodes, ref stackData, ref nodeGraph,
-                        ref uncheckedNodes, ref expandedNodes, iteration, ref agentActionsBuffer);
+                        ref uncheckedNodes, ref expandedNodes, iteration);
 
                     //直至待展开列表为空或Early Exit
                     iteration++;
@@ -207,7 +204,7 @@ namespace DOTS.System
 
         public void ExpandNodes(ref NativeList<Node> unexpandedNodes, ref StackData stackData,
             ref NodeGraph nodeGraph, ref NativeList<Node> uncheckedNodes, ref NativeList<Node> expandedNodes,
-            int iteration, ref DynamicBuffer<Action> agentActionsBuffer)
+            int iteration)
         {
             foreach (var node in unexpandedNodes)
             {
@@ -220,8 +217,7 @@ namespace DOTS.System
                 StackData = stackData,
                 NodeGraph = nodeGraph,
                 NewlyExpandedNodes = newlyExpandedNodes,
-                Iteration = iteration,
-                AgentActions = agentActionsBuffer,
+                Iteration = iteration
             };
             var handle = actionScheduler.Schedule(default);
             handle.Complete();

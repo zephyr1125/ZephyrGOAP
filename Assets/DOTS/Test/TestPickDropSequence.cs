@@ -1,6 +1,6 @@
+using DOTS.Action;
 using DOTS.ActionJob;
 using DOTS.Component;
-using DOTS.Component.Actions;
 using DOTS.Component.Trait;
 using DOTS.Debugger;
 using DOTS.GameData.ComponentData;
@@ -48,9 +48,8 @@ namespace DOTS.Test
             //GOAP数据
             EntityManager.AddComponentData(_rawSourceEntity, new RawTrait());
             EntityManager.AddComponentData(_agentEntity, new Agent());
-            var actionBuffer = EntityManager.AddBuffer<Action>(_agentEntity);
-            actionBuffer.Add(new Action {ActionName = new NativeString64(nameof(PickRawActionJob))});
-            actionBuffer.Add(new Action {ActionName = new NativeString64(nameof(DropRawActionJob))});
+            EntityManager.AddComponentData(_agentEntity, new PickRawAction());
+            EntityManager.AddComponentData(_agentEntity, new DropRawAction());
             EntityManager.AddComponentData(_agentEntity, new PlanningGoal());
             var stateBuffer = EntityManager.AddBuffer<State>(_agentEntity);
             _goalState = new State

@@ -1,9 +1,7 @@
 using System;
-using DOTS.Component;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine.Assertions;
-using Action = DOTS.Component.Actions.Action;
 
 namespace DOTS.Struct
 {

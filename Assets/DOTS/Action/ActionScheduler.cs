@@ -1,11 +1,9 @@
-using System.Collections.Generic;
-using DOTS.Component.Actions;
 using DOTS.Struct;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 
-namespace DOTS.ActionJob
+namespace DOTS.Action
 {
     public class ActionScheduler
     {
@@ -23,18 +21,25 @@ namespace DOTS.ActionJob
 
         public int Iteration;
 
-        public DynamicBuffer<Action> AgentActions;
-
         public JobHandle Schedule(JobHandle inputDeps)
         {
-            var dropRawHandle = new DropRawActionJob(ref UnexpandedNodes, ref StackData,
-                ref NodeGraph, ref NewlyExpandedNodes, Iteration, ref AgentActions).Schedule(
-                UnexpandedNodes, 0, inputDeps);
-            var pickRawHandle = new PickRawActionJob(ref UnexpandedNodes, ref StackData,
-                ref NodeGraph, ref NewlyExpandedNodes, Iteration, ref AgentActions).Schedule(
-                UnexpandedNodes, 0, dropRawHandle);
+            var entityManager = World.Active.EntityManager;
+            
+            if (entityManager.HasComponent<DropRawAction>(StackData.AgentEntity))
+            {
+                inputDeps = new DropRawActionJob(ref UnexpandedNodes, ref StackData,
+                    ref NodeGraph, ref NewlyExpandedNodes, Iteration).Schedule(
+                    UnexpandedNodes, 0, inputDeps);
+            }
 
-            return pickRawHandle;
+            if (entityManager.HasComponent<PickRawAction>(StackData.AgentEntity))
+            {
+                inputDeps = new PickRawActionJob(ref UnexpandedNodes, ref StackData,
+                    ref NodeGraph, ref NewlyExpandedNodes, Iteration).Schedule(
+                    UnexpandedNodes, 0, inputDeps);
+            }
+
+            return inputDeps;
         }
     }
 }

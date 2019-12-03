@@ -1,15 +1,16 @@
-using System;
-using DOTS.Component;
 using DOTS.Component.Trait;
 using DOTS.Struct;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-using Action = DOTS.Component.Actions.Action;
 
-namespace DOTS.ActionJob
+namespace DOTS.Action
 {
+    public struct DropRawAction : IComponentData
+    {
+        
+    }
     
     [BurstCompile]
     public struct DropRawActionJob : IJobParallelForDefer
@@ -27,34 +28,18 @@ namespace DOTS.ActionJob
 
         private readonly int _iteration;
 
-        [ReadOnly]
-        private DynamicBuffer<Action> _agentActions; 
-
         public DropRawActionJob(ref NativeList<Node> unexpandedNodes, ref StackData stackData,
-            ref NodeGraph nodeGraph, ref NativeList<Node> newlyExpandedNodes, int iteration, ref DynamicBuffer<Action> agentActions)
+            ref NodeGraph nodeGraph, ref NativeList<Node> newlyExpandedNodes, int iteration)
         {
             _unexpandedNodes = unexpandedNodes;
             _stackData = stackData;
             _nodeGraph = nodeGraph;
             NewlyExpandedNodes = newlyExpandedNodes;
             _iteration = iteration;
-            _agentActions = agentActions;
         }
 
         public void Execute(int jobIndex)
         {
-            //没有本action的agent不运行
-            var hasAction = false;
-            foreach (var agentAction in _agentActions)
-            {
-                if (agentAction.ActionName.Equals(new NativeString64(nameof(DropRawActionJob))))
-                {
-                    hasAction = true;
-                    break;
-                }
-            }
-            if (!hasAction) return;
-            
             var unexpandedNode = _unexpandedNodes[jobIndex];
             var targetStates = _nodeGraph.GetNodeStates(unexpandedNode, Allocator.Temp);
             

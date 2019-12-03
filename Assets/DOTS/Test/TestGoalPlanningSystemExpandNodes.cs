@@ -1,5 +1,5 @@
+using DOTS.Action;
 using DOTS.ActionJob;
-using DOTS.Component.Actions;
 using DOTS.Component.Trait;
 using DOTS.Struct;
 using DOTS.System;
@@ -23,8 +23,6 @@ namespace DOTS.Test
         private Node _goalNode;
         private StackData _stackData;
 
-        private DynamicBuffer<Action> _agentActionsBuffer;
-
         [SetUp]
         public override void SetUp()
         {
@@ -32,10 +30,8 @@ namespace DOTS.Test
             _agentEntity = EntityManager.CreateEntity();
             _targetEntity = EntityManager.CreateEntity();
             _system = World.GetOrCreateSystem<GoalPlanningSystem>();
-
-            _agentActionsBuffer = EntityManager.AddBuffer<Action>(_agentEntity);
-            _agentActionsBuffer.Add(
-                new Action {ActionName = new NativeString64(nameof(DropRawActionJob))});
+            
+            EntityManager.AddComponentData(_agentEntity, new DropRawAction());
             
             _uncheckedNodes = new NativeList<Node>(Allocator.Persistent);
             _unexpandedNodes = new NativeList<Node>(Allocator.Persistent);
@@ -89,7 +85,7 @@ namespace DOTS.Test
         public void NewNodeIntoUnCheckedList()
         {
             _system.ExpandNodes(ref _unexpandedNodes, ref _stackData, ref _nodeGraph,
-                ref _uncheckedNodes, ref _expandedNodes, 1, ref _agentActionsBuffer);
+                ref _uncheckedNodes, ref _expandedNodes, 1);
             
             Assert.AreEqual(2, _nodeGraph.Length());
             Assert.AreEqual(1, _uncheckedNodes.Length);
@@ -112,7 +108,7 @@ namespace DOTS.Test
         public void OldNodeIntoExpandedList()
         {
             _system.ExpandNodes(ref _unexpandedNodes, ref _stackData, ref _nodeGraph,
-                ref _uncheckedNodes, ref _expandedNodes, 1, ref _agentActionsBuffer);
+                ref _uncheckedNodes, ref _expandedNodes, 1);
             
             Assert.AreEqual(2, _nodeGraph.Length());
             Assert.AreEqual(1, _expandedNodes.Length);
@@ -136,7 +132,7 @@ namespace DOTS.Test
         public void ClearUnExpandedList()
         {
             _system.ExpandNodes(ref _unexpandedNodes, ref _stackData, ref _nodeGraph,
-                ref _uncheckedNodes, ref _expandedNodes, 1, ref _agentActionsBuffer);
+                ref _uncheckedNodes, ref _expandedNodes, 1);
             
             Assert.AreEqual(0, _unexpandedNodes.Length);
         }
@@ -145,9 +141,10 @@ namespace DOTS.Test
         [Test]
         public void NoSuitAction_NoExpand()
         {
-            _agentActionsBuffer.Clear();
+            EntityManager.RemoveComponent<DropRawAction>(_agentEntity);
+            
             _system.ExpandNodes(ref _unexpandedNodes, ref _stackData, ref _nodeGraph,
-                ref _uncheckedNodes, ref _expandedNodes, 1, ref _agentActionsBuffer);
+                ref _uncheckedNodes, ref _expandedNodes, 1);
             
             Assert.AreEqual(1, _nodeGraph.Length());
             Assert.AreEqual(1, _expandedNodes.Length);
