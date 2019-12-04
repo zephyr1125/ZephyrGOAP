@@ -1,5 +1,6 @@
 using DOTS.Component;
 using DOTS.Struct;
+using Unity.Collections;
 using Unity.Entities;
 
 namespace DOTS.System
@@ -28,6 +29,13 @@ namespace DOTS.System
             EntityManager.AddBuffer<State>(CurrentStatesEntity);
             
             _removeECBufferSystem.CreateCommandBuffer().DestroyEntity(CurrentStatesEntity);
+        }
+
+        public static StateGroup GetCurrentStates(EntityManager entityManager, Allocator allocator)
+        {
+            var buffer = entityManager.GetBuffer<State>(CurrentStatesEntity);
+            var states = new StateGroup(ref buffer, allocator);
+            return states;
         }
     }
 }

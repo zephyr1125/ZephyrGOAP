@@ -7,6 +7,6 @@ namespace DOTS
 
     public enum GoapState
     {
-        Planning, Navigating, ReadyToExecute, Executing
+        Planning, ReadyToNavigating, Navigating, ReadyToExecute, Executing
     }
 }

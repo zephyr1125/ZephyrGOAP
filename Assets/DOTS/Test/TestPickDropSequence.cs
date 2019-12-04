@@ -1,5 +1,4 @@
 using DOTS.Action;
-using DOTS.ActionJob;
 using DOTS.Component;
 using DOTS.Component.Trait;
 using DOTS.Debugger;
@@ -127,7 +126,7 @@ namespace DOTS.Test
             {
                 edgesCount++;
                 var edge = edges.Current;
-                Assert.AreEqual(new NativeString64(nameof(PickRawActionJob)),
+                Assert.AreEqual(new NativeString64(nameof(PickRawAction)),
                     edge.ActionName);
                 dropNode = edge.Parent;
                 var parentStates = nodeGraph.GetNodeStates(dropNode, Allocator.Temp);
@@ -152,7 +151,7 @@ namespace DOTS.Test
             {
                 edgesCount++;
                 var edge = edges.Current;
-                Assert.AreEqual(new NativeString64(nameof(DropRawActionJob)),
+                Assert.AreEqual(new NativeString64(nameof(DropRawAction)),
                     edge.ActionName);
                 goalNode = edge.Parent;
                 var parentStates = nodeGraph.GetNodeStates(goalNode, Allocator.Temp);

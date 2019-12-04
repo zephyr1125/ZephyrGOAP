@@ -60,11 +60,11 @@ namespace DOTS.Action
                 newStates.Sub(effects);
                 newStates.Merge(preconditions);
             
-                var node = new Node(ref newStates, nameof(DropRawActionJob), _iteration);
+                var node = new Node(ref newStates, nameof(DropRawAction), _iteration);
             
                 //NodeGraph的几个容器都移去了并行限制，小心出错
                 _nodeGraph.AddRouteNode(node, ref newStates, ref preconditions, ref effects,
-                    unexpandedNode, new NativeString64(nameof(DropRawActionJob)));
+                    unexpandedNode, new NativeString64(nameof(DropRawAction)));
                 NewlyExpandedNodes.Add(node);
                 
                 newStates.Dispose();
