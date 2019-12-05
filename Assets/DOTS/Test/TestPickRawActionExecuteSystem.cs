@@ -2,7 +2,7 @@ using DOTS.Action;
 using DOTS.Component;
 using DOTS.Component.AgentState;
 using DOTS.Component.Trait;
-using DOTS.GameData.ComponentData;
+using DOTS.Game.ComponentData;
 using DOTS.Struct;
 using DOTS.System;
 using DOTS.System.ActionExecuteSystem;

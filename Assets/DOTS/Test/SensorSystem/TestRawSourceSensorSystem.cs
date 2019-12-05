@@ -1,5 +1,5 @@
 using DOTS.Component.Trait;
-using DOTS.GameData.ComponentData;
+using DOTS.Game.ComponentData;
 using DOTS.Struct;
 using DOTS.System;
 using DOTS.System.SensorSystem;

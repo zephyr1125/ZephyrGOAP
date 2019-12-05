@@ -1,7 +1,7 @@
 using DOTS.Action;
 using DOTS.Component;
 using DOTS.Component.AgentState;
-using DOTS.GameData.ComponentData;
+using DOTS.Game.ComponentData;
 using DOTS.Struct;
 using Unity.Collections;
 using Unity.Entities;

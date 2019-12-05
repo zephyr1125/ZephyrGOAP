@@ -1,6 +1,6 @@
 using Unity.Entities;
 
-namespace DOTS.GameData.ComponentData
+namespace DOTS.Game.ComponentData
 {
     public struct ItemContainer : IComponentData
     {
