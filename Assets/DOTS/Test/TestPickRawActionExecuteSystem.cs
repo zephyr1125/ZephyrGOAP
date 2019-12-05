@@ -1,5 +1,6 @@
 using DOTS.Action;
 using DOTS.Component;
+using DOTS.Component.AgentState;
 using DOTS.Component.Trait;
 using DOTS.GameData.ComponentData;
 using DOTS.Struct;
@@ -34,10 +35,8 @@ namespace DOTS.Test
                 ItemEntity = new Entity {Index = 99, Version = 9}
             });
             
-            EntityManager.AddComponentData(_agentEntity, new Agent
-            {
-                GoapState = GoapState.ReadyToExecute, ExecutingNodeId = 0
-            });
+            EntityManager.AddComponentData(_agentEntity, new Agent{ExecutingNodeId = 0});
+            EntityManager.AddComponentData(_agentEntity, new ReadyToActing());
             EntityManager.AddComponentData(_agentEntity, new PickRawAction());
             EntityManager.AddBuffer<ContainedItemRef>(_agentEntity);
             //agent必须带有已经规划好的任务列表
@@ -82,6 +81,7 @@ namespace DOTS.Test
         public void TargetRemoveItem()
         {
             _system.Update();
+            _system.ECBSystem.Update();
             EntityManager.CompleteAllJobs();
 
             var itemBuffer = EntityManager.GetBuffer<ContainedItemRef>(_containerEntity);
@@ -92,6 +92,7 @@ namespace DOTS.Test
         public void AgentGotItem()
         {
             _system.Update();
+            _system.ECBSystem.Update();
             EntityManager.CompleteAllJobs();
             
             var itemBuffer = EntityManager.GetBuffer<ContainedItemRef>(_agentEntity);
@@ -106,11 +107,13 @@ namespace DOTS.Test
         public void ProgressGoOn()
         {
             _system.Update();
+            _system.ECBSystem.Update();
             EntityManager.CompleteAllJobs();
 
             var agent = EntityManager.GetComponentData<Agent>(_agentEntity);
-            Assert.AreEqual(new Agent{ExecutingNodeId = 1, GoapState = GoapState.ReadyToNavigating},
-                agent);
+            Assert.AreEqual(new Agent{ExecutingNodeId = 1},agent);
+            Assert.False(EntityManager.HasComponent<ReadyToActing>(_agentEntity));
+            Assert.True(EntityManager.HasComponent<ReadyToNavigating>(_agentEntity));
         }
         
         [Test]
@@ -127,6 +130,7 @@ namespace DOTS.Test
             };
             
             _system.Update();
+            _system.ECBSystem.Update();
             EntityManager.CompleteAllJobs();
             
             var itemBuffer = EntityManager.GetBuffer<ContainedItemRef>(_containerEntity);

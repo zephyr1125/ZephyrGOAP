@@ -1,5 +1,6 @@
 using DOTS.Action;
 using DOTS.Component;
+using DOTS.Component.AgentState;
 using DOTS.Component.Trait;
 using DOTS.Debugger;
 using DOTS.GameData.ComponentData;
@@ -49,7 +50,7 @@ namespace DOTS.Test
             EntityManager.AddComponentData(_agentEntity, new Agent());
             EntityManager.AddComponentData(_agentEntity, new PickRawAction());
             EntityManager.AddComponentData(_agentEntity, new DropRawAction());
-            EntityManager.AddComponentData(_agentEntity, new PlanningGoal());
+            EntityManager.AddComponentData(_agentEntity, new GoalPlanning());
             var stateBuffer = EntityManager.AddBuffer<State>(_agentEntity);
             _goalState = new State
             {

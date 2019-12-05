@@ -1,5 +1,6 @@
 using DOTS.Action;
 using DOTS.Component;
+using DOTS.Component.AgentState;
 using DOTS.Debugger;
 using DOTS.Struct;
 using Unity.Burst;
@@ -41,7 +42,7 @@ namespace DOTS.System
                 All = new []
                 {
                     ComponentType.ReadOnly<Agent>(),
-                    ComponentType.ReadOnly<PlanningGoal>(),
+                    ComponentType.ReadOnly<GoalPlanning>(),
                     ComponentType.ReadOnly<State>()
                 },
                 None = new []

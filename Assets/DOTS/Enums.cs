@@ -5,8 +5,8 @@ namespace DOTS
         Self, Target, Closest
     }
 
-    public enum GoapState
-    {
-        Planning, ReadyToNavigating, Navigating, ReadyToExecute, Executing
-    }
+//    public enum GoapState
+//    {
+//        Planning, ReadyToNavigating, Navigating, ReadyToExecute, Executing
+//    }
 }
