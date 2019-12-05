@@ -5,6 +5,7 @@
         "Unity.Entities",
         "Unity.Collections",
         "Unity.Mathematics",
+        "Unity.Transforms",
         "Zephyr.GOAP.Runtime",
         "Zephyr.GOAP.Example"
     ],
@@ -21,5 +22,6 @@
     "defineConstraints": [
         "UNITY_INCLUDE_TESTS"
     ],
-    "versionDefines": []
+    "versionDefines": [],
+    "noEngineReferences": false
 }
