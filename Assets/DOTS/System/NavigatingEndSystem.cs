@@ -3,8 +3,10 @@ using Unity.Jobs;
 
 namespace DOTS.System
 {
-    public class NavigatingSystem : JobComponentSystem
+    public class NavigatingEndSystem : JobComponentSystem
     {
+        
+        
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             return inputDeps;
