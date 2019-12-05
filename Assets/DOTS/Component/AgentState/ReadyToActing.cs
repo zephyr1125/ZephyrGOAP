@@ -2,7 +2,7 @@ using Unity.Entities;
 
 namespace DOTS.Component.AgentState
 {
-    public struct ReadyToActing : IComponentData
+    public struct ReadyToActing : IComponentData, IAgentState
     {
         
     }

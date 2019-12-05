@@ -92,12 +92,8 @@ namespace DOTS.System.ActionExecuteSystem
                 buffer.Add(itemRef);
                 
                 //通知执行完毕
-                ECBuffer.RemoveComponent<ReadyToActing>(jobIndex, entity);
-                ECBuffer.AddComponent<ReadyToNavigating>(jobIndex, entity);
-                ECBuffer.SetComponent(jobIndex, entity, new Agent
-                {
-                    ExecutingNodeId = agent.ExecutingNodeId+1
-                });
+                Utils.NextAgentState<ReadyToActing, ReadyToNavigating>(
+                    entity, jobIndex, ref ECBuffer, agent, true);
             }
         }
         
