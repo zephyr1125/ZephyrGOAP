@@ -48,26 +48,9 @@ namespace DOTS.System.ActionExecuteSystem
                     if ((currentNode.PreconditionsBitmask & (ulong)1 << i) > 0)
                     {
                         var precondition = states[i];
-                        Assert.IsTrue(precondition.Target!=null ||
-                                      precondition.SubjectType == StateSubjectType.Closest);
+                        Assert.IsTrue(precondition.Target!=null);
                         
-                        if (precondition.Target != Entity.Null)
-                        {
-                            targetEntity = precondition.Target;
-                        }
-                        else if(precondition.SubjectType == StateSubjectType.Closest)
-                        {
-                            //如果SubjectType为Closest，从CurrentState里找最近的目标
-                            //todo 此处理应寻找最近目标，但目前的示例里没有transform系统，暂时直接用第一个合适的目标
-                            foreach (var currentState in CurrentStates)
-                            {
-                                if (currentState.Fits(precondition))
-                                {
-                                    targetEntity = currentState.Target;
-                                    break;
-                                }
-                            }
-                        }
+                        targetEntity = precondition.Target;
                         targetItemName = precondition.Value;
                         break;
                     }

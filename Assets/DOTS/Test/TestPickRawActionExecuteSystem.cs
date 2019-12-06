@@ -50,8 +50,8 @@ namespace DOTS.Test
             var bufferStates = EntityManager.AddBuffer<State>(_agentEntity);
             bufferStates.Add(new State
             {
-                SubjectType = StateSubjectType.Closest,
-                Target = Entity.Null,
+                SubjectType = StateSubjectType.Target,
+                Target = _containerEntity,
                 Trait = typeof(RawTrait),
                 Value = new NativeString64("item"),
                 IsPositive = true,

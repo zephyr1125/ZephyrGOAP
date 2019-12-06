@@ -45,7 +45,7 @@ namespace DOTS.Action
             
             var preconditions = new StateGroup(1, Allocator.Temp);
             var effects = new StateGroup(1, Allocator.Temp);
-
+            
             var targetState = GetTargetGoalState(ref targetStates, ref _stackData);
             
             if (!targetState.Equals(default))
@@ -53,20 +53,21 @@ namespace DOTS.Action
                 GetPreconditions(ref targetState, ref _stackData, ref preconditions);
                 GetEffects(ref targetState, ref _stackData, ref effects);
 
-                if (effects.Length() == 0) return;
-            
-                var newStates = new StateGroup(targetStates, Allocator.Temp);
-                newStates.Sub(effects);
-                newStates.Merge(preconditions);
-            
-                var node = new Node(ref newStates, nameof(PickRawAction), _iteration);
-            
-                //NodeGraph的几个容器都移去了并行限制，小心出错
-                _nodeGraph.AddRouteNode(node, ref newStates, ref preconditions, ref effects,
-                    unexpandedNode, new NativeString64(nameof(PickRawAction)));
-                _newlyExpandedNodes.Add(node);
-            
-                newStates.Dispose();
+                if (effects.Length() > 0)
+                {
+                    var newStates = new StateGroup(targetStates, Allocator.Temp);
+                    newStates.Sub(effects);
+                    newStates.Merge(preconditions);
+                
+                    var node = new Node(ref newStates, nameof(PickRawAction), _iteration, preconditions[0].Target);
+                
+                    //NodeGraph的几个容器都移去了并行限制，小心出错
+                    _nodeGraph.AddRouteNode(node, ref newStates, ref preconditions, ref effects,
+                        unexpandedNode, new NativeString64(nameof(PickRawAction)));
+                    _newlyExpandedNodes.Add(node);
+                
+                    newStates.Dispose();
+                }
             }
             
             preconditions.Dispose();
@@ -98,14 +99,23 @@ namespace DOTS.Action
         private void GetPreconditions([ReadOnly]ref State targetState,
             [ReadOnly]ref StackData stackData, ref StateGroup preconditions)
         {
-            preconditions.Add(new State
+            var template = new State
             {
-                SubjectType = StateSubjectType.Closest,
+                SubjectType = StateSubjectType.Closest,    //寻找最近
                 Target = Entity.Null,
                 Trait = typeof(RawTrait),
                 Value = targetState.Value,
                 IsPositive = true,
-            });
+            };
+            //todo 此处理应寻找最近目标，但目前的示例里没有transform系统，暂时直接用第一个合适的目标
+            foreach (var currentState in stackData.CurrentStates)
+            {
+                if (currentState.Fits(template))
+                {
+                    preconditions.Add(currentState);
+                    return;
+                }
+            }
         }
 
         /// <summary>

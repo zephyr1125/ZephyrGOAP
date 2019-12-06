@@ -109,8 +109,8 @@ namespace DOTS.Test
                 Assert.AreEqual(1, parentStates.Length());
                 Assert.AreEqual(new State
                 {
-                    SubjectType = StateSubjectType.Closest,
-                    Target = Entity.Null,
+                    SubjectType = StateSubjectType.Target,
+                    Target = _rawSourceEntity,
                     Trait = typeof(RawTrait),
                     Value = new NativeString64("item"),
                     IsPositive = true,
@@ -245,8 +245,8 @@ namespace DOTS.Test
                     Assert.AreEqual((ulong)1 << i, nodePick.PreconditionsBitmask);
                     Assert.AreEqual(new State
                     {
-                        SubjectType = StateSubjectType.Closest,
-                        Target = Entity.Null,
+                        SubjectType = StateSubjectType.Target,
+                        Target = _rawSourceEntity,
                         Trait = typeof(RawTrait),
                         Value = new NativeString64("item"),
                         IsPositive = true
