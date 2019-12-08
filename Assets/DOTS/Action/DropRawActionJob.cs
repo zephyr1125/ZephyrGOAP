@@ -54,20 +54,22 @@ namespace DOTS.Action
                     ref preconditions);
                 GetEffects(ref targetState, ref _stackData, ref effects);
 
-                if (effects.Length() == 0) return;
-            
-                var newStates = new StateGroup(targetStates, Allocator.Temp);
-                newStates.Sub(effects);
-                newStates.Merge(preconditions);
-            
-                var node = new Node(ref newStates, nameof(DropRawAction), _iteration);
-            
-                //NodeGraph的几个容器都移去了并行限制，小心出错
-                _nodeGraph.AddRouteNode(node, ref newStates, ref preconditions, ref effects,
-                    unexpandedNode, new NativeString64(nameof(DropRawAction)));
-                NewlyExpandedNodes.Add(node);
-                
-                newStates.Dispose();
+                if (effects.Length() > 0)
+                {
+                    var newStates = new StateGroup(targetStates, Allocator.Temp);
+                    newStates.Sub(effects);
+                    newStates.Merge(preconditions);
+
+                    var node = new Node(ref newStates, nameof(DropRawAction), _iteration,
+                        targetState.Target);
+
+                    //NodeGraph的几个容器都移去了并行限制，小心出错
+                    _nodeGraph.AddRouteNode(node, ref newStates, ref preconditions, ref effects,
+                        unexpandedNode, new NativeString64(nameof(DropRawAction)));
+                    NewlyExpandedNodes.Add(node);
+
+                    newStates.Dispose();
+                }
             }
             
             preconditions.Dispose();

@@ -25,17 +25,24 @@ namespace DOTS.Struct
         public ulong PreconditionsBitmask;
         public ulong EffectsBitmask;
 
-        public Node(ref StateGroup states, string name, int iteration) : this()
+        /// <summary>
+        /// 用于给Navigating指明导航目标
+        /// </summary>
+        public Entity NavigatingSubject;
+
+        public Node(ref StateGroup states, string name, int iteration, Entity navigatingSubject = new Entity()) : this()
         {
             Name = new NativeString64(name);
             Iteration = iteration;
+            NavigatingSubject = navigatingSubject;
             _hashCode = states.GetHashCode();
         }
         
-        public Node(ref State state, string name, int iteration) : this()
+        public Node(ref State state, string name, int iteration, Entity navigatingSubject = new Entity()) : this()
         {
             Name = new NativeString64(name);
             Iteration = iteration;
+            NavigatingSubject = navigatingSubject;
             _hashCode = state.GetHashCode();
         }
 
