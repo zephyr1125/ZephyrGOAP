@@ -11,7 +11,7 @@ using UnityEngine.Assertions;
 namespace DOTS.System.ActionExecuteSystem
 {
     [UpdateInGroup(typeof(SimulationSystemGroup))]
-    public class DropRawActionExecuteSystem : JobComponentSystem
+    public class DropItemActionExecuteSystem : JobComponentSystem
     {
         public EntityCommandBufferSystem ECBSystem;
 
@@ -22,7 +22,7 @@ namespace DOTS.System.ActionExecuteSystem
         }
 
         [RequireComponentTag(typeof(PickItemAction), typeof(ContainedItemRef), typeof(ReadyToActing))]
-        public struct DropRawActionExecuteJob : IJobForEachWithEntity_EBBC<Node, State, Agent>
+        public struct DropItemActionExecuteJob : IJobForEachWithEntity_EBBC<Node, State, Agent>
         {
             [ReadOnly]
             public StateGroup CurrentStates;
@@ -84,7 +84,7 @@ namespace DOTS.System.ActionExecuteSystem
         {
             var currentStates =
                 CurrentStatesHelper.GetCurrentStates(EntityManager, Allocator.TempJob);
-            var job = new DropRawActionExecuteJob
+            var job = new DropItemActionExecuteJob
             {
                 CurrentStates = currentStates,
                 AllContainedItemRefs = GetBufferFromEntity<ContainedItemRef>(),

@@ -129,7 +129,7 @@ namespace DOTS.Action
                 IsPositive = true,
             });
                 
-            //TODO 目前DropRaw只可以完成一项state，将来可以考虑做多重物品运送的同时满足
+            //TODO 目前DropItem只可以完成一项state，将来可以考虑做多重物品运送的同时满足
         }
     }
 }

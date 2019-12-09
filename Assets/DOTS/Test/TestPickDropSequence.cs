@@ -20,7 +20,7 @@ namespace DOTS.Test
         //实现 Pick -> Drop 的plan序列
 
         private GoalPlanningSystem _system;
-        private Entity _rawSourceEntity, _targetContainerEntity, _agentEntity;
+        private Entity _itemSourceEntity, _targetContainerEntity, _agentEntity;
 
         private TestGoapDebugger _debugger;
 
@@ -35,18 +35,18 @@ namespace DOTS.Test
             _debugger = new TestGoapDebugger();
             _system.Debugger = _debugger;
 
-            _rawSourceEntity = EntityManager.CreateEntity();
+            _itemSourceEntity = EntityManager.CreateEntity();
             _targetContainerEntity = EntityManager.CreateEntity();
             _agentEntity = EntityManager.CreateEntity();
             
             //游戏数据
-            EntityManager.AddComponentData(_rawSourceEntity, new ItemContainer{IsTransferSource = true});
-            var itemBuffer = EntityManager.AddBuffer<ContainedItemRef>(_rawSourceEntity);
+            EntityManager.AddComponentData(_itemSourceEntity, new ItemContainer{IsTransferSource = true});
+            var itemBuffer = EntityManager.AddBuffer<ContainedItemRef>(_itemSourceEntity);
             itemBuffer.Add(new ContainedItemRef {ItemName = new NativeString64("item")});
             EntityManager.AddComponentData(_targetContainerEntity, new ItemContainer{IsTransferSource = false});
             
             //GOAP数据
-            EntityManager.AddComponentData(_rawSourceEntity, new ItemContainerTrait());
+            EntityManager.AddComponentData(_itemSourceEntity, new ItemContainerTrait());
             EntityManager.AddComponentData(_agentEntity, new Agent());
             EntityManager.AddComponentData(_agentEntity, new PickItemAction());
             EntityManager.AddComponentData(_agentEntity, new DropItemAction());
@@ -64,7 +64,7 @@ namespace DOTS.Test
             
             World.GetOrCreateSystem<CurrentStatesHelper>().Update();
             //SensorGroup喂入CurrentStates数据
-            var sensor = World.GetOrCreateSystem<RawSourceSensorSystem>();
+            var sensor = World.GetOrCreateSystem<ItemSourceSensorSystem>();
             sensor.Update();
             sensor.ECBufferSystem.Update();
         }
@@ -110,7 +110,7 @@ namespace DOTS.Test
                 Assert.AreEqual(new State
                 {
                     SubjectType = StateSubjectType.Target,
-                    Target = _rawSourceEntity,
+                    Target = _itemSourceEntity,
                     Trait = typeof(ItemContainerTrait),
                     Value = new NativeString64("item"),
                     IsPositive = true,
@@ -246,7 +246,7 @@ namespace DOTS.Test
                     Assert.AreEqual(new State
                     {
                         SubjectType = StateSubjectType.Target,
-                        Target = _rawSourceEntity,
+                        Target = _itemSourceEntity,
                         Trait = typeof(ItemContainerTrait),
                         Value = new NativeString64("item"),
                         IsPositive = true

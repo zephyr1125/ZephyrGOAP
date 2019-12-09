@@ -8,9 +8,9 @@ using Unity.Entities;
 
 namespace DOTS.Test.SensorSystem
 {
-    public class TestRawSourceSensorSystem : TestBase
+    public class TestItemSourceSensorSystem : TestBase
     {
-        private RawSourceSensorSystem _system;
+        private ItemSourceSensorSystem _system;
 
         private Entity _containerEntity;
 
@@ -24,7 +24,7 @@ namespace DOTS.Test.SensorSystem
             _currentStatesHelper = World.GetOrCreateSystem<CurrentStatesHelper>();
             _currentStatesHelper.Update();
 
-            _system = World.GetOrCreateSystem<RawSourceSensorSystem>();
+            _system = World.GetOrCreateSystem<ItemSourceSensorSystem>();
             _containerEntity = EntityManager.CreateEntity();
             
             EntityManager.AddComponentData(_containerEntity, new ItemContainerTrait());
@@ -39,9 +39,9 @@ namespace DOTS.Test.SensorSystem
             });
         }
 
-        //写入具有原料的状态
+        //写入具有物品源的状态
         [Test]
-        public void SetRawSourceState()
+        public void SetItemSourceState()
         {
             _system.Update();
             _system.ECBufferSystem.Update();

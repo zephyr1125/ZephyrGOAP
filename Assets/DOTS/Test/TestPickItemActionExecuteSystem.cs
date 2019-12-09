@@ -11,9 +11,9 @@ using Unity.Entities;
 
 namespace DOTS.Test
 {
-    public class TestPickRawActionExecuteSystem : TestBase
+    public class TestPickItemActionExecuteSystem : TestBase
     {
-        private PickRawActionExecuteSystem _system;
+        private PickItemActionExecuteSystem _system;
         private Entity _agentEntity, _containerEntity, _currentStateEntity;
 
         [SetUp]
@@ -21,7 +21,7 @@ namespace DOTS.Test
         {
             base.SetUp();
 
-            _system = World.GetOrCreateSystem<PickRawActionExecuteSystem>();
+            _system = World.GetOrCreateSystem<PickItemActionExecuteSystem>();
 
             _agentEntity = EntityManager.CreateEntity();
             _containerEntity = EntityManager.CreateEntity();
