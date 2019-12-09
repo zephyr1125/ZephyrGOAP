@@ -36,6 +36,7 @@ namespace DOTS.Test
             EntityManager.AddComponentData(_agentEntity, new ReadyToNavigating());
             EntityManager.AddComponentData(_agentEntity, new PickRawAction());
             EntityManager.AddComponentData(_agentEntity, new Translation{Value = float3.zero});
+            EntityManager.AddComponentData(_agentEntity, new TargetPosition{Value = float3.zero});
             EntityManager.AddBuffer<ContainedItemRef>(_agentEntity);
             //agent必须带有已经规划好的任务列表
             var bufferNodes = EntityManager.AddBuffer<Node>(_agentEntity);
@@ -53,7 +54,6 @@ namespace DOTS.Test
             _system.ECBSystem.Update();
             EntityManager.CompleteAllJobs();
             
-            Assert.IsTrue(EntityManager.HasComponent<TargetPosition>(_agentEntity));
             Assert.AreEqual(new float3(9,0,0),
                 EntityManager.GetComponentData<TargetPosition>(_agentEntity).Value);
         }
@@ -89,6 +89,5 @@ namespace DOTS.Test
             Assert.IsFalse(EntityManager.HasComponent<ReadyToNavigating>(_agentEntity));
             Assert.Zero(EntityManager.GetComponentData<Agent>(_agentEntity).ExecutingNodeId);
         }
-        
     }
 }
