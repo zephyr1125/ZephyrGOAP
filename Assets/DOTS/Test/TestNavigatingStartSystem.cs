@@ -34,10 +34,8 @@ namespace DOTS.Test
             
             EntityManager.AddComponentData(_agentEntity, new Agent{ExecutingNodeId = 0});
             EntityManager.AddComponentData(_agentEntity, new ReadyToNavigating());
-            EntityManager.AddComponentData(_agentEntity, new PickRawAction());
             EntityManager.AddComponentData(_agentEntity, new Translation{Value = float3.zero});
             EntityManager.AddComponentData(_agentEntity, new TargetPosition{Value = float3.zero});
-            EntityManager.AddBuffer<ContainedItemRef>(_agentEntity);
             //agent必须带有已经规划好的任务列表
             var bufferNodes = EntityManager.AddBuffer<Node>(_agentEntity);
             bufferNodes.Add(new Node

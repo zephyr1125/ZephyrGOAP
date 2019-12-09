@@ -32,6 +32,7 @@ namespace DOTS.Game.System
                 //到达后重置target
                 if (newPosition.Equals(targetPos))
                 {
+                    //todo 如果刚好需要移动到0点怎么办？
                     targetPosition.Value = float3.zero;
                 }
             }
