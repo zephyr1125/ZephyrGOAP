@@ -7,13 +7,13 @@ using Unity.Jobs;
 
 namespace DOTS.Action
 {
-    public struct PickRawAction : IComponentData
+    public struct PickItemAction : IComponentData
     {
         
     }
     
     [BurstCompile]
-    public struct PickRawActionJob : IJobParallelForDefer
+    public struct PickItemActionJob : IJobParallelForDefer
     {
         [ReadOnly]
         private NativeList<Node> _unexpandedNodes;
@@ -28,7 +28,7 @@ namespace DOTS.Action
 
         private readonly int _iteration;
 
-        public PickRawActionJob(ref NativeList<Node> unexpandedNodes, ref StackData stackData,
+        public PickItemActionJob(ref NativeList<Node> unexpandedNodes, ref StackData stackData,
             ref NodeGraph nodeGraph, ref NativeList<Node> newlyExpandedNodes, int iteration)
         {
             _unexpandedNodes = unexpandedNodes;
@@ -59,11 +59,11 @@ namespace DOTS.Action
                     newStates.Sub(effects);
                     newStates.Merge(preconditions);
                 
-                    var node = new Node(ref newStates, nameof(PickRawAction), _iteration, preconditions[0].Target);
+                    var node = new Node(ref newStates, nameof(PickItemAction), _iteration, preconditions[0].Target);
                 
                     //NodeGraph的几个容器都移去了并行限制，小心出错
                     _nodeGraph.AddRouteNode(node, ref newStates, ref preconditions, ref effects,
-                        unexpandedNode, new NativeString64(nameof(PickRawAction)));
+                        unexpandedNode, new NativeString64(nameof(PickItemAction)));
                     _newlyExpandedNodes.Add(node);
                 
                     newStates.Dispose();
@@ -82,7 +82,7 @@ namespace DOTS.Action
             {
                 //只针对要求自身具有原料请求的goal state
                 if (targetState.Target != stackData.AgentEntity) continue;
-                if (targetState.Trait != typeof(RawTrait)) continue;
+                if (targetState.Trait != typeof(ItemContainerTrait)) continue;
 
                 return targetState;
             }
@@ -103,7 +103,7 @@ namespace DOTS.Action
             {
                 SubjectType = StateSubjectType.Closest,    //寻找最近
                 Target = Entity.Null,
-                Trait = typeof(RawTrait),
+                Trait = typeof(ItemContainerTrait),
                 Value = targetState.Value,
                 IsPositive = true,
             };
@@ -131,7 +131,7 @@ namespace DOTS.Action
             {
                 SubjectType = StateSubjectType.Self,
                 Target = stackData.AgentEntity,
-                Trait = typeof(RawTrait),
+                Trait = typeof(ItemContainerTrait),
                 Value = targetState.Value,
                 IsPositive = true
             });

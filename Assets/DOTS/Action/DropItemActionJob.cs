@@ -7,13 +7,13 @@ using Unity.Jobs;
 
 namespace DOTS.Action
 {
-    public struct DropRawAction : IComponentData
+    public struct DropItemAction : IComponentData
     {
         
     }
     
     [BurstCompile]
-    public struct DropRawActionJob : IJobParallelForDefer
+    public struct DropItemActionJob : IJobParallelForDefer
     {
         [ReadOnly]
         private NativeList<Node> _unexpandedNodes;
@@ -28,7 +28,7 @@ namespace DOTS.Action
 
         private readonly int _iteration;
 
-        public DropRawActionJob(ref NativeList<Node> unexpandedNodes, ref StackData stackData,
+        public DropItemActionJob(ref NativeList<Node> unexpandedNodes, ref StackData stackData,
             ref NodeGraph nodeGraph, ref NativeList<Node> newlyExpandedNodes, int iteration)
         {
             _unexpandedNodes = unexpandedNodes;
@@ -60,12 +60,12 @@ namespace DOTS.Action
                     newStates.Sub(effects);
                     newStates.Merge(preconditions);
 
-                    var node = new Node(ref newStates, nameof(DropRawAction), _iteration,
+                    var node = new Node(ref newStates, nameof(DropItemAction), _iteration,
                         targetState.Target);
 
                     //NodeGraph的几个容器都移去了并行限制，小心出错
                     _nodeGraph.AddRouteNode(node, ref newStates, ref preconditions, ref effects,
-                        unexpandedNode, new NativeString64(nameof(DropRawAction)));
+                        unexpandedNode, new NativeString64(nameof(DropItemAction)));
                     NewlyExpandedNodes.Add(node);
 
                     newStates.Dispose();
@@ -84,7 +84,7 @@ namespace DOTS.Action
             {
                 //只针对非自身目标的原料请求的goal state
                 if (targetState.Target == stackData.AgentEntity) continue;
-                if (targetState.Trait != typeof(RawTrait)) continue;
+                if (targetState.Trait != typeof(ItemContainerTrait)) continue;
 
                 return targetState;
             }
@@ -105,7 +105,7 @@ namespace DOTS.Action
             {
                 SubjectType = StateSubjectType.Self,
                 Target = stackData.AgentEntity,
-                Trait = typeof(RawTrait),
+                Trait = typeof(ItemContainerTrait),
                 Value = targetState.Value,
                 IsPositive = true
             });
@@ -124,7 +124,7 @@ namespace DOTS.Action
             {
                 SubjectType = StateSubjectType.Target,
                 Target = targetState.Target,
-                Trait = typeof(RawTrait),
+                Trait = typeof(ItemContainerTrait),
                 Value = targetState.Value,
                 IsPositive = true,
             });

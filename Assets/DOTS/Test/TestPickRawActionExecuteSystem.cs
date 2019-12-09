@@ -37,13 +37,13 @@ namespace DOTS.Test
             
             EntityManager.AddComponentData(_agentEntity, new Agent{ExecutingNodeId = 0});
             EntityManager.AddComponentData(_agentEntity, new ReadyToActing());
-            EntityManager.AddComponentData(_agentEntity, new PickRawAction());
+            EntityManager.AddComponentData(_agentEntity, new PickItemAction());
             EntityManager.AddBuffer<ContainedItemRef>(_agentEntity);
             //agent必须带有已经规划好的任务列表
             var bufferNodes = EntityManager.AddBuffer<Node>(_agentEntity);
             bufferNodes.Add(new Node
             {
-                Name = new NativeString64(nameof(PickRawAction)),
+                Name = new NativeString64(nameof(PickItemAction)),
                 PreconditionsBitmask = 1,
                 EffectsBitmask = 1 << 1,
             });
@@ -52,7 +52,7 @@ namespace DOTS.Test
             {
                 SubjectType = StateSubjectType.Target,
                 Target = _containerEntity,
-                Trait = typeof(RawTrait),
+                Trait = typeof(ItemContainerTrait),
                 Value = new NativeString64("item"),
                 IsPositive = true,
             });
@@ -60,7 +60,7 @@ namespace DOTS.Test
             {
                 SubjectType = StateSubjectType.Self,
                 Target = _agentEntity,
-                Trait = typeof(RawTrait),
+                Trait = typeof(ItemContainerTrait),
                 Value = new NativeString64("item"),
                 IsPositive = true
             });
@@ -70,7 +70,7 @@ namespace DOTS.Test
             {
                 SubjectType = StateSubjectType.Target,
                 Target = _containerEntity,
-                Trait = typeof(RawTrait),
+                Trait = typeof(ItemContainerTrait),
                 IsPositive = true,
                 Value = new NativeString64("item")
             });
@@ -124,7 +124,7 @@ namespace DOTS.Test
             {
                 SubjectType = StateSubjectType.Target,
                 Target = _containerEntity,
-                Trait = typeof(RawTrait),
+                Trait = typeof(ItemContainerTrait),
                 Value = new NativeString64("item"),
                 IsPositive = true,
             };

@@ -20,7 +20,7 @@ namespace DOTS.Test
             var goalStates = new StateGroup(1, Allocator.Temp){new State
             {
                 Target = Entity.Null,
-                Trait = typeof(RawTrait),
+                Trait = typeof(ItemContainerTrait),
                 Value = new NativeString64("test"),
             }};
             _goalNode = new Node(ref goalStates, "goal", 0);
@@ -50,7 +50,7 @@ namespace DOTS.Test
             var state = new State
             {
                 Target = Entity.Null,
-                Trait = typeof(RawTrait),
+                Trait = typeof(ItemContainerTrait),
                 Value = new NativeString64("test"),
             };
             var node = new Node(ref state, "next", 1);

@@ -30,7 +30,7 @@ namespace DOTS.Test
             _targetEntity = EntityManager.CreateEntity();
             _system = World.GetOrCreateSystem<GoalPlanningSystem>();
             
-            EntityManager.AddComponentData(_agentEntity, new DropRawAction());
+            EntityManager.AddComponentData(_agentEntity, new DropItemAction());
             
             _uncheckedNodes = new NativeList<Node>(Allocator.Persistent);
             _unexpandedNodes = new NativeList<Node>(Allocator.Persistent);
@@ -43,7 +43,7 @@ namespace DOTS.Test
             {
                 SubjectType = StateSubjectType.Target,
                 Target = _targetEntity,
-                Trait = typeof(RawTrait),
+                Trait = typeof(ItemContainerTrait),
                 Value = new NativeString64("test"),
                 IsPositive = true
             }};
@@ -57,7 +57,7 @@ namespace DOTS.Test
             {
                 SubjectType = StateSubjectType.Self,
                 Target = _agentEntity,
-                Trait = typeof(RawTrait),
+                Trait = typeof(ItemContainerTrait),
                 Value = new NativeString64("test"),
                 IsPositive = true
             });
@@ -94,7 +94,7 @@ namespace DOTS.Test
             {
                 SubjectType = StateSubjectType.Self,
                 Target = _agentEntity,
-                Trait = typeof(RawTrait),
+                Trait = typeof(ItemContainerTrait),
                 Value = new NativeString64("test"),
                 IsPositive = true
             }, states[0]);
@@ -118,7 +118,7 @@ namespace DOTS.Test
             {
                 SubjectType = StateSubjectType.Target,
                 Target = _targetEntity,
-                Trait = typeof(RawTrait),
+                Trait = typeof(ItemContainerTrait),
                 Value = new NativeString64("test"),
                 IsPositive = true
             }, states[0]);
@@ -140,7 +140,7 @@ namespace DOTS.Test
         [Test]
         public void NoSuitAction_NoExpand()
         {
-            EntityManager.RemoveComponent<DropRawAction>(_agentEntity);
+            EntityManager.RemoveComponent<DropItemAction>(_agentEntity);
             
             _system.ExpandNodes(ref _unexpandedNodes, ref _stackData, ref _nodeGraph,
                 ref _uncheckedNodes, ref _expandedNodes, 1);
@@ -155,7 +155,7 @@ namespace DOTS.Test
             {
                 SubjectType = StateSubjectType.Target,
                 Target = _targetEntity,
-                Trait = typeof(RawTrait),
+                Trait = typeof(ItemContainerTrait),
                 Value = new NativeString64("test"),
                 IsPositive = true
             }, states[0]);

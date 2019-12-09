@@ -46,17 +46,17 @@ namespace DOTS.Test
             EntityManager.AddComponentData(_targetContainerEntity, new ItemContainer{IsTransferSource = false});
             
             //GOAP数据
-            EntityManager.AddComponentData(_rawSourceEntity, new RawTrait());
+            EntityManager.AddComponentData(_rawSourceEntity, new ItemContainerTrait());
             EntityManager.AddComponentData(_agentEntity, new Agent());
-            EntityManager.AddComponentData(_agentEntity, new PickRawAction());
-            EntityManager.AddComponentData(_agentEntity, new DropRawAction());
+            EntityManager.AddComponentData(_agentEntity, new PickItemAction());
+            EntityManager.AddComponentData(_agentEntity, new DropItemAction());
             EntityManager.AddComponentData(_agentEntity, new GoalPlanning());
             var stateBuffer = EntityManager.AddBuffer<State>(_agentEntity);
             _goalState = new State
             {
                 SubjectType = StateSubjectType.Target,
                 Target = _targetContainerEntity,
-                Trait = typeof(RawTrait),
+                Trait = typeof(ItemContainerTrait),
                 Value = new NativeString64("item"),
                 IsPositive = true
             };
@@ -111,7 +111,7 @@ namespace DOTS.Test
                 {
                     SubjectType = StateSubjectType.Target,
                     Target = _rawSourceEntity,
-                    Trait = typeof(RawTrait),
+                    Trait = typeof(ItemContainerTrait),
                     Value = new NativeString64("item"),
                     IsPositive = true,
                 }, parentStates[0]);
@@ -127,7 +127,7 @@ namespace DOTS.Test
             {
                 edgesCount++;
                 var edge = edges.Current;
-                Assert.AreEqual(new NativeString64(nameof(PickRawAction)),
+                Assert.AreEqual(new NativeString64(nameof(PickItemAction)),
                     edge.ActionName);
                 dropNode = edge.Parent;
                 var parentStates = nodeGraph.GetNodeStates(dropNode, Allocator.Temp);
@@ -136,7 +136,7 @@ namespace DOTS.Test
                 {
                     SubjectType = StateSubjectType.Self,
                     Target = _agentEntity,
-                    Trait = typeof(RawTrait),
+                    Trait = typeof(ItemContainerTrait),
                     Value = new NativeString64("item"),
                     IsPositive = true,
                 }, parentStates[0]);
@@ -152,7 +152,7 @@ namespace DOTS.Test
             {
                 edgesCount++;
                 var edge = edges.Current;
-                Assert.AreEqual(new NativeString64(nameof(DropRawAction)),
+                Assert.AreEqual(new NativeString64(nameof(DropItemAction)),
                     edge.ActionName);
                 goalNode = edge.Parent;
                 var parentStates = nodeGraph.GetNodeStates(goalNode, Allocator.Temp);
@@ -161,7 +161,7 @@ namespace DOTS.Test
                 {
                     SubjectType = StateSubjectType.Target,
                     Target = _targetContainerEntity,
-                    Trait = typeof(RawTrait),
+                    Trait = typeof(ItemContainerTrait),
                     Value = new NativeString64("item"),
                     IsPositive = true,
                 }, parentStates[0]);
@@ -221,7 +221,7 @@ namespace DOTS.Test
                     {
                         SubjectType = StateSubjectType.Self,
                         Target = _agentEntity,
-                        Trait = typeof(RawTrait),
+                        Trait = typeof(ItemContainerTrait),
                         Value = new NativeString64("item"),
                         IsPositive = true
                     }, bufferStates[i]);
@@ -234,7 +234,7 @@ namespace DOTS.Test
                     {
                         SubjectType = StateSubjectType.Target,
                         Target = _targetContainerEntity,
-                        Trait = typeof(RawTrait),
+                        Trait = typeof(ItemContainerTrait),
                         Value = new NativeString64("item"),
                         IsPositive = true
                     }, bufferStates[i]);
@@ -247,7 +247,7 @@ namespace DOTS.Test
                     {
                         SubjectType = StateSubjectType.Target,
                         Target = _rawSourceEntity,
-                        Trait = typeof(RawTrait),
+                        Trait = typeof(ItemContainerTrait),
                         Value = new NativeString64("item"),
                         IsPositive = true
                     }, bufferStates[i]);
@@ -260,7 +260,7 @@ namespace DOTS.Test
                     {
                         SubjectType = StateSubjectType.Self,
                         Target = _agentEntity,
-                        Trait = typeof(RawTrait),
+                        Trait = typeof(ItemContainerTrait),
                         Value = new NativeString64("item"),
                         IsPositive = true
                     }, bufferStates[i]);

@@ -21,7 +21,7 @@ namespace DOTS.System.ActionExecuteSystem
             ECBSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
         }
 
-        [RequireComponentTag(typeof(PickRawAction), typeof(ContainedItemRef), typeof(ReadyToActing))]
+        [RequireComponentTag(typeof(PickItemAction), typeof(ContainedItemRef), typeof(ReadyToActing))]
         public struct DropRawActionExecuteJob : IJobForEachWithEntity_EBBC<Node, State, Agent>
         {
             [ReadOnly]
@@ -37,7 +37,7 @@ namespace DOTS.System.ActionExecuteSystem
             {
                 //执行进度要处于正确的id上
                 var currentNode = nodes[agent.ExecutingNodeId];
-                if (!currentNode.Name.Equals(new NativeString64(nameof(DropRawAction))))
+                if (!currentNode.Name.Equals(new NativeString64(nameof(DropItemAction))))
                     return;
 
                 //从effect里找目标.

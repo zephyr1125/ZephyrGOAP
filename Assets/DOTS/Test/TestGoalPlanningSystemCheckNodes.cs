@@ -37,7 +37,7 @@ namespace DOTS.Test
             var goalStates = new StateGroup(1, Allocator.Temp){new State
             {
                 Target = _targetEntity,
-                Trait = typeof(RawTrait),
+                Trait = typeof(ItemContainerTrait),
                 Value = new NativeString64("test"),
             }};
             _goalNode = new Node(ref goalStates,"goal", 0);
@@ -49,7 +49,7 @@ namespace DOTS.Test
             _currentStates.Add(new State
             {
                 Target = _agentEntity,
-                Trait = typeof(RawTrait),
+                Trait = typeof(ItemContainerTrait),
                 Value = new NativeString64("test"),
             });
         }
@@ -70,7 +70,7 @@ namespace DOTS.Test
             var state = new State
             {
                 Target = _agentEntity,
-                Trait = typeof(RawTrait),
+                Trait = typeof(ItemContainerTrait),
                 Value = new NativeString64("test"),
             };
             var node = new Node(ref state, "route", 1);

@@ -21,7 +21,7 @@ namespace DOTS.System.SensorSystem
             ECBufferSystem = World.GetOrCreateSystem<SensorsSetCurrentStatesECBufferSystem>();
         }
 
-        [RequireComponentTag(typeof(RawTrait))]
+        [RequireComponentTag(typeof(ItemContainerTrait))]
         private struct SenseJob : IJobForEachWithEntity_EBC<ContainedItemRef, ItemContainer>
         {
             public EntityCommandBuffer.Concurrent ECBuffer;
@@ -41,7 +41,7 @@ namespace DOTS.System.SensorSystem
                     {
                         SubjectType = StateSubjectType.Target,
                         Target = entity,
-                        Trait = typeof(RawTrait),
+                        Trait = typeof(ItemContainerTrait),
                         IsPositive = true,
                         Value = itemRef.ItemName
                     });

@@ -27,7 +27,7 @@ namespace DOTS.Test.SensorSystem
             _system = World.GetOrCreateSystem<RawSourceSensorSystem>();
             _containerEntity = EntityManager.CreateEntity();
             
-            EntityManager.AddComponentData(_containerEntity, new RawTrait());
+            EntityManager.AddComponentData(_containerEntity, new ItemContainerTrait());
             EntityManager.AddComponentData(_containerEntity, new ItemContainer
             {
                 Capacity = 1, IsTransferSource = true
@@ -53,7 +53,7 @@ namespace DOTS.Test.SensorSystem
             {
                 SubjectType = StateSubjectType.Target,
                 Target = _containerEntity,
-                Trait = typeof(RawTrait),
+                Trait = typeof(ItemContainerTrait),
                 IsPositive = true,
                 Value = new NativeString64("test")
             }, buffer[0]);

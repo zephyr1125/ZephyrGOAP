@@ -4,9 +4,9 @@ using Zephyr.GOAP.Runtime.Component;
 namespace DOTS.Component.Trait
 {
     /// <summary>
-    /// 表示一个Entity为原料来源
+    /// 表示一个Entity为物品容器
     /// </summary>
-    public struct RawTrait : IComponentData, ITrait
+    public struct ItemContainerTrait : IComponentData, ITrait
     {
     }
 }

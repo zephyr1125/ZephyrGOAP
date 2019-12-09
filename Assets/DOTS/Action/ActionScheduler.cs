@@ -25,16 +25,16 @@ namespace DOTS.Action
         {
             var entityManager = World.Active.EntityManager;
             
-            if (entityManager.HasComponent<DropRawAction>(StackData.AgentEntity))
+            if (entityManager.HasComponent<DropItemAction>(StackData.AgentEntity))
             {
-                inputDeps = new DropRawActionJob(ref UnexpandedNodes, ref StackData,
+                inputDeps = new DropItemActionJob(ref UnexpandedNodes, ref StackData,
                     ref NodeGraph, ref NewlyExpandedNodes, Iteration).Schedule(
                     UnexpandedNodes, 0, inputDeps);
             }
 
-            if (entityManager.HasComponent<PickRawAction>(StackData.AgentEntity))
+            if (entityManager.HasComponent<PickItemAction>(StackData.AgentEntity))
             {
-                inputDeps = new PickRawActionJob(ref UnexpandedNodes, ref StackData,
+                inputDeps = new PickItemActionJob(ref UnexpandedNodes, ref StackData,
                     ref NodeGraph, ref NewlyExpandedNodes, Iteration).Schedule(
                     UnexpandedNodes, 0, inputDeps);
             }
