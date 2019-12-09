@@ -2,6 +2,7 @@ using DOTS.Component;
 using DOTS.Component.AgentState;
 using DOTS.Game.ComponentData;
 using DOTS.Struct;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Transforms;
@@ -12,31 +13,27 @@ namespace DOTS.System
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public class NavigatingStartSystem : JobComponentSystem
     {
+        public EntityCommandBufferSystem ECBSystem;
+
+        protected override void OnCreate()
+        {
+            ECBSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+        }
+
         [RequireComponentTag(typeof(ReadyToNavigating))]
-        private struct NavigatingStartJob : IJobForEachWithEntity_EBBC<Node, State, Agent>
+        private struct NavigatingStartJob : IJobForEachWithEntity_EBC<Node, Agent>
         {
             public EntityCommandBuffer.Concurrent ECBuffer;
 
+            [ReadOnly]
             public ComponentDataFromEntity<Translation> Translations;
             
-            public void Execute(Entity entity, int jobIndex, DynamicBuffer<Node> nodes,
-                DynamicBuffer<State> states, ref Agent agent)
+            public void Execute(Entity entity, int jobIndex, DynamicBuffer<Node> nodes, ref Agent agent)
             {
                 var currentNode = nodes[agent.ExecutingNodeId];
-                //todo 目标不一定来自effect,在哪儿写明导航目标呢
-                //从effect获取目标
-                var targetEntity = Entity.Null;
-                for (var i = 0; i < states.Length; i++)
-                {
-                    if ((currentNode.EffectsBitmask & (ulong)1 << i) > 0)
-                    {
-                        var effect = states[i];
-                        Assert.IsTrue(effect.Target!=null);
-                        
-                        targetEntity = effect.Target;
-                        break;
-                    }
-                }
+                //从node获取目标
+                var targetEntity = currentNode.NavigatingSubject;
+                if (targetEntity == Entity.Null) return;
 
                 if (targetEntity == entity)
                 {
@@ -52,10 +49,10 @@ namespace DOTS.System
                 //todo 路径规划
                 
                 //设置target,通知开始移动
-                ECBuffer.SetComponent(jobIndex, entity,
+                ECBuffer.AddComponent(jobIndex, entity,
                     new TargetPosition{Value = Translations[targetEntity].Value});
                 
-                //等待移动结束
+                //切换agent状态,等待移动结束
                 Utils.NextAgentState<ReadyToNavigating, Navigating>(entity, jobIndex,
                     ref ECBuffer, agent, false);
             }
@@ -63,7 +60,14 @@ namespace DOTS.System
         
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            return inputDeps;
+            var job = new NavigatingStartJob
+            {
+                ECBuffer = ECBSystem.CreateCommandBuffer().ToConcurrent(),
+                Translations = GetComponentDataFromEntity<Translation>()
+            };
+            var handle = job.Schedule(this, inputDeps);
+            ECBSystem.AddJobHandleForProducer(handle);
+            return handle;
         }
     }
 }
