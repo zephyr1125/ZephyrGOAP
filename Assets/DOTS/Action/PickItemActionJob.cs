@@ -7,75 +7,14 @@ using Unity.Jobs;
 
 namespace DOTS.Action
 {
-    public struct PickItemAction : IComponentData
+    public struct PickItemAction : IComponentData, IAction
     {
+        public NativeString64 GetName()
+        {
+            return new NativeString64(nameof(PickItemAction));
+        }
         
-    }
-    
-    [BurstCompile]
-    public struct PickItemActionJob : IJobParallelForDefer
-    {
-        [ReadOnly]
-        private NativeList<Node> _unexpandedNodes;
-
-        [ReadOnly]
-        private StackData _stackData;
-
-        private NodeGraph _nodeGraph;
-
-        [NativeDisableParallelForRestriction]
-        private NativeList<Node> _newlyExpandedNodes;
-
-        private readonly int _iteration;
-
-        public PickItemActionJob(ref NativeList<Node> unexpandedNodes, ref StackData stackData,
-            ref NodeGraph nodeGraph, ref NativeList<Node> newlyExpandedNodes, int iteration)
-        {
-            _unexpandedNodes = unexpandedNodes;
-            _stackData = stackData;
-            _nodeGraph = nodeGraph;
-            _newlyExpandedNodes = newlyExpandedNodes;
-            _iteration = iteration;
-        }
-
-        public void Execute(int jobIndex)
-        {
-            var unexpandedNode = _unexpandedNodes[jobIndex];
-            var targetStates = _nodeGraph.GetNodeStates(unexpandedNode, Allocator.Temp);
-            
-            var preconditions = new StateGroup(1, Allocator.Temp);
-            var effects = new StateGroup(1, Allocator.Temp);
-            
-            var targetState = GetTargetGoalState(ref targetStates, ref _stackData);
-            
-            if (!targetState.Equals(default))
-            {
-                GetPreconditions(ref targetState, ref _stackData, ref preconditions);
-                GetEffects(ref targetState, ref _stackData, ref effects);
-
-                if (effects.Length() > 0)
-                {
-                    var newStates = new StateGroup(targetStates, Allocator.Temp);
-                    newStates.Sub(effects);
-                    newStates.Merge(preconditions);
-                
-                    var node = new Node(ref newStates, nameof(PickItemAction), _iteration, preconditions[0].Target);
-                
-                    //NodeGraph的几个容器都移去了并行限制，小心出错
-                    _nodeGraph.AddRouteNode(node, ref newStates, ref preconditions, ref effects,
-                        unexpandedNode, new NativeString64(nameof(PickItemAction)));
-                    _newlyExpandedNodes.Add(node);
-                
-                    newStates.Dispose();
-                }
-            }
-            
-            preconditions.Dispose();
-            effects.Dispose();
-            targetStates.Dispose();
-        }
-
-        private State GetTargetGoalState([ReadOnly]ref StateGroup targetStates,
+        public State GetTargetGoalState([ReadOnly]ref StateGroup targetStates,
             [ReadOnly]ref StackData stackData)
         {
             foreach (var targetState in targetStates)
@@ -96,7 +35,7 @@ namespace DOTS.Action
         /// <param name="targetState"></param>
         /// <param name="stackData"></param>
         /// <param name="preconditions"></param>
-        private void GetPreconditions([ReadOnly]ref State targetState,
+        public void GetPreconditions([ReadOnly]ref State targetState,
             [ReadOnly]ref StackData stackData, ref StateGroup preconditions)
         {
             var template = new State
@@ -124,7 +63,7 @@ namespace DOTS.Action
         /// <param name="targetState"></param>
         /// <param name="stackData"></param>
         /// <param name="effects"></param>
-        private void GetEffects([ReadOnly]ref State targetState,
+        public void GetEffects([ReadOnly]ref State targetState,
             [ReadOnly]ref StackData stackData, ref StateGroup effects)
         {
             effects.Add(new State
@@ -135,6 +74,11 @@ namespace DOTS.Action
                 Value = targetState.Value,
                 IsPositive = true
             });
+        }
+        
+        public Entity GetNavigatingSubject(ref State targetState, ref StackData stackData, ref StateGroup preconditions)
+        {
+            return preconditions[0].Target;
         }
     }
 }

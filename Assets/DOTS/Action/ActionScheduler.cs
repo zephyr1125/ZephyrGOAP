@@ -103,8 +103,8 @@ namespace DOTS.Action
 
             if (entityManager.HasComponent<PickItemAction>(StackData.AgentEntity))
             {
-                inputDeps = new PickItemActionJob(ref UnexpandedNodes, ref StackData,
-                    ref NodeGraph, ref NewlyExpandedNodes, Iteration).Schedule(
+                inputDeps = new ActionExpandJob<PickItemAction>(ref UnexpandedNodes, ref StackData,
+                    ref NodeGraph, ref NewlyExpandedNodes, Iteration, new PickItemAction()).Schedule(
                     UnexpandedNodes, 0, inputDeps);
             }
 
