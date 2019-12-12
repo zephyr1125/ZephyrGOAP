@@ -21,9 +21,9 @@ namespace DOTS.Test
             {
                 Target = Entity.Null,
                 Trait = typeof(ItemContainerTrait),
-                Value = new NativeString64("test"),
+                ValueString = new NativeString64("test"),
             }};
-            _goalNode = new Node(ref goalStates, "goal", 0);
+            _goalNode = new Node(ref goalStates, new NativeString64("goal"), 0);
             
             _nodeGraph = new NodeGraph(1, Allocator.Persistent);
             _nodeGraph.SetGoalNode(_goalNode, ref goalStates);
@@ -51,9 +51,9 @@ namespace DOTS.Test
             {
                 Target = Entity.Null,
                 Trait = typeof(ItemContainerTrait),
-                Value = new NativeString64("test"),
+                ValueString = new NativeString64("test"),
             };
-            var node = new Node(ref state, "next", 1);
+            var node = new Node(ref state, new NativeString64("next"), 1);
             var preconditions = new StateGroup();
             var effects = new StateGroup();
             _nodeGraph.AddRouteNode(node, ref state, ref preconditions, ref effects, _goalNode,

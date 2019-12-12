@@ -14,16 +14,13 @@ namespace DOTS.Action
 
         public State GetTargetGoalState(ref StateGroup targetStates, ref StackData stackData)
         {
-            foreach (var targetState in targetStates)
+            var stateFilter = new State
             {
-                //只针对非自身目标的原料请求的goal state
-                if (targetState.Target == stackData.AgentEntity) continue;
-                if (targetState.Trait != typeof(ItemContainerTrait)) continue;
-
-                return targetState;
-            }
-
-            return default;
+                SubjectType = StateSubjectType.Target,
+                Trait = typeof(ItemContainerTrait),
+                IsPositive = true
+            };
+            return targetStates.GetBelongingState(stateFilter);
         }
 
         public void GetPreconditions(ref State targetState, ref StackData stackData, ref StateGroup preconditions)
@@ -33,7 +30,7 @@ namespace DOTS.Action
                 SubjectType = StateSubjectType.Self,
                 Target = stackData.AgentEntity,
                 Trait = typeof(ItemContainerTrait),
-                Value = targetState.Value,
+                ValueString = targetState.ValueString,
                 IsPositive = true
             });
         }
@@ -45,7 +42,7 @@ namespace DOTS.Action
                 SubjectType = StateSubjectType.Target,
                 Target = targetState.Target,
                 Trait = typeof(ItemContainerTrait),
-                Value = targetState.Value,
+                ValueString = targetState.ValueString,
                 IsPositive = true,
             });
         }

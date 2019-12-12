@@ -51,7 +51,7 @@ namespace DOTS.System.ActionExecuteSystem
                         Assert.IsTrue(effect.Target!=null);
                         
                         targetEntity = effect.Target;
-                        targetItemName = effect.Value;
+                        targetItemName = effect.ValueString;
                         break;
                     }
                 }
@@ -92,6 +92,7 @@ namespace DOTS.System.ActionExecuteSystem
             };
             var handle = job.Schedule(this, inputDeps);
             ECBSystem.AddJobHandleForProducer(handle);
+            currentStates.Dispose();
             return handle;
         }
     }

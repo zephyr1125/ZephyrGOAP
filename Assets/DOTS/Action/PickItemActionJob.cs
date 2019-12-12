@@ -43,7 +43,7 @@ namespace DOTS.Action
                 SubjectType = StateSubjectType.Closest,    //寻找最近
                 Target = Entity.Null,
                 Trait = typeof(ItemContainerTrait),
-                Value = targetState.Value,
+                ValueString = targetState.ValueString,
                 IsPositive = true,
             };
             //todo 此处理应寻找最近目标，但目前的示例里没有transform系统，暂时直接用第一个合适的目标
@@ -71,7 +71,7 @@ namespace DOTS.Action
                 SubjectType = StateSubjectType.Self,
                 Target = stackData.AgentEntity,
                 Trait = typeof(ItemContainerTrait),
-                Value = targetState.Value,
+                ValueString = targetState.ValueString,
                 IsPositive = true
             });
         }

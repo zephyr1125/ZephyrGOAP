@@ -44,10 +44,10 @@ namespace DOTS.Test
                 SubjectType = StateSubjectType.Target,
                 Target = _targetEntity,
                 Trait = typeof(ItemContainerTrait),
-                Value = new NativeString64("test"),
+                ValueString = new NativeString64("test"),
                 IsPositive = true
             }};
-            _goalNode = new Node(ref goalStates, "goal", 0);
+            _goalNode = new Node(ref goalStates, new NativeString64("goal"), 0);
             
             _nodeGraph.SetGoalNode(_goalNode, ref goalStates);
             
@@ -58,7 +58,7 @@ namespace DOTS.Test
                 SubjectType = StateSubjectType.Self,
                 Target = _agentEntity,
                 Trait = typeof(ItemContainerTrait),
-                Value = new NativeString64("test"),
+                ValueString = new NativeString64("test"),
                 IsPositive = true
             });
             
@@ -95,7 +95,7 @@ namespace DOTS.Test
                 SubjectType = StateSubjectType.Self,
                 Target = _agentEntity,
                 Trait = typeof(ItemContainerTrait),
-                Value = new NativeString64("test"),
+                ValueString = new NativeString64("test"),
                 IsPositive = true
             }, states[0]);
             
@@ -119,7 +119,7 @@ namespace DOTS.Test
                 SubjectType = StateSubjectType.Target,
                 Target = _targetEntity,
                 Trait = typeof(ItemContainerTrait),
-                Value = new NativeString64("test"),
+                ValueString = new NativeString64("test"),
                 IsPositive = true
             }, states[0]);
             
@@ -156,7 +156,7 @@ namespace DOTS.Test
                 SubjectType = StateSubjectType.Target,
                 Target = _targetEntity,
                 Trait = typeof(ItemContainerTrait),
-                Value = new NativeString64("test"),
+                ValueString = new NativeString64("test"),
                 IsPositive = true
             }, states[0]);
             

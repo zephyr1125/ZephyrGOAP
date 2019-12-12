@@ -76,12 +76,13 @@ namespace DOTS.Struct
         public void Merge(StateGroup other)
         {
             //todo 还需要考虑冲突可能，即针对同一个目标的两个state不相容
-            foreach (var otherState in other._states)
+            for (var i = 0; i < other._states.Length; i++)
             {
+                var otherState = other._states[i];
                 var contained = false;
-                foreach (var state in _states)
+                for (var j = 0; j < _states.Length; j++)
                 {
-                    if (state.Fits(otherState))
+                    if (_states[j].Fits(otherState))
                     {
                         contained = true;
                         break;
@@ -110,6 +111,24 @@ namespace DOTS.Struct
                     }
                 }
             }
+        }
+
+        public State GetState(Func<State, bool> compare)
+        {
+            foreach (var state in _states)
+            {
+                if (compare(state)) return state;
+            }
+            return State.Null;
+        }
+
+        public State GetBelongingState(State belongTo)
+        {
+            foreach (var state in _states)
+            {
+                if (state.BelongTo(belongTo)) return state;
+            }
+            return State.Null;
         }
 
         public void WriteBuffer(ref DynamicBuffer<State> buffer)

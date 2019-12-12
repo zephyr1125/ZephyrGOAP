@@ -61,7 +61,7 @@ namespace DOTS.Action
 
                 var targetState = _action.GetTargetGoalState(ref targetStates, ref _stackData);
 
-                if (!targetState.Equals(default))
+                if (!targetState.Equals(State.Null))
                 {
                     _action.GetPreconditions(ref targetState, ref _stackData, ref preconditions);
                     _action.GetEffects(ref targetState, ref _stackData, ref effects);
@@ -72,7 +72,7 @@ namespace DOTS.Action
                         newStates.Sub(effects);
                         newStates.Merge(preconditions);
 
-                        var node = new Node(ref newStates, nameof(PickItemAction), _iteration,
+                        var node = new Node(ref newStates, _action.GetName(), _iteration,
                             _action.GetNavigatingSubject(ref targetState, ref _stackData, ref preconditions));
 
                         //NodeGraph的几个容器都移去了并行限制，小心出错
@@ -105,6 +105,13 @@ namespace DOTS.Action
             {
                 inputDeps = new ActionExpandJob<PickItemAction>(ref UnexpandedNodes, ref StackData,
                     ref NodeGraph, ref NewlyExpandedNodes, Iteration, new PickItemAction()).Schedule(
+                    UnexpandedNodes, 0, inputDeps);
+            }
+            
+            if (entityManager.HasComponent<EatAction>(StackData.AgentEntity))
+            {
+                inputDeps = new ActionExpandJob<EatAction>(ref UnexpandedNodes, ref StackData,
+                    ref NodeGraph, ref NewlyExpandedNodes, Iteration, new EatAction()).Schedule(
                     UnexpandedNodes, 0, inputDeps);
             }
 

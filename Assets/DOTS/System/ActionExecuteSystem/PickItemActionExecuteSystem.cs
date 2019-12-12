@@ -51,7 +51,7 @@ namespace DOTS.System.ActionExecuteSystem
                         Assert.IsTrue(precondition.Target!=null);
                         
                         targetEntity = precondition.Target;
-                        targetItemName = precondition.Value;
+                        targetItemName = precondition.ValueString;
                         break;
                     }
                 }
@@ -92,6 +92,7 @@ namespace DOTS.System.ActionExecuteSystem
             };
             var handle = job.Schedule(this, inputDeps);
             ECBSystem.AddJobHandleForProducer(handle);
+            currentStates.Dispose();
             return handle;
         }
     }

@@ -83,7 +83,7 @@ namespace DOTS.System
 
                 var nodeGraph = new NodeGraph(1, Allocator.TempJob);
 
-                var goalNode = new Node(ref goalStates, "goal", 0);
+                var goalNode = new Node(ref goalStates, new NativeString64("goal"), 0);
                 //goalNode进入graph
                 nodeGraph.SetGoalNode(goalNode, ref goalStates);
 

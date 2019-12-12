@@ -57,7 +57,7 @@ namespace DOTS.Test
                 SubjectType = StateSubjectType.Target,
                 Target = _targetContainerEntity,
                 Trait = typeof(ItemContainerTrait),
-                Value = new NativeString64("item"),
+                ValueString = new NativeString64("item"),
                 IsPositive = true
             };
             stateBuffer.Add(_goalState);
@@ -112,7 +112,7 @@ namespace DOTS.Test
                     SubjectType = StateSubjectType.Target,
                     Target = _itemSourceEntity,
                     Trait = typeof(ItemContainerTrait),
-                    Value = new NativeString64("item"),
+                    ValueString = new NativeString64("item"),
                     IsPositive = true,
                 }, parentStates[0]);
                 parentStates.Dispose();
@@ -137,7 +137,7 @@ namespace DOTS.Test
                     SubjectType = StateSubjectType.Self,
                     Target = _agentEntity,
                     Trait = typeof(ItemContainerTrait),
-                    Value = new NativeString64("item"),
+                    ValueString = new NativeString64("item"),
                     IsPositive = true,
                 }, parentStates[0]);
                 parentStates.Dispose();
@@ -162,7 +162,7 @@ namespace DOTS.Test
                     SubjectType = StateSubjectType.Target,
                     Target = _targetContainerEntity,
                     Trait = typeof(ItemContainerTrait),
-                    Value = new NativeString64("item"),
+                    ValueString = new NativeString64("item"),
                     IsPositive = true,
                 }, parentStates[0]);
                 parentStates.Dispose();
@@ -222,7 +222,7 @@ namespace DOTS.Test
                         SubjectType = StateSubjectType.Self,
                         Target = _agentEntity,
                         Trait = typeof(ItemContainerTrait),
-                        Value = new NativeString64("item"),
+                        ValueString = new NativeString64("item"),
                         IsPositive = true
                     }, bufferStates[i]);
                 }
@@ -235,7 +235,7 @@ namespace DOTS.Test
                         SubjectType = StateSubjectType.Target,
                         Target = _targetContainerEntity,
                         Trait = typeof(ItemContainerTrait),
-                        Value = new NativeString64("item"),
+                        ValueString = new NativeString64("item"),
                         IsPositive = true
                     }, bufferStates[i]);
                 }
@@ -248,7 +248,7 @@ namespace DOTS.Test
                         SubjectType = StateSubjectType.Target,
                         Target = _itemSourceEntity,
                         Trait = typeof(ItemContainerTrait),
-                        Value = new NativeString64("item"),
+                        ValueString = new NativeString64("item"),
                         IsPositive = true
                     }, bufferStates[i]);
                 }
@@ -261,7 +261,7 @@ namespace DOTS.Test
                         SubjectType = StateSubjectType.Self,
                         Target = _agentEntity,
                         Trait = typeof(ItemContainerTrait),
-                        Value = new NativeString64("item"),
+                        ValueString = new NativeString64("item"),
                         IsPositive = true
                     }, bufferStates[i]);
                 }

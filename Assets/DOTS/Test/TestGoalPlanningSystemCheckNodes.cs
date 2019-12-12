@@ -38,9 +38,9 @@ namespace DOTS.Test
             {
                 Target = _targetEntity,
                 Trait = typeof(ItemContainerTrait),
-                Value = new NativeString64("test"),
+                ValueString = new NativeString64("test"),
             }};
-            _goalNode = new Node(ref goalStates,"goal", 0);
+            _goalNode = new Node(ref goalStates,new NativeString64("goal"), 0);
             
             _nodeGraph.SetGoalNode(_goalNode, ref goalStates);
             
@@ -50,7 +50,7 @@ namespace DOTS.Test
             {
                 Target = _agentEntity,
                 Trait = typeof(ItemContainerTrait),
-                Value = new NativeString64("test"),
+                ValueString = new NativeString64("test"),
             });
         }
 
@@ -71,9 +71,9 @@ namespace DOTS.Test
             {
                 Target = _agentEntity,
                 Trait = typeof(ItemContainerTrait),
-                Value = new NativeString64("test"),
+                ValueString = new NativeString64("test"),
             };
-            var node = new Node(ref state, "route", 1);
+            var node = new Node(ref state, new NativeString64("route"), 1);
 
             var preconditions = new StateGroup();
             var effects = new StateGroup();
@@ -108,9 +108,9 @@ namespace DOTS.Test
             {
                 Target = _agentEntity,
                 Trait = typeof(GatherStationTrait),
-                Value = new NativeString64("test"),
+                ValueString = new NativeString64("test"),
             };
-            var node = new Node(ref state, "route", 1);
+            var node = new Node(ref state, new NativeString64("route"), 1);
 
             var preconditions = new StateGroup();
             var effects = new StateGroup();

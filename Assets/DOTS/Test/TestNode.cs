@@ -18,13 +18,13 @@ namespace DOTS.Test
             {
                 Target = Entity.Null,
                 Trait = typeof(ItemContainerTrait),
-                Value = new NativeString64("test"),
+                ValueString = new NativeString64("test"),
             }};
             _states1 = new StateGroup(1, Allocator.Temp){new State
             {
                 Target = Entity.Null,
                 Trait = typeof(ItemContainerTrait),
-                Value = new NativeString64("test"),
+                ValueString = new NativeString64("test"),
             }};
         }
 
@@ -40,8 +40,8 @@ namespace DOTS.Test
         [Test]
         public void SameStates_NodesAreEqual()
         {
-            var node0 = new Node(ref _states0, "node0", 0);
-            var node1 = new Node(ref _states1, "node1", 0);
+            var node0 = new Node(ref _states0, new NativeString64("node0"), 0);
+            var node1 = new Node(ref _states1, new NativeString64("node1"), 0);
             
             Assert.AreEqual(node1, node0);
             Assert.IsTrue(node0.Equals(node1));
@@ -53,11 +53,11 @@ namespace DOTS.Test
             _states1.Add(new State{
                 Target = Entity.Null,
                 Trait = typeof(GatherStationTrait),
-                Value = new NativeString64("test"),
+                ValueString = new NativeString64("test"),
             });
             
-            var node0 = new Node(ref _states0, "node0", 0);
-            var node1 = new Node(ref _states1, "node1", 0);
+            var node0 = new Node(ref _states0, new NativeString64("node0"), 0);
+            var node1 = new Node(ref _states1, new NativeString64("node1"), 0);
             
             Assert.AreNotEqual(node1, node0);
             Assert.IsFalse(node0.Equals(node1));

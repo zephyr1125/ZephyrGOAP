@@ -30,17 +30,17 @@ namespace DOTS.Struct
         /// </summary>
         public Entity NavigatingSubject;
 
-        public Node(ref StateGroup states, string name, int iteration, Entity navigatingSubject = new Entity()) : this()
+        public Node(ref StateGroup states, NativeString64 name, int iteration, Entity navigatingSubject = new Entity()) : this()
         {
-            Name = new NativeString64(name);
+            Name = name;
             Iteration = iteration;
             NavigatingSubject = navigatingSubject;
             _hashCode = states.GetHashCode();
         }
         
-        public Node(ref State state, string name, int iteration, Entity navigatingSubject = new Entity()) : this()
+        public Node(ref State state, NativeString64 name, int iteration, Entity navigatingSubject = new Entity()) : this()
         {
-            Name = new NativeString64(name);
+            Name = name;
             Iteration = iteration;
             NavigatingSubject = navigatingSubject;
             _hashCode = state.GetHashCode();

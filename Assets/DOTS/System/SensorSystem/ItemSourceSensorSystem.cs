@@ -41,7 +41,7 @@ namespace DOTS.System.SensorSystem
                         Target = entity,
                         Trait = typeof(ItemContainerTrait),
                         IsPositive = true,
-                        Value = itemRef.ItemName
+                        ValueString = itemRef.ItemName
                     });
                 }
             }
