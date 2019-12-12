@@ -15,7 +15,7 @@ namespace DOTS.Test
     /// 目标：获得体力
     /// 预期：规划出Eat
     /// </summary>
-    public class TestEat : TestBase
+    public class TestEatAction : TestBase
     {
         private GoalPlanningSystem _system;
         private Entity _agentEntity;

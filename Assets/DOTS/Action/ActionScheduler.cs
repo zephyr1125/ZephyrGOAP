@@ -94,24 +94,19 @@ namespace DOTS.Action
         {
             var entityManager = World.Active.EntityManager;
             
-            if (entityManager.HasComponent<DropItemAction>(StackData.AgentEntity))
-            {
-                inputDeps = new ActionExpandJob<DropItemAction>(ref UnexpandedNodes, ref StackData,
-                    ref NodeGraph, ref NewlyExpandedNodes, Iteration, new DropItemAction()).Schedule(
-                    UnexpandedNodes, 0, inputDeps);
-            }
+            inputDeps = ScheduleAction<DropItemAction>(inputDeps, entityManager);
+            inputDeps = ScheduleAction<PickItemAction>(inputDeps, entityManager);
+            inputDeps = ScheduleAction<EatAction>(inputDeps, entityManager);
 
-            if (entityManager.HasComponent<PickItemAction>(StackData.AgentEntity))
+            return inputDeps;
+        }
+
+        private JobHandle ScheduleAction<T>(JobHandle inputDeps, EntityManager entityManager) where T : struct, IAction
+        {
+            if (entityManager.HasComponent<T>(StackData.AgentEntity))
             {
-                inputDeps = new ActionExpandJob<PickItemAction>(ref UnexpandedNodes, ref StackData,
-                    ref NodeGraph, ref NewlyExpandedNodes, Iteration, new PickItemAction()).Schedule(
-                    UnexpandedNodes, 0, inputDeps);
-            }
-            
-            if (entityManager.HasComponent<EatAction>(StackData.AgentEntity))
-            {
-                inputDeps = new ActionExpandJob<EatAction>(ref UnexpandedNodes, ref StackData,
-                    ref NodeGraph, ref NewlyExpandedNodes, Iteration, new EatAction()).Schedule(
+                inputDeps = new ActionExpandJob<T>(ref UnexpandedNodes, ref StackData,
+                    ref NodeGraph, ref NewlyExpandedNodes, Iteration, new T()).Schedule(
                     UnexpandedNodes, 0, inputDeps);
             }
 

@@ -24,9 +24,6 @@ namespace DOTS.System.ActionExecuteSystem
         [RequireComponentTag(typeof(PickItemAction), typeof(ContainedItemRef), typeof(ReadyToActing))]
         public struct PickItemActionExecuteJob : IJobForEachWithEntity_EBBC<Node, State, Agent>
         {
-            [ReadOnly]
-            public StateGroup CurrentStates;
-
             [NativeDisableParallelForRestriction]
             public BufferFromEntity<ContainedItemRef> AllContainedItemRefs;
             
@@ -82,17 +79,13 @@ namespace DOTS.System.ActionExecuteSystem
         
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            var currentStates =
-                CurrentStatesHelper.GetCurrentStates(EntityManager, Allocator.TempJob);
             var job = new PickItemActionExecuteJob
             {
-                CurrentStates = currentStates,
                 AllContainedItemRefs = GetBufferFromEntity<ContainedItemRef>(),
                 ECBuffer = ECBSystem.CreateCommandBuffer().ToConcurrent()
             };
             var handle = job.Schedule(this, inputDeps);
             ECBSystem.AddJobHandleForProducer(handle);
-            currentStates.Dispose();
             return handle;
         }
     }
