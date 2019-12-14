@@ -97,6 +97,7 @@ namespace DOTS.Action
             inputDeps = ScheduleAction<DropItemAction>(inputDeps, entityManager);
             inputDeps = ScheduleAction<PickItemAction>(inputDeps, entityManager);
             inputDeps = ScheduleAction<EatAction>(inputDeps, entityManager);
+            inputDeps = ScheduleAction<CookAction>(inputDeps, entityManager);
 
             return inputDeps;
         }

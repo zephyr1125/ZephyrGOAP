@@ -1,5 +1,7 @@
 using DOTS.Component;
 using DOTS.Component.AgentState;
+using DOTS.Struct;
+using Unity.Collections;
 using Unity.Entities;
 
 namespace DOTS
@@ -29,6 +31,29 @@ namespace DOTS
                     ExecutingNodeId = agent.ExecutingNodeId+1
                 });
             }
+        }
+
+        /// <summary>
+        /// 根据传入的配方输出筛选，传出其对应的输入State组
+        /// </summary>
+        /// <param name="currentStates"></param>
+        /// <param name="recipeOutFilter"></param>
+        /// <param name="allocator"></param>
+        /// <returns></returns>
+        public static StateGroup GetRecipeInputInCurrentStates(ref StateGroup currentStates, State recipeOutFilter, Allocator allocator)
+        {
+            var result = new StateGroup(2, allocator);
+            for (var i = 0; i < currentStates.Length(); i++)
+            {
+                if (currentStates[i].BelongTo(recipeOutFilter))
+                {
+                    result.Add(currentStates[i+1]);
+                    result.Add(currentStates[i+2]);
+                    break;
+                }
+            }
+
+            return result;
         }
     }
 }
