@@ -69,7 +69,7 @@ namespace DOTS.Struct
         }
 
         /// <summary>
-        /// Fit项则无视，不同项则增加
+        /// Equal或双向Belong则无视，不同项则增加
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
@@ -82,7 +82,9 @@ namespace DOTS.Struct
                 var contained = false;
                 for (var j = 0; j < _states.Length; j++)
                 {
-                    if (_states[j].Fits(otherState))
+                    var state = _states[j];
+                    if (state.Equals(otherState)
+                        || state.BelongTo(otherState) || otherState.BelongTo(state))
                     {
                         contained = true;
                         break;
@@ -94,20 +96,22 @@ namespace DOTS.Struct
         }
 
         /// <summary>
-        /// Fit或Belong则移除，不同项则无视
+        /// Equal或双向Belong则移除，不同项则无视
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
         public void Sub(StateGroup other)
         {
-            foreach (var otherState in other._states)
+            for (var i = 0; i < other._states.Length; i++)
             {
-                for (var i = _states.Length - 1; i >= 0; i--)
+                var otherState = other._states[i];
+                for (var j = _states.Length - 1; j >= 0; j--)
                 {
-                    var state = _states[i];
-                    if (state.Fits(otherState) || otherState.BelongTo(state))
+                    var state = _states[j];
+                    if (state.Equals(otherState)
+                        || state.BelongTo(otherState) || otherState.BelongTo(state))
                     {
-                        _states.RemoveAtSwapBack(i);
+                        _states.RemoveAtSwapBack(j);
                     }
                 }
             }

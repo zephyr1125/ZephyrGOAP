@@ -14,20 +14,21 @@ namespace DOTS.Action
 
         public State GetTargetGoalState(ref StateGroup targetStates, ref StackData stackData)
         {
+            //针对“目标获得物品”的state
             var stateFilter = new State
             {
-                SubjectType = StateSubjectType.Target,
                 Trait = typeof(ItemContainerTrait),
                 IsPositive = true
             };
-            return targetStates.GetBelongingState(stateFilter);
+            var agent = stackData.AgentEntity;
+            //额外：target不能为自身
+            return targetStates.GetState(state => state.Target != agent && state.BelongTo(stateFilter));
         }
 
         public void GetPreconditions(ref State targetState, ref StackData stackData, ref StateGroup preconditions)
         {
             preconditions.Add(new State
             {
-                SubjectType = StateSubjectType.Self,
                 Target = stackData.AgentEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueString = targetState.ValueString,
@@ -39,7 +40,6 @@ namespace DOTS.Action
         {
             effects.Add(new State
             {
-                SubjectType = StateSubjectType.Target,
                 Target = targetState.Target,
                 Trait = typeof(ItemContainerTrait),
                 ValueString = targetState.ValueString,

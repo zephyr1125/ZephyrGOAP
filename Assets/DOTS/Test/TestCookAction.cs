@@ -39,7 +39,6 @@ namespace DOTS.Test
             var stateBuffer = EntityManager.AddBuffer<State>(_agentEntity);
             stateBuffer.Add(new State
             {
-                SubjectType = StateSubjectType.Self,
                 Target = _agentEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueTrait = typeof(FoodTrait),
@@ -51,7 +50,6 @@ namespace DOTS.Test
             var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
             buffer.Add(new State
             {
-                SubjectType = StateSubjectType.Self,
                 Target = _agentEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueTrait = typeof(FoodTrait),

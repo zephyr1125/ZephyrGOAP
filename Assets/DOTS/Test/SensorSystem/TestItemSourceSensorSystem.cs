@@ -51,7 +51,6 @@ namespace DOTS.Test.SensorSystem
             Assert.AreEqual(1, buffer.Length);
             Assert.AreEqual(new State
             {
-                SubjectType = StateSubjectType.Target,
                 Target = _containerEntity,
                 Trait = typeof(ItemContainerTrait),
                 IsPositive = true,

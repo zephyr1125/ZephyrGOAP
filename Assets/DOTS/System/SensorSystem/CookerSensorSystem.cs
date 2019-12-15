@@ -3,7 +3,6 @@ using DOTS.Game.ComponentData;
 using DOTS.Struct;
 using Unity.Entities;
 using Unity.Jobs;
-using NotImplementedException = System.NotImplementedException;
 
 namespace DOTS.System.SensorSystem
 {
@@ -33,7 +32,6 @@ namespace DOTS.System.SensorSystem
                 var buffer = ECBuffer.SetBuffer<State>(jobIndex, CurrentStatesEntity);
                 buffer.Add(new State
                 {
-                    SubjectType = StateSubjectType.Target,
                     Target = entity,
                     Trait = typeof(CookerTrait),
                     IsPositive = true,

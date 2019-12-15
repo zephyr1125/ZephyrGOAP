@@ -43,7 +43,6 @@ namespace DOTS.Test.Game
             Assert.AreEqual(1, stateBuffer.Length);
             Assert.AreEqual(new State
             {
-                SubjectType = StateSubjectType.Self,
                 Target = _agentEntity,
                 Trait = typeof(StaminaTrait),
                 IsPositive = true
@@ -63,7 +62,6 @@ namespace DOTS.Test.Game
             Assert.AreEqual(1, stateBuffer.Length);
             Assert.AreEqual(new State
             {
-                SubjectType = StateSubjectType.Self,
                 Target = _agentEntity,
                 Trait = typeof(WanderTrait),
                 IsPositive = true

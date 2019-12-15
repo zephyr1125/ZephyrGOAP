@@ -18,7 +18,6 @@ namespace DOTS.Action
             {
                 var foodState = new State
                 {
-                    SubjectType = StateSubjectType.Self,
                     Target = stackData.AgentEntity,
                     Trait = typeof(ItemContainerTrait),
                     ValueTrait = typeof(FoodTrait),
@@ -66,7 +65,6 @@ namespace DOTS.Action
             //把查到的配方转化为对自己拥有的需求
             preconditions.Add(new State
             {
-                SubjectType = StateSubjectType.Self,
                 Target = stackData.AgentEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueString = inputs[0].ValueString,
@@ -76,7 +74,6 @@ namespace DOTS.Action
             {
                 preconditions.Add(new State
                 {
-                    SubjectType = StateSubjectType.Self,
                     Target = stackData.AgentEntity,
                     Trait = typeof(ItemContainerTrait),
                     ValueString = inputs[1].ValueString,
@@ -91,7 +88,6 @@ namespace DOTS.Action
             //自己拥有了cook产物
             effects.Add(new State
             {
-                SubjectType = StateSubjectType.Self,
                 Target = stackData.AgentEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueTrait = typeof(FoodTrait),

@@ -54,7 +54,6 @@ namespace DOTS.Test
             var stateBuffer = EntityManager.AddBuffer<State>(_agentEntity);
             _goalState = new State
             {
-                SubjectType = StateSubjectType.Target,
                 Target = _targetContainerEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueString = new NativeString64("item"),
@@ -109,7 +108,6 @@ namespace DOTS.Test
                 Assert.AreEqual(1, parentStates.Length());
                 Assert.AreEqual(new State
                 {
-                    SubjectType = StateSubjectType.Target,
                     Target = _itemSourceEntity,
                     Trait = typeof(ItemContainerTrait),
                     ValueString = new NativeString64("item"),
@@ -134,7 +132,6 @@ namespace DOTS.Test
                 Assert.AreEqual(1, parentStates.Length());
                 Assert.AreEqual(new State
                 {
-                    SubjectType = StateSubjectType.Self,
                     Target = _agentEntity,
                     Trait = typeof(ItemContainerTrait),
                     ValueString = new NativeString64("item"),
@@ -159,7 +156,6 @@ namespace DOTS.Test
                 Assert.AreEqual(1, parentStates.Length());
                 Assert.AreEqual(new State
                 {
-                    SubjectType = StateSubjectType.Target,
                     Target = _targetContainerEntity,
                     Trait = typeof(ItemContainerTrait),
                     ValueString = new NativeString64("item"),
@@ -219,7 +215,6 @@ namespace DOTS.Test
                     Assert.AreEqual((ulong)1 << i, nodeDrop.PreconditionsBitmask);
                     Assert.AreEqual(new State
                     {
-                        SubjectType = StateSubjectType.Self,
                         Target = _agentEntity,
                         Trait = typeof(ItemContainerTrait),
                         ValueString = new NativeString64("item"),
@@ -232,7 +227,6 @@ namespace DOTS.Test
                     Assert.AreEqual((ulong)1 << i, nodeDrop.EffectsBitmask);
                     Assert.AreEqual(new State
                     {
-                        SubjectType = StateSubjectType.Target,
                         Target = _targetContainerEntity,
                         Trait = typeof(ItemContainerTrait),
                         ValueString = new NativeString64("item"),
@@ -245,7 +239,6 @@ namespace DOTS.Test
                     Assert.AreEqual((ulong)1 << i, nodePick.PreconditionsBitmask);
                     Assert.AreEqual(new State
                     {
-                        SubjectType = StateSubjectType.Target,
                         Target = _itemSourceEntity,
                         Trait = typeof(ItemContainerTrait),
                         ValueString = new NativeString64("item"),
@@ -258,7 +251,6 @@ namespace DOTS.Test
                     Assert.AreEqual((ulong)1 << i, nodePick.EffectsBitmask);
                     Assert.AreEqual(new State
                     {
-                        SubjectType = StateSubjectType.Self,
                         Target = _agentEntity,
                         Trait = typeof(ItemContainerTrait),
                         ValueString = new NativeString64("item"),

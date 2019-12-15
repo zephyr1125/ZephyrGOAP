@@ -54,7 +54,6 @@ namespace DOTS.Game.System
                     //need more stamina
                     states.Add(new State
                     {
-                        SubjectType = StateSubjectType.Self,
                         Target = entity,
                         Trait = typeof(StaminaTrait),
                         IsPositive = true
@@ -65,7 +64,6 @@ namespace DOTS.Game.System
                     //wander
                     states.Add(new State
                     {
-                        SubjectType = StateSubjectType.Self,
                         Target = entity,
                         Trait = typeof(WanderTrait),
                         IsPositive = true

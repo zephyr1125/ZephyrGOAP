@@ -50,7 +50,6 @@ namespace DOTS.Test
             var bufferStates = EntityManager.AddBuffer<State>(_agentEntity);
             bufferStates.Add(new State
             {
-                SubjectType = StateSubjectType.Target,
                 Target = _containerEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueString = new NativeString64("item"),
@@ -58,7 +57,6 @@ namespace DOTS.Test
             });
             bufferStates.Add(new State
             {
-                SubjectType = StateSubjectType.Self,
                 Target = _agentEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueString = new NativeString64("item"),
@@ -68,7 +66,6 @@ namespace DOTS.Test
             bufferStates = EntityManager.AddBuffer<State>(_currentStateEntity);
             bufferStates.Add(new State
             {
-                SubjectType = StateSubjectType.Target,
                 Target = _containerEntity,
                 Trait = typeof(ItemContainerTrait),
                 IsPositive = true,
@@ -122,7 +119,6 @@ namespace DOTS.Test
             var bufferStates = EntityManager.GetBuffer<State>(_agentEntity);
             bufferStates[0] = new State
             {
-                SubjectType = StateSubjectType.Target,
                 Target = _containerEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueString = new NativeString64("item"),

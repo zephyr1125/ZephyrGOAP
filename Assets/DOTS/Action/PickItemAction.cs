@@ -17,16 +17,14 @@ namespace DOTS.Action
         public State GetTargetGoalState([ReadOnly]ref StateGroup targetStates,
             [ReadOnly]ref StackData stackData)
         {
-            foreach (var targetState in targetStates)
+            //针对“自身获得物品”的state
+            var stateFilter = new State
             {
-                //只针对要求自身具有原料请求的goal state
-                if (targetState.Target != stackData.AgentEntity) continue;
-                if (targetState.Trait != typeof(ItemContainerTrait)) continue;
-
-                return targetState;
-            }
-
-            return default;
+                Trait = typeof(ItemContainerTrait),
+                IsPositive = true
+            };
+            var agent = stackData.AgentEntity;
+            return targetStates.GetState(state => state.Target == agent && state.BelongTo(stateFilter));
         }
         
         /// <summary>
@@ -57,7 +55,6 @@ namespace DOTS.Action
         {
             effects.Add(new State
             {
-                SubjectType = StateSubjectType.Self,
                 Target = stackData.AgentEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueString = targetState.ValueString,

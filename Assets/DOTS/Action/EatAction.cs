@@ -31,7 +31,6 @@ namespace DOTS.Action
             //自己有食物
             preconditions.Add(new State
             {
-                SubjectType = StateSubjectType.Self,
                 Target = stackData.AgentEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueTrait = typeof(FoodTrait),
@@ -50,7 +49,6 @@ namespace DOTS.Action
             //自身获得stamina
             effects.Add(new State
             {
-                SubjectType = StateSubjectType.Self,
                 Target = stackData.AgentEntity,
                 Trait = typeof(StaminaTrait),
                 IsPositive = true

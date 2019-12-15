@@ -41,7 +41,6 @@ namespace DOTS.Test
             
             var goalStates = new StateGroup(1, Allocator.Temp){new State
             {
-                SubjectType = StateSubjectType.Target,
                 Target = _targetEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueString = new NativeString64("test"),
@@ -55,7 +54,6 @@ namespace DOTS.Test
             
             _currentStates.Add(new State
             {
-                SubjectType = StateSubjectType.Self,
                 Target = _agentEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueString = new NativeString64("test"),
@@ -92,7 +90,6 @@ namespace DOTS.Test
             Assert.AreEqual(1, states.Length());
             Assert.AreEqual(new State
             {
-                SubjectType = StateSubjectType.Self,
                 Target = _agentEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueString = new NativeString64("test"),
@@ -116,7 +113,6 @@ namespace DOTS.Test
             Assert.AreEqual(1, states.Length());
             Assert.AreEqual(new State
             {
-                SubjectType = StateSubjectType.Target,
                 Target = _targetEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueString = new NativeString64("test"),
@@ -153,7 +149,6 @@ namespace DOTS.Test
             Assert.AreEqual(1, states.Length());
             Assert.AreEqual(new State
             {
-                SubjectType = StateSubjectType.Target,
                 Target = _targetEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueString = new NativeString64("test"),
