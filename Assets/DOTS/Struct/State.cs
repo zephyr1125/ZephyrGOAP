@@ -53,6 +53,8 @@ namespace DOTS.Struct
         /// <returns></returns>
         public bool BelongTo(State other)
         {
+            if (Equals(Null) || other.Equals(Null)) return false;
+            
             //凡是other不明指的项目，都可以包含this
             if (other.SubjectType!=StateSubjectType.NoSpecific && SubjectType != other.SubjectType) return false;
             if (other.Target!=Entity.Null && Target != other.Target) return false;

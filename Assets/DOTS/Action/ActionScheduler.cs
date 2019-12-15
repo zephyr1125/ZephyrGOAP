@@ -64,6 +64,8 @@ namespace DOTS.Action
                 if (!targetState.Equals(State.Null))
                 {
                     _action.GetPreconditions(ref targetState, ref _stackData, ref preconditions);
+                    ReplacePreconditionsWithSpecificStates(ref preconditions);
+                    
                     _action.GetEffects(ref targetState, ref _stackData, ref effects);
 
                     if (effects.Length() > 0)
@@ -87,6 +89,26 @@ namespace DOTS.Action
                 preconditions.Dispose();
                 effects.Dispose();
                 targetStates.Dispose();
+            }
+
+            /// <summary>
+            /// 把preconditions里能够找到具体目标的范围state用具体目标替代
+            /// </summary>
+            /// <param name="preconditions"></param>
+            private void ReplacePreconditionsWithSpecificStates(ref StateGroup preconditions)
+            {
+                for (var i = 0; i < preconditions.Length(); i++)
+                {
+                    if (preconditions[i].Target != Entity.Null) continue;
+                    foreach (var currentState in _stackData.CurrentStates)
+                    {
+                        //todo 此处应寻找最近目标
+                        if (currentState.BelongTo(preconditions[i]))
+                        {
+                            preconditions[i] = currentState;
+                        }
+                    }
+                }
             }
         }
 

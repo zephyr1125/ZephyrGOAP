@@ -31,9 +31,9 @@ namespace DOTS.Struct
             Allocator allocator)
         {
             _states = new NativeList<State>(length, allocator);
-            foreach (var state in copyFrom)
+            while (copyFrom.MoveNext())
             {
-                _states.Add(state);
+                _states.Add(copyFrom.Current);
             }
         }
         
@@ -94,7 +94,7 @@ namespace DOTS.Struct
         }
 
         /// <summary>
-        /// Fit项则移除，不同项则无视
+        /// Fit或Belong则移除，不同项则无视
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
@@ -105,7 +105,7 @@ namespace DOTS.Struct
                 for (var i = _states.Length - 1; i >= 0; i--)
                 {
                     var state = _states[i];
-                    if (state.Fits(otherState))
+                    if (state.Fits(otherState) || otherState.BelongTo(state))
                     {
                         _states.RemoveAtSwapBack(i);
                     }

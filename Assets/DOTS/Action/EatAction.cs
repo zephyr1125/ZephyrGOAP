@@ -38,22 +38,11 @@ namespace DOTS.Action
                 IsPositive = true
             });
             //世界里有餐桌
-            var template = new State
+            preconditions.Add(new State
             {
-                SubjectType = StateSubjectType.Closest,    //寻找最近
-                Target = Entity.Null,
                 Trait = typeof(DiningTableTrait),
                 IsPositive = true,
-            };
-            //todo 此处理应寻找最近目标，但目前的示例里没有transform系统，暂时直接用第一个合适的目标
-            foreach (var currentState in stackData.CurrentStates)
-            {
-                if (currentState.Fits(template))
-                {
-                    preconditions.Add(currentState);
-                    return;
-                }
-            }
+            });
         }
 
         public void GetEffects(ref State targetState, ref StackData stackData, ref StateGroup effects)

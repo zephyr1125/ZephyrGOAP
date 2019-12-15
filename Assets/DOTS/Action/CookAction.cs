@@ -47,12 +47,11 @@ namespace DOTS.Action
         public void GetPreconditions(ref State targetState, ref StackData stackData, ref StateGroup preconditions)
         {
             //世界里有cooker
-            var cookerFilter = new State
+            preconditions.Add(new State
             {
                 Trait = typeof(CookerTrait),
                 IsPositive = true
-            };
-            preconditions.Add(stackData.CurrentStates.GetBelongingState(cookerFilter));
+            });
             
             //自己有其生产所需原料
             var targetRecipeInputFilter = new State
