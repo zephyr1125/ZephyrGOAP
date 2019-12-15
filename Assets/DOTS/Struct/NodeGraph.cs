@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine.Assertions;
@@ -218,6 +219,18 @@ namespace DOTS.Struct
             return new StateGroup(1, states, allocator);
         }
         
+        public State[] GetNodeStates(Node node)
+        {
+            var result = new List<State>(); 
+            var states = _nodeStates.GetValuesForKey(node);
+            while (states.MoveNext())
+            {
+                result.Add(states.Current);
+            }
+
+            return result.ToArray();
+        }
+        
         public StateGroup GetNodePreconditions(Node node, Allocator allocator)
         {
             var states = _preconditions.GetValuesForKey(node);
@@ -228,6 +241,21 @@ namespace DOTS.Struct
         {
             var states = _effects.GetValuesForKey(node);
             return new StateGroup(1, states, allocator);
+        }
+
+        public List<Node> GetChildren(Node node)
+        {
+            var result = new List<Node>();
+            var values = _nodeToParent.GetValueArray(Allocator.Temp);
+            foreach (var edge in values)
+            {
+                if (edge.Parent.Equals(node))
+                {
+                    result.Add(edge.Child);
+                }
+            }
+            values.Dispose();
+            return result;
         }
 
         public Node GetStartNode()

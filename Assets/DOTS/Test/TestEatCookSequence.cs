@@ -5,6 +5,7 @@ using DOTS.Component.Trait;
 using DOTS.Struct;
 using DOTS.System;
 using DOTS.System.SensorSystem;
+using DOTS.Test.Debugger;
 using NUnit.Framework;
 using Unity.Entities;
 using UnityEngine;

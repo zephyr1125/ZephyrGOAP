@@ -5,6 +5,7 @@ using DOTS.Component.Trait;
 using DOTS.Struct;
 using DOTS.System;
 using DOTS.System.SensorSystem;
+using DOTS.Test.Debugger;
 using NUnit.Framework;
 using Unity.Entities;
 using UnityEngine;
@@ -73,7 +74,7 @@ namespace DOTS.Test
             _system.Update();
             EntityManager.CompleteAllJobs();
             
-            Debug.Log(_debugger.NodeGraph);
+            Debug.Log(_debugger.GoalNodeView);
             var pathResult = _debugger.PathResult;
             Debug.Log(pathResult);
         }

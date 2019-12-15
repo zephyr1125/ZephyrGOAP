@@ -7,6 +7,7 @@ using DOTS.Game.ComponentData;
 using DOTS.Struct;
 using DOTS.System;
 using DOTS.System.SensorSystem;
+using DOTS.Test.Debugger;
 using NUnit.Framework;
 using Unity.Collections;
 using Unity.Entities;
