@@ -76,7 +76,7 @@ namespace DOTS.Test
             _system.Update();
             EntityManager.CompleteAllJobs();
             
-            Debug.Log(_debugger.NodeGraph);
+            Debug.Log(_debugger.GoalNodeView);
             var pathResult = _debugger.PathResult;
             Debug.Log(pathResult);
         }

@@ -79,7 +79,7 @@ namespace DOTS.Test
             _system.Update();
             EntityManager.CompleteAllJobs();
             
-            Debug.Log(_debugger.NodeGraph);
+            Debug.Log(_debugger.GoalNodeView);
             var pathResult = _debugger.PathResult;
             Assert.AreEqual(3, pathResult.Length);
             Assert.AreEqual(new NativeString64("EatAction"), pathResult[1].Name);

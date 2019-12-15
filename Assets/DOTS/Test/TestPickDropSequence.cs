@@ -82,91 +82,49 @@ namespace DOTS.Test
             _system.Update();
             EntityManager.CompleteAllJobs();
 
-            var nodeGraph = _debugger.NodeGraph;
+            var goalNodeView = _debugger.GoalNodeView;
             //goal正确
-            var goalStates = nodeGraph.GetNodeStates(nodeGraph.GetGoalNode(), Allocator.Temp);
-            Assert.AreEqual(1, goalStates.Length());
-            Assert.AreEqual(_goalState, goalStates[0]);
-            goalStates.Dispose();
-            
-            //start正确
-            var startNode = nodeGraph.GetStartNode();
-            var startNodeStates = nodeGraph.GetNodeStates(startNode, Allocator.Temp);
-            Assert.Zero(startNodeStates.Length());
-            
-            //start接pick
-            var edges = nodeGraph.GetEdgeToParents(startNode);
-            var edgesCount = 0;
-            var pickNode = default(Node);
-            while (edges.MoveNext())
+            Assert.AreEqual(1, goalNodeView.States.Length);
+            Assert.AreEqual(_goalState, goalNodeView.States[0]);
+            Assert.AreEqual(new State
             {
-                edgesCount++;
-                var edge = edges.Current;
-                Assert.AreEqual(new NativeString64("start"),
-                    edge.ActionName);
-                pickNode = edge.Parent;
-                var parentStates = nodeGraph.GetNodeStates(pickNode, Allocator.Temp);
-                Assert.AreEqual(1, parentStates.Length());
-                Assert.AreEqual(new State
-                {
-                    Target = _itemSourceEntity,
-                    Trait = typeof(ItemContainerTrait),
-                    ValueString = new NativeString64("item"),
-                    IsPositive = true,
-                }, parentStates[0]);
-                parentStates.Dispose();
-            }
-            Assert.AreEqual(1, edgesCount);
-            
-            //Pick接Drop
-            edges = nodeGraph.GetEdgeToParents(pickNode);
-            edgesCount = 0;
-            var dropNode = default(Node);
-            while (edges.MoveNext())
-            {
-                edgesCount++;
-                var edge = edges.Current;
-                Assert.AreEqual(new NativeString64(nameof(PickItemAction)),
-                    edge.ActionName);
-                dropNode = edge.Parent;
-                var parentStates = nodeGraph.GetNodeStates(dropNode, Allocator.Temp);
-                Assert.AreEqual(1, parentStates.Length());
-                Assert.AreEqual(new State
-                {
-                    Target = _agentEntity,
-                    Trait = typeof(ItemContainerTrait),
-                    ValueString = new NativeString64("item"),
-                    IsPositive = true,
-                }, parentStates[0]);
-                parentStates.Dispose();
-            }
-            Assert.AreEqual(1, edgesCount);
+                Target = _targetContainerEntity,
+                Trait = typeof(ItemContainerTrait),
+                ValueString = new NativeString64("item"),
+                IsPositive = true,
+            }, goalNodeView.States[0]);
             
             //Drop接Goal
-            edges = nodeGraph.GetEdgeToParents(dropNode);
-            edgesCount = 0;
-            var goalNode = default(Node);
-            while (edges.MoveNext())
+            var dropNodeView = _debugger.GoalNodeView.Children[0];
+            Assert.AreEqual(new NativeString64(nameof(DropItemAction)),
+                dropNodeView.Node.Name);
+            Assert.AreEqual(1, dropNodeView.States.Length);
+            Assert.AreEqual(new State
             {
-                edgesCount++;
-                var edge = edges.Current;
-                Assert.AreEqual(new NativeString64(nameof(DropItemAction)),
-                    edge.ActionName);
-                goalNode = edge.Parent;
-                var parentStates = nodeGraph.GetNodeStates(goalNode, Allocator.Temp);
-                Assert.AreEqual(1, parentStates.Length());
-                Assert.AreEqual(new State
-                {
-                    Target = _targetContainerEntity,
-                    Trait = typeof(ItemContainerTrait),
-                    ValueString = new NativeString64("item"),
-                    IsPositive = true,
-                }, parentStates[0]);
-                parentStates.Dispose();
-            }
-            Assert.AreEqual(1, edgesCount);
+                Target = _agentEntity,
+                Trait = typeof(ItemContainerTrait),
+                ValueString = new NativeString64("item"),
+                IsPositive = true,
+            }, dropNodeView.States[0]);
             
-            startNodeStates.Dispose();
+            //Pick接Drop
+            var pickNodeView = dropNodeView.Children[0];
+            Assert.AreEqual(new NativeString64(nameof(PickItemAction)),
+                pickNodeView.Node.Name);
+            Assert.AreEqual(1, pickNodeView.States.Length);
+            Assert.AreEqual(new State
+            {
+                Target = _itemSourceEntity,
+                Trait = typeof(ItemContainerTrait),
+                ValueString = new NativeString64("item"),
+                IsPositive = true,
+            }, pickNodeView.States[0]);
+            
+            //start接pick
+            var startNodeView = pickNodeView.Children[0];
+            Assert.AreEqual(new NativeString64("start"),
+                startNodeView.Node.Name);
+            Assert.Zero(startNodeView.States.Length);
         }
 
         [Test]
@@ -271,7 +229,6 @@ namespace DOTS.Test
             _system.Update();
             EntityManager.CompleteAllJobs();
             
-            Assert.AreEqual(default(NodeGraph), _debugger.NodeGraph);
             Assert.IsNull(_debugger.PathResult);
             buffer = EntityManager.GetBuffer<Node>(_agentEntity);
             Assert.AreEqual(1, buffer.Length);

@@ -34,60 +34,6 @@ namespace DOTS.Struct
             _startNode = new Node(){Name = new NativeString64("start")};
         }
 
-        public NodeGraph Copy(Allocator allocator)
-        {
-            var newGraph = new NodeGraph(1, allocator);
-
-            newGraph._goalNode = _goalNode;
-            newGraph._startNode = _startNode;
-            
-            var nodeToParentKeys = _nodeToParent.GetKeyArray(Allocator.Temp);
-            foreach (var key in nodeToParentKeys)
-            {
-                var values = _nodeToParent.GetValuesForKey(key);
-                while (values.MoveNext())
-                {
-                    newGraph._nodeToParent.Add(key, values.Current);
-                }
-            }
-            nodeToParentKeys.Dispose();
-            
-            var nodeStatesKeys = _nodeStates.GetKeyArray(Allocator.Temp);
-            foreach (var key in nodeStatesKeys)
-            {
-                var values = _nodeStates.GetValuesForKey(key);
-                while (values.MoveNext())
-                {
-                    newGraph._nodeStates.Add(key, values.Current);
-                }
-            }
-            nodeStatesKeys.Dispose();
-            
-            var preconditionKeys = _preconditions.GetKeyArray(Allocator.Temp);
-            foreach (var key in preconditionKeys)
-            {
-                var values = _preconditions.GetValuesForKey(key);
-                while (values.MoveNext())
-                {
-                    newGraph._preconditions.Add(key, values.Current);
-                }
-            }
-            preconditionKeys.Dispose();
-            
-            var effectKeys = _effects.GetKeyArray(Allocator.Temp);
-            foreach (var key in nodeStatesKeys)
-            {
-                var values = _effects.GetValuesForKey(key);
-                while (values.MoveNext())
-                {
-                    newGraph._effects.Add(key, values.Current);
-                }
-            }
-            effectKeys.Dispose();
-
-            return newGraph;
-        }
-
         public void SetGoalNode(Node goal, ref StateGroup stateGroup)
         {
             _goalNode = goal;
@@ -221,11 +167,10 @@ namespace DOTS.Struct
         
         public State[] GetNodeStates(Node node)
         {
-            var result = new List<State>(); 
-            var states = _nodeStates.GetValuesForKey(node);
-            while (states.MoveNext())
+            var result = new List<State>();
+            foreach (var state in _nodeStates.GetValuesForKey(node))
             {
-                result.Add(states.Current);
+                result.Add(state);
             }
 
             return result.ToArray();

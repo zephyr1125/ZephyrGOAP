@@ -8,34 +8,31 @@ namespace DOTS.Test.Debugger
 {
     public class TestGoapDebugger : IGoapDebugger, IDisposable
     {
-        public NodeGraph NodeGraph;
         public Node[] PathResult;
 
         public NodeView GoalNodeView;
         
         public void SetNodeGraph(ref NodeGraph nodeGraph)
         {
-            NodeGraph = nodeGraph.Copy(Allocator.Temp);
-            
             GoalNodeView = new NodeView
             {
-                Node = NodeGraph.GetGoalNode(),
-                States = NodeGraph.GetNodeStates(NodeGraph.GetGoalNode())
+                Node = nodeGraph.GetGoalNode(),
+                States = nodeGraph.GetNodeStates(nodeGraph.GetGoalNode())
             };
-            ConstructNodeTree(GoalNodeView);
+            ConstructNodeTree(ref nodeGraph, GoalNodeView);
         }
 
-        private void ConstructNodeTree(NodeView nodeView)
+        private void ConstructNodeTree(ref NodeGraph nodeGraph, NodeView nodeView)
         {
-            var children = NodeGraph.GetChildren(nodeView.Node);
+            var children = nodeGraph.GetChildren(nodeView.Node);
             foreach (var child in children)
             {
                 var newNode = new NodeView
                 {
-                    Node = child, States = NodeGraph.GetNodeStates(child)
+                    Node = child, States = nodeGraph.GetNodeStates(child)
                 };
                 nodeView.AddChild(newNode);
-                ConstructNodeTree(newNode);
+                ConstructNodeTree(ref nodeGraph, newNode);
             }
         }
 
@@ -51,7 +48,7 @@ namespace DOTS.Test.Debugger
 
         public void Dispose()
         {
-            if(!NodeGraph.Equals(default(NodeGraph)))NodeGraph.Dispose();
+            
         }
     }
 }

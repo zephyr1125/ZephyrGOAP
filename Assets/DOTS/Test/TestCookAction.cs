@@ -48,13 +48,19 @@ namespace DOTS.Test
             
             World.GetOrCreateSystem<CurrentStatesHelper>().Update();
             //给CurrentStates写入假环境数据：自己有原料、世界里有cooker和recipe
+            //假定raw_peach并不算Food，以避免直接视为解决方案
             var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
             buffer.Add(new State
             {
                 Target = _agentEntity,
                 Trait = typeof(ItemContainerTrait),
-                ValueTrait = typeof(FoodTrait),
                 ValueString = new NativeString64("raw_peach"),
+                IsPositive = true
+            });
+            buffer.Add(new State
+            {
+                Target = new Entity{Index = 9, Version = 1},
+                Trait = typeof(CookerTrait),
                 IsPositive = true
             });
             var recipeSensorSystem = World.GetOrCreateSystem<RecipeSensorSystem>();
@@ -75,6 +81,7 @@ namespace DOTS.Test
             EntityManager.CompleteAllJobs();
             
             Debug.Log(_debugger.GoalNodeView);
+            Assert.AreEqual(2, _debugger.GoalNodeView.Children[0].States.Length);
             var pathResult = _debugger.PathResult;
             Debug.Log(pathResult);
         }
