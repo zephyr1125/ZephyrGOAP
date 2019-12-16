@@ -233,15 +233,17 @@ namespace DOTS.System
                 Debugger?.Log("expanding node: "+node.Name+", "+node.GetHashCode());
             }
             var newlyExpandedNodes = new NativeList<Node>(Allocator.TempJob);
-            var actionScheduler = new ActionScheduler
-            {
-                UnexpandedNodes = unexpandedNodes,
-                StackData = stackData,
-                NodeGraph = nodeGraph,
-                NewlyExpandedNodes = newlyExpandedNodes,
-                Iteration = iteration
-            };
-            var handle = actionScheduler.Schedule(default);
+            
+            var entityManager = World.Active.EntityManager;
+            var handle = default(JobHandle);
+            handle = ScheduleActionExpand<DropItemAction>(handle, entityManager, ref stackData,
+                ref unexpandedNodes, ref nodeGraph, ref newlyExpandedNodes, iteration);
+            handle = ScheduleActionExpand<PickItemAction>(handle, entityManager, ref stackData,
+                ref unexpandedNodes, ref nodeGraph, ref newlyExpandedNodes, iteration);
+            handle = ScheduleActionExpand<EatAction>(handle, entityManager, ref stackData,
+                ref unexpandedNodes, ref nodeGraph, ref newlyExpandedNodes, iteration);
+            handle = ScheduleActionExpand<CookAction>(handle, entityManager, ref stackData,
+                ref unexpandedNodes, ref nodeGraph, ref newlyExpandedNodes, iteration);
             handle.Complete();
             
             foreach (var node in newlyExpandedNodes)
@@ -253,6 +255,20 @@ namespace DOTS.System
             unexpandedNodes.Clear();
             uncheckedNodes.AddRange(newlyExpandedNodes);
             newlyExpandedNodes.Dispose();
+        }
+        
+        private JobHandle ScheduleActionExpand<T>(JobHandle inputDeps, EntityManager entityManager,
+            ref StackData stackData, ref NativeList<Node> unexpandedNodes, ref NodeGraph nodeGraph,
+            ref NativeList<Node> newlyExpandedNodes, int iteration) where T : struct, IAction
+        {
+            if (entityManager.HasComponent<T>(stackData.AgentEntity))
+            {
+                inputDeps = new ActionExpandJob<T>(ref unexpandedNodes, ref stackData,
+                    ref nodeGraph, ref newlyExpandedNodes, iteration, new T()).Schedule(
+                    unexpandedNodes, 0, inputDeps);
+            }
+
+            return inputDeps;
         }
         
         [BurstCompile]

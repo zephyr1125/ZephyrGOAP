@@ -47,7 +47,7 @@ namespace DOTS.Test
             });
             
             World.GetOrCreateSystem<CurrentStatesHelper>().Update();
-            //给CurrentStates写入假环境数据：自己有原料、世界里有餐桌、制造、配方
+            //给CurrentStates写入假环境数据：自己有原料、世界里有餐桌、cooker、配方
             var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
             buffer.Add(new State
             {
@@ -60,6 +60,12 @@ namespace DOTS.Test
             {
                 Target = new Entity{Index = 9, Version = 9},
                 Trait = typeof(DiningTableTrait),
+                IsPositive = true
+            });
+            buffer.Add(new State
+            {
+                Target = new Entity{Index = 9, Version = 1},
+                Trait = typeof(CookerTrait),
                 IsPositive = true
             });
             var recipeSensorSystem = World.GetOrCreateSystem<RecipeSensorSystem>();
