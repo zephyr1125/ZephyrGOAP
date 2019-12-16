@@ -53,7 +53,6 @@ namespace DOTS.Test.SensorSystem
             {
                 Target = _containerEntity,
                 Trait = typeof(ItemContainerTrait),
-                IsPositive = true,
                 ValueString = new NativeString64("test")
             }, buffer[0]);
         }

@@ -56,7 +56,6 @@ namespace DOTS.Game.System
                     {
                         Target = entity,
                         Trait = typeof(StaminaTrait),
-                        IsPositive = true
                     });
                 }
                 else
@@ -66,7 +65,6 @@ namespace DOTS.Game.System
                     {
                         Target = entity,
                         Trait = typeof(WanderTrait),
-                        IsPositive = true
                     });
                 }
                 

@@ -15,10 +15,13 @@ namespace DOTS.Action
         {
             foreach (var targetState in targetStates)
             {
+                var staminaState = new State
+                {
+                    Target = stackData.AgentEntity,
+                    Trait = typeof(StaminaTrait),
+                };
                 //只针对自身stamina的正面goal state
-                if (targetState.Target != stackData.AgentEntity) continue;
-                if (targetState.Trait != typeof(StaminaTrait)) continue;
-                if (!targetState.IsPositive) continue;
+                if (!targetState.BelongTo(staminaState)) continue;
 
                 return targetState;
             }
@@ -34,13 +37,11 @@ namespace DOTS.Action
                 Target = stackData.AgentEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueTrait = typeof(FoodTrait),
-                IsPositive = true
             });
             //世界里有餐桌
             preconditions.Add(new State
             {
                 Trait = typeof(DiningTableTrait),
-                IsPositive = true,
             });
         }
 
@@ -51,7 +52,6 @@ namespace DOTS.Action
             {
                 Target = stackData.AgentEntity,
                 Trait = typeof(StaminaTrait),
-                IsPositive = true
             });
         }
 

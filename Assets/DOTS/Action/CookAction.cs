@@ -21,7 +21,6 @@ namespace DOTS.Action
                     Target = stackData.AgentEntity,
                     Trait = typeof(ItemContainerTrait),
                     ValueTrait = typeof(FoodTrait),
-                    IsPositive = true
                 };
                 //只针对自身食物类物品需求的goal state
                 if (!targetState.BelongTo(foodState)) continue;
@@ -33,7 +32,6 @@ namespace DOTS.Action
                     Trait = typeof(RecipeOutputTrait),
                     ValueTrait = typeof(CookerTrait),
                     ValueString = targetState.ValueString, //具体产物名要来自于targetState，可能不指明也可能指明
-                    IsPositive = true
                 };
                 if(stackData.CurrentStates.GetBelongingState(foodRecipeState).Equals(State.Null)) continue;
                 
@@ -49,7 +47,6 @@ namespace DOTS.Action
             preconditions.Add(new State
             {
                 Trait = typeof(CookerTrait),
-                IsPositive = true
             });
             
             //自己有其生产所需原料
@@ -58,7 +55,6 @@ namespace DOTS.Action
                 Trait = typeof(RecipeOutputTrait),
                 ValueTrait = typeof(CookerTrait),
                 ValueString = targetState.ValueString,
-                IsPositive = true,
             };
             var inputs = Utils.GetRecipeInputInCurrentStates(ref stackData.CurrentStates,
                 targetRecipeInputFilter, Allocator.Temp);
@@ -68,7 +64,6 @@ namespace DOTS.Action
                 Target = stackData.AgentEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueString = inputs[0].ValueString,
-                IsPositive = true
             });
             if (!inputs[1].Equals(State.Null))
             {
@@ -77,7 +72,6 @@ namespace DOTS.Action
                     Target = stackData.AgentEntity,
                     Trait = typeof(ItemContainerTrait),
                     ValueString = inputs[1].ValueString,
-                    IsPositive = true
                 });
             }
             inputs.Dispose();
@@ -92,7 +86,6 @@ namespace DOTS.Action
                 Trait = typeof(ItemContainerTrait),
                 ValueTrait = typeof(FoodTrait),
                 ValueString = targetState.ValueString,
-                IsPositive = true
             });
         }
 

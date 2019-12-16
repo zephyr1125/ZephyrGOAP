@@ -34,7 +34,6 @@ namespace DOTS.System.SensorSystem
                 {
                     Target = entity,
                     Trait = typeof(CookerTrait),
-                    IsPositive = true,
                 });
             }
         }

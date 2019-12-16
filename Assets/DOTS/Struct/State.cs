@@ -9,12 +9,15 @@ namespace DOTS.Struct
         public ComponentType Trait;
         public NativeString64 ValueString;
         public ComponentType ValueTrait;
-        public bool IsPositive;
+        /// <summary>
+        /// true时表示这个state表达反面意义，比如“目标不拥有指定物品”
+        /// </summary>
+        public bool IsNegative;
 
         public bool Equals(State other)
         {
             return Trait.Equals(other.Trait) &&
-                   ValueString.Equals(other.ValueString) && IsPositive.Equals(other.IsPositive) &&
+                   ValueString.Equals(other.ValueString) && IsNegative.Equals(other.IsNegative) &&
                    Target.Equals(other.Target);
         }
         
@@ -35,9 +38,7 @@ namespace DOTS.Struct
             if (other.Trait!=null && Trait != other.Trait) return false;
             if (other.ValueTrait!=null && ValueTrait != other.ValueTrait) return false;
             if (!other.ValueString.Equals(new NativeString64()) && !ValueString.Equals(other.ValueString)) return false;
-            
-            //positive是必须明指的
-            if (IsPositive != other.IsPositive) return false;
+            if (IsNegative != other.IsNegative) return false;
 
             return true;
         }
@@ -48,7 +49,7 @@ namespace DOTS.Struct
             hash = hash * 31 + Target.GetHashCode();
             hash = hash * 31 + Trait.GetHashCode();
             hash = hash * 31 + ValueString.GetHashCode();
-            hash = hash * 31 + IsPositive.GetHashCode();
+            hash = hash * 31 + IsNegative.GetHashCode();
             return hash;
         }
     }

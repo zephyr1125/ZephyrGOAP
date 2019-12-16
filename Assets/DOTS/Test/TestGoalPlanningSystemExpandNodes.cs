@@ -44,7 +44,6 @@ namespace DOTS.Test
                 Target = _targetEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueString = new NativeString64("test"),
-                IsPositive = true
             }};
             _goalNode = new Node(ref goalStates, new NativeString64("goal"), 0);
             
@@ -57,7 +56,6 @@ namespace DOTS.Test
                 Target = _agentEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueString = new NativeString64("test"),
-                IsPositive = true
             });
             
             _stackData = new StackData{AgentEntity = _agentEntity, CurrentStates = _currentStates};
@@ -93,7 +91,6 @@ namespace DOTS.Test
                 Target = _agentEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueString = new NativeString64("test"),
-                IsPositive = true
             }, states[0]);
             
             states.Dispose();
@@ -116,7 +113,6 @@ namespace DOTS.Test
                 Target = _targetEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueString = new NativeString64("test"),
-                IsPositive = true
             }, states[0]);
             
             states.Dispose();
@@ -152,7 +148,6 @@ namespace DOTS.Test
                 Target = _targetEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueString = new NativeString64("test"),
-                IsPositive = true
             }, states[0]);
             
             states.Dispose();

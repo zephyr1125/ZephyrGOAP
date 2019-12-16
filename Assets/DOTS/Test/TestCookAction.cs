@@ -43,7 +43,6 @@ namespace DOTS.Test
                 Target = _agentEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueTrait = typeof(FoodTrait),
-                IsPositive = true
             });
             
             World.GetOrCreateSystem<CurrentStatesHelper>().Update();
@@ -55,13 +54,11 @@ namespace DOTS.Test
                 Target = _agentEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueString = new NativeString64("raw_peach"),
-                IsPositive = true
             });
             buffer.Add(new State
             {
                 Target = new Entity{Index = 9, Version = 1},
                 Trait = typeof(CookerTrait),
-                IsPositive = true
             });
             var recipeSensorSystem = World.GetOrCreateSystem<RecipeSensorSystem>();
             recipeSensorSystem.Update();

@@ -39,14 +39,12 @@ namespace DOTS.System.SensorSystem
                 Trait = typeof(RecipeOutputTrait),
                 ValueTrait = typeof(CookerTrait),    //以ValueTrait保存此recipe适用的生产设施
                 ValueString = new NativeString64(output),
-                IsPositive = true,
             });
             buffer.Add(new State
             {
                 Trait = typeof(RecipeInputTrait),
                 ValueTrait = typeof(CookerTrait),
                 ValueString = new NativeString64(input1),
-                IsPositive = true,
             });
             if(string.IsNullOrEmpty(input2))
             {
@@ -57,7 +55,6 @@ namespace DOTS.System.SensorSystem
                     Trait = typeof(RecipeInputTrait),
                     ValueTrait = typeof(CookerTrait),
                     ValueString = new NativeString64(input2),
-                    IsPositive = true,
                 });
             }
         }

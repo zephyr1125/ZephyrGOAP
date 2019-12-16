@@ -58,7 +58,6 @@ namespace DOTS.Test
                 Target = _targetContainerEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueString = new NativeString64("item"),
-                IsPositive = true
             };
             stateBuffer.Add(_goalState);
             
@@ -91,7 +90,6 @@ namespace DOTS.Test
                 Target = _targetContainerEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueString = new NativeString64("item"),
-                IsPositive = true,
             }, goalNodeView.States[0]);
             
             //Drop接Goal
@@ -104,7 +102,6 @@ namespace DOTS.Test
                 Target = _agentEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueString = new NativeString64("item"),
-                IsPositive = true,
             }, dropNodeView.States[0]);
             
             //Pick接Drop
@@ -117,7 +114,6 @@ namespace DOTS.Test
                 Target = _itemSourceEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueString = new NativeString64("item"),
-                IsPositive = true,
             }, pickNodeView.States[0]);
             
             //start接pick
@@ -177,7 +173,6 @@ namespace DOTS.Test
                         Target = _agentEntity,
                         Trait = typeof(ItemContainerTrait),
                         ValueString = new NativeString64("item"),
-                        IsPositive = true
                     }, bufferStates[i]);
                 }
                 //和一个effect
@@ -189,7 +184,6 @@ namespace DOTS.Test
                         Target = _targetContainerEntity,
                         Trait = typeof(ItemContainerTrait),
                         ValueString = new NativeString64("item"),
-                        IsPositive = true
                     }, bufferStates[i]);
                 }
                 //nodePick应该只有1个precondition
@@ -201,7 +195,6 @@ namespace DOTS.Test
                         Target = _itemSourceEntity,
                         Trait = typeof(ItemContainerTrait),
                         ValueString = new NativeString64("item"),
-                        IsPositive = true
                     }, bufferStates[i]);
                 }
                 //和一个effect
@@ -213,7 +206,6 @@ namespace DOTS.Test
                         Target = _agentEntity,
                         Trait = typeof(ItemContainerTrait),
                         ValueString = new NativeString64("item"),
-                        IsPositive = true
                     }, bufferStates[i]);
                 }
             }

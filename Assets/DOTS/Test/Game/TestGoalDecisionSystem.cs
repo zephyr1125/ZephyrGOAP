@@ -45,7 +45,6 @@ namespace DOTS.Test.Game
             {
                 Target = _agentEntity,
                 Trait = typeof(StaminaTrait),
-                IsPositive = true
             }, stateBuffer[0]);
         }
 
@@ -64,7 +63,6 @@ namespace DOTS.Test.Game
             {
                 Target = _agentEntity,
                 Trait = typeof(WanderTrait),
-                IsPositive = true
             }, stateBuffer[0]);
             
         }

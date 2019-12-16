@@ -53,14 +53,12 @@ namespace DOTS.Test
                 Target = _containerEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueString = new NativeString64("item"),
-                IsPositive = true,
             });
             bufferStates.Add(new State
             {
                 Target = _agentEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueString = new NativeString64("item"),
-                IsPositive = true
             });
             //currentState存好物品状态
             bufferStates = EntityManager.AddBuffer<State>(_currentStateEntity);
@@ -68,7 +66,6 @@ namespace DOTS.Test
             {
                 Target = _containerEntity,
                 Trait = typeof(ItemContainerTrait),
-                IsPositive = true,
                 ValueString = new NativeString64("item")
             });
             CurrentStatesHelper.CurrentStatesEntity = _currentStateEntity;
@@ -122,7 +119,6 @@ namespace DOTS.Test
                 Target = _containerEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueString = new NativeString64("item"),
-                IsPositive = true,
             };
             
             _system.Update();

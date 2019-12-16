@@ -21,7 +21,6 @@ namespace DOTS.Action
             var stateFilter = new State
             {
                 Trait = typeof(ItemContainerTrait),
-                IsPositive = true
             };
             var agent = stackData.AgentEntity;
             return targetStates.GetState(state => state.Target == agent && state.BelongTo(stateFilter));
@@ -40,7 +39,6 @@ namespace DOTS.Action
             {
                 Trait = typeof(ItemContainerTrait),
                 ValueString = targetState.ValueString,
-                IsPositive = true,
             });
         }
 
@@ -58,7 +56,6 @@ namespace DOTS.Action
                 Target = stackData.AgentEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueString = targetState.ValueString,
-                IsPositive = true
             });
         }
         

@@ -18,7 +18,6 @@ namespace DOTS.Action
             var stateFilter = new State
             {
                 Trait = typeof(ItemContainerTrait),
-                IsPositive = true
             };
             var agent = stackData.AgentEntity;
             //额外：target不能为自身
@@ -32,7 +31,6 @@ namespace DOTS.Action
                 Target = stackData.AgentEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueString = targetState.ValueString,
-                IsPositive = true
             });
         }
 
@@ -43,7 +41,6 @@ namespace DOTS.Action
                 Target = targetState.Target,
                 Trait = typeof(ItemContainerTrait),
                 ValueString = targetState.ValueString,
-                IsPositive = true,
             });
         }
 
