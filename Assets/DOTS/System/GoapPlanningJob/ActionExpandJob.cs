@@ -1,10 +1,11 @@
+using DOTS.Action;
 using DOTS.Struct;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 
-namespace DOTS.Action
+namespace DOTS.System.GoapPlanningJob
 {
     [BurstCompile]
     public struct ActionExpandJob<T> : IJobParallelForDefer where T : struct, IAction
