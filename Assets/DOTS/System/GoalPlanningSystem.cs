@@ -7,8 +7,6 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-using Zephyr.DOTSAStar.Runtime.Component;
-using Zephyr.DOTSAStar.Runtime.Lib;
 using MinHeapNode = DOTS.Lib.MinHeapNode;
 using NativeMinHeap = DOTS.Lib.NativeMinHeap;
 
@@ -72,6 +70,7 @@ namespace DOTS.System
             
             foreach (var agentEntity in agentEntities)
             {
+                var foundPlan = false;
                 var goalStatesBuffer = EntityManager.GetBuffer<State>(agentEntity);
                 var goalStates = new StateGroup(ref goalStatesBuffer, Allocator.Temp);
 
@@ -96,8 +95,8 @@ namespace DOTS.System
                 {
                     Debugger?.Log("Loop:");
                     //对待检查列表进行检查（与CurrentStates比对）
-                    CheckNodes(ref uncheckedNodes, ref nodeGraph, ref stackData.CurrentStates,
-                        ref unexpandedNodes);
+                    if(CheckNodes(ref uncheckedNodes, ref nodeGraph, ref stackData.CurrentStates,
+                        ref unexpandedNodes))foundPlan = true;
 
                     //对待展开列表进行展开，并挑选进入待检查和展开后列表
                     ExpandNodes(ref unexpandedNodes, ref stackData, ref nodeGraph,
@@ -108,62 +107,82 @@ namespace DOTS.System
                 }
 
                 Debugger?.SetNodeGraph(ref nodeGraph);
-                
-                //寻路
-                //todo 此处每一个agent跑一次,寻路Job没有并行
-                //应该把各个agent的nodeGraph存一起，然后一起并行跑
-                var pathResult = new NativeList<Node>(Allocator.TempJob);
-                var pathFindingJob = new PathFindingJob
-                {
-                    StartNodeId = nodeGraph.GetStartNode().GetHashCode(),
-                    GoalNodeId = nodeGraph.GetGoalNode().GetHashCode(),
-                    IterationLimit = PathFindingIterations,
-                    NodeGraph = nodeGraph,
-                    PathNodeLimit = PathNodeLimit,
-                    Result = pathResult
-                };
-                var handle = pathFindingJob.Schedule();
-                handle.Complete();
-                
-                Debugger?.SetPathResult(ref pathResult);
-                
-                //保存结果
-                var nodeBuffer = EntityManager.AddBuffer<Node>(agentEntity);
-                var stateBuffer = EntityManager.GetBuffer<State>(agentEntity); //已经在创建goal的时候创建了state buffer以容纳goal state
-                for (var i = 0; i < pathResult.Length; i++)
-                {
-                    var node = pathResult[i];
-                    var preconditions = nodeGraph.GetNodePreconditions(node, Allocator.Temp);
-                    var effects = nodeGraph.GetNodeEffects(node, Allocator.Temp);
-                    
-                    foreach (var precondition in preconditions)
-                    {
-                        stateBuffer.Add(precondition);
-                        node.PreconditionsBitmask |= (ulong)1 << stateBuffer.Length-1;
-                    }
 
-                    foreach (var effect in effects)
-                    {
-                        stateBuffer.Add(effect);
-                        node.EffectsBitmask |= (ulong)1 << stateBuffer.Length-1;
-                    }
-
-                    nodeBuffer.Add(node);
-                    
-                    preconditions.Dispose();
-                    effects.Dispose();
+                if (!foundPlan)
+                {
+                    //在展开阶段没有能够链接到current state的话，就没有找到规划，也就不用继续寻路了
+                    //目前对于规划失败的情况，就直接转入NoGoal状态
+                    Debugger?.Log("goal plan failed : "+goalStates);
+                    goalStatesBuffer.Clear();
+                    EntityManager.RemoveComponent<GoalPlanning>(agentEntity);
+                    EntityManager.AddComponentData(agentEntity, new NoGoal());
                 }
-
+                else
+                {
+                    //寻路
+                    //todo 此处每一个agent跑一次,寻路Job没有并行
+                    //应该把各个agent的nodeGraph存一起，然后一起并行跑
+                    FindPath(ref nodeGraph, agentEntity);
+                }
+                
                 uncheckedNodes.Dispose();
                 unexpandedNodes.Dispose();
                 expandedNodes.Dispose();
                 nodeGraph.Dispose();
-                pathResult.Dispose();
+                
             }
 
             agentEntities.Dispose();
             currentStatesEntities.Dispose();
             stackData.Dispose();
+        }
+
+        private void FindPath(ref NodeGraph nodeGraph, Entity agentEntity)
+        {
+            var pathResult = new NativeList<Node>(Allocator.TempJob);
+            var pathFindingJob = new PathFindingJob
+            {
+                StartNodeId = nodeGraph.GetStartNode().GetHashCode(),
+                GoalNodeId = nodeGraph.GetGoalNode().GetHashCode(),
+                IterationLimit = PathFindingIterations,
+                NodeGraph = nodeGraph,
+                PathNodeLimit = PathNodeLimit,
+                Result = pathResult
+            };
+            var handle = pathFindingJob.Schedule();
+            handle.Complete();
+
+            Debugger?.SetPathResult(ref pathResult);
+
+            //保存结果
+            var nodeBuffer = EntityManager.AddBuffer<Node>(agentEntity);
+            var stateBuffer =
+                EntityManager.GetBuffer<State>(agentEntity); //已经在创建goal的时候创建了state buffer以容纳goal state
+            for (var i = 0; i < pathResult.Length; i++)
+            {
+                var node = pathResult[i];
+                var preconditions = nodeGraph.GetNodePreconditions(node, Allocator.Temp);
+                var effects = nodeGraph.GetNodeEffects(node, Allocator.Temp);
+
+                foreach (var precondition in preconditions)
+                {
+                    stateBuffer.Add(precondition);
+                    node.PreconditionsBitmask |= (ulong) 1 << stateBuffer.Length - 1;
+                }
+
+                foreach (var effect in effects)
+                {
+                    stateBuffer.Add(effect);
+                    node.EffectsBitmask |= (ulong) 1 << stateBuffer.Length - 1;
+                }
+
+                nodeBuffer.Add(node);
+
+                preconditions.Dispose();
+                effects.Dispose();
+            }
+
+            pathResult.Dispose();
         }
 
         /// <summary>
@@ -175,9 +194,10 @@ namespace DOTS.System
         /// <param name="nodeGraph"></param>
         /// <param name="currentStates"></param>
         /// <param name="unexpandedNodes"></param>
-        public void CheckNodes(ref NativeList<Node> uncheckedNodes, ref NodeGraph nodeGraph,
+        public bool CheckNodes(ref NativeList<Node> uncheckedNodes, ref NodeGraph nodeGraph,
             ref StateGroup currentStates, ref NativeList<Node> unexpandedNodes)
         {
+            bool foundPlan = false;
             foreach (var uncheckedNode in uncheckedNodes)
             {
                 Debugger?.Log("check node: "+uncheckedNode.Name);
@@ -188,6 +208,7 @@ namespace DOTS.System
                     //找到Plan，追加起点Node
                     Debugger?.Log("found plan: "+uncheckedNode.Name);
                     nodeGraph.LinkStartNode(uncheckedNode, new NativeString64("start"));
+                    foundPlan = true;
                     //todo Early Exit
                 }
                 else
@@ -200,6 +221,7 @@ namespace DOTS.System
             }
 
             uncheckedNodes.Clear();
+            return foundPlan;
         }
 
         public void ExpandNodes(ref NativeList<Node> unexpandedNodes, ref StackData stackData,

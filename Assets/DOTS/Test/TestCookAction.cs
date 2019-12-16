@@ -89,10 +89,15 @@ namespace DOTS.Test
         [Test]
         public void NoCookerInWorld_PlanFail()
         {
+            var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
+            buffer.RemoveAt(1);
+            
             _system.Update();
             EntityManager.CompleteAllJobs();
             
-            Assert.IsTrue(false);
+            Assert.IsTrue(EntityManager.HasComponent<NoGoal>(_agentEntity));
+            Assert.IsFalse(EntityManager.HasComponent<GoalPlanning>(_agentEntity));
+            Assert.Zero(EntityManager.GetBuffer<State>(_agentEntity).Length);
         }
     }
 }
