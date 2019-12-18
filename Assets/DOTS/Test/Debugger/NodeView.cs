@@ -7,7 +7,7 @@ namespace DOTS.Test.Debugger
     {
         public Node Node;
 
-        public State[] States;
+        public State[] States, Preconditions, Effects;
 
         public List<NodeView> Children;
 

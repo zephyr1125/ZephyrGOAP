@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using DOTS.Component.Trait;
 using Unity.Collections;
 using Unity.Entities;
 
@@ -97,10 +98,28 @@ namespace DOTS.Struct
 
         /// <summary>
         /// Equal或双向Belong则移除，不同项则无视
+        /// 如果出现移除，effect需要记录被自己移除的state信息
+        /// </summary>
+        /// <param name="effectStates"></param>
+        /// <returns></returns>
+        public void SubForEffect(ref StateGroup effectStates)
+        {
+            Sub(ref effectStates, (State state, State effect) =>
+                {
+                    var preconditionHash = state.GetHashCode();
+                    effect.EffectedPreconditionHash = preconditionHash;
+                    return effect;
+                }
+            );
+        }
+        
+        /// <summary>
+        /// Equal或双向Belong则移除，不同项则无视
         /// </summary>
         /// <param name="other"></param>
+        /// <param name="func"></param>
         /// <returns></returns>
-        public void Sub(StateGroup other)
+        public void Sub(ref StateGroup other, Func<State, State, State> func = null)
         {
             for (var i = 0; i < other._states.Length; i++)
             {
@@ -111,6 +130,11 @@ namespace DOTS.Struct
                     if (state.Equals(otherState)
                         || state.BelongTo(otherState) || otherState.BelongTo(state))
                     {
+                        if (func != null)
+                        {
+                            otherState = func(state, otherState);
+                            other[i] = otherState;
+                        }
                         _states.RemoveAtSwapBack(j);
                     }
                 }

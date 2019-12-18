@@ -29,7 +29,9 @@ namespace DOTS.Test.Debugger
             {
                 var newNode = new NodeView
                 {
-                    Node = child, States = nodeGraph.GetNodeStates(child)
+                    Node = child, States = nodeGraph.GetNodeStates(child),
+                    Preconditions = nodeGraph.GetNodePreconditions(child),
+                    Effects = nodeGraph.GetNodeEffects(child)
                 };
                 nodeView.AddChild(newNode);
                 ConstructNodeTree(ref nodeGraph, newNode);

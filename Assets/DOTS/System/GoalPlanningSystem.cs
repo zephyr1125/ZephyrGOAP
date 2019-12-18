@@ -200,7 +200,7 @@ namespace DOTS.System
             {
                 Debugger?.Log("check node: "+uncheckedNode.Name);
                 var uncheckedStates = nodeGraph.GetNodeStates(uncheckedNode, Allocator.Temp);
-                uncheckedStates.Sub(currentStates);
+                uncheckedStates.Sub(ref currentStates);
                 if (uncheckedStates.Length() <= 0)
                 {
                     //找到Plan，追加起点Node

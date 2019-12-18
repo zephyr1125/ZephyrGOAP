@@ -77,23 +77,26 @@ namespace DOTS.Struct
             var existed = _nodeToParent.ContainsKey(node);
             _nodeToParent.Add(node, new Edge(parent, node, actionName));
             if(!existed){
-                foreach (var state in nodeStates)
+                for(var i=0; i<nodeStates.Length(); i++)
                 {
+                    var state = nodeStates[i];
                     _nodeStates.Add(node, state);
                 }
                 
                 if(!preconditions.Equals(default(StateGroup)))
                 {
-                    foreach (var state in preconditions)
+                    for(var i=0; i<preconditions.Length(); i++)
                     {
+                        var state = preconditions[i];
                         _preconditions.Add(node, state);
                     }
                 }
 
                 if (!effects.Equals(default(StateGroup)))
                 {
-                    foreach (var state in effects)
+                    for(var i=0; i<effects.Length(); i++)
                     {
+                        var state = effects[i];
                         _effects.Add(node, state);
                     }
                 }
@@ -182,10 +185,32 @@ namespace DOTS.Struct
             return new StateGroup(1, states, allocator);
         }
         
+        public State[] GetNodePreconditions(Node node)
+        {
+            var result = new List<State>();
+            foreach (var state in _preconditions.GetValuesForKey(node))
+            {
+                result.Add(state);
+            }
+
+            return result.ToArray();
+        }
+        
         public StateGroup GetNodeEffects(Node node, Allocator allocator)
         {
             var states = _effects.GetValuesForKey(node);
             return new StateGroup(1, states, allocator);
+        }
+        
+        public State[] GetNodeEffects(Node node)
+        {
+            var result = new List<State>();
+            foreach (var state in _effects.GetValuesForKey(node))
+            {
+                result.Add(state);
+            }
+
+            return result.ToArray();
         }
 
         public List<Node> GetChildren(Node node)

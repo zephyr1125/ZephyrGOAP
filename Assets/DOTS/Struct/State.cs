@@ -14,6 +14,16 @@ namespace DOTS.Struct
         /// </summary>
         public bool IsNegative;
 
+        #region For Specific Target
+        
+        /// <summary>
+        /// plan时被自己的effect所抵消的那个precondition的hash，保存以便运行时传递Target
+        /// </summary>
+        public int EffectedPreconditionHash;
+        
+        #endregion
+        
+
         public bool Equals(State other)
         {
             return Trait.Equals(other.Trait) &&
@@ -24,7 +34,7 @@ namespace DOTS.Struct
         public static State Null = new State();
 
         /// <summary>
-        /// 范围的从属关系，意指other是一个包含自己的大范围state，在类型筛选上比Equals宽松
+        /// 范围的从属关系，意指other是一个包含自己的大范围state，类型筛选上比Equals宽松
         /// 但要注意从属关系是有方向的，只支持other包含this
         /// </summary>
         /// <param name="other"></param>

@@ -87,5 +87,28 @@ namespace DOTS.Test
             Assert.AreEqual(new NativeString64("EatAction"), pathResult[1].Name);
             Assert.AreEqual(new NativeString64("CookAction"), pathResult[2].Name);
         }
+
+        /// <summary>
+        /// 非明确的precondition需要被明确的所替代
+        /// </summary>
+        [Test]
+        public void ReplaceNonSpecificPreconditions()
+        {
+            _system.Update();
+            EntityManager.CompleteAllJobs();
+
+            var nodes = EntityManager.GetBuffer<Node>(_agentEntity);
+            var states = EntityManager.GetBuffer<State>(_agentEntity);
+
+            var eatNodePrefabsMask = nodes[1].PreconditionsBitmask;
+            for (var i = 0; i < states.Length; i++)
+            {
+                if ((eatNodePrefabsMask & ((ulong) 1 << i)) > 0 &&
+                    states[i].Trait == typeof(DiningTableTrait))
+                {
+                    Assert.AreEqual(new Entity{Index = 9, Version = 9}, states[i].Target);
+                }
+            }
+        }
     }
 }

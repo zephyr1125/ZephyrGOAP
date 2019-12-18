@@ -56,7 +56,7 @@ namespace DOTS.System.GoapPlanningJob
                 if (effects.Length() > 0)
                 {
                     var newStates = new StateGroup(targetStates, Allocator.Temp);
-                    newStates.Sub(effects);
+                    newStates.SubForEffect(ref effects);
                     newStates.Merge(preconditions);
 
                     var node = new Node(ref newStates, _action.GetName(), _iteration,
