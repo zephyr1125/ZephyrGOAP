@@ -38,6 +38,7 @@ namespace DOTS.Action
             preconditions.Add(new State
             {
                 Trait = typeof(ItemContainerTrait),
+                ValueTrait = targetState.ValueTrait,
                 ValueString = targetState.ValueString,
             });
         }
@@ -55,6 +56,7 @@ namespace DOTS.Action
             {
                 Target = stackData.AgentEntity,
                 Trait = typeof(ItemContainerTrait),
+                ValueTrait = targetState.ValueTrait,
                 ValueString = targetState.ValueString,
             });
         }
