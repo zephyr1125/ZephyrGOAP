@@ -1,5 +1,6 @@
 using DOTS.Component;
 using DOTS.Component.AgentState;
+using DOTS.Component.Trait;
 using DOTS.Struct;
 using Unity.Collections;
 using Unity.Entities;
@@ -51,6 +52,26 @@ namespace DOTS
                     result.Add(currentStates[i+2]);
                     break;
                 }
+            }
+
+            return result;
+        }
+        
+        /// <summary>
+        /// 示例用的方法，根据trait获取所有对应物品名，实际应从define获取
+        /// </summary>
+        /// <param name="trait"></param>
+        /// <param name="allocator"></param>
+        /// <returns></returns>
+        public static NativeList<NativeString64> GetItemNamesOfSpecificTrait(ComponentType trait,
+            Allocator allocator)
+        {
+            var result = new NativeList<NativeString64>(allocator);
+            
+            if (trait.Equals(typeof(FoodTrait)))
+            {
+                result.Add(new NativeString64("peach"));
+                result.Add(new NativeString64("apple"));
             }
 
             return result;

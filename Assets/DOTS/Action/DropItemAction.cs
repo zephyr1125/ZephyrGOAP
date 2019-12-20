@@ -2,10 +2,12 @@ using DOTS.Component.Trait;
 using DOTS.Struct;
 using Unity.Collections;
 using Unity.Entities;
-using NotImplementedException = System.NotImplementedException;
 
 namespace DOTS.Action
 {
+    /// <summary>
+    /// 每个setting表示一种适合的物品
+    /// </summary>
     public struct DropItemAction : IComponentData, IAction
     {
         public NativeString64 GetName()
@@ -29,31 +31,43 @@ namespace DOTS.Action
         {
             var settings = new StateGroup(1, allocator);
             
-            settings.Add(targetState);
+            if (!targetState.ValueString.Equals(new NativeString64()))
+            {
+                //如果指定了物品名，那么只有一种setting，也就是targetState本身
+                settings.Add(targetState);
+            }else if (targetState.ValueString.Equals(new NativeString64()) &&
+                      targetState.ValueTrait != null)
+            {
+                //如果targetState是类别范围，需要对每种符合范围的物品做setting
+                //todo 此处应查询define获得所有符合范围的物品名，示例里暂时从工具方法获取
+                var itemNames =
+                    Utils.GetItemNamesOfSpecificTrait(targetState.ValueTrait,
+                        Allocator.Temp);
+                for (var i = 0; i < itemNames.Length; i++)
+                {
+                    var state = targetState;
+                    state.ValueString = itemNames[i];
+                    settings.Add(state);
+                }
 
+                itemNames.Dispose();
+            }
             return settings;
         }
 
         public void GetPreconditions(ref State targetState, ref State setting,
             ref StackData stackData, ref StateGroup preconditions)
         {
-            preconditions.Add(new State
-            {
-                Target = stackData.AgentEntity,
-                Trait = typeof(ItemContainerTrait),
-                ValueString = targetState.ValueString,
-            });
+            //我自己需要有指定的物品
+            var state = setting;
+            state.Target = stackData.AgentEntity;
+            preconditions.Add(state);
         }
 
         public void GetEffects(ref State targetState, ref State setting,
             ref StackData stackData, ref StateGroup effects)
         {
-            effects.Add(new State
-            {
-                Target = targetState.Target,
-                Trait = typeof(ItemContainerTrait),
-                ValueString = targetState.ValueString,
-            });
+            effects.Add(setting);
         }
 
         public Entity GetNavigatingSubject(ref State targetState, ref State setting,

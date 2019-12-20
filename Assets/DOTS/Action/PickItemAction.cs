@@ -7,7 +7,7 @@ using Unity.Entities;
 namespace DOTS.Action
 {
     /// <summary>
-    /// 每个setting代表一个适合的物品来源
+    /// 每个setting表示一种适合的物品
     /// </summary>
     public struct PickItemAction : IComponentData, IAction
     {
@@ -22,10 +22,10 @@ namespace DOTS.Action
             //针对“自身获得物品”的state
             var stateFilter = new State
             {
+                Target = stackData.AgentEntity,
                 Trait = typeof(ItemContainerTrait),
             };
-            var agent = stackData.AgentEntity;
-            return targetStates.GetState(state => state.Target == agent && state.BelongTo(stateFilter));
+            return targetStates.GetBelongingState(stateFilter);
         }
 
         public StateGroup GetSettings(ref State targetState, ref StackData stackData, Allocator allocator)
@@ -39,14 +39,19 @@ namespace DOTS.Action
             }else if (targetState.ValueString.Equals(new NativeString64()) &&
                       targetState.ValueTrait != null)
             {
-                //如果targetState是类别范围，需要对每种符合范围的物品找一个最近的做setting
-                foreach (var state in stackData.CurrentStates)
+                //如果targetState是类别范围，需要对每种符合范围的物品做setting
+                //todo 此处应查询define获得所有符合范围的物品名，示例里暂时从工具方法获取
+                var itemNames =
+                    Utils.GetItemNamesOfSpecificTrait(targetState.ValueTrait,
+                        Allocator.Temp);
+                for (var i = 0; i < itemNames.Length; i++)
                 {
-                    if (state.ValueTrait != targetState.ValueTrait) continue;
-                    if (settings.Any(setting => setting.ValueString.Equals(state.ValueString)))
-                        continue;
+                    var state = targetState;
+                    state.ValueString = itemNames[i];
                     settings.Add(state);
                 }
+
+                itemNames.Dispose();
             }
             return settings;
         }
@@ -61,12 +66,9 @@ namespace DOTS.Action
         public void GetPreconditions([ReadOnly]ref State targetState, ref State setting,
             [ReadOnly]ref StackData stackData, ref StateGroup preconditions)
         {
-            preconditions.Add(new State
-            {
-                Trait = typeof(ItemContainerTrait),
-                ValueTrait = setting.ValueTrait,
-                ValueString = setting.ValueString,
-            });
+            var state = setting;
+            state.Target = Entity.Null;
+            preconditions.Add(state);
         }
 
         /// <summary>
@@ -79,13 +81,7 @@ namespace DOTS.Action
         public void GetEffects([ReadOnly]ref State targetState, ref State setting,
             [ReadOnly]ref StackData stackData, ref StateGroup effects)
         {
-            effects.Add(new State
-            {
-                Target = stackData.AgentEntity,
-                Trait = typeof(ItemContainerTrait),
-                ValueTrait = setting.ValueTrait,
-                ValueString = setting.ValueString,
-            });
+            effects.Add(setting);
         }
         
         public Entity GetNavigatingSubject(ref State targetState, ref State setting,

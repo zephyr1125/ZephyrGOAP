@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace DOTS.Test
 {
-    public class TestPickActionWithNonSpecificGoal : TestBase
+    public class TestPickActionWithScopeGoal : TestBase
     {
         private GoalPlanningSystem _system;
         private Entity _agentEntity;
@@ -41,22 +41,6 @@ namespace DOTS.Test
             });
             
             World.GetOrCreateSystem<CurrentStatesHelper>().Update();
-            //给CurrentStates写入假环境数据：世界里有2种食物来源
-            var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
-            buffer.Add(new State
-            {
-                Target = new Entity{Index = 8, Version = 1},
-                Trait = typeof(ItemContainerTrait),
-                ValueTrait = typeof(FoodTrait),
-                ValueString = new NativeString64("peach")
-            });
-            buffer.Add(new State
-            {
-                Target = new Entity{Index = 9, Version = 1},
-                Trait = typeof(ItemContainerTrait),
-                ValueTrait = typeof(FoodTrait),
-                ValueString = new NativeString64("apple")
-            });
         }
         
         [TearDown]
@@ -73,7 +57,11 @@ namespace DOTS.Test
             _system.Update();
             EntityManager.CompleteAllJobs();
             
-            Debug.Log(_debugger.GoalNodeView);
+            Assert.AreEqual(2, _debugger.GoalNodeView.Children.Count);
+            Assert.AreEqual(new NativeString64("peach"),
+                _debugger.GoalNodeView.Children[1].States[0].ValueString);
+            Assert.AreEqual(new NativeString64("apple"),
+                _debugger.GoalNodeView.Children[0].States[0].ValueString);
         }
     }
 }
