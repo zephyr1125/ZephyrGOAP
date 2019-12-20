@@ -1,3 +1,4 @@
+using System.Linq;
 using DOTS.Action;
 using DOTS.Component;
 using DOTS.Component.AgentState;
@@ -47,7 +48,6 @@ namespace DOTS.Test
             
             World.GetOrCreateSystem<CurrentStatesHelper>().Update();
             //给CurrentStates写入假环境数据：自己有原料、世界里有cooker和recipe
-            //假定raw_peach并不算Food，以避免直接视为解决方案
             var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
             buffer.Add(new State
             {
@@ -95,6 +95,32 @@ namespace DOTS.Test
             Assert.IsTrue(EntityManager.HasComponent<NoGoal>(_agentEntity));
             Assert.IsFalse(EntityManager.HasComponent<GoalPlanning>(_agentEntity));
             Assert.Zero(EntityManager.GetBuffer<State>(_agentEntity).Length);
+        }
+        
+        //不能被制作的食物要被正确的筛除
+        [Test]
+        public void RemoveNoCookableFood()
+        {
+            _system.Update();
+            EntityManager.CompleteAllJobs();
+            
+            //物品有4种，只有作为配方产物的2种被保留
+            Assert.AreEqual(2, _debugger.GoalNodeView.Children.Count);
+        }
+        
+        //多重setting产生多个node
+        [Test]
+        public void MultiSettingToMultiNodes()
+        {
+            _system.Update();
+            EntityManager.CompleteAllJobs();
+            
+            //2种有配方的方案
+            Assert.AreEqual(2, _debugger.GoalNodeView.Children.Count);
+            Assert.IsTrue(_debugger.GoalNodeView.Children.Any(nodeView => nodeView.States.Any(
+                state => state.ValueString.Equals(new  NativeString64("raw_apple")))));
+            Assert.IsTrue(_debugger.GoalNodeView.Children.Any(nodeView => nodeView.States.Any(
+                state => state.ValueString.Equals(new  NativeString64("raw_peach")))));
         }
     }
 }

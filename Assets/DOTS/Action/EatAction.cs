@@ -5,6 +5,9 @@ using Unity.Entities;
 
 namespace DOTS.Action
 {
+    /// <summary>
+    /// Eat的setting没有多重，就是自身获得Stamina
+    /// </summary>
     public struct EatAction : IComponentData, IAction
     {
         public NativeString64 GetName()
@@ -60,11 +63,7 @@ namespace DOTS.Action
             ref StackData stackData, ref StateGroup effects)
         {
             //自身获得stamina
-            effects.Add(new State
-            {
-                Target = stackData.AgentEntity,
-                Trait = typeof(StaminaTrait),
-            });
+            effects.Add(targetState);
         }
 
         public Entity GetNavigatingSubject(ref State targetState, ref State setting,

@@ -70,8 +70,10 @@ namespace DOTS
             
             if (trait.Equals(typeof(FoodTrait)))
             {
-                result.Add(new NativeString64("peach"));
-                result.Add(new NativeString64("apple"));
+                result.Add(new NativeString64("raw_peach"));
+                result.Add(new NativeString64("roast_peach"));
+                result.Add(new NativeString64("raw_apple"));
+                result.Add(new NativeString64("roast_apple"));
             }
 
             return result;

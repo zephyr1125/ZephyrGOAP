@@ -1,3 +1,4 @@
+using System.Linq;
 using DOTS.Action;
 using DOTS.Component;
 using DOTS.Component.AgentState;
@@ -57,11 +58,15 @@ namespace DOTS.Test
             _system.Update();
             EntityManager.CompleteAllJobs();
             
-            Assert.AreEqual(2, _debugger.GoalNodeView.Children.Count);
-            Assert.AreEqual(new NativeString64("peach"),
-                _debugger.GoalNodeView.Children[1].States[0].ValueString);
-            Assert.AreEqual(new NativeString64("apple"),
-                _debugger.GoalNodeView.Children[0].States[0].ValueString);
+            Assert.AreEqual(4, _debugger.GoalNodeView.Children.Count);
+            Assert.IsTrue(_debugger.GoalNodeView.Children.Any(
+                nodeView => nodeView.States[0].ValueString.Equals(new  NativeString64("raw_apple"))));
+            Assert.IsTrue(_debugger.GoalNodeView.Children.Any(
+                nodeView => nodeView.States[0].ValueString.Equals(new  NativeString64("roast_apple"))));
+            Assert.IsTrue(_debugger.GoalNodeView.Children.Any(
+                nodeView => nodeView.States[0].ValueString.Equals(new  NativeString64("raw_peach"))));
+            Assert.IsTrue(_debugger.GoalNodeView.Children.Any(
+                nodeView => nodeView.States[0].ValueString.Equals(new  NativeString64("roast_apple"))));
         }
     }
 }
