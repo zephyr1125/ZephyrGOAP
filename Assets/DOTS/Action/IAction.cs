@@ -10,13 +10,15 @@ namespace DOTS.Action
         
         State GetTargetGoalState(ref StateGroup targetStates, ref StackData stackData);
 
-        void GetPreconditions([ReadOnly] ref State targetState,
+        StateGroup GetSettings(ref State targetState, ref StackData stackData, Allocator allocator);
+
+        void GetPreconditions([ReadOnly] ref State targetState, ref State setting,
             [ReadOnly] ref StackData stackData, ref StateGroup preconditions);
 
-        void GetEffects([ReadOnly] ref State targetState,
+        void GetEffects([ReadOnly] ref State targetState, ref State setting,
             [ReadOnly] ref StackData stackData, ref StateGroup effects);
 
-        Entity GetNavigatingSubject(ref State targetState, [ReadOnly] ref StackData stackData,
-            ref StateGroup preconditions);
+        Entity GetNavigatingSubject(ref State targetState, ref State setting,
+            [ReadOnly] ref StackData stackData, ref StateGroup preconditions);
     }
 }

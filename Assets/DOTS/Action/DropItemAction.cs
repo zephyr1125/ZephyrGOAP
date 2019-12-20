@@ -1,5 +1,6 @@
 using DOTS.Component.Trait;
 using DOTS.Struct;
+using Unity.Collections;
 using Unity.Entities;
 using NotImplementedException = System.NotImplementedException;
 
@@ -23,8 +24,18 @@ namespace DOTS.Action
             //额外：target不能为自身
             return targetStates.GetState(state => state.Target != agent && state.BelongTo(stateFilter));
         }
+        
+        public StateGroup GetSettings(ref State targetState, ref StackData stackData, Allocator allocator)
+        {
+            var settings = new StateGroup(1, allocator);
+            
+            settings.Add(targetState);
 
-        public void GetPreconditions(ref State targetState, ref StackData stackData, ref StateGroup preconditions)
+            return settings;
+        }
+
+        public void GetPreconditions(ref State targetState, ref State setting,
+            ref StackData stackData, ref StateGroup preconditions)
         {
             preconditions.Add(new State
             {
@@ -34,7 +45,8 @@ namespace DOTS.Action
             });
         }
 
-        public void GetEffects(ref State targetState, ref StackData stackData, ref StateGroup effects)
+        public void GetEffects(ref State targetState, ref State setting,
+            ref StackData stackData, ref StateGroup effects)
         {
             effects.Add(new State
             {
@@ -44,7 +56,8 @@ namespace DOTS.Action
             });
         }
 
-        public Entity GetNavigatingSubject(ref State targetState, ref StackData stackData, ref StateGroup preconditions)
+        public Entity GetNavigatingSubject(ref State targetState, ref State setting,
+            ref StackData stackData, ref StateGroup preconditions)
         {
             return targetState.Target;
         }

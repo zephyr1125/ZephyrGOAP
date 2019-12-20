@@ -40,39 +40,45 @@ namespace DOTS.System.GoapPlanningJob
         {
             var unexpandedNode = _unexpandedNodes[jobIndex];
             var targetStates = _nodeGraph.GetNodeStates(unexpandedNode, Allocator.Temp);
-
-            var preconditions = new StateGroup(1, Allocator.Temp);
-            var effects = new StateGroup(1, Allocator.Temp);
-
             var targetState = _action.GetTargetGoalState(ref targetStates, ref _stackData);
 
             if (!targetState.Equals(State.Null))
             {
-                _action.GetPreconditions(ref targetState, ref _stackData, ref preconditions);
-                ReplacePreconditionsWithSpecificStates(ref preconditions);
-                
-                _action.GetEffects(ref targetState, ref _stackData, ref effects);
+                var settings = _action.GetSettings(ref targetState, ref _stackData, Allocator.Temp);
 
-                if (effects.Length() > 0)
+                for (var i=0; i<settings.Length(); i++)
                 {
-                    var newStates = new StateGroup(targetStates, Allocator.Temp);
-                    newStates.SubForEffect(ref effects);
-                    newStates.Merge(preconditions);
+                    var setting = settings[i];
+                    var preconditions = new StateGroup(1, Allocator.Temp);
+                    var effects = new StateGroup(1, Allocator.Temp);
 
-                    var node = new Node(ref newStates, _action.GetName(), _iteration,
-                        _action.GetNavigatingSubject(ref targetState, ref _stackData, ref preconditions));
+                    _action.GetPreconditions(ref targetState, ref setting, ref _stackData, ref preconditions);
+                    ReplacePreconditionsWithSpecificStates(ref preconditions);
+                
+                    _action.GetEffects(ref targetState, ref setting, ref _stackData, ref effects);
 
-                    //NodeGraph的几个容器都移去了并行限制，小心出错
-                    _nodeGraph.AddRouteNode(node, ref newStates, ref preconditions, ref effects,
-                        unexpandedNode, _action.GetName());
-                    _newlyExpandedNodes.Add(node);
+                    if (effects.Length() > 0)
+                    {
+                        var newStates = new StateGroup(targetStates, Allocator.Temp);
+                        newStates.SubForEffect(ref effects);
+                        newStates.Merge(preconditions);
 
-                    newStates.Dispose();
+                        var node = new Node(ref newStates, _action.GetName(), _iteration,
+                            _action.GetNavigatingSubject(ref targetState, ref setting, ref _stackData, ref preconditions));
+
+                        //NodeGraph的几个容器都移去了并行限制，小心出错
+                        _nodeGraph.AddRouteNode(node, ref newStates, ref preconditions, ref effects,
+                            unexpandedNode, _action.GetName());
+                        _newlyExpandedNodes.Add(node);
+
+                        newStates.Dispose();
+                    }
+                
+                    preconditions.Dispose();
+                    effects.Dispose();
                 }
+                settings.Dispose();
             }
-
-            preconditions.Dispose();
-            effects.Dispose();
             targetStates.Dispose();
         }
 

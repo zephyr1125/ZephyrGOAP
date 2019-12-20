@@ -40,8 +40,18 @@ namespace DOTS.Action
 
             return default;
         }
+        
+        public StateGroup GetSettings(ref State targetState, ref StackData stackData, Allocator allocator)
+        {
+            var settings = new StateGroup(1, allocator);
+            
+            settings.Add(targetState);
 
-        public void GetPreconditions(ref State targetState, ref StackData stackData, ref StateGroup preconditions)
+            return settings;
+        }
+
+        public void GetPreconditions(ref State targetState, ref State setting,
+            ref StackData stackData, ref StateGroup preconditions)
         {
             //世界里有cooker
             preconditions.Add(new State
@@ -77,7 +87,8 @@ namespace DOTS.Action
             inputs.Dispose();
         }
 
-        public void GetEffects(ref State targetState, ref StackData stackData, ref StateGroup effects)
+        public void GetEffects(ref State targetState, ref State setting,
+            ref StackData stackData, ref StateGroup effects)
         {
             //自己拥有了cook产物
             effects.Add(new State
@@ -89,8 +100,8 @@ namespace DOTS.Action
             });
         }
 
-        public Entity GetNavigatingSubject(ref State targetState, ref StackData stackData,
-            ref StateGroup preconditions)
+        public Entity GetNavigatingSubject(ref State targetState, ref State setting,
+            ref StackData stackData, ref StateGroup preconditions)
         {
             //移动目标为生产设施
             return preconditions[0].Target;

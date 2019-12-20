@@ -1,5 +1,6 @@
 using DOTS.Component.Trait;
 using DOTS.Struct;
+using Unity.Collections;
 using Unity.Entities;
 
 namespace DOTS.Action
@@ -28,8 +29,18 @@ namespace DOTS.Action
 
             return default;
         }
+        
+        public StateGroup GetSettings(ref State targetState, ref StackData stackData, Allocator allocator)
+        {
+            var settings = new StateGroup(1, allocator);
+            
+            settings.Add(targetState);
 
-        public void GetPreconditions(ref State targetState, ref StackData stackData, ref StateGroup preconditions)
+            return settings;
+        }
+
+        public void GetPreconditions(ref State targetState, ref State setting,
+            ref StackData stackData, ref StateGroup preconditions)
         {
             //自己有食物
             preconditions.Add(new State
@@ -45,7 +56,8 @@ namespace DOTS.Action
             });
         }
 
-        public void GetEffects(ref State targetState, ref StackData stackData, ref StateGroup effects)
+        public void GetEffects(ref State targetState, ref State setting,
+            ref StackData stackData, ref StateGroup effects)
         {
             //自身获得stamina
             effects.Add(new State
@@ -55,8 +67,8 @@ namespace DOTS.Action
             });
         }
 
-        public Entity GetNavigatingSubject(ref State targetState, ref StackData stackData,
-            ref StateGroup preconditions)
+        public Entity GetNavigatingSubject(ref State targetState, ref State setting,
+            ref StackData stackData, ref StateGroup preconditions)
         {
             //导航目标为餐桌
             return preconditions[1].Target;
