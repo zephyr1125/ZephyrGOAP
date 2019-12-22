@@ -35,14 +35,14 @@ namespace DOTS.System.GoapPlanningJob
             //Generate Working Containers
             var openSet = new NativeMinHeap(graphSize, Allocator.Temp);
             var cameFrom = new NativeHashMap<int, int>(graphSize, Allocator.Temp);
-            var costCount = new NativeHashMap<int, int>(graphSize, Allocator.Temp);
+            var rewardSum = new NativeHashMap<int, float>(graphSize, Allocator.Temp);
 
             // Path finding
             var startId = StartNodeId;
             var goalId = GoalNodeId;
                 
             openSet.Push(new MinHeapNode(startId, 0));
-            costCount[startId] = 0;
+            rewardSum[startId] = 0;
 
             var currentId = -1;
             while (_iterations<IterationLimit && openSet.HasNext())
@@ -59,20 +59,17 @@ namespace DOTS.System.GoapPlanningJob
 
                 foreach (var neighbourId in neighboursId)
                 {
-                    //if cost == -1 means obstacle, skip
-                    if (NodeGraph[neighbourId].GetCost(ref NodeGraph) == -1) continue;
-
-                    var currentCost = costCount[currentId] == Int32.MaxValue
-                        ? 0
-                        : costCount[currentId];
-                    var newCost = currentCost + NodeGraph[neighbourId].GetCost(ref NodeGraph);
+                    //if reward == -infinity means obstacle, skip
+                    if (float.IsNegativeInfinity(NodeGraph[neighbourId].GetReward(ref NodeGraph))) continue;
+                    
+                    var newReward = rewardSum[currentId] + NodeGraph[neighbourId].GetReward(ref NodeGraph);
                     //not better, skip
-                    if (costCount.ContainsKey(neighbourId) && costCount[neighbourId] <= newCost) continue;
+                    if (rewardSum.ContainsKey(neighbourId) && rewardSum[neighbourId] >= newReward) continue;
                         
-                    var priority = newCost + NodeGraph[neighbourId].Heuristic(ref NodeGraph);
+                    var priority = newReward + NodeGraph[neighbourId].Heuristic(ref NodeGraph);
                     openSet.Push(new MinHeapNode(neighbourId, priority));
                     cameFrom[neighbourId] = currentId;
-                    costCount[neighbourId] = newCost;
+                    rewardSum[neighbourId] = newReward;
                 }
 
                 _iterations++;
@@ -109,7 +106,7 @@ namespace DOTS.System.GoapPlanningJob
             //Clear
             openSet.Dispose();
             cameFrom.Dispose();
-            costCount.Dispose();
+            rewardSum.Dispose();
         }
             
     }

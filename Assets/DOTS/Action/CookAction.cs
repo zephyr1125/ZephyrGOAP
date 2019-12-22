@@ -140,6 +140,11 @@ namespace DOTS.Action
             effects.Add(setting);
         }
 
+        public float GetReward(ref State targetState, ref State setting, ref StackData stackData)
+        {
+            return 0;
+        }
+
         public Entity GetNavigatingSubject(ref State targetState, ref State setting,
             ref StackData stackData, ref StateGroup preconditions)
         {

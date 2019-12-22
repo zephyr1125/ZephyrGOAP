@@ -40,7 +40,7 @@ namespace DOTS.Test
                 Trait = typeof(ItemContainerTrait),
                 ValueString = new NativeString64("test"),
             }};
-            _goalNode = new Node(ref goalStates,new NativeString64("goal"), 0);
+            _goalNode = new Node(ref goalStates,new NativeString64("goal"),0 , 0);
             
             _nodeGraph.SetGoalNode(_goalNode, ref goalStates);
             
@@ -73,7 +73,7 @@ namespace DOTS.Test
                 Trait = typeof(ItemContainerTrait),
                 ValueString = new NativeString64("test"),
             };
-            var node = new Node(ref state, new NativeString64("route"), 1);
+            var node = new Node(ref state, new NativeString64("route"), 0, 1);
 
             var preconditions = new StateGroup();
             var effects = new StateGroup();
@@ -110,7 +110,7 @@ namespace DOTS.Test
                 Trait = typeof(GatherStationTrait),
                 ValueString = new NativeString64("test"),
             };
-            var node = new Node(ref state, new NativeString64("route"), 1);
+            var node = new Node(ref state, new NativeString64("route"), 0, 1);
 
             var preconditions = new StateGroup();
             var effects = new StateGroup();

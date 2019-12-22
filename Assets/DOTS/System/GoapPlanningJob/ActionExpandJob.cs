@@ -63,7 +63,10 @@ namespace DOTS.System.GoapPlanningJob
                         newStates.SubForEffect(ref effects);
                         newStates.Merge(preconditions);
 
-                        var node = new Node(ref newStates, _action.GetName(), _iteration,
+                        var reward =
+                            _action.GetReward(ref targetState, ref setting, ref _stackData);
+
+                        var node = new Node(ref newStates, _action.GetName(), reward, _iteration,
                             _action.GetNavigatingSubject(ref targetState, ref setting, ref _stackData, ref preconditions));
 
                         //NodeGraph的几个容器都移去了并行限制，小心出错

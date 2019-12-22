@@ -17,6 +17,9 @@ namespace DOTS.Action
 
         void GetEffects([ReadOnly] ref State targetState, ref State setting,
             [ReadOnly] ref StackData stackData, ref StateGroup effects);
+        
+        float GetReward([ReadOnly] ref State targetState, ref State setting,
+            [ReadOnly] ref StackData stackData);
 
         Entity GetNavigatingSubject(ref State targetState, ref State setting,
             [ReadOnly] ref StackData stackData, ref StateGroup preconditions);

@@ -11,7 +11,12 @@ namespace DOTS.Struct
         /// <summary>
         /// 第一次展开到这个Node时的层数, goal=0
         /// </summary>
-        public int Iteration;
+        private readonly int _iteration;
+
+        /// <summary>
+        /// -Cost/+Reward
+        /// </summary>
+        private readonly float _reward;
         
         /// <summary>
         /// 用于比较两个Node是否是同一个node
@@ -30,18 +35,20 @@ namespace DOTS.Struct
         /// </summary>
         public Entity NavigatingSubject;
 
-        public Node(ref StateGroup states, NativeString64 name, int iteration, Entity navigatingSubject = new Entity()) : this()
+        public Node(ref StateGroup states, NativeString64 name, float reward, int iteration, Entity navigatingSubject = new Entity()) : this()
         {
             Name = name;
-            Iteration = iteration;
+            _reward = reward;
+            _iteration = iteration;
             NavigatingSubject = navigatingSubject;
             _hashCode = states.GetHashCode();
         }
         
-        public Node(ref State state, NativeString64 name, int iteration, Entity navigatingSubject = new Entity()) : this()
+        public Node(ref State state, NativeString64 name, float reward, int iteration, Entity navigatingSubject = new Entity()) : this()
         {
             Name = name;
-            Iteration = iteration;
+            _reward = reward;
+            _iteration = iteration;
             NavigatingSubject = navigatingSubject;
             _hashCode = state.GetHashCode();
         }
@@ -51,16 +58,15 @@ namespace DOTS.Struct
             return _hashCode.Equals(other._hashCode);
         }
 
-        public int GetCost([ReadOnly]ref NodeGraph nodeGraph)
+        public float GetReward([ReadOnly]ref NodeGraph nodeGraph)
         {
-            //todo 需要计算cost
-            return 1;
+            return _reward;
         }
 
         public float Heuristic([ReadOnly]ref NodeGraph nodeGraph)
         {
             //todo 目前直接使用与goal的距离
-            return Iteration - nodeGraph.GetGoalNode().Iteration;
+            return _iteration - nodeGraph.GetGoalNode()._iteration;
         }
 
         public void GetNeighbours([ReadOnly]ref NodeGraph nodeGraph, ref NativeList<int> neighboursId)

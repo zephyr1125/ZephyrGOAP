@@ -45,7 +45,7 @@ namespace DOTS.Test
                 Trait = typeof(ItemContainerTrait),
                 ValueString = new NativeString64("test"),
             }};
-            _goalNode = new Node(ref goalStates, new NativeString64("goal"), 0);
+            _goalNode = new Node(ref goalStates, new NativeString64("goal"), 0, 0);
             
             _nodeGraph.SetGoalNode(_goalNode, ref goalStates);
             

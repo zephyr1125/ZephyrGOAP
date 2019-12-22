@@ -4,7 +4,7 @@ namespace DOTS.Struct
 {
     public interface IPathFindingNode
     {
-        int GetCost([ReadOnly]ref NodeGraph nodeGraph);
+        float GetReward([ReadOnly]ref NodeGraph nodeGraph);
         
         float Heuristic([ReadOnly]ref NodeGraph nodeGraph);
         
