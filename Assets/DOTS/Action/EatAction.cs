@@ -6,7 +6,7 @@ using Unity.Entities;
 namespace DOTS.Action
 {
     /// <summary>
-    /// Eat的setting没有多重，就是自身获得Stamina
+    /// Eat的setting为自己拥有各种食物，用于precondition
     /// </summary>
     public struct EatAction : IComponentData, IAction
     {
@@ -37,7 +37,26 @@ namespace DOTS.Action
         {
             var settings = new StateGroup(1, allocator);
             
-            settings.Add(targetState);
+            //自己有食物
+            var template = new State
+            {
+                Target = stackData.AgentEntity,
+                Trait = typeof(ItemContainerTrait),
+                ValueTrait = typeof(FoodTrait),
+            };
+            
+            //todo 此处应查询define获得所有食物，示例里暂时从工具方法获取
+            var itemNames =
+                Utils.GetItemNamesOfSpecificTrait(typeof(FoodTrait),
+                    Allocator.Temp);
+            for (var i = 0; i < itemNames.Length; i++)
+            {
+                var state = template;
+                state.ValueString = itemNames[i];
+                settings.Add(state);
+            }
+
+            itemNames.Dispose();
 
             return settings;
         }
@@ -46,12 +65,7 @@ namespace DOTS.Action
             ref StackData stackData, ref StateGroup preconditions)
         {
             //自己有食物
-            preconditions.Add(new State
-            {
-                Target = stackData.AgentEntity,
-                Trait = typeof(ItemContainerTrait),
-                ValueTrait = typeof(FoodTrait),
-            });
+            preconditions.Add(setting);
             //世界里有餐桌
             preconditions.Add(new State
             {
@@ -68,7 +82,9 @@ namespace DOTS.Action
 
         public float GetReward(ref State targetState, ref State setting, ref StackData stackData)
         {
-            return 0;
+            //由食物决定
+            //todo 示例项目通过工具方法获取食物reward，实际应从define取
+            return Utils.GetFoodReward(setting.ValueString);
         }
 
         public Entity GetNavigatingSubject(ref State targetState, ref State setting,

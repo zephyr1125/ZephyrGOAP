@@ -78,5 +78,22 @@ namespace DOTS
 
             return result;
         }
+
+        /// <summary>
+        /// 示例用的方法，获取不同食物的食用reward
+        /// </summary>
+        /// <param name="foodName"></param>
+        /// <returns></returns>
+        public static float GetFoodReward(NativeString64 foodName)
+        {
+            switch (foodName.ToString())
+            {
+                case "raw_peach" : return 1;
+                case "roast_peach" : return 3;
+                case "raw_apple" : return 2;
+                case "roast_apple" : return 4;
+                default: return 0;
+            }
+        }
     }
 }

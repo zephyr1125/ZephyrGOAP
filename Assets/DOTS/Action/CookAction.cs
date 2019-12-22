@@ -6,6 +6,9 @@ using UnityEngine;
 
 namespace DOTS.Action
 {
+    /// <summary>
+    /// cook的setting为各种可烹饪食物
+    /// </summary>
     public struct CookAction : IComponentData, IAction
     {
         public NativeString64 GetName()

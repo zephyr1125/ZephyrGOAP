@@ -68,14 +68,27 @@ namespace DOTS.Test
         }
 
         [Test]
-        public void PlanEat()
+        public void MultiFood()
         {
             _system.Update();
             EntityManager.CompleteAllJobs();
             
-            Debug.Log(_debugger.GoalNodeView);
-            var pathResult = _debugger.PathResult;
-            Debug.Log(pathResult);
+            Assert.AreEqual(4, _debugger.GoalNodeView.Children.Count);
+        }
+
+        [Test]
+        public void ChooseBestRewardFood()
+        {
+            _system.Update();
+            EntityManager.CompleteAllJobs();
+
+            var states = EntityManager.GetBuffer<State>(_agentEntity);
+            var preconditionMark = _debugger.PathResult[1].PreconditionsBitmask;
+            for (var i = 0; i < states.Length; i++)
+            {
+                if((preconditionMark & (ulong)1 << i) == 0) continue;
+                Assert.AreEqual("roast_apple", states[i].ValueString);
+            }
         }
     }
 }
