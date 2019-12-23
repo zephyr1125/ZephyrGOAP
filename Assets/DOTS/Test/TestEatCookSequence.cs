@@ -1,3 +1,4 @@
+using System.Linq;
 using DOTS.Action;
 using DOTS.Component;
 using DOTS.Component.AgentState;
@@ -72,6 +73,7 @@ namespace DOTS.Test
         public override void TearDown()
         {
             base.TearDown();
+            Utils.RoastPeachReward = 3;
             _debugger.Dispose();
         }
 
@@ -86,6 +88,21 @@ namespace DOTS.Test
             Assert.AreEqual(3, pathResult.Length);
             Assert.AreEqual(new NativeString64("EatAction"), pathResult[1].Name);
             Assert.AreEqual(new NativeString64("CookAction"), pathResult[2].Name);
+        }
+        
+        //改变reward设置，规划随之改变
+        [Test]
+        public void RewardChange_PlanChange()
+        {
+            Utils.RoastPeachReward = 2;
+            
+            _system.Update();
+            EntityManager.CompleteAllJobs();
+            
+            Debug.Log(_debugger.GoalNodeView);
+            var pathResult = _debugger.PathResult;
+            Assert.AreEqual(2, pathResult.Length);
+            Assert.AreEqual(new NativeString64("EatAction"), pathResult[1].Name);
         }
 
         /// <summary>

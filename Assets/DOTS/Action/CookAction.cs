@@ -145,7 +145,7 @@ namespace DOTS.Action
 
         public float GetReward(ref State targetState, ref State setting, ref StackData stackData)
         {
-            return 0;
+            return -1;
         }
 
         public Entity GetNavigatingSubject(ref State targetState, ref State setting,

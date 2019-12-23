@@ -79,6 +79,11 @@ namespace DOTS
             return result;
         }
 
+        public static float RawPeachReward = 1;
+        public static float RoastPeachReward = 3;
+        public static float RawAppleReward = 2;
+        public static float RoastAppleReward = 4;
+        
         /// <summary>
         /// 示例用的方法，获取不同食物的食用reward
         /// </summary>
@@ -88,10 +93,10 @@ namespace DOTS
         {
             switch (foodName.ToString())
             {
-                case "raw_peach" : return 1;
-                case "roast_peach" : return 3;
-                case "raw_apple" : return 2;
-                case "roast_apple" : return 4;
+                case "raw_peach" : return RawPeachReward;
+                case "roast_peach" : return RoastPeachReward;
+                case "raw_apple" : return RawAppleReward;
+                case "roast_apple" : return RoastAppleReward;
                 default: return 0;
             }
         }
