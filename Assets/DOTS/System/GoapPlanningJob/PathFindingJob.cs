@@ -49,10 +49,13 @@ namespace DOTS.System.GoapPlanningJob
             {
                 var currentNode = openSet[openSet.Pop()];
                 currentId = currentNode.Id;
-                if (currentId == goalId)
-                {
-                    break;
-                }
+                
+                //不使用early quit，因为会使用非最优解
+                //early quit
+                // if (currentId == goalId)
+                // {
+                //     break;
+                // }
                     
                 var neighboursId = new NativeList<int>(4, Allocator.Temp);
                 NodeGraph[currentId].GetNeighbours(ref NodeGraph, ref neighboursId);
@@ -66,7 +69,7 @@ namespace DOTS.System.GoapPlanningJob
                     //not better, skip
                     if (rewardSum.ContainsKey(neighbourId) && rewardSum[neighbourId] >= newReward) continue;
                         
-                    var priority = newReward + NodeGraph[neighbourId].Heuristic(ref NodeGraph);
+                    var priority = -(newReward + NodeGraph[neighbourId].Heuristic(ref NodeGraph));
                     openSet.Push(new MinHeapNode(neighbourId, priority));
                     cameFrom[neighbourId] = currentId;
                     rewardSum[neighbourId] = newReward;

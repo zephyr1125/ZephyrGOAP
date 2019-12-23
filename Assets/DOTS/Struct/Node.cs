@@ -65,8 +65,8 @@ namespace DOTS.Struct
 
         public float Heuristic([ReadOnly]ref NodeGraph nodeGraph)
         {
-            //todo 目前直接使用与goal的距离
-            return _iteration - nodeGraph.GetGoalNode()._iteration;
+            //todo heuristic计算
+            return 0;
         }
 
         public void GetNeighbours([ReadOnly]ref NodeGraph nodeGraph, ref NativeList<int> neighboursId)
