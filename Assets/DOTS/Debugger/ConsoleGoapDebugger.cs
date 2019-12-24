@@ -1,11 +1,16 @@
 using DOTS.Struct;
 using Unity.Collections;
+using Unity.Entities;
 
 namespace DOTS.Debugger
 {
     public class ConsoleGoapDebugger : IGoapDebugger
     {
-        
+        public void StartLog(Entity agent)
+        {
+            
+        }
+
         public void SetNodeGraph(ref NodeGraph nodeGraph)
         {
             

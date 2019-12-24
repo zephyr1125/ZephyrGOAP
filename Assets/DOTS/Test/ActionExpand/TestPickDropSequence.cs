@@ -220,7 +220,6 @@ namespace DOTS.Test.ActionExpand
             _system.Update();
             EntityManager.CompleteAllJobs();
             
-            Assert.IsNull(_debugger.PathResult);
             buffer = EntityManager.GetBuffer<Node>(_agentEntity);
             Assert.AreEqual(1, buffer.Length);
         }

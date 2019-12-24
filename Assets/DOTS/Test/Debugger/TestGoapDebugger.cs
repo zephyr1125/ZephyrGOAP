@@ -2,46 +2,37 @@ using System;
 using DOTS.Debugger;
 using DOTS.Struct;
 using Unity.Collections;
+using Unity.Entities;
 using UnityEngine;
 
 namespace DOTS.Test.Debugger
 {
     public class TestGoapDebugger : IGoapDebugger, IDisposable
     {
-        public Node[] PathResult;
+        private GoapLog _goapLog;
 
-        public NodeView GoalNodeView;
-        
-        public void SetNodeGraph(ref NodeGraph nodeGraph)
+        public void StartLog(Entity agent)
         {
-            GoalNodeView = new NodeView
+            if (_goapLog == null)
             {
-                Node = nodeGraph.GetGoalNode(),
-                States = nodeGraph.GetNodeStates(nodeGraph.GetGoalNode())
-            };
-            ConstructNodeTree(ref nodeGraph, GoalNodeView);
+                _goapLog = new GoapLog();
+            }
+            _goapLog.StartLog(agent);
         }
 
-        private void ConstructNodeTree(ref NodeGraph nodeGraph, NodeView nodeView)
+        public void SetNodeGraph(ref NodeGraph nodeGraph)
         {
-            var children = nodeGraph.GetChildren(nodeView.Node);
-            foreach (var child in children)
-            {
-                var newNode = new NodeView
-                {
-                    Node = child, States = nodeGraph.GetNodeStates(child),
-                    Preconditions = nodeGraph.GetNodePreconditions(child),
-                    Effects = nodeGraph.GetNodeEffects(child)
-                };
-                nodeView.AddChild(newNode);
-                ConstructNodeTree(ref nodeGraph, newNode);
-            }
+            _goapLog.SetNodeGraph(ref nodeGraph);
         }
 
         public void SetPathResult(ref NativeList<Node> pathResult)
         {
-            PathResult = pathResult.ToArray();
+            _goapLog.SetPathResult(ref pathResult);
         }
+        
+        public NodeView GoalNodeView => _goapLog.GetGoalNodeView();
+
+        public Node[] PathResult => _goapLog.GetPathResult();
 
         public void Log(string log)
         {

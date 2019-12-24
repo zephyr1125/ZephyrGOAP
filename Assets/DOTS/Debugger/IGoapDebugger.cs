@@ -1,5 +1,6 @@
 using DOTS.Struct;
 using Unity.Collections;
+using Unity.Entities;
 
 namespace DOTS.Debugger
 {
@@ -9,6 +10,8 @@ namespace DOTS.Debugger
     /// </summary>
     public interface IGoapDebugger
     {
+        void StartLog(Entity agent);
+        
         void SetNodeGraph(ref NodeGraph nodeGraph);
 
         void SetPathResult(ref NativeList<Node> pathResult);
