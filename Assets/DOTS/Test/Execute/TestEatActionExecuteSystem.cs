@@ -12,9 +12,9 @@ using Unity.Entities;
 
 namespace DOTS.Test.Execute
 {
-    public class TestCookActionExecuteSystem : TestBase
+    public class TestEatActionExecuteSystem : TestBase
     {
-        private CookActionExecuteSystem _system;
+        private EatActionExecuteSystem _system;
         private Entity _agentEntity;
 
         [SetUp]
@@ -22,81 +22,63 @@ namespace DOTS.Test.Execute
         {
             base.SetUp();
 
-            _system = World.GetOrCreateSystem<CookActionExecuteSystem>();
+            _system = World.GetOrCreateSystem<EatActionExecuteSystem>();
 
             _agentEntity = EntityManager.CreateEntity();
             
-            //agent预存好原料
+            //agent预存好食物
             var itemBuffer = EntityManager.AddBuffer<ContainedItemRef>(_agentEntity);
             itemBuffer.Add(new ContainedItemRef
             {
-                ItemName = new NativeString64("input0"),
+                ItemName = new NativeString64("food"),
                 ItemEntity = new Entity {Index = 99, Version = 9}
             });
-            itemBuffer.Add(new ContainedItemRef
-            {
-                ItemName = new NativeString64("input1"),
-                ItemEntity = new Entity {Index = 98, Version = 9}
-            });
+            EntityManager.AddComponentData(_agentEntity, new Stamina {Value = 0});
             
             EntityManager.AddComponentData(_agentEntity, new Agent{ExecutingNodeId = 0});
             EntityManager.AddComponentData(_agentEntity, new ReadyToActing());
-            EntityManager.AddComponentData(_agentEntity, new CookAction());
+            EntityManager.AddComponentData(_agentEntity, new EatAction());
             //agent必须带有已经规划好的任务列表
             var bufferNodes = EntityManager.AddBuffer<Node>(_agentEntity);
             bufferNodes.Add(new Node
             {
-                Name = new NativeString64(nameof(CookAction)),
-                PreconditionsBitmask = 3,
-                EffectsBitmask = 1 << 2,
+                Name = new NativeString64(nameof(EatAction)),
+                PreconditionsBitmask = 1 << 0,
+                EffectsBitmask = 1 << 1,
             });
             var bufferStates = EntityManager.AddBuffer<State>(_agentEntity);
             bufferStates.Add(new State
             {
                 Target = _agentEntity,
                 Trait = typeof(ItemContainerTrait),
-                ValueString = new NativeString64("input0"),
+                ValueString = new NativeString64("food"),
             });
             bufferStates.Add(new State
             {
                 Target = _agentEntity,
-                Trait = typeof(ItemContainerTrait),
-                ValueString = new NativeString64("input1"),
-            });
-            bufferStates.Add(new State
-            {
-                Target = _agentEntity,
-                Trait = typeof(ItemContainerTrait),
-                ValueString = new NativeString64("output"),
+                Trait = typeof(StaminaTrait),
             });
         }
 
         [Test]
-        public void AgentRemoveInput()
+        public void AgentRemoveFood()
         {
             _system.Update();
             _system.ECBSystem.Update();
             EntityManager.CompleteAllJobs();
 
             var itemBuffer = EntityManager.GetBuffer<ContainedItemRef>(_agentEntity);
-            var items = itemBuffer.ToNativeArray(Allocator.Temp);
-            Assert.IsFalse(items.Any(item => item.ItemName.Equals(
-                new NativeString64("input0"))));
-            Assert.IsFalse(items.Any(item => item.ItemName.Equals(
-                new NativeString64("input1"))));
-            items.Dispose();
+            Assert.Zero(itemBuffer.Length);
         }
 
         [Test]
-        public void AgentGotOutput()
+        public void AgentGotStamina()
         {
             _system.Update();
             _system.ECBSystem.Update();
             EntityManager.CompleteAllJobs();
             
-            var itemBuffer = EntityManager.GetBuffer<ContainedItemRef>(_agentEntity);
-            Assert.AreEqual(1, itemBuffer.Length);
-            Assert.AreEqual(new NativeString64("output"), itemBuffer[0].ItemName);
+            Assert.AreEqual(0.5f, EntityManager.GetComponentData<Stamina>(_agentEntity).Value);
         }
 
         [Test]
