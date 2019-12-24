@@ -36,7 +36,7 @@ namespace DOTS.System.ActionExecuteSystem
             {
                 //执行进度要处于正确的id上
                 var currentNode = nodes[agent.ExecutingNodeId];
-                if (!currentNode.Name.Equals(new NativeString64(nameof(DropItemAction))))
+                if (!currentNode.Name.Equals(new NativeString64(nameof(CookAction))))
                     return;
 
                 //从precondition里找原料
@@ -56,7 +56,6 @@ namespace DOTS.System.ActionExecuteSystem
                     {
                         inputItemNames[precondition.ValueString] ++;
                     }
-                    break;
                 }
                 //从effect获取产物
                 var outputItemName = new NativeString64();
@@ -77,7 +76,6 @@ namespace DOTS.System.ActionExecuteSystem
                     if (!inputItemNames.ContainsKey(containedItemRef.ItemName)) continue;
                     if (inputItemNames[containedItemRef.ItemName] == 0) continue;
                     containedItems.RemoveAt(i);
-                    break;
                 }
                 inputItemNames.Dispose();
 
