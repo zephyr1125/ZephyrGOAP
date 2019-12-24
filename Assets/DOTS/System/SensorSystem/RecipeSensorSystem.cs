@@ -1,6 +1,7 @@
 using DOTS.Component.Trait;
 using DOTS.Game.ComponentData;
 using DOTS.Struct;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 

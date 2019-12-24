@@ -1,4 +1,4 @@
-namespace Zephyr.GOAP.Runtime.Component
+namespace DOTS.Component.Trait
 {
     public interface ITrait
     {

@@ -7,6 +7,7 @@ using DOTS.Struct;
 using DOTS.System;
 using DOTS.System.ActionExecuteSystem;
 using NUnit.Framework;
+using Unity.Collections;
 using Unity.Entities;
 
 namespace DOTS.Test.Execute
