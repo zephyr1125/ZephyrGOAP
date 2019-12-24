@@ -11,7 +11,7 @@ using NUnit.Framework;
 using Unity.Entities;
 using UnityEngine;
 
-namespace DOTS.Test
+namespace DOTS.Test.ActionExpand
 {
     /// <summary>
     /// 目标：获得体力

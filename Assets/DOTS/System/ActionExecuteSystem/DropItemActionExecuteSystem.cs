@@ -22,7 +22,7 @@ namespace DOTS.System.ActionExecuteSystem
         }
 
         [RequireComponentTag(typeof(PickItemAction), typeof(ContainedItemRef), typeof(ReadyToActing))]
-        public struct DropItemActionExecuteJob : IJobForEachWithEntity_EBBC<Node, State, Agent>
+        public struct ActionExecuteJob : IJobForEachWithEntity_EBBC<Node, State, Agent>
         {
             [NativeDisableParallelForRestriction]
             public BufferFromEntity<ContainedItemRef> AllContainedItemRefs;
@@ -79,7 +79,7 @@ namespace DOTS.System.ActionExecuteSystem
         
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            var job = new DropItemActionExecuteJob
+            var job = new ActionExecuteJob
             {
                 AllContainedItemRefs = GetBufferFromEntity<ContainedItemRef>(),
                 ECBuffer = ECBSystem.CreateCommandBuffer().ToConcurrent()

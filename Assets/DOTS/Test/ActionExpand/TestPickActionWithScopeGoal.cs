@@ -8,9 +8,8 @@ using DOTS.System;
 using DOTS.Test.Debugger;
 using NUnit.Framework;
 using Unity.Entities;
-using UnityEngine;
 
-namespace DOTS.Test
+namespace DOTS.Test.ActionExpand
 {
     public class TestPickActionWithScopeGoal : TestBase
     {

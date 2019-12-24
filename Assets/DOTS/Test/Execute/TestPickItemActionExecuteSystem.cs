@@ -9,7 +9,7 @@ using DOTS.System.ActionExecuteSystem;
 using NUnit.Framework;
 using Unity.Entities;
 
-namespace DOTS.Test
+namespace DOTS.Test.Execute
 {
     public class TestPickItemActionExecuteSystem : TestBase
     {

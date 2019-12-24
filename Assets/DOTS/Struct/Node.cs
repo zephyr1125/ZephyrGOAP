@@ -66,7 +66,7 @@ namespace DOTS.Struct
         public float Heuristic([ReadOnly]ref NodeGraph nodeGraph)
         {
             //todo heuristic计算
-            return 0;
+            return -_iteration;
         }
 
         public void GetNeighbours([ReadOnly]ref NodeGraph nodeGraph, ref NativeList<int> neighboursId)

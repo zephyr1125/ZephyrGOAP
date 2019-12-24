@@ -2,15 +2,13 @@ using DOTS.Action;
 using DOTS.Component;
 using DOTS.Component.AgentState;
 using DOTS.Component.Trait;
-using DOTS.Game.ComponentData;
 using DOTS.Struct;
 using DOTS.System;
 using DOTS.Test.Debugger;
 using NUnit.Framework;
 using Unity.Entities;
-using UnityEngine;
 
-namespace DOTS.Test
+namespace DOTS.Test.ActionExpand
 {
     /// <summary>
     /// 目标：获得体力

@@ -1,4 +1,3 @@
-using System.Linq;
 using DOTS.Action;
 using DOTS.Component;
 using DOTS.Component.AgentState;
@@ -11,7 +10,7 @@ using NUnit.Framework;
 using Unity.Entities;
 using UnityEngine;
 
-namespace DOTS.Test
+namespace DOTS.Test.ActionExpand
 {
     /// <summary>
     /// 目标：获得体力

@@ -9,7 +9,7 @@ using DOTS.Test.Debugger;
 using NUnit.Framework;
 using Unity.Entities;
 
-namespace DOTS.Test
+namespace DOTS.Test.ActionExpand
 {
     public class TestDropActionWithScopeGoal : TestBase
     {

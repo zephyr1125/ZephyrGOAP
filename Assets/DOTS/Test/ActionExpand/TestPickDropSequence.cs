@@ -2,18 +2,16 @@ using DOTS.Action;
 using DOTS.Component;
 using DOTS.Component.AgentState;
 using DOTS.Component.Trait;
-using DOTS.Debugger;
 using DOTS.Game.ComponentData;
 using DOTS.Struct;
 using DOTS.System;
 using DOTS.System.SensorSystem;
 using DOTS.Test.Debugger;
 using NUnit.Framework;
-using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
 
-namespace DOTS.Test
+namespace DOTS.Test.ActionExpand
 {
     public class TestPickDropSequence : TestBase
     {
