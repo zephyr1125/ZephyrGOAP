@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace DOTS.Test.Debugger
+namespace DOTS.Logger
 {
     [Serializable]
     public class MultiDict<TKey, TValue>

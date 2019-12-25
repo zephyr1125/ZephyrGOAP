@@ -1,10 +1,9 @@
 using System;
-using System.Collections.Generic;
 using DOTS.Struct;
 using Unity.Collections;
 using Unity.Entities;
 
-namespace DOTS.Test.Debugger
+namespace DOTS.Logger
 {
     [Serializable]
     public class GoapLog

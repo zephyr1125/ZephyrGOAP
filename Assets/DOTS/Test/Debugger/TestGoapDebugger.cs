@@ -1,5 +1,6 @@
 using System;
 using DOTS.Debugger;
+using DOTS.Logger;
 using DOTS.Struct;
 using Unity.Collections;
 using Unity.Entities;

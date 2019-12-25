@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using DOTS.Struct;
 
-namespace DOTS.Test.Debugger
+namespace DOTS.Logger
 {
     public class NodeView
     {
