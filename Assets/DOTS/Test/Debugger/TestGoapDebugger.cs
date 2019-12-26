@@ -13,13 +13,13 @@ namespace DOTS.Test.Debugger
     {
         private GoapLog _goapLog;
 
-        public void StartLog(Entity agent)
+        public void StartLog(string agentName)
         {
             if (_goapLog == null)
             {
                 _goapLog = new GoapLog();
             }
-            _goapLog.StartLog(agent);
+            _goapLog.StartLog(agentName);
         }
 
         public void SetNodeGraph(ref NodeGraph nodeGraph)

@@ -10,7 +10,7 @@ namespace DOTS.Logger
     [Serializable]
     public class GoapResult
     {
-        public Entity Agent;
+        public string AgentName;
         
         public Node[] PathResult;
 
@@ -18,9 +18,9 @@ namespace DOTS.Logger
 
         public DateTime TimeStart, TimeEnd;
 
-        public void StartLog(Entity agent)
+        public void StartLog(string agentName)
         {
-            Agent = agent;
+            AgentName = agentName;
             TimeStart = DateTime.Now;
         }
         
@@ -61,7 +61,7 @@ namespace DOTS.Logger
             writer.WriteObjectStart();
             {
                 writer.WritePropertyName("agent");
-                writer.Write(entityManager.GetName(Agent));
+                writer.Write(AgentName);
                 
                 writer.WritePropertyName("time_start");
                 writer.Write(TimeStart.ToString(CultureInfo.InvariantCulture));

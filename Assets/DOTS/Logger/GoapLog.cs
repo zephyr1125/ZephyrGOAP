@@ -4,27 +4,36 @@ using DOTS.Struct;
 using Unity.Collections;
 using Unity.Entities;
 using LitJson;
-using UnityEngine;
 
 namespace DOTS.Logger
 {
     [Serializable]
     public class GoapLog
     {
-        private MultiDict<Entity, GoapResult> _results;
+        private MultiDict<string, GoapResult> _results;
         
         private GoapResult _currentLog;
         
         public GoapLog()
         {
-            _results = new MultiDict<Entity, GoapResult>();
+            _results = new MultiDict<string, GoapResult>();
+        }
+
+        public GoapLog(JsonData data)
+        {
+            _results = new MultiDict<string, GoapResult>();
+
+            foreach (JsonData results in data)
+            {
+                
+            }
         }
         
-        public void StartLog(Entity agent)
+        public void StartLog(string agentName)
         {
             _currentLog = new GoapResult();
-            _results.Add(agent, _currentLog);
-            _currentLog.StartLog(agent);
+            _results.Add(agentName, _currentLog);
+            _currentLog.StartLog(agentName);
         }
 
         public void SetNodeGraph(ref NodeGraph nodeGraph)
@@ -68,7 +77,7 @@ namespace DOTS.Logger
                     writer.WriteObjectStart();
                     {
                         writer.WritePropertyName("agent");
-                        writer.Write(entityManager.GetName(key));
+                        writer.Write(key);
                         writer.WritePropertyName("plans");
                         writer.WriteArrayStart();
                         foreach (var result in _results[key])

@@ -68,7 +68,7 @@ namespace DOTS.System
             
             foreach (var agentEntity in agentEntities)
             {
-                Debugger?.StartLog(agentEntity);
+                Debugger?.StartLog(EntityManager.GetName(agentEntity));
                 
                 var foundPlan = false;
                 var goalStatesBuffer = EntityManager.GetBuffer<State>(agentEntity);
