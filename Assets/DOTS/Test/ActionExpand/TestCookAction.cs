@@ -35,6 +35,7 @@ namespace DOTS.Test.ActionExpand
             _system.Debugger = _debugger;
             
             _agentEntity = EntityManager.CreateEntity();
+            EntityManager.SetName(_agentEntity, "test");
             
             EntityManager.AddComponentData(_agentEntity, new Agent());
             EntityManager.AddComponentData(_agentEntity, new CookAction());

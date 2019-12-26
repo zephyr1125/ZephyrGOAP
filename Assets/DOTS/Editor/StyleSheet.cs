@@ -5,8 +5,6 @@ namespace DOTS.Editor
     [CreateAssetMenu]
     public class StyleSheet : ScriptableObject
     {
-        public string Name;
-        
         private static StyleSheet _styleSheet;
 
         private static StyleSheet styleSheet =>

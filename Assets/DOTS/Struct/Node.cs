@@ -1,4 +1,5 @@
 using System;
+using LitJson;
 using Unity.Collections;
 using Unity.Entities;
 
@@ -82,6 +83,21 @@ namespace DOTS.Struct
         public override int GetHashCode()
         {
             return _hashCode;
+        }
+
+        public void WriteJson(JsonWriter writer, EntityManager entityManager)
+        {
+            writer.WritePropertyName("name");
+            writer.Write(Name.ToString());
+            
+            writer.WritePropertyName("iteration");
+            writer.Write(_iteration);
+            
+            writer.WritePropertyName("reward");
+            writer.Write(_reward);
+            
+            writer.WritePropertyName("navigation_target");
+            writer.Write(entityManager.GetName(NavigatingSubject));
         }
     }
 }

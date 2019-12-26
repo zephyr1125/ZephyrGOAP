@@ -1,7 +1,10 @@
 using System;
+using System.Text;
 using DOTS.Struct;
 using Unity.Collections;
 using Unity.Entities;
+using LitJson;
+using UnityEngine;
 
 namespace DOTS.Logger
 {
@@ -9,7 +12,7 @@ namespace DOTS.Logger
     public class GoapLog
     {
         private MultiDict<Entity, GoapResult> _results;
-
+        
         private GoapResult _currentLog;
         
         public GoapLog()
@@ -42,6 +45,43 @@ namespace DOTS.Logger
         public Node[] GetPathResult()
         {
             return _currentLog.PathResult;
+        }
+
+        public string SaveToJson()
+        {
+            var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+            var sb = new StringBuilder();
+            var writer = new JsonWriter(sb);
+            
+            /* [{agent="",plans={
+                time="",
+                graph={},
+                path={}
+                }
+               },{...}]
+             */
+            
+            writer.WriteArrayStart();
+            {
+                foreach (var key in _results.Keys)
+                {
+                    writer.WriteObjectStart();
+                    {
+                        writer.WritePropertyName("agent");
+                        writer.Write(entityManager.GetName(key));
+                        writer.WritePropertyName("plans");
+                        writer.WriteArrayStart();
+                        foreach (var result in _results[key])
+                        {
+                            result.WriteJson(writer, entityManager);
+                        }
+                        writer.WriteArrayEnd();
+                    }
+                    writer.WriteObjectEnd();
+                }
+            }
+            writer.WriteArrayEnd();
+            return sb.ToString();
         }
     }
     

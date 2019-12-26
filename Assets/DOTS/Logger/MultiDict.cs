@@ -15,5 +15,14 @@ namespace DOTS.Logger
             else
                 _data.Add(k, new List<TValue> {v});
         }
+
+        public List<TValue> this[TKey key] => _data[key];
+
+        public int KeyCount()
+        {
+            return _data.Count;
+        }
+
+        public Dictionary<TKey, List<TValue>>.KeyCollection Keys => _data.Keys;
     }
 }

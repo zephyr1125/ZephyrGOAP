@@ -1,5 +1,7 @@
 using System;
+using System.Globalization;
 using DOTS.Struct;
+using LitJson;
 using Unity.Collections;
 using Unity.Entities;
 
@@ -51,6 +53,36 @@ namespace DOTS.Logger
         public void SetPathResult(ref NativeList<Node> pathResult)
         {
             PathResult = pathResult.ToArray();
+            TimeEnd = DateTime.Now;
+        }
+
+        public void WriteJson(JsonWriter writer, EntityManager entityManager)
+        {
+            writer.WriteObjectStart();
+            {
+                writer.WritePropertyName("agent");
+                writer.Write(entityManager.GetName(Agent));
+                
+                writer.WritePropertyName("time_start");
+                writer.Write(TimeStart.ToString(CultureInfo.InvariantCulture));
+                
+                writer.WritePropertyName("time_end");
+                writer.Write(TimeEnd.ToString(CultureInfo.InvariantCulture));
+                
+                writer.WritePropertyName("graph");
+                GoalNodeView.WriteJson(writer, entityManager);
+                
+                writer.WritePropertyName("path");
+                writer.WriteArrayStart();
+                for (var i = 0; i < PathResult.Length; i++)
+                {
+                    writer.WriteObjectStart();
+                    PathResult[i].WriteJson(writer, entityManager);
+                    writer.WriteObjectEnd();
+                }
+                writer.WriteArrayEnd();
+            }
+            writer.WriteObjectEnd();
         }
     }
 }
