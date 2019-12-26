@@ -1,3 +1,5 @@
+using System;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace DOTS.Editor
@@ -24,15 +26,24 @@ namespace DOTS.Editor
             hideFlags = HideFlags.NotEditable;
         }
 
-        [System.Serializable]
+        public Icons icons;
+        public Styles styles;
+
+        public static Texture2D CanvasIcon => styleSheet.icons.canvasIcon;
+        
+        public static GUIStyle canvasBG => styleSheet.styles.canvasBG;
+
+        [Serializable]
+        public class Styles
+        {
+            public GUIStyle canvasBG;
+        }
+        
+        [Serializable]
         public class Icons
         {
             [Header("Fixed")]
             public Texture2D canvasIcon;
         }
-        
-        public Icons icons;
-
-        public static Texture2D CanvasIcon => styleSheet.icons.canvasIcon;
     }
 }
