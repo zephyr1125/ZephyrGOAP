@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d31b62ec9d586a4e94389d9071559ca, type: 3}
+  m_Name: test
+  m_EditorClassIdentifier: 
+  _serializedGraph: '{"version":2.91,"type":"FlowCanvas.FlowScript","translation":{"x":201.0,"y":178.0},"nodes":[{"_position":{"x":-90.0,"y":30.0},"$type":"FlowCanvas.Nodes.ApplicationPauseEvent"}],"connections":[],"localBlackboard":{"_name":"Local
+    Blackboard","_variables":{}}}'
+  _objectReferences: []
+  _deserializationFailed: 0

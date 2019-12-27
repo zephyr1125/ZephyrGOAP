@@ -45,6 +45,11 @@ namespace DOTS.Editor
                 viewRect.position -= pan;
             }
 
+            if (!currentGraph.IsEmpty())
+            {
+                currentGraph.DrawInfo();
+            }
+
             ShowToolbar(currentGraph);
         }
         

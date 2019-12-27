@@ -1,6 +1,7 @@
 using System.IO;
 using DOTS.Logger;
 using LitJson;
+using UnityEditor;
 using UnityEngine;
 
 namespace DOTS.Editor
@@ -17,6 +18,16 @@ namespace DOTS.Editor
             var data = JsonMapper.ToObject(textReader);
 
             _log = new GoapLog(data);
+        }
+
+        public bool IsEmpty()
+        {
+            return _log == null;
+        }
+
+        public void DrawInfo()
+        {
+            _log.DrawInfo();
         }
     }
 }

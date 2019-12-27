@@ -4,6 +4,7 @@ using DOTS.Struct;
 using Unity.Collections;
 using Unity.Entities;
 using LitJson;
+using UnityEngine;
 
 namespace DOTS.Logger
 {
@@ -19,16 +20,6 @@ namespace DOTS.Logger
             _results = new MultiDict<string, GoapResult>();
         }
 
-        public GoapLog(JsonData data)
-        {
-            _results = new MultiDict<string, GoapResult>();
-
-            foreach (JsonData results in data)
-            {
-                
-            }
-        }
-        
         public void StartLog(string agentName)
         {
             _currentLog = new GoapResult();
@@ -92,6 +83,33 @@ namespace DOTS.Logger
             writer.WriteArrayEnd();
             return sb.ToString();
         }
+
+        #region In Editor
+
+        public GoapLog(JsonData data)
+        {
+            _results = new MultiDict<string, GoapResult>();
+
+            foreach (JsonData results in data)
+            {
+                foreach (JsonData plan in results["plans"])
+                {
+                    var result = new GoapResult(plan);
+                    _results.Add((string)plan["agent"], result);
+                    //给默认第一个result为current
+                    if (_currentLog == null) _currentLog = result;
+                }
+            }
+        }
+
+        public void DrawInfo()
+        {
+            GUI.color = Color.black;
+            GUI.Label(new Rect(16, 16, 50, 16), _currentLog.AgentName);
+            GUI.color = Color.white;
+        }
+
+        #endregion
     }
     
 }

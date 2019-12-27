@@ -18,6 +18,16 @@ namespace DOTS.Logger
 
         public DateTime TimeStart, TimeEnd;
 
+        public GoapResult()
+        {
+            
+        }
+        
+        public GoapResult(JsonData data)
+        {
+            AgentName = (string) data["agent"];
+        }
+        
         public void StartLog(string agentName)
         {
             AgentName = agentName;
