@@ -30,15 +30,16 @@ namespace DOTS.Test.Debugger
         public void SetPathResult(ref NativeList<Node> pathResult)
         {
             _goapLog.SetPathResult(ref pathResult);
+
             //save to file
-            // var json = JsonUtility.ToJson(_goapLog);
-            // var json = _goapLog.SaveToJson();
-            // var path = "GoapTestLog/" + DateTime.Now.ToShortDateString();
-            // var fileName = DateTime.Now.ToFileTime()+ ".json";
-            // Directory.CreateDirectory(path);
-            // var writer = File.CreateText(path+"/"+fileName);
-            // writer.Write(json);
-            // writer.Close();
+            var json = JsonUtility.ToJson(_goapLog);
+
+            var path = "GoapTestLog/" + DateTime.Now.ToShortDateString();
+            var fileName = DateTime.Now.ToFileTime()+ ".json";
+            Directory.CreateDirectory(path);
+            var writer = File.CreateText(path+"/"+fileName);
+            writer.Write(json);
+            writer.Close();
         }
         
         public NodeView GoalNodeView => _goapLog.GetGoalNodeView();

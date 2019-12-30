@@ -1,13 +1,12 @@
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using DOTS.Struct;
-using LitJson;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Transforms;
 
 namespace DOTS.Logger
 {
+    [Serializable]
     public class NodeView
     {
         public string Name;
@@ -57,82 +56,12 @@ namespace DOTS.Logger
             _hashCode = node.HashCode;
         }
         
-        public NodeView(JsonData data)
-        {
-            // Name = (string) data["name"];
-            // Iteration = (int) data["iteration"];
-            // Reward = (float) data["reward"];
-            //
-            // States = (from JsonData stateData in data["states"]
-            //     select new State(stateData)).ToArray();
-            // Preconditions = (from JsonData stateData in data["preconditions"]
-            //     select new State(stateData)).ToArray();
-            // Effects = (from JsonData stateData in data["effects"]
-            //     select new State(stateData)).ToArray();
-            //
-            //
-            // Children = new List<NodeView>();
-            // foreach (JsonData childData in data["children"])
-            // {
-            //     Children.Add(new NodeView(childData));
-            // }
-        }
-        
         public void AddChild(NodeView node)
         {
             if(Children == null) Children = new List<NodeView>();
             Children.Add(node);
         }
-
-        public void WriteJson(JsonWriter writer, EntityManager entityManager)
-        {
-            // writer.WriteObjectStart();
-            // {
-            //     writer.WritePropertyName("name");
-            //     writer.Write(Name);
-            //
-            //     writer.WritePropertyName("iteration");
-            //     writer.Write(Iteration);
-            //
-            //     writer.WritePropertyName("reward");
-            //     writer.Write(Reward);
-            //
-            //     writer.WritePropertyName("navigation_target");
-            //     NavigationSubject.WriteJson(writer, entityManager);
-            //
-            //     WriteStatesJson(writer, entityManager, "states", States);
-            //     WriteStatesJson(writer, entityManager, "preconditions", Preconditions);
-            //     WriteStatesJson(writer, entityManager, "effects", Effects);
-            //
-            //     writer.WritePropertyName("children");
-            //     writer.WriteArrayStart();
-            //     if (Children != null)
-            //     {
-            //         foreach (var child in Children)
-            //         {
-            //             child.WriteJson(writer, entityManager);
-            //         }
-            //     }
-            //     writer.WriteArrayEnd();
-            // }
-            // writer.WriteObjectEnd();
-        }
-
-        private void WriteStatesJson(JsonWriter writer, EntityManager entityManager,
-            string name, State[] states)
-        {
-            writer.WritePropertyName(name);
-            writer.WriteArrayStart();
-            if (states != null)
-            {
-                foreach (var state in states)
-                {
-                    state.WriteJson(writer, entityManager);
-                }
-            }
-            writer.WriteArrayEnd();
-        }
-
+        
         /// <summary>
         /// 查看自己及children是否在path列表中，是的话则设置IsPath
         /// </summary>

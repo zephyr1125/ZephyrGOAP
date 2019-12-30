@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using DOTS.Struct;
-using LitJson;
 using Unity.Collections;
 using Unity.Entities;
 
@@ -17,19 +15,6 @@ namespace DOTS.Logger
 
         public DateTime TimeStart, TimeEnd;
 
-        public GoapResult()
-        {
-            
-        }
-        
-        public GoapResult(JsonData data)
-        {
-            AgentName = (string) data["agent"];
-            TimeStart = DateTime.Parse((string) data["time_start"]);
-            TimeEnd = DateTime.Parse((string) data["time_end"]);
-            GoalNodeView = new NodeView(data["graph"]);
-        }
-        
         public void StartLog(string agentName)
         {
             AgentName = agentName;
@@ -52,25 +37,6 @@ namespace DOTS.Logger
             var pathResult = new List<NodeView>();
             GoalNodeView.GetPath(ref pathResult);
             return pathResult.ToArray();
-        }
-
-        public void WriteJson(JsonWriter writer, EntityManager entityManager)
-        {
-            // writer.WriteObjectStart();
-            // {
-            //     writer.WritePropertyName("agent");
-            //     writer.Write(AgentName);
-            //     
-            //     writer.WritePropertyName("time_start");
-            //     writer.Write(TimeStart.ToString(CultureInfo.InvariantCulture));
-            //     
-            //     writer.WritePropertyName("time_end");
-            //     writer.Write(TimeEnd.ToString(CultureInfo.InvariantCulture));
-            //     
-            //     writer.WritePropertyName("graph");
-            //     GoalNodeView.WriteJson(writer, entityManager);
-            // }
-            // writer.WriteObjectEnd();
         }
     }
 }

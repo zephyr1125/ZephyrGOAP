@@ -1,5 +1,4 @@
 using System;
-using LitJson;
 using Unity.Collections;
 using Unity.Entities;
 
@@ -62,24 +61,6 @@ namespace DOTS.Struct
             hash = hash * 31 + ValueString.GetHashCode();
             hash = hash * 31 + IsNegative.GetHashCode();
             return hash;
-        }
-
-        public void WriteJson(JsonWriter writer, EntityManager entityManager)
-        {
-            writer.WriteObjectStart();
-            {
-                writer.WritePropertyName("target");
-                writer.Write(Target!=Entity.Null ? entityManager.GetName(Target) : "");
-                writer.WritePropertyName("trait");
-                writer.Write(Trait!=null ? Trait.ToString() : "");
-                writer.WritePropertyName("value_string");
-                writer.Write(ValueString.Equals(default) ? "" : ValueString.ToString());
-                writer.WritePropertyName("value_trait");
-                writer.Write(ValueTrait!=null ? ValueTrait.ToString() : "");
-                writer.WritePropertyName("is_negative");
-                writer.Write(IsNegative);
-            }
-            writer.WriteObjectEnd();
         }
     }
 }

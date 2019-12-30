@@ -3,6 +3,7 @@ using Unity.Entities;
 
 namespace DOTS.Logger
 {
+    [Serializable]
     public class EntityView
     {
         public int Index;

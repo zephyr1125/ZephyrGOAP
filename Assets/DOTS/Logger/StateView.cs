@@ -6,6 +6,7 @@ using Unity.Entities;
 
 namespace DOTS.Logger
 {
+    [Serializable]
     public class StateView
     {
         public EntityView Target;
