@@ -48,6 +48,15 @@ namespace DOTS.Struct
             }
         }
 
+        public StateGroup(State[] states, Allocator allocator)
+        {
+            _states = new NativeList<State>(states.Length, allocator);
+            foreach (var state in states)
+            {
+                _states.Add(state);
+            }
+        }
+
         public State this[int key]
         {
             get => _states[key];

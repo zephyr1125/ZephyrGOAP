@@ -120,9 +120,9 @@ namespace DOTS.Test.ActionExpand
             //2种有配方的方案
             Assert.AreEqual(2, _debugger.GoalNodeView.Children.Count);
             Assert.IsTrue(_debugger.GoalNodeView.Children.Any(nodeView => nodeView.States.Any(
-                state => state.ValueString.Equals(new  NativeString64("raw_apple")))));
+                state => state.ValueString.Equals("raw_apple"))));
             Assert.IsTrue(_debugger.GoalNodeView.Children.Any(nodeView => nodeView.States.Any(
-                state => state.ValueString.Equals(new  NativeString64("raw_peach")))));
+                state => state.ValueString.Equals("raw_peach"))));
         }
     }
 }

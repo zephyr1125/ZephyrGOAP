@@ -11,7 +11,7 @@ namespace DOTS.Debugger
             
         }
 
-        public void SetNodeGraph(ref NodeGraph nodeGraph)
+        public void SetNodeGraph(ref NodeGraph nodeGraph, EntityManager entityManager)
         {
             
         }

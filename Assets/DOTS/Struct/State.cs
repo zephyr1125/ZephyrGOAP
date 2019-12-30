@@ -25,7 +25,6 @@ namespace DOTS.Struct
         
         #endregion
         
-
         public bool Equals(State other)
         {
             return Trait.Equals(other.Trait) &&

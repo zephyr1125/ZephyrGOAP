@@ -60,13 +60,13 @@ namespace DOTS.Test.ActionExpand
             
             Assert.AreEqual(4, _debugger.GoalNodeView.Children.Count);
             Assert.IsTrue(_debugger.GoalNodeView.Children.Any(
-                nodeView => nodeView.States[0].ValueString.Equals(new  NativeString64("raw_apple"))));
+                nodeView => nodeView.States[0].ValueString.Equals("raw_apple")));
             Assert.IsTrue(_debugger.GoalNodeView.Children.Any(
-                nodeView => nodeView.States[0].ValueString.Equals(new  NativeString64("roast_apple"))));
+                nodeView => nodeView.States[0].ValueString.Equals("roast_apple")));
             Assert.IsTrue(_debugger.GoalNodeView.Children.Any(
-                nodeView => nodeView.States[0].ValueString.Equals(new  NativeString64("raw_peach"))));
+                nodeView => nodeView.States[0].ValueString.Equals("raw_peach")));
             Assert.IsTrue(_debugger.GoalNodeView.Children.Any(
-                nodeView => nodeView.States[0].ValueString.Equals(new  NativeString64("roast_apple"))));
+                nodeView => nodeView.States[0].ValueString.Equals("roast_apple")));
         }
     }
 }

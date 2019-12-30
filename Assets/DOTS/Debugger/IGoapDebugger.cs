@@ -12,7 +12,7 @@ namespace DOTS.Debugger
     {
         void StartLog(string agentName);
         
-        void SetNodeGraph(ref NodeGraph nodeGraph);
+        void SetNodeGraph(ref NodeGraph nodeGraph, EntityManager entityManager);
 
         void SetPathResult(ref NativeList<Node> pathResult);
 

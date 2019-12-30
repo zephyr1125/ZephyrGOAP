@@ -86,8 +86,8 @@ namespace DOTS.Test.ActionExpand
             Debug.Log(_debugger.GoalNodeView);
             var pathResult = _debugger.PathResult;
             Assert.AreEqual(3, pathResult.Length);
-            Assert.AreEqual(new NativeString64("EatAction"), pathResult[1].Name);
-            Assert.AreEqual(new NativeString64("CookAction"), pathResult[2].Name);
+            Assert.AreEqual("EatAction", pathResult[1].Name);
+            Assert.AreEqual("CookAction", pathResult[2].Name);
         }
         
         //改变reward设置，规划随之改变
@@ -102,7 +102,7 @@ namespace DOTS.Test.ActionExpand
             Debug.Log(_debugger.GoalNodeView);
             var pathResult = _debugger.PathResult;
             Assert.AreEqual(2, pathResult.Length);
-            Assert.AreEqual(new NativeString64("EatAction"), pathResult[1].Name);
+            Assert.AreEqual("EatAction", pathResult[1].Name);
         }
 
         /// <summary>

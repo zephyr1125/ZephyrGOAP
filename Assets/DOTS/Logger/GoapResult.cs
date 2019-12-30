@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using DOTS.Struct;
 using LitJson;
@@ -11,8 +12,6 @@ namespace DOTS.Logger
     public class GoapResult
     {
         public string AgentName;
-        
-        public Node[] PathResult;
 
         public NodeView GoalNodeView;
 
@@ -26,6 +25,9 @@ namespace DOTS.Logger
         public GoapResult(JsonData data)
         {
             AgentName = (string) data["agent"];
+            TimeStart = DateTime.Parse((string) data["time_start"]);
+            TimeEnd = DateTime.Parse((string) data["time_end"]);
+            GoalNodeView = new NodeView(data["graph"]);
         }
         
         public void StartLog(string agentName)
@@ -34,65 +36,41 @@ namespace DOTS.Logger
             TimeStart = DateTime.Now;
         }
         
-        public void SetNodeGraph(ref NodeGraph nodeGraph)
+        public void SetNodeGraph(ref NodeGraph nodeGraph, EntityManager entityManager)
         {
-            GoalNodeView = new NodeView
-            {
-                Node = nodeGraph.GetGoalNode(),
-                States = nodeGraph.GetNodeStates(nodeGraph.GetGoalNode())
-            };
-            ConstructNodeTree(ref nodeGraph, GoalNodeView);
-        }
-
-        private void ConstructNodeTree(ref NodeGraph nodeGraph, NodeView nodeView)
-        {
-            var children = nodeGraph.GetChildren(nodeView.Node);
-            foreach (var child in children)
-            {
-                var newNode = new NodeView
-                {
-                    Node = child, States = nodeGraph.GetNodeStates(child),
-                    Preconditions = nodeGraph.GetNodePreconditions(child),
-                    Effects = nodeGraph.GetNodeEffects(child)
-                };
-                nodeView.AddChild(newNode);
-                ConstructNodeTree(ref nodeGraph, newNode);
-            }
+            GoalNodeView = NodeView.ConstructNodeTree(ref nodeGraph, entityManager);
         }
 
         public void SetPathResult(ref NativeList<Node> pathResult)
         {
-            PathResult = pathResult.ToArray();
+            GoalNodeView.SetPath(ref pathResult);
             TimeEnd = DateTime.Now;
+        }
+
+        public NodeView[] GetPathResult()
+        {
+            var pathResult = new List<NodeView>();
+            GoalNodeView.GetPath(ref pathResult);
+            return pathResult.ToArray();
         }
 
         public void WriteJson(JsonWriter writer, EntityManager entityManager)
         {
-            writer.WriteObjectStart();
-            {
-                writer.WritePropertyName("agent");
-                writer.Write(AgentName);
-                
-                writer.WritePropertyName("time_start");
-                writer.Write(TimeStart.ToString(CultureInfo.InvariantCulture));
-                
-                writer.WritePropertyName("time_end");
-                writer.Write(TimeEnd.ToString(CultureInfo.InvariantCulture));
-                
-                writer.WritePropertyName("graph");
-                GoalNodeView.WriteJson(writer, entityManager);
-                
-                writer.WritePropertyName("path");
-                writer.WriteArrayStart();
-                for (var i = 0; i < PathResult.Length; i++)
-                {
-                    writer.WriteObjectStart();
-                    PathResult[i].WriteJson(writer, entityManager);
-                    writer.WriteObjectEnd();
-                }
-                writer.WriteArrayEnd();
-            }
-            writer.WriteObjectEnd();
+            // writer.WriteObjectStart();
+            // {
+            //     writer.WritePropertyName("agent");
+            //     writer.Write(AgentName);
+            //     
+            //     writer.WritePropertyName("time_start");
+            //     writer.Write(TimeStart.ToString(CultureInfo.InvariantCulture));
+            //     
+            //     writer.WritePropertyName("time_end");
+            //     writer.Write(TimeEnd.ToString(CultureInfo.InvariantCulture));
+            //     
+            //     writer.WritePropertyName("graph");
+            //     GoalNodeView.WriteJson(writer, entityManager);
+            // }
+            // writer.WriteObjectEnd();
         }
     }
 }

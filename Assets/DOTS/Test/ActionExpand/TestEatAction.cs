@@ -1,3 +1,4 @@
+using System.Linq;
 using DOTS.Action;
 using DOTS.Component;
 using DOTS.Component.AgentState;
@@ -79,14 +80,9 @@ namespace DOTS.Test.ActionExpand
         {
             _system.Update();
             EntityManager.CompleteAllJobs();
-
-            var states = EntityManager.GetBuffer<State>(_agentEntity);
-            var preconditionMark = _debugger.PathResult[1].PreconditionsBitmask;
-            for (var i = 0; i < states.Length; i++)
-            {
-                if((preconditionMark & (ulong)1 << i) == 0) continue;
-                Assert.AreEqual("roast_apple", states[i].ValueString);
-            }
+            
+            var preconditions = _debugger.PathResult[1].Preconditions;
+            Assert.IsTrue(preconditions.Any(state=>state.ValueString.Equals("roast_apple")));
         }
     }
 }

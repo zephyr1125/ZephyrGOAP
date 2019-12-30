@@ -22,9 +22,9 @@ namespace DOTS.Test.Debugger
             _goapLog.StartLog(agentName);
         }
 
-        public void SetNodeGraph(ref NodeGraph nodeGraph)
+        public void SetNodeGraph(ref NodeGraph nodeGraph, EntityManager entityManager)
         {
-            _goapLog.SetNodeGraph(ref nodeGraph);
+            _goapLog.SetNodeGraph(ref nodeGraph, entityManager);
         }
 
         public void SetPathResult(ref NativeList<Node> pathResult)
@@ -32,18 +32,18 @@ namespace DOTS.Test.Debugger
             _goapLog.SetPathResult(ref pathResult);
             //save to file
             // var json = JsonUtility.ToJson(_goapLog);
-            var json = _goapLog.SaveToJson();
-            var path = "GoapTestLog/" + DateTime.Now.ToShortDateString();
-            var fileName = DateTime.Now.ToFileTime()+ ".json";
-            Directory.CreateDirectory(path);
-            var writer = File.CreateText(path+"/"+fileName);
-            writer.Write(json);
-            writer.Close();
+            // var json = _goapLog.SaveToJson();
+            // var path = "GoapTestLog/" + DateTime.Now.ToShortDateString();
+            // var fileName = DateTime.Now.ToFileTime()+ ".json";
+            // Directory.CreateDirectory(path);
+            // var writer = File.CreateText(path+"/"+fileName);
+            // writer.Write(json);
+            // writer.Close();
         }
         
         public NodeView GoalNodeView => _goapLog.GetGoalNodeView();
 
-        public Node[] PathResult => _goapLog.GetPathResult();
+        public NodeView[] PathResult => _goapLog.GetPathResult();
 
         public void Log(string log)
         {

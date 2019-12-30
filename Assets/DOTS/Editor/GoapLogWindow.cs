@@ -12,7 +12,7 @@ namespace DOTS.Editor
         const float BOTTOM_MARGIN = 5;
         const int GRID_SIZE = 16;
 
-        private static GoapGraph currentGraph;
+        private static GoapGraph _currentGraph;
         
         [MenuItem("Zephyr/Goap/Logger")]
         private static void OpenWindow()
@@ -23,7 +23,7 @@ namespace DOTS.Editor
         private void OnEnable()
         {
             titleContent = new GUIContent("Goap Logs", StyleSheet.CanvasIcon);
-            currentGraph = new GoapGraph();
+            _currentGraph = new GoapGraph();
         }
 
         private void OnGUI()
@@ -44,13 +44,19 @@ namespace DOTS.Editor
                 viewRect.y = 0;
                 viewRect.position -= pan;
             }
-
-            if (!currentGraph.IsEmpty())
+            
+            GUI.BeginClip(canvasRect, pan, default, false);
             {
-                currentGraph.DrawInfo();
+                DrawNodes();
+            }
+            GUI.EndClip();
+
+            if (!_currentGraph.IsEmpty())
+            {
+                _currentGraph.DrawInfo();
             }
 
-            ShowToolbar(currentGraph);
+            ShowToolbar(_currentGraph);
         }
         
         //Draw a simple grid
@@ -80,15 +86,22 @@ namespace DOTS.Editor
 
             Handles.color = Color.white;
         }
+
+        private void DrawNodes()
+        {
+            if (_currentGraph.IsEmpty()) return;
+
+            _currentGraph.DrawNodes();
+        } 
         
         //The translation of the graph
         private static Vector2 pan {
-            get => currentGraph?.translation ?? viewCanvasCenter;
+            get => _currentGraph?.translation ?? viewCanvasCenter;
             set
             {
-                if (currentGraph == null) return;
+                if (_currentGraph == null) return;
                 var t = value;
-                currentGraph.translation = t;
+                _currentGraph.translation = t;
             }
         }
         

@@ -27,9 +27,14 @@ namespace DOTS.Logger
             _currentLog.StartLog(agentName);
         }
 
-        public void SetNodeGraph(ref NodeGraph nodeGraph)
+        public GoapResult GetResult(string agentName, int id)
         {
-            _currentLog.SetNodeGraph(ref nodeGraph);
+            return _results[agentName][id];
+        }
+
+        public void SetNodeGraph(ref NodeGraph nodeGraph, EntityManager entityManager)
+        {
+            _currentLog.SetNodeGraph(ref nodeGraph, entityManager);
         }
 
         public void SetPathResult(ref NativeList<Node> pathResult)
@@ -42,9 +47,9 @@ namespace DOTS.Logger
             return _currentLog.GoalNodeView;
         }
 
-        public Node[] GetPathResult()
+        public NodeView[] GetPathResult()
         {
-            return _currentLog.PathResult;
+            return _currentLog.GetPathResult();
         }
 
         public string SaveToJson()

@@ -93,8 +93,7 @@ namespace DOTS.Test.ActionExpand
             
             //Drop接Goal
             var dropNodeView = _debugger.GoalNodeView.Children[0];
-            Assert.AreEqual(new NativeString64(nameof(DropItemAction)),
-                dropNodeView.Node.Name);
+            Assert.AreEqual(nameof(DropItemAction), dropNodeView.Name);
             Assert.AreEqual(1, dropNodeView.States.Length);
             Assert.AreEqual(new State
             {
@@ -105,8 +104,7 @@ namespace DOTS.Test.ActionExpand
             
             //Pick接Drop
             var pickNodeView = dropNodeView.Children[0];
-            Assert.AreEqual(new NativeString64(nameof(PickItemAction)),
-                pickNodeView.Node.Name);
+            Assert.AreEqual(nameof(PickItemAction), pickNodeView.Name);
             Assert.AreEqual(1, pickNodeView.States.Length);
             Assert.AreEqual(new State
             {
@@ -117,8 +115,7 @@ namespace DOTS.Test.ActionExpand
             
             //start接pick
             var startNodeView = pickNodeView.Children[0];
-            Assert.AreEqual(new NativeString64("start"),
-                startNodeView.Node.Name);
+            Assert.AreEqual("start", startNodeView.Name);
             Assert.Zero(startNodeView.States.Length);
         }
 

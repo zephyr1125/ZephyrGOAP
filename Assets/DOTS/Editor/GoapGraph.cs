@@ -12,6 +12,10 @@ namespace DOTS.Editor
         
         private GoapLog _log;
 
+        private int _currentLogId;
+
+        private string _currentAgent;
+
         public void LoadLog(string path)
         {
             var textReader = new StreamReader(path);
@@ -28,6 +32,12 @@ namespace DOTS.Editor
         public void DrawInfo()
         {
             _log.DrawInfo();
+        }
+
+        public void DrawNodes()
+        {
+            var currentResult = _log.GetResult(_currentAgent, _currentLogId);
+            
         }
     }
 }

@@ -106,7 +106,7 @@ namespace DOTS.System
                     iteration++;
                 }
 
-                Debugger?.SetNodeGraph(ref nodeGraph);
+                Debugger?.SetNodeGraph(ref nodeGraph, EntityManager);
 
                 if (!foundPlan)
                 {
