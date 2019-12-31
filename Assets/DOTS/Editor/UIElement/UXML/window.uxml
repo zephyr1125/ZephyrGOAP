@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:VisualElement name="background" class="background" style="background-color: rgba(46, 46, 46, 255);">
+        <Style src="window.uss" />
+        <ui:VisualElement name="toolbar" class="toolbar">
+            <ui:Button text="Load" name="load-button" class="toolbar-button" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
