@@ -16,6 +16,10 @@ namespace DOTS.Editor
             
             GUILayout.FlexibleSpace();
             
+            if ( GUILayout.Button("Style", EditorStyles.toolbarButton, GUILayout.Width(50)) ) {
+                RefreshStyleSheet();
+            }
+            
             GUILayout.EndHorizontal();
             GUI.backgroundColor = Color.white;
             GUI.color = Color.white;
@@ -29,6 +33,11 @@ namespace DOTS.Editor
             {
                 graph.LoadLog(path);
             }
+        }
+
+        private static void RefreshStyleSheet()
+        {
+            
         }
     }
 }

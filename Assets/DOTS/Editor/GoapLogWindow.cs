@@ -5,6 +5,8 @@ namespace DOTS.Editor
 {
     public partial class GoapLogWindow : EditorWindow
     {
+        private StyleSheet _styleSheet;
+        
         private static Rect canvasRect;
         private static Rect viewRect;
         
@@ -22,7 +24,8 @@ namespace DOTS.Editor
 
         private void OnEnable()
         {
-            titleContent = new GUIContent("Goap Logs", StyleSheet.CanvasIcon);
+            _styleSheet = Resources.Load<StyleSheet>("StyleSheet");
+            titleContent = new GUIContent("Goap Logs", _styleSheet.icons.canvasIcon);
             _currentGraph = new GoapGraph();
         }
 
@@ -33,7 +36,7 @@ namespace DOTS.Editor
             var aspect = canvasRect.width / canvasRect.height;
             
             //canvas background
-            GUI.Box(canvasRect, string.Empty, StyleSheet.canvasBG);
+            GUI.Box(canvasRect, string.Empty, _styleSheet.styles.canvasBG);
             //background grid
             DrawGrid(canvasRect, pan);
             
@@ -91,7 +94,7 @@ namespace DOTS.Editor
         {
             if (_currentGraph.IsEmpty()) return;
 
-            _currentGraph.DrawNodes();
+            _currentGraph.DrawNodes(_styleSheet);
         } 
         
         //The translation of the graph

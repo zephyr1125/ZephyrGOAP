@@ -32,10 +32,23 @@ namespace DOTS.Editor
             GUI.color = Color.white;
         }
 
-        public void DrawNodes()
+        public void DrawNodes(StyleSheet styleSheet)
         {
             var currentResult = _log.GetResult(_currentResultId);
-            
+            DrawNode(currentResult.GoalNodeView, 0, styleSheet);
+        }
+
+        private void DrawNode(NodeView node, int id, StyleSheet styleSheet)
+        {
+            GUI.Box(new Rect(8 + node.Iteration*(styleSheet.nodeWidth + styleSheet.nodeDistance),
+                8+id*(styleSheet.nodeHeight+styleSheet.nodeDistance),
+                styleSheet.nodeWidth, styleSheet.nodeHeight), string.Empty);
+
+            if (node.Children == null) return;
+            for (var i = 0; i < node.Children.Count; i++)
+            {
+                DrawNode(node.Children[i], i, styleSheet);
+            }
         }
     }
 }
