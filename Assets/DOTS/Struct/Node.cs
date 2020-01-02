@@ -11,7 +11,7 @@ namespace DOTS.Struct
         /// <summary>
         /// 第一次展开到这个Node时的层数, goal=0
         /// </summary>
-        public readonly int Iteration;
+        public int Iteration;
 
         /// <summary>
         /// -Cost/+Reward

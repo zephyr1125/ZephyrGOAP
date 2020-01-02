@@ -1,6 +1,10 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
-    <ui:VisualElement name="frame" class="frame">
+    <ui:VisualElement name="frame" class="frame" style="position: absolute;">
         <Style src="node.uss" />
-        <ui:Label text="name" name="name" class="title" style="align-items: auto; width: 100%;" />
+        <ui:VisualElement name="titlebar" class="title" style="flex-direction: row; flex-grow: 0; align-items: auto; flex-shrink: 0; background-color: rgb(63, 63, 63); -unity-text-align: upper-center; justify-content: space-between; flex-wrap: no-wrap; width: auto;">
+            <ui:Label text="name" name="name" class="title" />
+            <ui:Label text="0" name="reward" class="reward" />
+        </ui:VisualElement>
+        <ui:ListView focusable="True" name="effects" style="flex-grow: 1; background-color: rgb(137, 137, 137);" />
     </ui:VisualElement>
 </ui:UXML>

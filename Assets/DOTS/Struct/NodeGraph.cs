@@ -50,6 +50,9 @@ namespace DOTS.Struct
         /// <param name="actionName"></param>
         public void LinkStartNode(Node parent, NativeString64 actionName)
         {
+            //start node的iteration设置为此Node+1
+            var iteration = parent.Iteration;
+            if (_startNode.Iteration <= iteration) _startNode.Iteration = iteration + 1;
             _nodeToParent.Add(_startNode, new Edge(parent, _startNode, actionName));
         }
 
