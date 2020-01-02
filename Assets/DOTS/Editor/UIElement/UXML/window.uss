@@ -22,5 +22,5 @@
 }
 
 .toolbar-button:hover {
-    background-color: rgba(238, 238, 238, 255);
+    background-color: rgb(238, 238, 238);
 }

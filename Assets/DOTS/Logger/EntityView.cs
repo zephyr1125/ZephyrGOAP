@@ -16,5 +16,11 @@ namespace DOTS.Logger
             Version = entity.Version;
             Name = entityManager.GetName(entity);
         }
+
+        public override string ToString()
+        {
+            if (!string.IsNullOrEmpty(Name)) return Name;
+            return $"{Index},{Version}";
+        }
     }
 }

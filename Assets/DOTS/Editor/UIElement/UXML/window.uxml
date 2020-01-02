@@ -3,7 +3,7 @@
         <Style src="window.uss" />
         <ui:Button text="Load" name="load-button" class="toolbar-button" style="align-items: auto; flex-shrink: 0; flex-direction: column;" />
         <ui:VisualElement name="space" style="flex-grow: 1;" />
-        <ui:Button text="reset" name="reset-button" class="toolbar-button" style="align-items: auto; flex-shrink: 0; flex-grow: 0; flex-direction: column; flex-wrap: no-wrap; flex-basis: auto;" />
+        <ui:Button text="Reset" name="reset-button" class="toolbar-button" style="align-items: auto; flex-shrink: 0; flex-grow: 0; flex-direction: column; flex-wrap: no-wrap; flex-basis: auto;" />
     </ui:VisualElement>
     <ui:VisualElement name="main-frame" class="main-frame" style="background-color: rgb(46, 46, 46); flex-grow: 1; padding-left: 16px; padding-right: 16px; padding-top: 16px; padding-bottom: 16px; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0;">
         <Style src="window.uss" />

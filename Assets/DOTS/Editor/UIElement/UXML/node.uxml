@@ -5,6 +5,6 @@
             <ui:Label text="name" name="name" class="title" />
             <ui:Label text="0" name="reward" class="reward" />
         </ui:VisualElement>
-        <ui:ListView focusable="True" name="effects" style="flex-grow: 1; background-color: rgb(137, 137, 137);" />
+        <ui:VisualElement name="states" style="flex-grow: 1; background-color: rgb(130, 130, 130);" />
     </ui:VisualElement>
 </ui:UXML>

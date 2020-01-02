@@ -30,5 +30,13 @@ namespace DOTS.Logger
             stateViews.AddRange(states.Select(t => new StateView(entityManager, t)));
             return stateViews.ToArray();
         }
+
+        public override string ToString()
+        {
+            var negative = IsNegative ? "-" : "+";
+            var trait = string.IsNullOrEmpty(Trait) ? "" : $"({Trait})";
+            var valueTrait = string.IsNullOrEmpty(ValueTrait) ? "" : $"<{ValueTrait}>";
+            return $"{negative}[{Target}]{trait}{valueTrait}{ValueString}";
+        }
     }
 }
