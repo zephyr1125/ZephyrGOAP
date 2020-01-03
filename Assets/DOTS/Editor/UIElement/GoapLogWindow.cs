@@ -51,7 +51,8 @@ namespace DOTS.Editor.UIElement
             rootVisualElement.Q<Button>("load-button").RegisterCallback<MouseUpEvent>(
                 evt =>
                 {
-                    LoadLogFile();
+                    if (!LoadLogFile()) return;
+                    Reset();
                     ConstructInfo();
                     ConstructGraph();
                 });
@@ -69,12 +70,10 @@ namespace DOTS.Editor.UIElement
         private void Reset()
         {
             rootVisualElement.Clear();
-            _log = null;
-            
             Init();
         }
 
-        private void LoadLogFile()
+        private bool LoadLogFile()
         {
             var path = EditorUtility.OpenFilePanel(
                 "Import  Log", "", "json");
@@ -83,7 +82,10 @@ namespace DOTS.Editor.UIElement
                 var textReader = new StreamReader(path);
                 var json = textReader.ReadToEnd();
                 _log = JsonUtility.FromJson<GoapLog>(json);
+                return true;
             }
+
+            return false;
         }
 
         private void ConstructInfo()
