@@ -1,0 +1,9 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:VisualElement name="states" style="background-color: rgb(106, 106, 106); align-items: stretch; position: absolute; width: 320px; left: 0; top: 0;">
+        <Style src="states.uss" />
+        <ui:Label text="Preconditions" name="title-preconditions" class="title" />
+        <ui:VisualElement name="preconditions" class="state-container" />
+        <ui:Label text="Effects" name="title-effects" class="title" />
+        <ui:VisualElement name="effects" class="state-container" />
+    </ui:VisualElement>
+</ui:UXML>

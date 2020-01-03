@@ -24,10 +24,13 @@ namespace DOTS.Editor.UIElement
 
         private VisualTreeAsset _nodeVisualTree;
         private VisualElement _nodeContainer;
+        private VisualElement _statesTip;
 
         private static int NodeWidth = 320;
         private static int NodeHeight = 80;
         private static int NodeDistance = 16;
+        
+        private static Vector2 NodeSize = new Vector2(320, 80);
 
         private Vector2 _canvasPos, _canvasDragStartPos;
         private Vector2 _mouseDragStartPos;
@@ -65,6 +68,14 @@ namespace DOTS.Editor.UIElement
             target.RegisterCallback<MouseUpEvent>(OnMouseUpEvent);
             
             _canvasPos = Vector2.zero;
+            
+            //鼠标提示
+            var statesVT =
+                AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
+                    "Assets/DOTS/Editor/UIElement/UXML/states.uxml");
+            statesVT.CloneTree(rootVisualElement.Q("main-frame"));
+            _statesTip = rootVisualElement.Q("states");
+            _statesTip.style.top = -50;
         }
         
         private void Reset()
@@ -118,46 +129,27 @@ namespace DOTS.Editor.UIElement
             {
                 nodeCounts[iteration]++;
             }
-            
-            _nodeVisualTree.CloneTree(parent);
-            var nodeVE = parent.Q("frame");
-            node.DrawPos = new Vector2(NodeDistance + iteration * (NodeWidth+NodeDistance),
+
+            var drawPos = new Vector2(NodeDistance + iteration * (NodeWidth+NodeDistance),
                 NodeDistance + nodeCounts[iteration] * (NodeHeight+NodeDistance));
-            nodeVE.style.left = node.DrawPos.x;
-            nodeVE.style.top = node.DrawPos.y;
+            var frame = new NodeFrame(node, drawPos, NodeSize, _statesTip);
+            parent.Add(frame);
+            _nodeVisualTree.CloneTree(frame);
             
-            nodeVE.name = node.Name;
-            nodeVE.Q<Label>("name").text = node.Name;
-            nodeVE.Q<Label>("reward").text = node.Reward.ToString(CultureInfo.InvariantCulture);
-            if(node.IsPath)nodeVE.Q("titlebar").style.backgroundColor =
+            frame.name = node.Name;
+            frame.Q<Label>("name").text = node.Name;
+            frame.Q<Label>("reward").text = node.Reward.ToString(CultureInfo.InvariantCulture);
+            if(node.IsPath)frame.Q("titlebar").style.backgroundColor =
                 new StyleColor(new Color(0f, 0.29f, 0.12f));
             
-            AddStatesToNode(nodeVE.Q("states"), node.States);
-            
-            parent.Add(nodeVE);
-            
+            Utils.AddStatesToContainer(frame.Q("states"), node.States);
+
             if (node.Children == null) return;
             for (var i = 0; i < node.Children.Count; i++)
             {
                 var child = node.Children[i];
                 ConstructNode(parent, child, ref nodeCounts);
             }
-        }
-
-        private void AddStatesToNode(VisualElement container, StateView[] states)
-        {
-            var stateTexts = new List<string>(states.Length);
-            for (var i = 0; i < states.Length; i++)
-            {
-                stateTexts.Add(states[i].ToString());
-            }
-            Func<VisualElement> makeItem = () => new Label();
-            Action<VisualElement, int> bindItem = (e, i) => ((Label) e).text = stateTexts[i];
-            var list = new ListView(stateTexts, 16, makeItem, bindItem);
-            list.selectionType = SelectionType.None;
-            list.style.flexGrow = 1;
-            
-            container.Add(list);
         }
 
         private void ConstructConnections(VisualElement parent, NodeView goalNode)
