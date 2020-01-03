@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using DOTS.Struct;
 using Unity.Collections;
 using Unity.Entities;
+using UnityEngine;
 
 namespace DOTS.Logger
 {
@@ -24,6 +25,12 @@ namespace DOTS.Logger
         public bool IsPath;
         
         private int _hashCode;
+
+        /// <summary>
+        /// 在绘制Node Graph时的位置
+        /// </summary>
+        [NonSerialized]
+        public Vector2 DrawPos;
 
         public static NodeView ConstructNodeTree(ref NodeGraph nodeGraph, EntityManager entityManager)
         {

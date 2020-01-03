@@ -27,7 +27,7 @@ namespace DOTS.Editor.UIElement
 
         private static int NodeWidth = 320;
         private static int NodeHeight = 80;
-        private static int NodeDistance = 32;
+        private static int NodeDistance = 16;
 
         private Vector2 _canvasPos, _canvasDragStartPos;
         private Vector2 _mouseDragStartPos;
@@ -100,8 +100,9 @@ namespace DOTS.Editor.UIElement
             _nodeContainer = rootVisualElement.Q("node-container");
             var nodeCounts = new List<int>();    //记录每一层的Node数量以便向下排列
 
-            ConstructNode(_nodeContainer, _log.results[_currentResult].GoalNodeView, ref nodeCounts);
-            ConstructConnections(_nodeContainer);
+            var goalNode = _log.results[_currentResult].GoalNodeView;
+            ConstructNode(_nodeContainer, goalNode, ref nodeCounts);
+            ConstructConnections(_nodeContainer, goalNode);
         }
 
         private void ConstructNode(VisualElement parent, NodeView node, ref List<int> nodeCounts)
@@ -118,12 +119,17 @@ namespace DOTS.Editor.UIElement
             
             _nodeVisualTree.CloneTree(parent);
             var nodeVE = parent.Q("frame");
-            nodeVE.style.left = NodeDistance + iteration * (NodeWidth+NodeDistance);
-            nodeVE.style.top = NodeDistance + nodeCounts[iteration] * (NodeHeight+NodeDistance);
+            node.DrawPos = new Vector2(NodeDistance + iteration * (NodeWidth+NodeDistance),
+                NodeDistance + nodeCounts[iteration] * (NodeHeight+NodeDistance));
+            nodeVE.style.left = node.DrawPos.x;
+            nodeVE.style.top = node.DrawPos.y;
             
             nodeVE.name = node.Name;
             nodeVE.Q<Label>("name").text = node.Name;
             nodeVE.Q<Label>("reward").text = node.Reward.ToString(CultureInfo.InvariantCulture);
+            if(node.IsPath)nodeVE.Q("titlebar").style.backgroundColor =
+                new StyleColor(new Color(0f, 0.29f, 0.12f));
+            
             AddStatesToNode(nodeVE.Q("states"), node.States);
             
             parent.Add(nodeVE);
@@ -152,16 +158,31 @@ namespace DOTS.Editor.UIElement
             container.Add(list);
         }
 
-        private void ConstructConnections(VisualElement parent)
+        private void ConstructConnections(VisualElement parent, NodeView goalNode)
         {
             var connectionContainer = new IMGUIContainer(() =>
             {
-                Handles.DrawBezier(Vector3.zero, new Vector3(100, 100),
-                    Vector3.right*50, new Vector3(50, 100),
-                    Color.white, null, 2);
+                DrawConnection(goalNode);
+                Handles.color = Color.white;
             });
             parent.Add(connectionContainer);
             connectionContainer.SendToBack();
+        }
+
+        private void DrawConnection(NodeView node)
+        {
+            if (node.Children == null) return;
+
+            var childrenSum = node.Children.Count;
+            for (var i = 0; i < node.Children.Count; i++)
+            {
+                var child = node.Children[i];
+                var startPos = node.DrawPos + new Vector2(NodeWidth, NodeHeight / 2);
+                var endPos = child.DrawPos + new Vector2(0, NodeHeight / 2);
+                Handles.color = node.IsPath && child.IsPath ? Color.green : new Color(0.67f, 0.67f, 0.67f);
+                Handles.DrawLine(startPos, endPos);
+                DrawConnection(child);
+            }
         }
 
         public VisualElement target { get; set; }
