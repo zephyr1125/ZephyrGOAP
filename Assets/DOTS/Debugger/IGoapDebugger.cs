@@ -10,7 +10,7 @@ namespace DOTS.Debugger
     /// </summary>
     public interface IGoapDebugger
     {
-        void StartLog(string agentName);
+        void StartLog(EntityManager entityManager, Entity agent);
         
         void SetNodeGraph(ref NodeGraph nodeGraph, EntityManager entityManager);
 

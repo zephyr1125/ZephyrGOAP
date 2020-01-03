@@ -5,7 +5,7 @@
         <ui:VisualElement name="space" style="flex-grow: 1;" />
         <ui:Button text="Reset" name="reset-button" class="toolbar-button" style="align-items: auto; flex-shrink: 0; flex-grow: 0; flex-direction: column; flex-wrap: no-wrap; flex-basis: auto;" />
     </ui:VisualElement>
-    <ui:VisualElement name="main-frame" class="main-frame" style="background-color: rgb(46, 46, 46); flex-grow: 1; padding-left: 16px; padding-right: 16px; padding-top: 16px; padding-bottom: 16px; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0;">
+    <ui:VisualElement name="main-frame" class="main-frame" style="flex-grow: 1;">
         <Style src="window.uss" />
     </ui:VisualElement>
     <ui:VisualElement name="status_bar" style="align-items: stretch; justify-content: flex-start; bottom: auto; position: relative; height: auto; width: auto; background-color: rgb(96, 96, 96); margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; padding-left: 4px; padding-right: 4px; padding-top: 4px; padding-bottom: 4px; top: auto; left: auto; flex-grow: 0;">

@@ -19,11 +19,11 @@ namespace DOTS.Logger
             results = new List<GoapResult>();
         }
 
-        public void StartLog(string agentName)
+        public void StartLog(EntityManager entityManager, Entity agent)
         {
             _currentLog = new GoapResult();
             results.Add(_currentLog);
-            _currentLog.StartLog(agentName);
+            _currentLog.StartLog(entityManager, agent);
         }
 
         public GoapResult GetResult(int id)

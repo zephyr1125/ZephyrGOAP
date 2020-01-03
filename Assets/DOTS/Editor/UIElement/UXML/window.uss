@@ -1,6 +1,7 @@
 .main-frame {
     flex-grow: 1;
     background-color: rgb(38, 38, 38);
+    flex-shrink: 0;
 }
 
 .toolbar {

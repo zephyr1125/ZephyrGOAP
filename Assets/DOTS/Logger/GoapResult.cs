@@ -9,15 +9,15 @@ namespace DOTS.Logger
     [Serializable]
     public class GoapResult
     {
-        public string AgentName;
+        public EntityView Agent;
 
         public NodeView GoalNodeView;
 
         public DateTime TimeStart, TimeEnd;
 
-        public void StartLog(string agentName)
+        public void StartLog(EntityManager entityManager, Entity agent)
         {
-            AgentName = agentName;
+            Agent = new EntityView(entityManager, agent);
             TimeStart = DateTime.Now;
         }
         

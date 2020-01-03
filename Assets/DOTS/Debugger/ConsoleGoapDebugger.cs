@@ -6,7 +6,7 @@ namespace DOTS.Debugger
 {
     public class ConsoleGoapDebugger : IGoapDebugger
     {
-        public void StartLog(string agentName)
+        public void StartLog(EntityManager entityManager, Entity agent)
         {
             
         }

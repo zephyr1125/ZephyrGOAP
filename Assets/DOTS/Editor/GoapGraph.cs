@@ -28,7 +28,7 @@ namespace DOTS.Editor
         {
             var currentResult = _log.GetResult(_currentResultId);
             GUI.color = Color.black;
-            GUI.Label(new Rect(16, 16, 50, 16), currentResult.AgentName);
+            GUI.Label(new Rect(16, 16, 50, 16), currentResult.Agent.ToString());
             GUI.color = Color.white;
         }
 

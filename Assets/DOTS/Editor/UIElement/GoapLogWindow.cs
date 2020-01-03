@@ -49,7 +49,6 @@ namespace DOTS.Editor.UIElement
                     LoadLogFile();
                     ConstructInfo();
                     ConstructGraph();
-                    ConstructConnections();
                 });
             rootVisualElement.Q<Button>("reset-button").RegisterCallback<MouseUpEvent>(
                 evt => Reset());
@@ -79,7 +78,7 @@ namespace DOTS.Editor.UIElement
         {
             if (_log == null) return;
 
-            rootVisualElement.Q<Label>("agent-name").text = _log.results[0].AgentName;
+            rootVisualElement.Q<Label>("agent-name").text = _log.results[0].Agent.ToString();
         }
 
         private void ConstructGraph()
@@ -90,9 +89,10 @@ namespace DOTS.Editor.UIElement
             var nodeCounts = new List<int>();    //记录每一层的Node数量以便向下排列
 
             ConstructNode(mainFrame, _log.results[_currentResult].GoalNodeView, ref nodeCounts);
+            // ConstructConnections(mainFrame);
         }
 
-        private void ConstructNode(VisualElement frame, NodeView node, ref List<int> nodeCounts)
+        private void ConstructNode(VisualElement parent, NodeView node, ref List<int> nodeCounts)
         {
             var iteration = node.Iteration;
             if (nodeCounts.Count <= iteration)
@@ -104,8 +104,8 @@ namespace DOTS.Editor.UIElement
                 nodeCounts[iteration]++;
             }
             
-            _nodeVisualTree.CloneTree(frame);
-            var nodeVE = frame.Q("frame");
+            _nodeVisualTree.CloneTree(parent);
+            var nodeVE = parent.Q("frame");
             nodeVE.style.left = NodeDistance + iteration * (NodeWidth+NodeDistance);
             nodeVE.style.top = NodeDistance + nodeCounts[iteration] * (NodeHeight+NodeDistance);
             
@@ -114,11 +114,13 @@ namespace DOTS.Editor.UIElement
             nodeVE.Q<Label>("reward").text = node.Reward.ToString(CultureInfo.InvariantCulture);
             AddStatesToNode(nodeVE.Q("states"), node.States);
             
+            parent.Add(nodeVE);
+            
             if (node.Children == null) return;
             for (var i = 0; i < node.Children.Count; i++)
             {
                 var child = node.Children[i];
-                ConstructNode(frame, child, ref nodeCounts);
+                ConstructNode(parent, child, ref nodeCounts);
             }
         }
 
@@ -138,7 +140,7 @@ namespace DOTS.Editor.UIElement
             container.Add(list);
         }
 
-        private void ConstructConnections()
+        private void ConstructConnections(VisualElement parent)
         {
             var connectionContainer = new IMGUIContainer(() =>
             {
@@ -146,11 +148,10 @@ namespace DOTS.Editor.UIElement
                     Vector3.right*50, new Vector3(50, 100),
                     Color.white, null, 2);
             });
-            var parent = rootVisualElement.Q("main-frame");
             parent.Add(connectionContainer);
-            connectionContainer.style.position = new StyleEnum<Position>(Position.Absolute);
-            connectionContainer.style.width = parent.style.width;
-            connectionContainer.style.height = parent.style.height;
+            // connectionContainer.style.position = new StyleEnum<Position>(Position.Absolute);
+            // connectionContainer.style.width = parent.style.width;
+            // connectionContainer.style.height = parent.style.height;
             connectionContainer.SendToBack();
         }
     }
