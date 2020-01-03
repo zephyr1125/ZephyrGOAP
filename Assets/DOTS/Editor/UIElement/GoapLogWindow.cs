@@ -11,7 +11,7 @@ using UnityEngine.UIElements;
 
 namespace DOTS.Editor.UIElement
 {
-    public class GoapLogWindow : EditorWindow
+    public class GoapLogWindow : EditorWindow, IManipulator
     {
         [MenuItem("Zephyr/Goap/GoapLog")]
         private static void OpenWindow()
@@ -23,10 +23,15 @@ namespace DOTS.Editor.UIElement
         private int _currentResult;
 
         private VisualTreeAsset _nodeVisualTree;
+        private VisualElement _nodeContainer;
 
         private static int NodeWidth = 320;
         private static int NodeHeight = 80;
         private static int NodeDistance = 32;
+
+        private Vector2 _canvasPos, _canvasDragStartPos;
+        private Vector2 _mouseDragStartPos;
+        private bool _mouseMidButtonDown;
 
         private void OnEnable()
         {
@@ -52,6 +57,13 @@ namespace DOTS.Editor.UIElement
                 });
             rootVisualElement.Q<Button>("reset-button").RegisterCallback<MouseUpEvent>(
                 evt => Reset());
+            rootVisualElement.AddManipulator(this);
+            
+            target.RegisterCallback<MouseDownEvent>(OnMouseDownEvent);
+            target.RegisterCallback<MouseMoveEvent>(OnMouseMoveEvent);
+            target.RegisterCallback<MouseUpEvent>(OnMouseUpEvent);
+            
+            _canvasPos = Vector2.zero;
         }
         
         private void Reset()
@@ -85,11 +97,11 @@ namespace DOTS.Editor.UIElement
         {
             if (_log == null) return;
 
-            var mainFrame = rootVisualElement.Q("main-frame");
+            _nodeContainer = rootVisualElement.Q("node-container");
             var nodeCounts = new List<int>();    //记录每一层的Node数量以便向下排列
 
-            ConstructNode(mainFrame, _log.results[_currentResult].GoalNodeView, ref nodeCounts);
-            // ConstructConnections(mainFrame);
+            ConstructNode(_nodeContainer, _log.results[_currentResult].GoalNodeView, ref nodeCounts);
+            ConstructConnections(_nodeContainer);
         }
 
         private void ConstructNode(VisualElement parent, NodeView node, ref List<int> nodeCounts)
@@ -149,10 +161,47 @@ namespace DOTS.Editor.UIElement
                     Color.white, null, 2);
             });
             parent.Add(connectionContainer);
-            // connectionContainer.style.position = new StyleEnum<Position>(Position.Absolute);
-            // connectionContainer.style.width = parent.style.width;
-            // connectionContainer.style.height = parent.style.height;
             connectionContainer.SendToBack();
+        }
+
+        public VisualElement target { get; set; }
+
+        private void OnMouseDownEvent(MouseEventBase<MouseDownEvent> evt)
+        {
+            switch (evt.button)
+            {
+                case 2:
+                    //中键
+                    if (_nodeContainer == null) return;
+                    _mouseMidButtonDown = true;
+                    _mouseDragStartPos = evt.mousePosition;
+                    _canvasDragStartPos = _canvasPos;
+                    break;
+            }
+        }
+
+        private void OnMouseMoveEvent(MouseEventBase<MouseMoveEvent> evt)
+        {
+            if (_mouseMidButtonDown)
+            {
+                if (_nodeContainer == null) return;
+                var distance = evt.mousePosition - _mouseDragStartPos;
+                _canvasPos = _canvasDragStartPos + distance;
+                _nodeContainer.style.left = _canvasPos.x;
+                _nodeContainer.style.top = _canvasPos.y;
+            }
+        }
+
+        private void OnMouseUpEvent(MouseEventBase<MouseUpEvent> evt)
+        {
+            switch (evt.button)
+            {
+                case 2:
+                    //中键
+                    if (_nodeContainer == null) return;
+                    _mouseMidButtonDown = false;
+                    break;
+            }
         }
     }
 }
