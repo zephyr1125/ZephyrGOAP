@@ -2,7 +2,7 @@ using DOTS.Logger;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace DOTS.Editor.UIElement
+namespace DOTS.Editor
 {
     public class NodeFrame : VisualElement, IManipulator
     {

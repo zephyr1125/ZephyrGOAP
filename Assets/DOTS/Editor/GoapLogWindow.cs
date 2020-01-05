@@ -1,113 +1,224 @@
-﻿using UnityEditor;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using DOTS.Logger;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace DOTS.Editor
 {
-    public partial class GoapLogWindow : EditorWindow
+    public class GoapLogWindow : EditorWindow, IManipulator
     {
-        private StyleSheet _styleSheet;
-        
-        private static Rect canvasRect;
-        private static Rect viewRect;
-        
-        const float TOP_MARGIN = 22;
-        const float BOTTOM_MARGIN = 5;
-        const int GRID_SIZE = 16;
-
-        private static GoapGraph _currentGraph;
-        
-        [MenuItem("Zephyr/Goap/Logger")]
+        [MenuItem("Zephyr/Goap/GoapLog")]
         private static void OpenWindow()
         {
             GetWindow<GoapLogWindow>().Show();
         }
+        
+        private static GoapLog _log;
+        private int _currentResult;
+
+        private VisualTreeAsset _nodeVisualTree;
+        private VisualElement _nodeContainer;
+        private VisualElement _statesTip;
+
+        private static int NodeWidth = 320;
+        private static int NodeHeight = 80;
+        private static int NodeDistance = 16;
+        
+        private static Vector2 NodeSize = new Vector2(320, 80);
+
+        private Vector2 _canvasPos, _canvasDragStartPos;
+        private Vector2 _mouseDragStartPos;
+        private bool _mouseMidButtonDown;
 
         private void OnEnable()
         {
-            _styleSheet = Resources.Load<StyleSheet>("StyleSheet");
-            titleContent = new GUIContent("Goap Logs", _styleSheet.icons.canvasIcon);
-            _currentGraph = new GoapGraph();
+            Init();
         }
 
-        private void OnGUI()
+        private void Init()
         {
-            //initialize rects
-            canvasRect = Rect.MinMaxRect(5, TOP_MARGIN, position.width - 5, position.height - BOTTOM_MARGIN);
-            var aspect = canvasRect.width / canvasRect.height;
+            titleContent.text = "Goap Logs";
             
-            //canvas background
-            GUI.Box(canvasRect, string.Empty, _styleSheet.styles.canvasBG);
-            //background grid
-            DrawGrid(canvasRect, pan);
+            var windowVisualTree =
+                AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
+                    "Assets/DOTS/Editor/UXML/window.uxml");
+            windowVisualTree.CloneTree(rootVisualElement);
             
-            // calc viewRect
-            {
-                viewRect = canvasRect;
-                viewRect.x = 0;
-                viewRect.y = 0;
-                viewRect.position -= pan;
-            }
+            _nodeVisualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
+                "Assets/DOTS/Editor/UXML/node.uxml");
             
-            GUI.BeginClip(canvasRect, pan, default, false);
-            {
-                DrawNodes();
-            }
-            GUI.EndClip();
-
-            if (!_currentGraph.IsEmpty())
-            {
-                _currentGraph.DrawInfo();
-            }
-
-            ShowToolbar(_currentGraph);
+            rootVisualElement.Q<Button>("load-button").RegisterCallback<MouseUpEvent>(
+                evt =>
+                {
+                    if (!LoadLogFile()) return;
+                    Reset();
+                    ConstructInfo();
+                    ConstructGraph();
+                });
+            rootVisualElement.Q<Button>("reset-button").RegisterCallback<MouseUpEvent>(
+                evt => Reset());
+            rootVisualElement.AddManipulator(this);
+            
+            target.RegisterCallback<MouseDownEvent>(OnMouseDownEvent);
+            target.RegisterCallback<MouseMoveEvent>(OnMouseMoveEvent);
+            target.RegisterCallback<MouseUpEvent>(OnMouseUpEvent);
+            
+            _canvasPos = Vector2.zero;
+            
+            //鼠标提示
+            var statesVT =
+                AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
+                    "Assets/DOTS/Editor/UXML/states.uxml");
+            statesVT.CloneTree(rootVisualElement.Q("main-frame"));
+            _statesTip = rootVisualElement.Q("states");
+            _statesTip.style.top = -50;
         }
         
-        //Draw a simple grid
-        static void DrawGrid(Rect container, Vector2 offset) {
-
-            if ( Event.current.type != EventType.Repaint ) {
-                return;
-            }
-
-            Handles.color = new Color(0, 0, 0, 0.15f);
-            
-            var step = GRID_SIZE;
-
-            var xDiff = offset.x % step;
-            var xStart = container.xMin + xDiff;
-            var xEnd = container.xMax;
-            for ( var i = xStart; i < xEnd; i += step ) {
-                Handles.DrawLine(new Vector3(i, container.yMin, 0), new Vector3(i, container.yMax, 0));
-            }
-
-            var yDiff = offset.y % step;
-            var yStart = container.yMin + yDiff;
-            var yEnd = container.yMax;
-            for ( var i = yStart; i < yEnd; i += step ) {
-                Handles.DrawLine(new Vector3(0, i, 0), new Vector3(container.xMax, i, 0));
-            }
-
-            Handles.color = Color.white;
-        }
-
-        private void DrawNodes()
+        private void Reset()
         {
-            if (_currentGraph.IsEmpty()) return;
+            rootVisualElement.Clear();
+            Init();
+        }
 
-            _currentGraph.DrawNodes(_styleSheet);
-        } 
-        
-        //The translation of the graph
-        private static Vector2 pan {
-            get => _currentGraph?.translation ?? viewCanvasCenter;
-            set
+        private bool LoadLogFile()
+        {
+            var path = EditorUtility.OpenFilePanel(
+                "Import  Log", "", "json");
+            if (!string.IsNullOrEmpty(path))
             {
-                if (_currentGraph == null) return;
-                var t = value;
-                _currentGraph.translation = t;
+                var textReader = new StreamReader(path);
+                var json = textReader.ReadToEnd();
+                _log = JsonUtility.FromJson<GoapLog>(json);
+                return true;
+            }
+
+            return false;
+        }
+
+        private void ConstructInfo()
+        {
+            if (_log == null) return;
+
+            var result = _log.results[_currentResult];
+            rootVisualElement.Q<Label>("agent-name").text = 
+                $"[{result.Agent}] {result.TimeCost}ms at ({result.TimeStart})";
+        }
+
+        private void ConstructGraph()
+        {
+            if (_log == null) return;
+
+            _nodeContainer = rootVisualElement.Q("node-container");
+            var nodeCounts = new List<int>();    //记录每一层的Node数量以便向下排列
+
+            var goalNode = _log.results[_currentResult].GoalNodeView;
+            ConstructNode(_nodeContainer, goalNode, ref nodeCounts);
+            ConstructConnections(_nodeContainer, goalNode);
+        }
+
+        private void ConstructNode(VisualElement parent, NodeView node, ref List<int> nodeCounts)
+        {
+            var iteration = node.Iteration;
+            if (nodeCounts.Count <= iteration)
+            {
+                nodeCounts.Add(0);
+            }
+            else
+            {
+                nodeCounts[iteration]++;
+            }
+
+            var drawPos = new Vector2(NodeDistance + iteration * (NodeWidth+NodeDistance),
+                NodeDistance + nodeCounts[iteration] * (NodeHeight+NodeDistance));
+            var frame = new NodeFrame(node, drawPos, NodeSize, _statesTip);
+            parent.Add(frame);
+            _nodeVisualTree.CloneTree(frame);
+            
+            frame.name = node.Name;
+            frame.Q<Label>("name").text = node.Name;
+            frame.Q<Label>("reward").text = node.Reward.ToString(CultureInfo.InvariantCulture);
+            if(node.IsPath)frame.Q("titlebar").style.backgroundColor =
+                new StyleColor(new Color(0f, 0.29f, 0.12f));
+            
+            Utils.AddStatesToContainer(frame.Q("states"), node.States);
+
+            if (node.Children == null) return;
+            for (var i = 0; i < node.Children.Count; i++)
+            {
+                var child = node.Children[i];
+                ConstructNode(parent, child, ref nodeCounts);
             }
         }
-        
-        private static Vector2 viewCanvasCenter => viewRect.size / 2;
+
+        private void ConstructConnections(VisualElement parent, NodeView goalNode)
+        {
+            var connectionContainer = new IMGUIContainer(() =>
+            {
+                DrawConnection(goalNode);
+                Handles.color = Color.white;
+            });
+            parent.Add(connectionContainer);
+            connectionContainer.SendToBack();
+        }
+
+        private void DrawConnection(NodeView node)
+        {
+            if (node.Children == null) return;
+
+            var childrenSum = node.Children.Count;
+            for (var i = 0; i < node.Children.Count; i++)
+            {
+                var child = node.Children[i];
+                var startPos = node.DrawPos + new Vector2(NodeWidth, NodeHeight / 2);
+                var endPos = child.DrawPos + new Vector2(0, NodeHeight / 2);
+                Handles.color = node.IsPath && child.IsPath ? Color.green : new Color(0.67f, 0.67f, 0.67f);
+                Handles.DrawLine(startPos, endPos);
+                DrawConnection(child);
+            }
+        }
+
+        public VisualElement target { get; set; }
+
+        private void OnMouseDownEvent(MouseEventBase<MouseDownEvent> evt)
+        {
+            switch (evt.button)
+            {
+                case 2:
+                    //中键
+                    if (_nodeContainer == null) return;
+                    _mouseMidButtonDown = true;
+                    _mouseDragStartPos = evt.mousePosition;
+                    _canvasDragStartPos = _canvasPos;
+                    break;
+            }
+        }
+
+        private void OnMouseMoveEvent(MouseEventBase<MouseMoveEvent> evt)
+        {
+            if (_mouseMidButtonDown)
+            {
+                if (_nodeContainer == null) return;
+                var distance = evt.mousePosition - _mouseDragStartPos;
+                _canvasPos = _canvasDragStartPos + distance;
+                _nodeContainer.style.left = _canvasPos.x;
+                _nodeContainer.style.top = _canvasPos.y;
+            }
+        }
+
+        private void OnMouseUpEvent(MouseEventBase<MouseUpEvent> evt)
+        {
+            switch (evt.button)
+            {
+                case 2:
+                    //中键
+                    if (_nodeContainer == null) return;
+                    _mouseMidButtonDown = false;
+                    break;
+            }
+        }
     }
 }

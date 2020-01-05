@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using DOTS.Struct;
 using Unity.Collections;
 using Unity.Entities;
+using UnityEngine;
 
 namespace DOTS.Logger
 {
@@ -13,12 +15,17 @@ namespace DOTS.Logger
 
         public NodeView GoalNodeView;
 
-        public DateTime TimeStart, TimeEnd;
+        public string TimeStart;
+        
+        public string TimeCost;
+
+        private DateTime _timeStart;
 
         public void StartLog(EntityManager entityManager, Entity agent)
         {
             Agent = new EntityView(entityManager, agent);
-            TimeStart = DateTime.Now;
+            _timeStart = DateTime.Now;
+            TimeStart = DateTime.Now.ToString(CultureInfo.InvariantCulture);
         }
         
         public void SetNodeGraph(ref NodeGraph nodeGraph, EntityManager entityManager)
@@ -29,7 +36,7 @@ namespace DOTS.Logger
         public void SetPathResult(ref NativeList<Node> pathResult)
         {
             GoalNodeView.SetPath(ref pathResult);
-            TimeEnd = DateTime.Now;
+            TimeCost = (DateTime.Now - _timeStart).TotalMilliseconds.ToString(CultureInfo.InvariantCulture);
         }
 
         public NodeView[] GetPathResult()

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using DOTS.Logger;
 using UnityEngine.UIElements;
 
-namespace DOTS.Editor.UIElement
+namespace DOTS.Editor
 {
     public class Utils
     {
