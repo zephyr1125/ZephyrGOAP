@@ -81,37 +81,28 @@ namespace DOTS.Test.ActionExpand
             EntityManager.CompleteAllJobs();
 
             var goalNodeView = _debugger.GoalNodeView;
-            //goal正确
-            Assert.AreEqual(1, goalNodeView.States.Length);
-            Assert.AreEqual(_goalState, goalNodeView.States[0]);
-            Assert.AreEqual(new State
-            {
-                Target = _targetContainerEntity,
-                Trait = typeof(ItemContainerTrait),
-                ValueString = new NativeString64("item"),
-            }, goalNodeView.States[0]);
-            
+
             //Drop接Goal
             var dropNodeView = _debugger.GoalNodeView.Children[0];
             Assert.AreEqual(nameof(DropItemAction), dropNodeView.Name);
             Assert.AreEqual(1, dropNodeView.States.Length);
-            Assert.AreEqual(new State
+            Assert.IsTrue(dropNodeView.States[0].Equals(new State
             {
                 Target = _agentEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueString = new NativeString64("item"),
-            }, dropNodeView.States[0]);
+            }));
             
             //Pick接Drop
             var pickNodeView = dropNodeView.Children[0];
             Assert.AreEqual(nameof(PickItemAction), pickNodeView.Name);
             Assert.AreEqual(1, pickNodeView.States.Length);
-            Assert.AreEqual(new State
+            Assert.IsTrue(pickNodeView.States[0].Equals(new State
             {
                 Target = _itemSourceEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueString = new NativeString64("item"),
-            }, pickNodeView.States[0]);
+            }));
             
             //start接pick
             var startNodeView = pickNodeView.Children[0];

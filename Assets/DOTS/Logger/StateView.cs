@@ -18,9 +18,9 @@ namespace DOTS.Logger
         public StateView(EntityManager entityManager, State state)
         {
             Target = new EntityView(entityManager, state.Target);
-            if(state.Trait!=null)Trait = state.Trait.ToString();
+            if(state.Trait!=default)Trait = state.Trait.ToString();
             ValueString = state.ValueString.ToString();
-            if(state.ValueTrait!=null)ValueTrait = state.ValueTrait.ToString();
+            if(state.ValueTrait!=default)ValueTrait = state.ValueTrait.ToString();
             IsNegative = state.IsNegative;
         }
 
@@ -37,6 +37,24 @@ namespace DOTS.Logger
             var trait = string.IsNullOrEmpty(Trait) ? "" : $"({Trait})";
             var valueTrait = string.IsNullOrEmpty(ValueTrait) ? "" : $"<{ValueTrait}>";
             return $"{negative}[{Target}]{trait}{valueTrait}{ValueString}";
+        }
+
+        /// <summary>
+        /// 测试里为了便利，有时会用到StateView与State的比较
+        /// </summary>
+        /// <param name="state"></param>
+        /// <returns></returns>
+        public bool Equals(State state)
+        {
+            return Target.Equals(state.Target) &&
+                   (state.Trait == default
+                       ? string.IsNullOrEmpty(Trait)
+                       : Trait.Equals(state.Trait.ToString())) &&
+                   ValueString.Equals(state.ValueString.ToString()) &&
+                   (state.ValueTrait == default
+                       ? string.IsNullOrEmpty(ValueTrait)
+                       : ValueTrait.Equals(state.ValueTrait.ToString())) &&
+                   IsNegative == state.IsNegative;
         }
     }
 }

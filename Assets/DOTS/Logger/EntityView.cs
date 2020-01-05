@@ -22,5 +22,10 @@ namespace DOTS.Logger
             if (!string.IsNullOrEmpty(Name)) return Name;
             return $"{Index},{Version}";
         }
+
+        public bool Equals(Entity entity)
+        {
+            return Index == entity.Index && Version == entity.Version;
+        }
     }
 }
