@@ -244,6 +244,8 @@ namespace DOTS.System
                 ref unexpandedNodes, ref nodeGraph, ref newlyExpandedNodes, iteration);
             handle = ScheduleActionExpand<CookAction>(handle, entityManager, ref stackData,
                 ref unexpandedNodes, ref nodeGraph, ref newlyExpandedNodes, iteration);
+            handle = ScheduleActionExpand<WanderAction>(handle, entityManager, ref stackData,
+                ref unexpandedNodes, ref nodeGraph, ref newlyExpandedNodes, iteration);
             handle.Complete();
             
             foreach (var node in newlyExpandedNodes)
