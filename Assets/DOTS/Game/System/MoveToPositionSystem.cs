@@ -12,16 +12,25 @@ namespace DOTS.Game.System
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public class MoveToPositionSystem : JobComponentSystem
     {
-        [BurstCompile]
-        public struct MoveToPositionJob : IJobForEach<Translation, MaxMoveSpeed, TargetPosition>
+        private EndSimulationEntityCommandBufferSystem _ecbSystem;
+
+        protected override void OnCreate()
         {
+            base.OnCreate();
+            _ecbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+        }
+
+        [BurstCompile]
+        public struct MoveToPositionJob : IJobForEachWithEntity<Translation, MaxMoveSpeed, TargetPosition>
+        {
+            public EntityCommandBuffer.Concurrent ECBuffer;
+            
             public float deltaSecond;
             
-            public void Execute(ref Translation position, [ReadOnly]ref MaxMoveSpeed maxMoveSpeed,
-                ref TargetPosition targetPosition)
+            public void Execute(Entity entity, int jobIndex, ref Translation position,
+                [ReadOnly]ref MaxMoveSpeed maxMoveSpeed, ref TargetPosition targetPosition)
             {
                 var targetPos = targetPosition.Value;
-                if (targetPos.Equals(float3.zero)) return;
                 
                 var speed = maxMoveSpeed.value;
                 var pos = position.Value;
@@ -29,11 +38,10 @@ namespace DOTS.Game.System
                     speed * deltaSecond);
                 position.Value = newPosition;
                 
-                //到达后重置target
+                //到达后移除target
                 if (newPosition.Equals(targetPos))
                 {
-                    //todo 如果刚好需要移动到0点怎么办？
-                    targetPosition.Value = float3.zero;
+                    ECBuffer.RemoveComponent<TargetPosition>(jobIndex, entity);
                 }
             }
         }
@@ -42,8 +50,11 @@ namespace DOTS.Game.System
         {
             var job = new MoveToPositionJob
             {
-                deltaSecond = GameTime.Instance().DeltaSecond
+                deltaSecond = GameTime.Instance().DeltaSecond,
+                ECBuffer = _ecbSystem.CreateCommandBuffer().ToConcurrent()
             };
+            var handle = job.Schedule(this, inputDeps);
+            _ecbSystem.AddJobHandleForProducer(handle);
             return job.Schedule(this, inputDeps);
         }
     }
