@@ -55,7 +55,7 @@ namespace DOTS.Game.System
             };
             var handle = job.Schedule(this, inputDeps);
             _ecbSystem.AddJobHandleForProducer(handle);
-            return job.Schedule(this, inputDeps);
+            return handle;
         }
     }
 }

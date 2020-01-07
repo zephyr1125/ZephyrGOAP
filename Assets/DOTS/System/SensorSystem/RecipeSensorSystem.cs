@@ -16,6 +16,8 @@ namespace DOTS.System.SensorSystem
         
         protected override void OnUpdate()
         {
+            if (!EntityManager.Exists(CurrentStatesHelper.CurrentStatesEntity)) return;
+            
             //范例只有一个recipe，直接手写，实际需要从define里批量写入
             var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
             //存储recipe这样复杂state的折中方案：
