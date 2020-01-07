@@ -10,7 +10,8 @@ namespace DOTS.System
     /// 并且提供引用给其他System使用
     /// 在一帧的Simulation结束时回收
     /// </summary>
-    [UpdateBefore(typeof(BeginInitializationEntityCommandBufferSystem))]
+    [UpdateInGroup(typeof(InitializationSystemGroup))]
+    [UpdateBefore(typeof(SensorSystemGroup))]
     public class CurrentStatesHelper : ComponentSystem
     {
         public static Entity CurrentStatesEntity;
@@ -20,15 +21,16 @@ namespace DOTS.System
         protected override void OnCreate()
         {
             _removeECBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+            CurrentStatesEntity = EntityManager.CreateEntity(typeof(CurrentStates));
         }
 
         protected override void OnUpdate()
         {
-            CurrentStatesEntity =
-                EntityManager.CreateEntity(typeof(CurrentStates));
             EntityManager.AddBuffer<State>(CurrentStatesEntity);
             
-            _removeECBufferSystem.CreateCommandBuffer().DestroyEntity(CurrentStatesEntity);
+            var buffer = _removeECBufferSystem.CreateCommandBuffer()
+                .SetBuffer<State>(CurrentStatesEntity);
+            buffer.Clear();
         }
 
         public static StateGroup GetCurrentStates(EntityManager entityManager, Allocator allocator)
