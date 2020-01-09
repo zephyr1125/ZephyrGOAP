@@ -20,7 +20,7 @@ namespace DOTS.System
             ECBSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
         }
 
-        [RequireComponentTag(typeof(ReadyToNavigating), typeof(TargetPosition))]
+        [RequireComponentTag(typeof(ReadyToNavigating))]
         private struct NavigatingStartJob : IJobForEachWithEntity_EBC<Node, Agent>
         {
             public EntityCommandBuffer.Concurrent ECBuffer;
@@ -48,7 +48,7 @@ namespace DOTS.System
                 //todo 路径规划
                 
                 //设置target,通知开始移动
-                ECBuffer.SetComponent(jobIndex, entity,
+                ECBuffer.AddComponent(jobIndex, entity,
                     new TargetPosition{Value = Translations[targetEntity].Value});
                 
                 //切换agent状态,等待移动结束

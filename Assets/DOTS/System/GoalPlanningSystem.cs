@@ -162,7 +162,7 @@ namespace DOTS.System
             var nodeBuffer = EntityManager.AddBuffer<Node>(agentEntity);
             var stateBuffer =
                 EntityManager.GetBuffer<State>(agentEntity); //已经在创建goal的时候创建了state buffer以容纳goal state
-            for (var i = 0; i < pathResult.Length; i++)
+            for (var i = 1; i < pathResult.Length; i++)    //path的0号为goal，不存
             {
                 var node = pathResult[i];
                 var preconditions = nodeGraph.GetNodePreconditions(node, Allocator.Temp);
