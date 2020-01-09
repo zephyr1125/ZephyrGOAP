@@ -50,7 +50,7 @@ namespace DOTS.Game.System
         {
             var job = new MoveToPositionJob
             {
-                deltaSecond = GameTime.Instance().DeltaSecond,
+                deltaSecond = Time.DeltaTime,
                 ECBuffer = _ecbSystem.CreateCommandBuffer().ToConcurrent()
             };
             var handle = job.Schedule(this, inputDeps);

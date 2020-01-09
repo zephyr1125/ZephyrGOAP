@@ -21,13 +21,11 @@ namespace DOTS.System
         protected override void OnCreate()
         {
             _removeECBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
-            CurrentStatesEntity = EntityManager.CreateEntity(typeof(CurrentStates));
+            CurrentStatesEntity = EntityManager.CreateEntity(typeof(CurrentStates), typeof(State));
         }
 
         protected override void OnUpdate()
         {
-            EntityManager.AddBuffer<State>(CurrentStatesEntity);
-            
             var buffer = _removeECBufferSystem.CreateCommandBuffer()
                 .SetBuffer<State>(CurrentStatesEntity);
             buffer.Clear();

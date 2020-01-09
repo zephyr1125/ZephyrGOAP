@@ -1,13 +1,9 @@
-using DOTS.Action;
 using DOTS.Component;
 using DOTS.Component.AgentState;
-using DOTS.Component.Trait;
 using DOTS.Game.ComponentData;
 using DOTS.Struct;
 using DOTS.System;
-using DOTS.System.ActionExecuteSystem;
 using NUnit.Framework;
-using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Entity = Unity.Entities.Entity;
@@ -69,7 +65,7 @@ namespace DOTS.Test
             Assert.Zero(EntityManager.GetComponentData<Agent>(_agentEntity).ExecutingNodeId);
         }
         
-        //目标为自身则直接到达
+        //目标为自身则直接结束
         [Test]
         public void TargetIsSelf_ToNextState()
         {
@@ -77,6 +73,25 @@ namespace DOTS.Test
             buffer[0] = new Node
             {
                 NavigatingSubject = _agentEntity,
+            };
+            
+            _system.Update();
+            _system.ECBSystem.Update();
+            EntityManager.CompleteAllJobs();
+            
+            Assert.IsTrue(EntityManager.HasComponent<ReadyToActing>(_agentEntity));
+            Assert.IsFalse(EntityManager.HasComponent<ReadyToNavigating>(_agentEntity));
+            Assert.Zero(EntityManager.GetComponentData<Agent>(_agentEntity).ExecutingNodeId);
+        }
+        
+        //目标为空则直接结束
+        [Test]
+        public void TargetIsNull_ToNextState()
+        {
+            var buffer = EntityManager.GetBuffer<Node>(_agentEntity);
+            buffer[0] = new Node
+            {
+                NavigatingSubject = Entity.Null,
             };
             
             _system.Update();

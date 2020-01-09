@@ -23,20 +23,30 @@ namespace DOTS.Test
         {
             _system.Update();
 
-            var query = EntityManager.CreateEntityQuery(typeof(CurrentStates));
+            var query = EntityManager.CreateEntityQuery(typeof(CurrentStates), typeof(State));
             Assert.AreEqual(1, query.CalculateEntityCount());
         }
 
-        //在一帧结束Simulation时移除entity
+        //在一帧结束Simulation时清空state
         [Test]
-        public void RemoveEntityAtSimulationEnd()
+        public void ClearStatesAtSimulationEnd()
         {
+            var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
+            buffer.Add(new State());
+            
             _system.Update();
+            EntityManager.CompleteAllJobs();
+
+            var states = CurrentStatesHelper.GetCurrentStates(EntityManager, Allocator.Temp);
+            Assert.AreEqual(1, states.Length());
+            states.Dispose();
+            
             _system._removeECBufferSystem.Update();
             EntityManager.CompleteAllJobs();
 
-            var query = EntityManager.CreateEntityQuery(typeof(CurrentStates));
-            Assert.AreEqual(0, query.CalculateEntityCount());
+            states = CurrentStatesHelper.GetCurrentStates(EntityManager, Allocator.Temp);
+            Assert.AreEqual(0, states.Length());
+            states.Dispose();
         }
 
         //提供引用
@@ -45,7 +55,7 @@ namespace DOTS.Test
         {
             _system.Update();
 
-            var query = EntityManager.CreateEntityQuery(typeof(CurrentStates));
+            var query = EntityManager.CreateEntityQuery(typeof(CurrentStates), typeof(State));
 
             Assert.AreEqual(1, query.CalculateEntityCount());
             var entities = query.ToEntityArray(Allocator.TempJob);

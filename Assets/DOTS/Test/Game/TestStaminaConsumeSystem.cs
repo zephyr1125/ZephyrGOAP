@@ -2,6 +2,7 @@ using DOTS.Game;
 using DOTS.Game.ComponentData;
 using DOTS.Game.System;
 using NUnit.Framework;
+using Unity.Core;
 using Unity.Entities;
 
 namespace DOTS.Test.Game
@@ -17,7 +18,7 @@ namespace DOTS.Test.Game
             _system = World.GetOrCreateSystem<StaminaConsumeSystem>();
             _entity = EntityManager.CreateEntity();
 
-            GameTime.Instance().DeltaSecond = 1;
+            World.SetTime(new TimeData(1, 1));
             
             EntityManager.AddComponentData(_entity, new Stamina{Value = 1, ChangeSpeed = -0.1f});
         }

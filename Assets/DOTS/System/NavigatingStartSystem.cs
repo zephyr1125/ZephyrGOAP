@@ -33,11 +33,10 @@ namespace DOTS.System
                 var currentNode = nodes[agent.ExecutingNodeId];
                 //从node获取目标
                 var targetEntity = currentNode.NavigatingSubject;
-                if (targetEntity == Entity.Null) return;
 
-                if (targetEntity == entity)
+                if (targetEntity == entity || targetEntity==Entity.Null)
                 {
-                    //目标为agent自身，无需移动，直接跳到ReadyToActing
+                    //目标为空或agent自身，无需移动，直接跳到ReadyToActing
                     Utils.NextAgentState<ReadyToNavigating, ReadyToActing>(
                         entity, jobIndex, ref ECBuffer, agent, false);
                     return;

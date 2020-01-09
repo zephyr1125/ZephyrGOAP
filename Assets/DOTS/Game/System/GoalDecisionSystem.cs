@@ -31,18 +31,17 @@ namespace DOTS.Game.System
 
         [BurstCompile]
         [RequireComponentTag(typeof(NoGoal))]
-        private struct GoalDecisionJob : IJobForEachWithEntity_EBBCC<Node, State, Agent, Stamina>
+        private struct GoalDecisionJob : IJobForEachWithEntity_EBCC<State, Agent, Stamina>
         {
             public float MinStamina;
             public float MaxStamina;
 
             public EntityCommandBuffer.Concurrent ECBuffer;
             
-            public void Execute(Entity entity, int jobIndex, DynamicBuffer<Node> nodes,
+            public void Execute(Entity entity, int jobIndex,
                 DynamicBuffer<State> states, ref Agent agent, ref Stamina stamina)
             {
                 Assert.AreEqual(0, agent.ExecutingNodeId);
-                Assert.AreEqual(0, nodes.Length);
                 Assert.AreEqual(0, states.Length);
 
                 var random = new Random();

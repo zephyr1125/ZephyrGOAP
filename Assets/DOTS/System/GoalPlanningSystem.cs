@@ -123,6 +123,10 @@ namespace DOTS.System
                     //todo 此处每一个agent跑一次,寻路Job没有并行
                     //应该把各个agent的nodeGraph存一起，然后一起并行跑
                     FindPath(ref nodeGraph, agentEntity);
+                    
+                    //切换agent状态
+                    EntityManager.RemoveComponent<GoalPlanning>(agentEntity);
+                    EntityManager.AddComponent<ReadyToNavigating>(agentEntity);
                 }
                 
                 uncheckedNodes.Dispose();
@@ -203,7 +207,10 @@ namespace DOTS.System
                 Debugger?.Log("check node: "+uncheckedNode.Name);
                 var uncheckedStates = nodeGraph.GetNodeStates(uncheckedNode, Allocator.Temp);
                 uncheckedStates.Sub(ref currentStates);
-                if (uncheckedStates.Length() <= 0)
+                //为了避免没有state的node(例如wander)与startNode有相同的hash，这种node被强制给了一个空state
+                //因此在只有1个state且内容为空时，也应视为找到了plan
+                if (uncheckedStates.Length() <= 0 ||
+                    (uncheckedStates.Length()==1 && uncheckedStates[0].Equals(default)))
                 {
                     //找到Plan，追加起点Node
                     Debugger?.Log("found plan: "+uncheckedNode.Name);

@@ -23,7 +23,7 @@ namespace DOTS.Game.System
         {
             var job = new StaminaConsumeJob
             {
-                DeltaTime = GameTime.Instance().DeltaSecond
+                DeltaTime = Time.DeltaTime
             };
             return job.Schedule(this, inputDeps);
         }
