@@ -30,6 +30,9 @@ namespace DOTS.System
             
             public void Execute(Entity entity, int jobIndex, DynamicBuffer<Node> nodes, ref Agent agent)
             {
+                //id超过长度表示运行结束了
+                if (agent.ExecutingNodeId >= nodes.Length) return;
+                
                 var currentNode = nodes[agent.ExecutingNodeId];
                 //从node获取目标
                 var targetEntity = currentNode.NavigatingSubject;

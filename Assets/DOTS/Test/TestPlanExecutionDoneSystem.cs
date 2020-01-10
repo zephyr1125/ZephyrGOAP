@@ -42,8 +42,7 @@ namespace DOTS.Test
             _system.ECBSystem.Update();
             EntityManager.CompleteAllJobs();
             
-            nodeBuffer = EntityManager.GetBuffer<Node>(_agentEntity);
-            Assert.AreEqual(0, nodeBuffer.Length);
+            Assert.IsFalse(EntityManager.HasComponent<Node>(_agentEntity));
             stateBuffer = EntityManager.GetBuffer<State>(_agentEntity);
             Assert.AreEqual(0, stateBuffer.Length);
         }

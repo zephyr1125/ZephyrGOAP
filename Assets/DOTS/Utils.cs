@@ -33,6 +33,20 @@ namespace DOTS
                 });
             }
         }
+        
+        public static void NextAgentState<T, U>(Entity agentEntity,
+            EntityManager entityManager, bool toNextNode) 
+            where T : struct, IComponentData, IAgentState where U : struct, IComponentData, IAgentState
+        {
+            entityManager.RemoveComponent<T>(agentEntity);
+            entityManager.AddComponent<U>(agentEntity);
+            if (toNextNode)
+            {
+                var agent = entityManager.GetComponentData<Agent>(agentEntity);
+                agent.ExecutingNodeId += 1;
+                entityManager.SetComponentData(agentEntity, agent);
+            }
+        }
 
         /// <summary>
         /// 根据传入的配方输出筛选，传出其对应的输入State组

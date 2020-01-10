@@ -117,7 +117,7 @@ namespace DOTS.Test.ActionExpand
             var nodes = EntityManager.GetBuffer<Node>(_agentEntity);
             var states = EntityManager.GetBuffer<State>(_agentEntity);
 
-            var eatNodePrefabsMask = nodes[1].PreconditionsBitmask;
+            var eatNodePrefabsMask = nodes[0].PreconditionsBitmask;
             for (var i = 0; i < states.Length; i++)
             {
                 if ((eatNodePrefabsMask & ((ulong) 1 << i)) > 0 &&

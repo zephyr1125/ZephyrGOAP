@@ -114,8 +114,7 @@ namespace DOTS.System
                     //目前对于规划失败的情况，就直接转入NoGoal状态
                     Debugger?.Log("goal plan failed : "+goalStates);
                     goalStatesBuffer.Clear();
-                    EntityManager.RemoveComponent<GoalPlanning>(agentEntity);
-                    EntityManager.AddComponentData(agentEntity, new NoGoal());
+                    Utils.NextAgentState<GoalPlanning, NoGoal>(agentEntity, EntityManager, false);
                 }
                 else
                 {
@@ -125,8 +124,7 @@ namespace DOTS.System
                     FindPath(ref nodeGraph, agentEntity);
                     
                     //切换agent状态
-                    EntityManager.RemoveComponent<GoalPlanning>(agentEntity);
-                    EntityManager.AddComponent<ReadyToNavigating>(agentEntity);
+                    Utils.NextAgentState<GoalPlanning, ReadyToNavigating>(agentEntity, EntityManager, false);
                 }
                 
                 uncheckedNodes.Dispose();

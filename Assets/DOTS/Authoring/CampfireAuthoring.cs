@@ -7,6 +7,8 @@ using UnityEngine;
 
 namespace DOTS.Authoring
 {
+    [RequiresEntityConversion]
+    [ConverterVersion("Zephyr", 0)]
     public class CampfireAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     {
         public string Name;

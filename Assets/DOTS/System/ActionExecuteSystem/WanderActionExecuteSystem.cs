@@ -73,7 +73,7 @@ namespace DOTS.System.ActionExecuteSystem
                     return;
                 
                 //通知执行完毕
-                Utils.NextAgentState<ReadyToActing, ReadyToNavigating>(
+                Utils.NextAgentState<Acting, ReadyToNavigating>(
                     entity, jobIndex, ref ECBuffer, agent, true);
             }
         }

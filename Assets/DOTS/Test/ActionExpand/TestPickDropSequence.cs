@@ -127,7 +127,7 @@ namespace DOTS.Test.ActionExpand
             EntityManager.CompleteAllJobs();
 
             var buffer = EntityManager.GetBuffer<Node>(_agentEntity);
-            Assert.AreEqual(3, buffer.Length);
+            Assert.AreEqual(2, buffer.Length);
         }
 
         [Test]
@@ -141,14 +141,10 @@ namespace DOTS.Test.ActionExpand
             
             //1 goal state + 2 precondition + 2 effect
             Assert.AreEqual(5, bufferStates.Length);
-            
-            //no states for goal node
-            Assert.Zero(bufferNodes[0].PreconditionsBitmask);
-            Assert.Zero(bufferNodes[0].EffectsBitmask);
-            
-            //1 is drop, 2 is pick
-            var nodeDrop = bufferNodes[1];
-            var nodePick = bufferNodes[2];
+
+            //0 is drop, 1 is pick
+            var nodeDrop = bufferNodes[0];
+            var nodePick = bufferNodes[1];
             for (var i = 0; i < bufferStates.Length; i++)
             {
                 //nodeDrop应该只有1个precondition

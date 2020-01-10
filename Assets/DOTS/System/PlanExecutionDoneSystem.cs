@@ -31,7 +31,7 @@ namespace DOTS.System
                 var pathLength = nodes.Length;
                 if (agent.ExecutingNodeId < pathLength) return;
                 
-                nodes.Clear();
+                ECBuffer.RemoveComponent<Node>(jobIndex, entity);
                 states.Clear();
                 agent.ExecutingNodeId = 0;
                 
