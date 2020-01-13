@@ -8,13 +8,13 @@ namespace DOTS.Struct
 {
     public struct NodeGraph : IDisposable
     {
-        [NativeDisableParallelForRestriction]
+        [ReadOnly]
         private NativeMultiHashMap<Node, Edge> _nodeToParent;
-        [NativeDisableParallelForRestriction]
+        [ReadOnly]
         private NativeMultiHashMap<Node, State> _nodeStates;
-        [NativeDisableParallelForRestriction]
+        [ReadOnly]
         private NativeMultiHashMap<Node, State> _preconditions;
-        [NativeDisableParallelForRestriction]
+        [ReadOnly]
         private NativeMultiHashMap<Node, State> _effects;
 
         private Node _goalNode;
@@ -43,6 +43,11 @@ namespace DOTS.Struct
             }
         }
 
+        public NativeMultiHashMap<Node, Edge>.ParallelWriter NodeToParentWriter => _nodeToParent.AsParallelWriter();
+        public NativeMultiHashMap<Node, State>.ParallelWriter NodeStateWriter => _nodeStates.AsParallelWriter();
+        public NativeMultiHashMap<Node, State>.ParallelWriter PreconditionWriter => _preconditions.AsParallelWriter();
+        public NativeMultiHashMap<Node, State>.ParallelWriter EffectWriter => _effects.AsParallelWriter();
+
         /// <summary>
         /// 追加对起点的链接
         /// </summary>
@@ -54,67 +59,6 @@ namespace DOTS.Struct
             var iteration = parent.Iteration;
             if (_startNode.Iteration <= iteration) _startNode.Iteration = iteration + 1;
             _nodeToParent.Add(_startNode, new Edge(parent, _startNode, actionName));
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="node"></param>
-        /// <param name="nodeStates"></param>
-        /// <param name="preconditions"></param>
-        /// <param name="effects"></param>
-        /// <param name="parent"></param>
-        /// <param name="actionName"></param>
-        /// <returns>此node已存在</returns>
-        public bool AddRouteNode(Node node, ref StateGroup nodeStates, ref StateGroup preconditions,
-            ref StateGroup effects, Node parent, NativeString64 actionName)
-        {
-            node.Name = actionName;
-            //第一个route必须连到goal
-            if (Length() == 0)
-            {
-                Assert.AreEqual(_goalNode, parent,
-                    "First route must connect to goal");
-            }
-            
-            var existed = _nodeToParent.ContainsKey(node);
-            _nodeToParent.Add(node, new Edge(parent, node, actionName));
-            if(!existed){
-                for(var i=0; i<nodeStates.Length(); i++)
-                {
-                    var state = nodeStates[i];
-                    _nodeStates.Add(node, state);
-                }
-                
-                if(!preconditions.Equals(default(StateGroup)))
-                {
-                    for(var i=0; i<preconditions.Length(); i++)
-                    {
-                        var state = preconditions[i];
-                        _preconditions.Add(node, state);
-                    }
-                }
-
-                if (!effects.Equals(default(StateGroup)))
-                {
-                    for(var i=0; i<effects.Length(); i++)
-                    {
-                        var state = effects[i];
-                        _effects.Add(node, state);
-                    }
-                }
-            }
-            return existed;
-        }
-        
-        public bool AddRouteNode(Node node, ref State nodeState, ref StateGroup preconditions,
-            ref StateGroup effects, Node parent, NativeString64 actionName)
-        {
-            var stateGroup = new StateGroup(1, Allocator.Temp) {nodeState};
-            var existed = AddRouteNode(node, ref stateGroup, ref preconditions,
-                ref effects, parent, actionName);
-            stateGroup.Dispose();
-            return existed;
         }
 
         public Node this[int hashCode]
@@ -158,6 +102,43 @@ namespace DOTS.Struct
             nodes.AddRange(keys);
             keys.Dispose();
             return nodes;
+        }
+
+        /// <summary>
+        /// 查询一组node是否已存在于图中
+        /// </summary>
+        /// <param name="nodes"></param>
+        /// <param name="allocator"></param>
+        /// <returns></returns>
+        public NativeArray<bool> NodesExisted(ref NativeList<Node> nodes, Allocator allocator)
+        {
+            var result = new NativeArray<bool>(nodes.Length, allocator);
+            for (var i = 0; i < nodes.Length; i++)
+            {
+                result[i] = _nodeToParent.ContainsKey(nodes[i]);
+            }
+
+            return result;
+        }
+        
+        /// <summary>
+        /// 读取指定node组的所有state
+        /// </summary>
+        /// <param name="nodes"></param>
+        /// <param name="allocator"></param>
+        public NativeMultiHashMap<Node, State> GetNodeStates(ref NativeList<Node> nodes, Allocator allocator)
+        {
+            var results = new NativeMultiHashMap<Node, State>(nodes.Length*6, allocator);
+            for (var i = 0; i < nodes.Length; i++)
+            {
+                var states = _nodeStates.GetValuesForKey(nodes[i]);
+                while (states.MoveNext())
+                {
+                    results.Add(nodes[i], states.Current);
+                }
+            }
+
+            return results;
         }
 
         /// <summary>
