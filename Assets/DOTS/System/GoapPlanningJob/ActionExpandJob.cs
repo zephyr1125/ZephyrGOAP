@@ -29,9 +29,8 @@ namespace DOTS.System.GoapPlanningJob
         private NativeMultiHashMap<Node, State>.ParallelWriter _nodeStateWriter;
         private NativeMultiHashMap<Node, State>.ParallelWriter _preconditionWriter;
         private NativeMultiHashMap<Node, State>.ParallelWriter _effectWriter;
-
-        [NativeDisableParallelForRestriction]
-        private NativeList<Node> _newlyExpandedNodes;
+        
+        private NativeQueue<Node>.ParallelWriter _newlyExpandedNodesWriter;
 
         private readonly int _iteration;
 
@@ -44,7 +43,7 @@ namespace DOTS.System.GoapPlanningJob
             NativeMultiHashMap<Node, State>.ParallelWriter nodeStateWriter, 
             NativeMultiHashMap<Node, State>.ParallelWriter preconditionWriter, 
             NativeMultiHashMap<Node, State>.ParallelWriter effectWriter,
-            ref NativeList<Node> newlyExpandedNodes, int iteration, T action)
+            ref NativeQueue<Node>.ParallelWriter newlyExpandedNodesWriter, int iteration, T action)
         {
             _unexpandedNodes = unexpandedNodes;
             _existedNodesHash = existedNodesHash;
@@ -54,7 +53,7 @@ namespace DOTS.System.GoapPlanningJob
             _nodeStateWriter = nodeStateWriter;
             _preconditionWriter = preconditionWriter;
             _effectWriter = effectWriter;
-            _newlyExpandedNodes = newlyExpandedNodes;
+            _newlyExpandedNodesWriter = newlyExpandedNodesWriter;
             _iteration = iteration;
             _action = action;
         }
@@ -98,7 +97,7 @@ namespace DOTS.System.GoapPlanningJob
                         AddRouteNode(node, nodeExisted, ref newStates, _nodeToParentWriter,
                             _nodeStateWriter, _preconditionWriter, _effectWriter,
                             ref preconditions, ref effects, unexpandedNode, _action.GetName());
-                        _newlyExpandedNodes.Add(node);
+                        _newlyExpandedNodesWriter.Enqueue(node);
 
                         newStates.Dispose();
                     }

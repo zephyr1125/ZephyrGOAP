@@ -3,6 +3,7 @@ using DOTS.Component;
 using DOTS.Component.AgentState;
 using DOTS.Game.ComponentData;
 using DOTS.Struct;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -34,6 +35,7 @@ namespace DOTS.System.ActionExecuteSystem
         /// <summary>
         /// 启动时给agent赋予Wander组件
         /// </summary>
+        [BurstCompile]
         [RequireComponentTag(typeof(WanderAction), typeof(ReadyToActing))]
         private struct ActionExecuteJob : IJobForEachWithEntity_EBBC<Node, State, Agent>
         {
@@ -58,6 +60,7 @@ namespace DOTS.System.ActionExecuteSystem
         /// <summary>
         /// 监视执行完毕后，向上通知
         /// </summary>
+        [BurstCompile]
         [RequireComponentTag(typeof(WanderAction), typeof(Acting))]
         [ExcludeComponent(typeof(ReadyToActing), typeof(Wander))]
         private struct ActionDoneJob : IJobForEachWithEntity_EBBC<Node, State, Agent>

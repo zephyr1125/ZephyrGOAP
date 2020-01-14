@@ -4,6 +4,7 @@ using DOTS.Component.AgentState;
 using DOTS.Component.Trait;
 using DOTS.Game.ComponentData;
 using DOTS.Struct;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -25,6 +26,7 @@ namespace DOTS.System.ActionExecuteSystem
             ECBSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
         }
 
+        [BurstCompile]
         [RequireComponentTag(typeof(CookAction), typeof(ReadyToActing))]
         public struct ActionExecuteJob : IJobForEachWithEntity_EBBBC<Node, State,
             ContainedItemRef, Agent>

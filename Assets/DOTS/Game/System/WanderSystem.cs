@@ -1,5 +1,6 @@
 using System;
 using DOTS.Game.ComponentData;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -28,6 +29,7 @@ namespace DOTS.Game.System
             _random = new Random((uint) DateTime.Now.Millisecond);
         }
 
+        [BurstCompile]
         [ExcludeComponent(typeof(Wandering))]
         private struct WanderStartJob : IJobForEachWithEntity<Wander, Translation>
         {
@@ -55,6 +57,7 @@ namespace DOTS.Game.System
         /// 有Wandering而没有TargetPosition的entity表示走完了一段路程
         /// 如果还未到时，需要继续规划下一段，否则结束Wander
         /// </summary>
+        [BurstCompile]
         [ExcludeComponent(typeof(TargetPosition))]
         private struct MoveDoneJob: IJobForEachWithEntity<Wander, Wandering, Translation>
         {
@@ -91,7 +94,6 @@ namespace DOTS.Game.System
             var direction2 = randomDirections[jobId];
             var direction3 = new float3(direction2.x, 0, direction2.y);    //只在水平面上的随机
             var distance = randomDistances[jobId];
-            Debug.Log(direction2+", "+distance);
 
             ecBuffer.AddComponent(index, entity, new TargetPosition
             {

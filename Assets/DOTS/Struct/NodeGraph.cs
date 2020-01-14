@@ -27,9 +27,9 @@ namespace DOTS.Struct
         public NodeGraph(int initialCapacity, Allocator allocator)
         {
             _nodeToParent = new NativeMultiHashMap<Node, Edge>(initialCapacity, allocator);
-            _nodeStates = new NativeMultiHashMap<Node, State>(initialCapacity, allocator);
-            _preconditions = new NativeMultiHashMap<Node, State>(initialCapacity, allocator);
-            _effects = new NativeMultiHashMap<Node, State>(initialCapacity, allocator);
+            _nodeStates = new NativeMultiHashMap<Node, State>(initialCapacity*4, allocator);
+            _preconditions = new NativeMultiHashMap<Node, State>(initialCapacity*3, allocator);
+            _effects = new NativeMultiHashMap<Node, State>(initialCapacity*3, allocator);
             _goalNode = default;
             _startNode = new Node(){Name = new NativeString64("start")};
         }
