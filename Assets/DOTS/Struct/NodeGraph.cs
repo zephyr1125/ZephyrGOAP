@@ -120,6 +120,18 @@ namespace DOTS.Struct
 
             return result;
         }
+
+        public NativeArray<int> GetAllNodesHash(Allocator allocator)
+        {
+            var nodes = _nodeToParent.GetKeyArray(Allocator.Temp);
+            var result = new NativeArray<int>(nodes.Length, allocator);
+            for (var i = 0; i < nodes.Length; i++)
+            {
+                result[i] = nodes[i].HashCode;
+            }
+            nodes.Dispose();
+            return result;
+        }
         
         /// <summary>
         /// 读取指定node组的所有state

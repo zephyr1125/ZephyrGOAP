@@ -20,10 +20,10 @@ namespace DOTS.System.GoapPlanningJob
         private NativeMultiHashMap<Node, State> _nodeStates;
         
         /// <summary>
-        /// 与unexpandedNodes并齐，表示其是否已在graph中存在
+        /// NodeGraph中现存所有Node的hash
         /// </summary>
         [ReadOnly]
-        private NativeArray<bool> _nodesExisted;
+        private NativeArray<int> _existedNodesHash;
         
         private NativeMultiHashMap<Node, Edge>.ParallelWriter _nodeToParentWriter;
         private NativeMultiHashMap<Node, State>.ParallelWriter _nodeStateWriter;
@@ -38,7 +38,7 @@ namespace DOTS.System.GoapPlanningJob
         private T _action;
 
         public ActionExpandJob(ref NativeList<Node> unexpandedNodes, 
-            ref NativeArray<bool> nodesExisted, ref StackData stackData,
+            ref NativeArray<int> existedNodesHash, ref StackData stackData,
             ref NativeMultiHashMap<Node, State> nodeStates,
             NativeMultiHashMap<Node, Edge>.ParallelWriter nodeToParentWriter, 
             NativeMultiHashMap<Node, State>.ParallelWriter nodeStateWriter, 
@@ -47,7 +47,7 @@ namespace DOTS.System.GoapPlanningJob
             ref NativeList<Node> newlyExpandedNodes, int iteration, T action)
         {
             _unexpandedNodes = unexpandedNodes;
-            _nodesExisted = nodesExisted;
+            _existedNodesHash = existedNodesHash;
             _stackData = stackData;
             _nodeStates = nodeStates;
             _nodeToParentWriter = nodeToParentWriter;
@@ -62,7 +62,6 @@ namespace DOTS.System.GoapPlanningJob
         public void Execute(int jobIndex)
         {
             var unexpandedNode = _unexpandedNodes[jobIndex];
-            var nodeExisted = _nodesExisted[jobIndex];
             var targetStates = new StateGroup(3, _nodeStates.GetValuesForKey(unexpandedNode), Allocator.Temp);
             var targetState = _action.GetTargetGoalState(ref targetStates, ref _stackData);
 
@@ -92,6 +91,8 @@ namespace DOTS.System.GoapPlanningJob
 
                         var node = new Node(ref newStates, _action.GetName(), reward, _iteration,
                             _action.GetNavigatingSubject(ref targetState, ref setting, ref _stackData, ref preconditions));
+                        
+                        var nodeExisted = _existedNodesHash.Contains(node.HashCode);
 
                         //NodeGraph的几个容器都移去了并行限制，小心出错
                         AddRouteNode(node, nodeExisted, ref newStates, _nodeToParentWriter,
@@ -131,7 +132,7 @@ namespace DOTS.System.GoapPlanningJob
         }
         
         /// <summary>
-        /// <param name="node"></param>
+        /// <param name="newNode"></param>
         /// <param name="nodeStates"></param>
         /// <param name="effectWriter"></param>
         /// <param name="preconditions"></param>
@@ -143,7 +144,7 @@ namespace DOTS.System.GoapPlanningJob
         /// <param name="preconditionWriter"></param>
         /// <returns>此node已存在</returns>
         /// </summary>
-        private void AddRouteNode(Node node, bool nodeExisted, ref StateGroup nodeStates,
+        private void AddRouteNode(Node newNode, bool nodeExisted, ref StateGroup nodeStates,
             NativeMultiHashMap<Node, Edge>.ParallelWriter nodeToParentWriter,
             NativeMultiHashMap<Node, State>.ParallelWriter nodeStateWriter, 
             NativeMultiHashMap<Node, State>.ParallelWriter preconditionWriter, 
@@ -151,14 +152,13 @@ namespace DOTS.System.GoapPlanningJob
             ref StateGroup preconditions, ref StateGroup effects,
             Node parent, NativeString64 actionName)
         {
-            node.Name = actionName;
-            
-            nodeToParentWriter.Add(node, new Edge(parent, node, actionName));
+            nodeToParentWriter.Add(newNode, new Edge(parent, newNode, actionName));
             if(!nodeExisted){
+                newNode.Name = actionName;
                 for(var i=0; i<nodeStates.Length(); i++)
                 {
                     var state = nodeStates[i];
-                    nodeStateWriter.Add(node, state);
+                    nodeStateWriter.Add(newNode, state);
                 }
                 
                 if(!preconditions.Equals(default(StateGroup)))
@@ -166,7 +166,7 @@ namespace DOTS.System.GoapPlanningJob
                     for(var i=0; i<preconditions.Length(); i++)
                     {
                         var state = preconditions[i];
-                        preconditionWriter.Add(node, state);
+                        preconditionWriter.Add(newNode, state);
                     }
                 }
 
@@ -175,13 +175,13 @@ namespace DOTS.System.GoapPlanningJob
                     for(var i=0; i<effects.Length(); i++)
                     {
                         var state = effects[i];
-                        effectWriter.Add(node, state);
+                        effectWriter.Add(newNode, state);
                     }
                 }
             }
         }
 
-        private void AddRouteNode(Node node, bool nodeExisted, ref State nodeState,
+        private void AddRouteNode(Node newNode, bool nodeExisted, ref State nodeState,
             NativeMultiHashMap<Node, Edge>.ParallelWriter nodeToParentWriter,
             NativeMultiHashMap<Node, State>.ParallelWriter nodeStateWriter, 
             NativeMultiHashMap<Node, State>.ParallelWriter preconditionWriter, 
@@ -190,7 +190,7 @@ namespace DOTS.System.GoapPlanningJob
             Node parent, NativeString64 actionName)
         {
             var stateGroup = new StateGroup(1, Allocator.Temp) {nodeState};
-            AddRouteNode(node, nodeExisted, ref stateGroup,
+            AddRouteNode(newNode, nodeExisted, ref stateGroup,
                 nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
                 ref preconditions, ref effects, parent, actionName);
             stateGroup.Dispose();
