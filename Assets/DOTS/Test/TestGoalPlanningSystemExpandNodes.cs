@@ -32,11 +32,12 @@ namespace DOTS.Test
             
             EntityManager.AddComponentData(_agentEntity, new DropItemAction());
             
+            
             _uncheckedNodes = new NativeList<Node>(Allocator.Persistent);
             _unexpandedNodes = new NativeList<Node>(Allocator.Persistent);
             _expandedNodes = new NativeList<Node>(Allocator.Persistent);
             
-            _nodeGraph = new NodeGraph(1, Allocator.Persistent);
+            _nodeGraph = new NodeGraph(256, Allocator.Persistent);
             _currentStates = new StateGroup(1, Allocator.Persistent);
             
             var goalStates = new StateGroup(1, Allocator.Temp){new State

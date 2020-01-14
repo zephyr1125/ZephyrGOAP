@@ -152,9 +152,9 @@ namespace DOTS.System.GoapPlanningJob
             ref StateGroup preconditions, ref StateGroup effects,
             Node parent, NativeString64 actionName)
         {
+            newNode.Name = actionName;
             nodeToParentWriter.Add(newNode, new Edge(parent, newNode, actionName));
             if(!nodeExisted){
-                newNode.Name = actionName;
                 for(var i=0; i<nodeStates.Length(); i++)
                 {
                     var state = nodeStates[i];
