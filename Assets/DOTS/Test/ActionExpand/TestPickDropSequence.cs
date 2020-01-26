@@ -21,6 +21,7 @@ namespace DOTS.Test.ActionExpand
 
         private GoalPlanningSystem _system;
         private Entity _itemSourceEntity, _targetContainerEntity, _agentEntity;
+        private ItemSourceSensorSystem _sensor;
 
         private TestGoapDebugger _debugger;
 
@@ -62,9 +63,9 @@ namespace DOTS.Test.ActionExpand
             
             World.GetOrCreateSystem<CurrentStatesHelper>().Update();
             //SensorGroup喂入CurrentStates数据
-            var sensor = World.GetOrCreateSystem<ItemSourceSensorSystem>();
-            sensor.Update();
-            sensor.ECBufferSystem.Update();
+            _sensor = World.GetOrCreateSystem<ItemSourceSensorSystem>();
+            _sensor.Update();
+            _sensor.ECBufferSystem.Update();
         }
 
         [TearDown]
@@ -206,6 +207,19 @@ namespace DOTS.Test.ActionExpand
             
             buffer = EntityManager.GetBuffer<Node>(_agentEntity);
             Assert.AreEqual(1, buffer.Length);
+        }
+
+        [Test]
+        public void NoItemInWorld_Fail()
+        {
+            var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
+            buffer.Clear();
+            
+            _system.Update();
+            EntityManager.CompleteAllJobs();
+            
+            var pathResult = _debugger.PathResult;
+            Debug.Log(pathResult);
         }
     }
 }

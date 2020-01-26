@@ -30,7 +30,7 @@ namespace DOTS.System.GoapPlanningJob
         private NativeMultiHashMap<Node, State>.ParallelWriter _preconditionWriter;
         private NativeMultiHashMap<Node, State>.ParallelWriter _effectWriter;
         
-        private NativeQueue<Node>.ParallelWriter _newlyExpandedNodesWriter;
+        private NativeQueue<Node>.ParallelWriter _newlyCreatedNodesWriter;
 
         private readonly int _iteration;
 
@@ -43,7 +43,7 @@ namespace DOTS.System.GoapPlanningJob
             NativeMultiHashMap<Node, State>.ParallelWriter nodeStateWriter, 
             NativeMultiHashMap<Node, State>.ParallelWriter preconditionWriter, 
             NativeMultiHashMap<Node, State>.ParallelWriter effectWriter,
-            ref NativeQueue<Node>.ParallelWriter newlyExpandedNodesWriter, int iteration, T action)
+            ref NativeQueue<Node>.ParallelWriter newlyCreatedNodesWriter, int iteration, T action)
         {
             _unexpandedNodes = unexpandedNodes;
             _existedNodesHash = existedNodesHash;
@@ -53,7 +53,7 @@ namespace DOTS.System.GoapPlanningJob
             _nodeStateWriter = nodeStateWriter;
             _preconditionWriter = preconditionWriter;
             _effectWriter = effectWriter;
-            _newlyExpandedNodesWriter = newlyExpandedNodesWriter;
+            _newlyCreatedNodesWriter = newlyCreatedNodesWriter;
             _iteration = iteration;
             _action = action;
         }
@@ -97,7 +97,7 @@ namespace DOTS.System.GoapPlanningJob
                         AddRouteNode(node, nodeExisted, ref newStates, _nodeToParentWriter,
                             _nodeStateWriter, _preconditionWriter, _effectWriter,
                             ref preconditions, ref effects, unexpandedNode, _action.GetName());
-                        _newlyExpandedNodesWriter.Enqueue(node);
+                        _newlyCreatedNodesWriter.Enqueue(node);
 
                         newStates.Dispose();
                     }
@@ -178,21 +178,6 @@ namespace DOTS.System.GoapPlanningJob
                     }
                 }
             }
-        }
-
-        private void AddRouteNode(Node newNode, bool nodeExisted, ref State nodeState,
-            NativeMultiHashMap<Node, Edge>.ParallelWriter nodeToParentWriter,
-            NativeMultiHashMap<Node, State>.ParallelWriter nodeStateWriter, 
-            NativeMultiHashMap<Node, State>.ParallelWriter preconditionWriter, 
-            NativeMultiHashMap<Node, State>.ParallelWriter effectWriter,
-            ref StateGroup preconditions, ref StateGroup effects,
-            Node parent, NativeString64 actionName)
-        {
-            var stateGroup = new StateGroup(1, Allocator.Temp) {nodeState};
-            AddRouteNode(newNode, nodeExisted, ref stateGroup,
-                nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
-                ref preconditions, ref effects, parent, actionName);
-            stateGroup.Dispose();
         }
     }
 }

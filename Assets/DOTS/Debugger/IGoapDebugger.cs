@@ -16,6 +16,8 @@ namespace DOTS.Debugger
 
         void SetPathResult(ref NativeList<Node> pathResult);
 
+        void LogDone();
+
         void Log(string log);
     }
 }

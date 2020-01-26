@@ -233,6 +233,21 @@ namespace DOTS.Struct
         {
             return _goalNode;
         }
+
+        public void RemoveEdge(Node child, Node parent)
+        {
+            var found = _nodeToParent.TryGetFirstValue(child, out var edge, out var it);
+            while (found)
+            {
+                if (edge.Parent.Equals(parent))
+                {
+                    _nodeToParent.Remove(it);
+                    return;
+                }
+
+                found = _nodeToParent.TryGetNextValue(out edge, ref it);
+            }
+        }
         
         public void Dispose()
         {

@@ -7,7 +7,6 @@ using DOTS.System.GoapPlanningJob;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-using UnityEngine;
 
 namespace DOTS.System
 {
@@ -138,6 +137,7 @@ namespace DOTS.System
                 expandedNodes.Dispose();
                 nodeGraph.Dispose();
                 
+                Debugger?.LogDone();
             }
 
             agentEntities.Dispose();
@@ -224,8 +224,24 @@ namespace DOTS.System
                 }
                 else
                 {
-                    Debugger?.Log("add to expand: "+uncheckedNode.Name);
-                    unexpandedNodes.Add(uncheckedNode);
+                    //检查uncheckedNodes的parent是否已经存在于其children之中
+                    //如果出现这种情况说明产生了循环，移去新得到的edge
+                    //并且不不把此uncheckedNode加入待展开列表
+                    var loop = false;
+                    var children = nodeGraph.GetChildren(uncheckedNode);
+                    if (children.Count > 0)
+                    {
+                        var edges = nodeGraph.GetEdgeToParents(uncheckedNode);
+                        while (edges.MoveNext())
+                        {
+                            if (!children.Contains(edges.Current.Parent)) continue;
+                            loop = true;
+                            nodeGraph.RemoveEdge(uncheckedNode, edges.Current.Parent);
+                            break;
+                        }
+                    }
+                    
+                    if(!loop)unexpandedNodes.Add(uncheckedNode);
                 }
 
                 uncheckedStates.Dispose();
@@ -239,12 +255,14 @@ namespace DOTS.System
             ref NodeGraph nodeGraph, ref NativeList<Node> uncheckedNodes, ref NativeList<Node> expandedNodes,
             int iteration)
         {
+            if (unexpandedNodes.Length <= 0) return;
+            
             foreach (var node in unexpandedNodes)
             {
                 Debugger?.Log("expanding node: "+node.Name+", "+node.GetHashCode());
             }
-            var newlyExpandedNodes = new NativeQueue<Node>(Allocator.TempJob);
-            var newlyExpandedNodesWriter = newlyExpandedNodes.AsParallelWriter();
+            var newlyCreatedNodes = new NativeQueue<Node>(Allocator.TempJob);
+            var newlyCreatedNodesWriter = newlyCreatedNodes.AsParallelWriter();
 
             var existedNodesHash = nodeGraph.GetAllNodesHash(Allocator.TempJob);
             var nodeStates = nodeGraph.GetNodeStates(ref unexpandedNodes, Allocator.TempJob);
@@ -258,23 +276,23 @@ namespace DOTS.System
             handle = ScheduleActionExpand<DropItemAction>(handle, entityManager, ref stackData,
                 ref unexpandedNodes, ref existedNodesHash, ref nodeStates,
                 nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
-                ref newlyExpandedNodesWriter, iteration);
+                ref newlyCreatedNodesWriter, iteration);
             handle = ScheduleActionExpand<PickItemAction>(handle, entityManager, ref stackData,
                 ref unexpandedNodes, ref existedNodesHash, ref nodeStates,
                 nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
-                ref newlyExpandedNodesWriter, iteration);
+                ref newlyCreatedNodesWriter, iteration);
             handle = ScheduleActionExpand<EatAction>(handle, entityManager, ref stackData,
                 ref unexpandedNodes, ref existedNodesHash, ref nodeStates,
                 nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
-                ref newlyExpandedNodesWriter, iteration);
+                ref newlyCreatedNodesWriter, iteration);
             handle = ScheduleActionExpand<CookAction>(handle, entityManager, ref stackData,
                 ref unexpandedNodes, ref existedNodesHash, ref nodeStates,
                 nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
-                ref newlyExpandedNodesWriter, iteration);
+                ref newlyCreatedNodesWriter, iteration);
             handle = ScheduleActionExpand<WanderAction>(handle, entityManager, ref stackData,
                 ref unexpandedNodes, ref existedNodesHash,  ref nodeStates,
                 nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
-                ref newlyExpandedNodesWriter, iteration);
+                ref newlyCreatedNodesWriter, iteration);
             
             handle.Complete();
             existedNodesHash.Dispose();
@@ -282,13 +300,12 @@ namespace DOTS.System
             
             expandedNodes.AddRange(unexpandedNodes);
             unexpandedNodes.Clear();
-            while (newlyExpandedNodes.Count>0)
+            while (newlyCreatedNodes.Count>0)
             {
-                var node = newlyExpandedNodes.Dequeue();
-                Debugger?.Log("create new node: "+node.Name+", "+node.GetHashCode());
+                var node = newlyCreatedNodes.Dequeue();
                 uncheckedNodes.Add(node);
             }
-            newlyExpandedNodes.Dispose();
+            newlyCreatedNodes.Dispose();
         }
         
         private JobHandle ScheduleActionExpand<T>(JobHandle dependHandle, EntityManager entityManager,
@@ -298,14 +315,14 @@ namespace DOTS.System
             NativeMultiHashMap<Node, State>.ParallelWriter nodeStateWriter, 
             NativeMultiHashMap<Node, State>.ParallelWriter preconditionWriter, 
             NativeMultiHashMap<Node, State>.ParallelWriter effectWriter,
-            ref NativeQueue<Node>.ParallelWriter newlyExpandedNodesWriter, int iteration) where T : struct, IAction
+            ref NativeQueue<Node>.ParallelWriter newlyCreatedNodesWriter, int iteration) where T : struct, IAction
         {
             if (entityManager.HasComponent<T>(stackData.AgentEntity))
             {
                 dependHandle = new ActionExpandJob<T>(ref unexpandedNodes, ref existedNodesHash,
                     ref stackData, ref nodeStates,
                     nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
-                    ref newlyExpandedNodesWriter, iteration, new T()).Schedule(
+                    ref newlyCreatedNodesWriter, iteration, new T()).Schedule(
                     unexpandedNodes, 0, dependHandle);
             }
 

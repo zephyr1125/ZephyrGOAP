@@ -25,5 +25,9 @@ namespace DOTS.Debugger
         {
             
         }
+
+        public void LogDone()
+        {
+        }
     }
 }
