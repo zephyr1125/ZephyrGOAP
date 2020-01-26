@@ -9,8 +9,6 @@ namespace DOTS.System.SensorSystem
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     [UpdateAfter(typeof(SensorSystemGroup))]
     [UpdateBefore(typeof(GoalPlanningSystem))]
-    [DisableAutoCreation]
-    // [ExecuteAlways]
     public class SensorsSetCurrentStatesECBufferSystem : EntityCommandBufferSystem
     {
         
