@@ -2,7 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Net;
 using DOTS.Logger;
+using DOTS.System;
+using Unity.Entities;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -18,11 +21,13 @@ namespace DOTS.Editor
         }
         
         private static GoapLog _log;
+        private int _resultCount;
         private int _currentResult;
 
         private VisualTreeAsset _nodeVisualTree;
         private VisualElement _nodeContainer;
         private VisualElement _statesTip;
+        private Button _editorLoggingButton;
 
         private static int NodeWidth = 320;
         private static int NodeHeight = 80;
@@ -34,6 +39,10 @@ namespace DOTS.Editor
         private Vector2 _mouseDragStartPos;
         private bool _mouseMidButtonDown;
 
+        private bool _editorLogging;
+
+        private EditorGoapDebugger _editorDebugger;
+
         private void OnEnable()
         {
             Init();
@@ -42,6 +51,8 @@ namespace DOTS.Editor
         private void Init()
         {
             titleContent.text = "Goap Logs";
+            _editorDebugger = new EditorGoapDebugger(OnEditorLogDone);
+            _currentResult = 0;
             
             var windowVisualTree =
                 AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
@@ -61,13 +72,26 @@ namespace DOTS.Editor
                 });
             rootVisualElement.Q<Button>("reset-button").RegisterCallback<MouseUpEvent>(
                 evt => Reset());
-            rootVisualElement.AddManipulator(this);
+            _editorLoggingButton = rootVisualElement.Q<Button>("editor-button");
+            _editorLoggingButton.RegisterCallback<MouseUpEvent>(
+                evt => SetEditorLogging());
+            rootVisualElement.Q<Button>("prev-button").RegisterCallback<MouseUpEvent>(
+                evt => PrevResult());
+            rootVisualElement.Q<Button>("next-button").RegisterCallback<MouseUpEvent>(
+                evt => NextResult());
             
+            rootVisualElement.AddManipulator(this);
             target.RegisterCallback<MouseDownEvent>(OnMouseDownEvent);
             target.RegisterCallback<MouseMoveEvent>(OnMouseMoveEvent);
+            target.RegisterCallback<WheelEvent>(OnMouseWheelEvent);
             target.RegisterCallback<MouseUpEvent>(OnMouseUpEvent);
+            target.RegisterCallback<KeyDownEvent>(OnKeyDownEvent);
+            
+            _nodeContainer = rootVisualElement.Q("node-container");
             
             _canvasPos = Vector2.zero;
+
+            _editorLogging = false;
             
             //鼠标提示
             var statesVT =
@@ -76,12 +100,33 @@ namespace DOTS.Editor
             statesVT.CloneTree(rootVisualElement.Q("main-frame"));
             _statesTip = rootVisualElement.Q("states");
             _statesTip.style.top = -50;
+
+            EditorApplication.playModeStateChanged += OnPlayModeChange;
         }
         
         private void Reset()
         {
-            rootVisualElement.Clear();
-            Init();
+            _nodeContainer.Clear();
+        }
+
+        private void SetEditorLogging()
+        {
+            _editorLogging = !_editorLogging;
+            _editorLoggingButton.text = "Editor|" + (_editorLogging ? "ON" : "OFF");
+        }
+
+        private void OnPlayModeChange(PlayModeStateChange state)
+        {
+            switch (state)
+            {
+                case PlayModeStateChange.EnteredPlayMode:
+                    if (!_editorLogging) return;
+                    _currentResult = 0;
+                    Reset();
+                    World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<GoalPlanningSystem>()
+                        .Debugger = _editorDebugger;
+                    break;
+            }
         }
 
         private bool LoadLogFile()
@@ -103,6 +148,9 @@ namespace DOTS.Editor
         {
             if (_log == null) return;
 
+            _resultCount = _log.results.Count;
+            rootVisualElement.Q<Label>("page").text = $"{_currentResult+1}/{_resultCount}";
+
             var result = _log.results[_currentResult];
             rootVisualElement.Q<Label>("agent-name").text = 
                 $"[{result.Agent}] {result.TimeCost}ms at ({result.TimeStart})";
@@ -111,8 +159,6 @@ namespace DOTS.Editor
         private void ConstructGraph()
         {
             if (_log == null) return;
-
-            _nodeContainer = rootVisualElement.Q("node-container");
             var nodeCounts = new List<int>();    //记录每一层的Node数量以便向下排列
 
             var goalNode = _log.results[_currentResult].GoalNodeView;
@@ -208,6 +254,18 @@ namespace DOTS.Editor
                 _nodeContainer.style.top = _canvasPos.y;
             }
         }
+        
+        private void OnMouseWheelEvent(WheelEvent evt)
+        {
+            if (evt.delta.y > 0)
+            {
+                NextResult();
+            }
+            else
+            {
+                PrevResult();
+            }
+        }
 
         private void OnMouseUpEvent(MouseEventBase<MouseUpEvent> evt)
         {
@@ -219,6 +277,49 @@ namespace DOTS.Editor
                     _mouseMidButtonDown = false;
                     break;
             }
+        }
+
+        private void OnKeyDownEvent(KeyDownEvent evt)
+        {
+            Debug.Log(evt.keyCode);
+            switch (evt.keyCode)
+            {
+                case KeyCode.RightArrow:
+                    NextResult();
+                    break;
+                case KeyCode.LeftArrow:
+                    PrevResult();
+                    break;
+            }
+        }
+
+        private void OnEditorLogDone(GoapLog log)
+        {
+            if (!_editorLogging) return;
+            _log = log;
+            Reset();
+            ConstructInfo();
+            ConstructGraph();
+        }
+
+        private void PrevResult()
+        {
+            if (_currentResult <= 0) return;
+            
+            _currentResult--;
+            Reset();
+            ConstructInfo();
+            ConstructGraph();
+        }
+
+        private void NextResult()
+        {
+            if (_currentResult >= _resultCount - 1) return;
+            
+            _currentResult++;
+            Reset();
+            ConstructInfo();
+            ConstructGraph();
         }
     }
 }
