@@ -15,6 +15,8 @@ namespace DOTS.Logger
 
         public NodeView GoalNodeView;
 
+        public List<StateView> CurrentStates;
+
         public string TimeStart;
         
         public string TimeCost;
@@ -37,6 +39,15 @@ namespace DOTS.Logger
         {
             GoalNodeView.SetPath(ref pathResult);
             TimeCost = (DateTime.Now - _timeStart).TotalMilliseconds.ToString(CultureInfo.InvariantCulture);
+        }
+
+        public void SetCurrentStates(ref StateGroup currentStates, EntityManager entityManager)
+        {
+            if (CurrentStates == null) CurrentStates = new List<StateView>(currentStates.Length());
+            foreach (var currentState in currentStates)
+            {
+                CurrentStates.Add(new StateView(entityManager, currentState));
+            }
         }
 
         public NodeView[] GetPathResult()

@@ -74,6 +74,7 @@ namespace DOTS.System
             foreach (var agentEntity in agentEntities)
             {
                 Debugger?.StartLog(EntityManager, agentEntity);
+                Debugger?.SetCurrentStates(ref stackData.CurrentStates, EntityManager);
                 
                 var foundPlan = false;
                 var goalStatesBuffer = EntityManager.GetBuffer<State>(agentEntity);

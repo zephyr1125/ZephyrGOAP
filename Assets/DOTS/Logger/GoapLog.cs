@@ -41,6 +41,11 @@ namespace DOTS.Logger
             _currentLog.SetPathResult(ref pathResult);
         }
 
+        public void SetCurrentStates(ref StateGroup currentStates, EntityManager entityManager)
+        {
+            _currentLog.SetCurrentStates(ref currentStates, entityManager);
+        }
+
         public NodeView GetGoalNodeView()
         {
             return _currentLog.GoalNodeView;

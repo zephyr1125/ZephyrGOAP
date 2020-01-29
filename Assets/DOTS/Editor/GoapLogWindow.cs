@@ -28,6 +28,7 @@ namespace DOTS.Editor
         private VisualElement _nodeContainer;
         private VisualElement _statesTip;
         private Button _editorLoggingButton;
+        private VisualElement _currentStatesContainer;
 
         private static int NodeWidth = 320;
         private static int NodeHeight = 80;
@@ -51,6 +52,8 @@ namespace DOTS.Editor
         private void Init()
         {
             titleContent.text = "Goap Logs";
+            rootVisualElement.Clear();
+            
             _editorDebugger = new EditorGoapDebugger(OnEditorLogDone);
             _currentResult = 0;
             
@@ -71,7 +74,11 @@ namespace DOTS.Editor
                     ConstructGraph();
                 });
             rootVisualElement.Q<Button>("reset-button").RegisterCallback<MouseUpEvent>(
-                evt => Reset());
+                evt =>
+                {
+                    Reset();
+                    Init();
+                });
             _editorLoggingButton = rootVisualElement.Q<Button>("editor-button");
             _editorLoggingButton.RegisterCallback<MouseUpEvent>(
                 evt => SetEditorLogging());
@@ -79,6 +86,7 @@ namespace DOTS.Editor
                 evt => PrevResult());
             rootVisualElement.Q<Button>("next-button").RegisterCallback<MouseUpEvent>(
                 evt => NextResult());
+            _currentStatesContainer = rootVisualElement.Q("current-states-container");
             
             rootVisualElement.AddManipulator(this);
             target.RegisterCallback<MouseDownEvent>(OnMouseDownEvent);
@@ -107,6 +115,7 @@ namespace DOTS.Editor
         private void Reset()
         {
             _nodeContainer.Clear();
+            _currentStatesContainer.Clear();
         }
 
         private void SetEditorLogging()
@@ -154,6 +163,12 @@ namespace DOTS.Editor
             var result = _log.results[_currentResult];
             rootVisualElement.Q<Label>("agent-name").text = 
                 $"[{result.Agent}] {result.TimeCost}ms at ({result.TimeStart})";
+            
+            _currentStatesContainer.Clear();
+            foreach (var states in _log.results[_currentResult].CurrentStates)
+            {
+                _currentStatesContainer.Add(new Label(states.ToString()));
+            }
         }
 
         private void ConstructGraph()

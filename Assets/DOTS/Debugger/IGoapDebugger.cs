@@ -16,6 +16,8 @@ namespace DOTS.Debugger
 
         void SetPathResult(ref NativeList<Node> pathResult);
 
+        void SetCurrentStates(ref StateGroup currentStates, EntityManager entityManager);
+
         void LogDone();
 
         void Log(string log);

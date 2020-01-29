@@ -33,6 +33,11 @@ namespace DOTS.Editor
         {
             _goapLog.SetPathResult(ref pathResult);
         }
+        
+        public void SetCurrentStates(ref StateGroup currentStates, EntityManager entityManager)
+        {
+            _goapLog.SetCurrentStates(ref currentStates, entityManager);
+        }
 
         public void Log(string log)
         {
