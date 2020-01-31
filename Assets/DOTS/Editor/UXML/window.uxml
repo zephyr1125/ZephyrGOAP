@@ -14,7 +14,7 @@
         </ui:VisualElement>
         <ui:VisualElement name="current-states" style="position: absolute; height: auto; width: 322px; top: auto; left: auto; right: 8px; bottom: 8px; flex-direction: column;">
             <ui:Label text="Current States" name="current-states-title" style="color: rgb(255, 255, 255); -unity-font-style: bold; background-color: rgb(70, 59, 152);" />
-            <ui:VisualElement name="current-states-container" style="background-color: rgba(160, 160, 160, 255);" />
+            <ui:VisualElement name="current-states-container" style="background-color: rgb(130, 130, 130); flex-grow: 1;" />
         </ui:VisualElement>
     </ui:VisualElement>
     <ui:VisualElement name="status_bar" style="align-items: stretch; justify-content: flex-start; bottom: auto; position: relative; height: auto; width: auto; background-color: rgb(96, 96, 96); margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; padding-left: 4px; padding-right: 4px; padding-top: 4px; padding-bottom: 4px; top: auto; left: auto; flex-grow: 0;">

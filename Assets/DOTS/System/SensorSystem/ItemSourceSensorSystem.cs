@@ -32,9 +32,9 @@ namespace DOTS.System.SensorSystem
             {
                 if (!container.IsTransferSource) return;
 
+                var buffer = ECBuffer.AddBuffer<State>(jobIndex, CurrentStatesEntity);
                 foreach (var itemRef in itemRefs)
                 {
-                    var buffer = ECBuffer.SetBuffer<State>(jobIndex, CurrentStatesEntity);
                     buffer.Add(new State
                     {
                         Target = entity,

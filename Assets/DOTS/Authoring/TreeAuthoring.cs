@@ -1,3 +1,4 @@
+using DOTS.Component.Trait;
 using DOTS.Game.ComponentData;
 using Sirenix.OdinInspector;
 using Unity.Entities;
@@ -5,6 +6,8 @@ using UnityEngine;
 
 namespace DOTS.Authoring
 {
+    [RequiresEntityConversion]
+    [ConverterVersion("Zephyr", 0)]
     public class TreeAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     {
         public string Name;
@@ -19,6 +22,7 @@ namespace DOTS.Authoring
             GameObjectConversionSystem conversionSystem)
         {
             dstManager.SetName(entity, Name);
+            dstManager.AddComponentData(entity, new ItemContainerTrait());
             dstManager.AddComponentData(entity, 
                 new ItemContainer{Capacity = 10, IsTransferSource = true});
             var buffer = dstManager.AddBuffer<ContainedItemRef>(entity);
