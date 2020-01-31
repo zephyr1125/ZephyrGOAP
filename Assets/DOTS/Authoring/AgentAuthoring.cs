@@ -1,6 +1,7 @@
 using DOTS.Action;
 using DOTS.Component;
 using DOTS.Component.AgentState;
+using DOTS.Component.Trait;
 using DOTS.Game.ComponentData;
 using DOTS.Struct;
 using Unity.Entities;
@@ -9,7 +10,7 @@ using UnityEngine;
 namespace DOTS.Authoring
 {
     [RequiresEntityConversion]
-    [ConverterVersion("Zephyr", 1)]
+    [ConverterVersion("Zephyr", 2)]
     public class AgentAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     {
         public string Name;
@@ -31,6 +32,11 @@ namespace DOTS.Authoring
             dstManager.AddComponentData(entity, new EatAction());
             dstManager.AddComponentData(entity, new CookAction());
             dstManager.AddComponentData(entity, new WanderAction());
+            
+            dstManager.AddComponentData(entity, new ItemContainerTrait());
+            dstManager.AddComponentData(entity, 
+                new ItemContainer{Capacity = 99, IsTransferSource = false});
+            var buffer = dstManager.AddBuffer<ContainedItemRef>(entity);
         }
     }
 }

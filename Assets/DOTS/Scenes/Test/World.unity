@@ -229,7 +229,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Name: Ace
   InitialStamina: 1
-  StaminaChangeSpeed: -0.1
+  StaminaChangeSpeed: -0.05
 --- !u!1 &987326974
 GameObject:
   m_ObjectHideFlags: 0

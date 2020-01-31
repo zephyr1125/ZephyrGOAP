@@ -43,16 +43,23 @@ namespace DOTS.Test.Execute
             bufferNodes.Add(new Node
             {
                 Name = new NativeString64(nameof(EatAction)),
-                PreconditionsBitmask = 1 << 0,
-                EffectsBitmask = 1 << 1,
+                PreconditionsBitmask = (1<<0) + (1<<1),
+                EffectsBitmask = 1 << 2,
             });
             var bufferStates = EntityManager.AddBuffer<State>(_agentEntity);
+            //preconditions
+            bufferStates.Add(new State
+            {
+                Trait = typeof(DiningTableTrait),
+            });
             bufferStates.Add(new State
             {
                 Target = _agentEntity,
                 Trait = typeof(ItemContainerTrait),
+                ValueTrait = typeof(FoodTrait),
                 ValueString = new NativeString64("food"),
             });
+            //effect
             bufferStates.Add(new State
             {
                 Target = _agentEntity,

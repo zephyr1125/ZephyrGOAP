@@ -20,15 +20,13 @@ namespace DOTS.System
         }
         
         [RequireComponentTag(typeof(Navigating), typeof(Node))]
-        private struct NavigatingEndJob : IJobForEachWithEntity<Agent, TargetPosition>
+        [ExcludeComponent(typeof(TargetPosition))]
+        private struct NavigatingEndJob : IJobForEachWithEntity<Agent>
         {
             public EntityCommandBuffer.Concurrent ECBuffer;
             
-            public void Execute(Entity entity, int jobIndex, ref Agent agent, ref TargetPosition targetPosition)
+            public void Execute(Entity entity, int jobIndex, ref Agent agent)
             {
-                //移动结束后会重置TargetPosition为0，在此之前都等待其结束
-                if(!targetPosition.Value.Equals(float3.zero)) return;
-                
                 //切换agent状态,可以进行Acting了
                 Utils.NextAgentState<Navigating, ReadyToActing>(entity, jobIndex,
                     ref ECBuffer, agent, false);
