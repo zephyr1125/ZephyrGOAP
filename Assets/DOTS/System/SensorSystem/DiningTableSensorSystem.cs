@@ -2,6 +2,7 @@ using DOTS.Component.Trait;
 using DOTS.Game.ComponentData;
 using DOTS.Struct;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
 
@@ -13,18 +14,17 @@ namespace DOTS.System.SensorSystem
     [UpdateInGroup(typeof(SensorSystemGroup))]
     public class DiningTableSensorSystem : JobComponentSystem
     {
-        public EntityCommandBufferSystem ECBufferSystem;
         private EntityQuery _diningTableQuery;
 
         protected override void OnCreate()
         {
             _diningTableQuery = GetEntityQuery(typeof(DiningTableTrait));
-            ECBufferSystem = World.GetOrCreateSystem<SensorsSetCurrentStatesECBufferSystem>();
         }
         
         private struct SenseJob : IJobParallelFor
         {
-            public EntityCommandBuffer.Concurrent ECBuffer;
+            [NativeDisableContainerSafetyRestriction, WriteOnly]
+            public BufferFromEntity<State> States;
 
             public Entity CurrentStatesEntity;
 
@@ -34,7 +34,7 @@ namespace DOTS.System.SensorSystem
             public void Execute(int index)
             {
                 //写入diningTable
-                var buffer = ECBuffer.AddBuffer<State>(index, CurrentStatesEntity);
+                var buffer = States[CurrentStatesEntity];
                 buffer.Add(new State
                 {
                     Target = Entities[index],
@@ -49,12 +49,11 @@ namespace DOTS.System.SensorSystem
             
             var job = new SenseJob
             {
-                ECBuffer = ECBufferSystem.CreateCommandBuffer().ToConcurrent(),
+                States = GetBufferFromEntity<State>(),
                 CurrentStatesEntity = CurrentStatesHelper.CurrentStatesEntity,
                 Entities = entities
             };
             var handle = job.Schedule(entities.Length, 32, inputDeps);
-            ECBufferSystem.AddJobHandleForProducer(handle);
             return handle;
         }
     }

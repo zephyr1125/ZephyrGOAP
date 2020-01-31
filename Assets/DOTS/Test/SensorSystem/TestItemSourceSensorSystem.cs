@@ -45,7 +45,6 @@ namespace DOTS.Test.SensorSystem
         public void SetItemSourceState()
         {
             _system.Update();
-            _system.ECBufferSystem.Update();
             EntityManager.CompleteAllJobs();
 
             var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);

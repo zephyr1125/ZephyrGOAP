@@ -1,6 +1,8 @@
 using DOTS.Component.Trait;
 using DOTS.Game.ComponentData;
 using DOTS.Struct;
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
 
@@ -13,17 +15,11 @@ namespace DOTS.System.SensorSystem
     [UpdateInGroup(typeof(SensorSystemGroup))]
     public class ItemSourceSensorSystem : JobComponentSystem
     {
-        public EntityCommandBufferSystem ECBufferSystem;
-
-        protected override void OnCreate()
-        {
-            ECBufferSystem = World.GetOrCreateSystem<SensorsSetCurrentStatesECBufferSystem>();
-        }
-
         [RequireComponentTag(typeof(ItemContainerTrait))]
         private struct SenseJob : IJobForEachWithEntity_EBC<ContainedItemRef, ItemContainer>
         {
-            public EntityCommandBuffer.Concurrent ECBuffer;
+            [NativeDisableContainerSafetyRestriction, WriteOnly]
+            public BufferFromEntity<State> States;
 
             public Entity CurrentStatesEntity;
             
@@ -32,7 +28,7 @@ namespace DOTS.System.SensorSystem
             {
                 if (!container.IsTransferSource) return;
 
-                var buffer = ECBuffer.AddBuffer<State>(jobIndex, CurrentStatesEntity);
+                var buffer = States[CurrentStatesEntity];
                 foreach (var itemRef in itemRefs)
                 {
                     buffer.Add(new State
@@ -49,11 +45,10 @@ namespace DOTS.System.SensorSystem
         {
             var job = new SenseJob
             {
-                ECBuffer = ECBufferSystem.CreateCommandBuffer().ToConcurrent(),
+                States = GetBufferFromEntity<State>(),
                 CurrentStatesEntity = CurrentStatesHelper.CurrentStatesEntity
             };
             var handle = job.Schedule(this, inputDeps);
-            ECBufferSystem.AddJobHandleForProducer(handle);
             return handle;
         }
     }

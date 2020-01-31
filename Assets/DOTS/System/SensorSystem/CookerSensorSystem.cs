@@ -1,6 +1,8 @@
 using DOTS.Component.Trait;
 using DOTS.Game.ComponentData;
 using DOTS.Struct;
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
 
@@ -12,24 +14,18 @@ namespace DOTS.System.SensorSystem
     [UpdateInGroup(typeof(SensorSystemGroup))]
     public class CookerSensorSystem : JobComponentSystem
     {
-        public EntityCommandBufferSystem ECBufferSystem;
-
-        protected override void OnCreate()
-        {
-            ECBufferSystem = World.GetOrCreateSystem<SensorsSetCurrentStatesECBufferSystem>();
-        }
-
         [RequireComponentTag(typeof(CookerTrait))]
         private struct SenseJob : IJobForEachWithEntity_EB<ContainedOutput>
         {
-            public EntityCommandBuffer.Concurrent ECBuffer;
+            [NativeDisableContainerSafetyRestriction, WriteOnly]
+            public BufferFromEntity<State> States;
 
             public Entity CurrentStatesEntity;
             
             public void Execute(Entity entity, int jobIndex, DynamicBuffer<ContainedOutput> recipes)
             {
                 //写入cooker
-                var buffer = ECBuffer.SetBuffer<State>(jobIndex, CurrentStatesEntity);
+                var buffer = States[CurrentStatesEntity];
                 buffer.Add(new State
                 {
                     Target = entity,
@@ -42,11 +38,10 @@ namespace DOTS.System.SensorSystem
         {
             var job = new SenseJob
             {
-                ECBuffer = ECBufferSystem.CreateCommandBuffer().ToConcurrent(),
+                States = GetBufferFromEntity<State>(),
                 CurrentStatesEntity = CurrentStatesHelper.CurrentStatesEntity
             };
             var handle = job.Schedule(this, inputDeps);
-            ECBufferSystem.AddJobHandleForProducer(handle);
             return handle;
         }
     }

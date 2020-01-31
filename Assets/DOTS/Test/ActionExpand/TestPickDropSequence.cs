@@ -65,7 +65,6 @@ namespace DOTS.Test.ActionExpand
             //SensorGroup喂入CurrentStates数据
             _sensor = World.GetOrCreateSystem<ItemSourceSensorSystem>();
             _sensor.Update();
-            _sensor.ECBufferSystem.Update();
         }
 
         [TearDown]
