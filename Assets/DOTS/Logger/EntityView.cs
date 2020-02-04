@@ -14,7 +14,9 @@ namespace DOTS.Logger
         {
             Index = entity.Index;
             Version = entity.Version;
+#if UNITY_EDITOR
             Name = entityManager.GetName(entity);
+#endif
         }
 
         public override string ToString()

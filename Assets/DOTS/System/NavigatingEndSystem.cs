@@ -2,6 +2,7 @@ using DOTS.Component;
 using DOTS.Component.AgentState;
 using DOTS.Game.ComponentData;
 using DOTS.Struct;
+using Unity.Burst;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -18,7 +19,8 @@ namespace DOTS.System
             base.OnCreate();
             ECBSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
         }
-        
+
+        [BurstCompile]
         [RequireComponentTag(typeof(Navigating), typeof(Node))]
         [ExcludeComponent(typeof(TargetPosition))]
         private struct NavigatingEndJob : IJobForEachWithEntity<Agent>
