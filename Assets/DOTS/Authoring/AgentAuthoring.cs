@@ -19,7 +19,9 @@ namespace DOTS.Authoring
         
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
+#if UNITY_EDITOR
             dstManager.SetName(entity, Name);
+#endif
             dstManager.AddComponentData(entity, new Stamina{
                 Value = InitialStamina, ChangeSpeed = StaminaChangeSpeed});
             

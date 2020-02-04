@@ -21,7 +21,9 @@ namespace DOTS.Authoring
         public void Convert(Entity entity, EntityManager dstManager,
             GameObjectConversionSystem conversionSystem)
         {
+#if UNITY_EDITOR
             dstManager.SetName(entity, Name);
+#endif
             dstManager.AddComponentData(entity, new ItemContainerTrait());
             dstManager.AddComponentData(entity, 
                 new ItemContainer{Capacity = 10, IsTransferSource = true});
