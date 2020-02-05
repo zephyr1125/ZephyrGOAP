@@ -23,7 +23,7 @@ namespace DOTS.System.ActionExecuteSystem
             ECBSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
         }
 
-        [BurstCompile]
+        // [BurstCompile]
         [RequireComponentTag(typeof(EatAction), typeof(ReadyToActing))]
         private struct ActionExecuteJob : IJobForEachWithEntity_EBBBCC<Node, State, ContainedItemRef,
             Agent, Stamina>

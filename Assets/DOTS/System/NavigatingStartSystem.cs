@@ -21,7 +21,7 @@ namespace DOTS.System
             ECBSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
         }
         
-        [BurstCompile]
+        // [BurstCompile]
         [RequireComponentTag(typeof(ReadyToNavigating))]
         private struct NavigatingStartJob : IJobForEachWithEntity_EBC<Node, Agent>
         {

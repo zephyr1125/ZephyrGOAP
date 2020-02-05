@@ -29,7 +29,7 @@ namespace DOTS.Game.System
             ECBSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
         }
 
-        [BurstCompile]
+        // [BurstCompile]
         [RequireComponentTag(typeof(NoGoal))]
         private struct GoalDecisionJob : IJobForEachWithEntity_EBCC<State, Agent, Stamina>
         {

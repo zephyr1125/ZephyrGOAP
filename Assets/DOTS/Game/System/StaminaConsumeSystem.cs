@@ -8,7 +8,7 @@ namespace DOTS.Game.System
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public class StaminaConsumeSystem : JobComponentSystem
     {
-        [BurstCompile]
+        // [BurstCompile]
         private struct StaminaConsumeJob : IJobForEach<Stamina>
         {
             public float DeltaTime;

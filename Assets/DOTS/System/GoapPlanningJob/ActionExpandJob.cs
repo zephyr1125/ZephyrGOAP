@@ -7,7 +7,7 @@ using Unity.Jobs;
 
 namespace DOTS.System.GoapPlanningJob
 {
-    [BurstCompile]
+    // [BurstCompile]
     public struct ActionExpandJob<T> : IJobParallelForDefer where T : struct, IAction
     {
         [ReadOnly]

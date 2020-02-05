@@ -29,7 +29,7 @@ namespace DOTS.Game.System
             _random = new Random((uint) DateTime.Now.Millisecond);
         }
 
-        [BurstCompile]
+        // [BurstCompile]
         [ExcludeComponent(typeof(Wandering))]
         private struct WanderStartJob : IJobForEachWithEntity<Wander, Translation>
         {
@@ -57,7 +57,7 @@ namespace DOTS.Game.System
         /// 有Wandering而没有TargetPosition的entity表示走完了一段路程
         /// 如果还未到时，需要继续规划下一段，否则结束Wander
         /// </summary>
-        [BurstCompile]
+        // [BurstCompile]
         [ExcludeComponent(typeof(TargetPosition))]
         private struct MoveDoneJob: IJobForEachWithEntity<Wander, Wandering, Translation>
         {

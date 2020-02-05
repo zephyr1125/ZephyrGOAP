@@ -20,7 +20,7 @@ namespace DOTS.Game.System
             _ecbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
         }
 
-        [BurstCompile]
+        // [BurstCompile]
         public struct MoveToPositionJob : IJobForEachWithEntity<Translation, MaxMoveSpeed, TargetPosition>
         {
             public EntityCommandBuffer.Concurrent ECBuffer;

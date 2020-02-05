@@ -8,7 +8,7 @@ using Unity.Jobs;
 
 namespace DOTS.System.GoapPlanningJob
 {
-    [BurstCompile]
+    // [BurstCompile]
     public struct PathFindingJob : IJob
     {
         public int StartNodeId, GoalNodeId;
