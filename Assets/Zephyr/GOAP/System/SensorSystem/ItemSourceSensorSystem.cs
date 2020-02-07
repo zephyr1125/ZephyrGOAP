@@ -2,6 +2,8 @@ using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Transforms;
+using UnityEngine;
 using Zephyr.GOAP.Component.Trait;
 using Zephyr.GOAP.Game.ComponentData;
 using Zephyr.GOAP.Struct;
@@ -16,15 +18,15 @@ namespace Zephyr.GOAP.System.SensorSystem
     public class ItemSourceSensorSystem : JobComponentSystem
     {
         [RequireComponentTag(typeof(ItemContainerTrait))]
-        private struct SenseJob : IJobForEachWithEntity_EBC<ContainedItemRef, ItemContainer>
+        private struct SenseJob : IJobForEachWithEntity_EBCC<ContainedItemRef, ItemContainer, Translation>
         {
             [NativeDisableContainerSafetyRestriction, WriteOnly]
             public BufferFromEntity<State> States;
 
             public Entity CurrentStatesEntity;
-            
-            public void Execute(Entity entity, int jobIndex, 
-                DynamicBuffer<ContainedItemRef> itemRefs, ref ItemContainer container)
+
+            public void Execute(Entity entity, int jobIndex,
+                DynamicBuffer<ContainedItemRef> itemRefs, ref ItemContainer container, ref Translation translation)
             {
                 if (!container.IsTransferSource) return;
 
@@ -34,6 +36,7 @@ namespace Zephyr.GOAP.System.SensorSystem
                     buffer.Add(new State
                     {
                         Target = entity,
+                        Position = translation.Value,
                         Trait = typeof(ItemContainerTrait),
                         ValueString = itemRef.ItemName
                     });

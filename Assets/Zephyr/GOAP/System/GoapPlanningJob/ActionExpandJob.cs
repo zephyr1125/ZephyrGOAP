@@ -1,6 +1,7 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Mathematics;
 using Zephyr.GOAP.Action;
 using Zephyr.GOAP.Struct;
 
@@ -74,7 +75,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     var effects = new StateGroup(1, Allocator.Temp);
 
                     _action.GetPreconditions(ref targetState, ref setting, ref _stackData, ref preconditions);
-                    ReplacePreconditionsWithSpecificStates(ref preconditions);
+                    ReplacePreconditionsWithSpecificStates(_stackData.AgentPosition, ref preconditions);
                 
                     _action.GetEffects(ref targetState, ref setting, ref _stackData, ref effects);
 
@@ -112,19 +113,32 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         /// <summary>
         /// 把preconditions里能够找到具体目标的范围state用具体目标替代
         /// </summary>
+        /// <param name="agentPosition"></param>
         /// <param name="preconditions"></param>
-        private void ReplacePreconditionsWithSpecificStates(ref StateGroup preconditions)
+        private void ReplacePreconditionsWithSpecificStates(float3 agentPosition, ref StateGroup preconditions)
         {
             for (var i = 0; i < preconditions.Length(); i++)
             {
                 if (preconditions[i].Target != Entity.Null) continue;
+                
+                var nearestDistance = float.MaxValue;
+                var nearestTarget = new State();
                 foreach (var currentState in _stackData.CurrentStates)
                 {
-                    //todo 此处应寻找最近目标
-                    if (currentState.BelongTo(preconditions[i]))
+                    if (!currentState.BelongTo(preconditions[i])) continue;
+
+                    //此处寻找最近目标
+                    var distance = math.distance(agentPosition, currentState.Position);
+                    if (distance < nearestDistance)
                     {
-                        preconditions[i] = currentState;
+                        nearestDistance = distance;
+                        nearestTarget = currentState;
                     }
+                }
+
+                if (nearestDistance < float.MaxValue)
+                {
+                    preconditions[i] = nearestTarget;
                 }
             }
         }

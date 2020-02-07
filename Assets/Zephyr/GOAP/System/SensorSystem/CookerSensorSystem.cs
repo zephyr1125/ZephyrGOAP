@@ -2,6 +2,7 @@ using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Transforms;
 using Zephyr.GOAP.Component.Trait;
 using Zephyr.GOAP.Game.ComponentData;
 using Zephyr.GOAP.Struct;
@@ -15,20 +16,21 @@ namespace Zephyr.GOAP.System.SensorSystem
     public class CookerSensorSystem : JobComponentSystem
     {
         [RequireComponentTag(typeof(CookerTrait))]
-        private struct SenseJob : IJobForEachWithEntity_EB<ContainedOutput>
+        private struct SenseJob : IJobForEachWithEntity_EBC<ContainedOutput, Translation>
         {
             [NativeDisableContainerSafetyRestriction, WriteOnly]
             public BufferFromEntity<State> States;
 
             public Entity CurrentStatesEntity;
             
-            public void Execute(Entity entity, int jobIndex, DynamicBuffer<ContainedOutput> recipes)
+            public void Execute(Entity entity, int jobIndex, DynamicBuffer<ContainedOutput> recipes, ref Translation translation)
             {
                 //写入cooker
                 var buffer = States[CurrentStatesEntity];
                 buffer.Add(new State
                 {
                     Target = entity,
+                    Position = translation.Value,
                     Trait = typeof(CookerTrait),
                 });
             }

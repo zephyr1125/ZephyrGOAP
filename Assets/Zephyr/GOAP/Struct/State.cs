@@ -1,12 +1,14 @@
 using System;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 
 namespace Zephyr.GOAP.Struct
 {
     public struct State : IBufferElementData, IEquatable<State>
     {
         public Entity Target;
+        public float3 Position;
         public ComponentType Trait;
         public NativeString64 ValueString;
         public ComponentType ValueTrait;
@@ -14,15 +16,6 @@ namespace Zephyr.GOAP.Struct
         /// true时表示这个state表达反面意义，比如“目标不拥有指定物品”
         /// </summary>
         public bool IsNegative;
-
-        #region For Specific Target
-        
-        /// <summary>
-        /// plan时被自己的effect所抵消的那个precondition的hash，保存以便运行时传递Target
-        /// </summary>
-        public int EffectedPreconditionHash;
-        
-        #endregion
         
         public bool Equals(State other)
         {

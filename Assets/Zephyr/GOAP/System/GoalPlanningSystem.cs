@@ -1,6 +1,7 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Transforms;
 using Zephyr.GOAP.Action;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.AgentState;
@@ -81,6 +82,8 @@ namespace Zephyr.GOAP.System
                 var goalStates = new StateGroup(ref goalStatesBuffer, Allocator.Temp);
 
                 stackData.AgentEntity = agentEntity;
+                stackData.AgentPosition =
+                    EntityManager.GetComponentData<Translation>(agentEntity).Value;
 
                 var uncheckedNodes = new NativeList<Node>(Allocator.TempJob);
                 var unexpandedNodes = new NativeList<Node>(Allocator.TempJob);

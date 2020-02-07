@@ -2,6 +2,7 @@ using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Transforms;
 using Zephyr.GOAP.Component.Trait;
 using Zephyr.GOAP.Struct;
 
@@ -17,7 +18,7 @@ namespace Zephyr.GOAP.System.SensorSystem
 
         protected override void OnCreate()
         {
-            _diningTableQuery = GetEntityQuery(typeof(DiningTableTrait));
+            _diningTableQuery = GetEntityQuery(typeof(DiningTableTrait), typeof(Translation));
         }
         
         private struct SenseJob : IJobParallelFor
@@ -30,6 +31,9 @@ namespace Zephyr.GOAP.System.SensorSystem
             [DeallocateOnJobCompletion]
             public NativeArray<Entity> Entities;
 
+            [DeallocateOnJobCompletion]
+            public NativeArray<Translation> Translations;
+
             public void Execute(int index)
             {
                 //写入diningTable
@@ -37,6 +41,7 @@ namespace Zephyr.GOAP.System.SensorSystem
                 buffer.Add(new State
                 {
                     Target = Entities[index],
+                    Position = Translations[index].Value,
                     Trait = typeof(DiningTableTrait),
                 });
             }
@@ -45,12 +50,15 @@ namespace Zephyr.GOAP.System.SensorSystem
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             var entities = _diningTableQuery.ToEntityArray(Allocator.TempJob);
+            var translations =
+                _diningTableQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
             
             var job = new SenseJob
             {
                 States = GetBufferFromEntity<State>(),
                 CurrentStatesEntity = CurrentStatesHelper.CurrentStatesEntity,
-                Entities = entities
+                Entities = entities,
+                Translations = translations
             };
             var handle = job.Schedule(entities.Length, 32, inputDeps);
             return handle;

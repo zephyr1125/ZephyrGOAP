@@ -115,7 +115,6 @@ namespace Zephyr.GOAP.Struct
             Sub(ref effectStates, (State state, State effect) =>
                 {
                     var preconditionHash = state.GetHashCode();
-                    effect.EffectedPreconditionHash = preconditionHash;
                     return effect;
                 }
             );
