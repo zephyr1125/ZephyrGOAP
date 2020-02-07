@@ -102,7 +102,7 @@ namespace Zephyr.GOAP.Editor
             //鼠标提示
             var statesVT =
                 AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
-                    "Assets/DOTS/Editor/UXML/states.uxml");
+                    "Assets/Zephyr/GOAP/Editor/UXML/states.uxml");
             statesVT.CloneTree(rootVisualElement.Q("main-frame"));
             _statesTip = rootVisualElement.Q("states");
             _statesTip.style.top = -50;
