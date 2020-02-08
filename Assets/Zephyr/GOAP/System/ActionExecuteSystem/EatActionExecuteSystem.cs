@@ -65,7 +65,7 @@ namespace Zephyr.GOAP.System.ActionExecuteSystem
                 
                 //获得体力
                 //todo 正式游戏应当从食物数据中确认应该获得多少体力，并且由专用system负责吃的行为
-                stamina.Value += 0.5f;
+                stamina.Value += Utils.GetFoodStamina(targetItemName);
                 
                 //通知执行完毕
                 Utils.NextAgentState<ReadyToActing, ReadyToNavigating>(

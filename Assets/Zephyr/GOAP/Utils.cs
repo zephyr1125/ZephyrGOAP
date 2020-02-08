@@ -93,10 +93,10 @@ namespace Zephyr.GOAP
             return result;
         }
 
-        public static float RawPeachReward = 1;
-        public static float RoastPeachReward = 3;
-        public static float RawAppleReward = 2;
-        public static float RoastAppleReward = 4;
+        public static float RawPeachStamina = 0.2f;
+        public static float RawAppleStamina = 0.3f;
+        public static float RoastPeachStamina = 0.4f;
+        public static float RoastAppleStamina = 0.5f;
         
         /// <summary>
         /// 示例用的方法，获取不同食物的食用reward
@@ -105,12 +105,25 @@ namespace Zephyr.GOAP
         /// <returns></returns>
         public static float GetFoodReward(NativeString64 foodName)
         {
+            var plus = 10;
             switch (foodName.ToString())
             {
-                case "raw_peach" : return RawPeachReward;
-                case "roast_peach" : return RoastPeachReward;
-                case "raw_apple" : return RawAppleReward;
-                case "roast_apple" : return RoastAppleReward;
+                case "raw_peach" : return RawPeachStamina*plus;
+                case "roast_peach" : return RoastPeachStamina*plus;
+                case "raw_apple" : return RawAppleStamina*plus;
+                case "roast_apple" : return RoastAppleStamina*plus;
+                default: return 0;
+            }
+        }
+        
+        public static float GetFoodStamina(NativeString64 foodName)
+        {
+            switch (foodName.ToString())
+            {
+                case "raw_peach" : return RawPeachStamina;
+                case "roast_peach" : return RoastPeachStamina;
+                case "raw_apple" : return RawAppleStamina;
+                case "roast_apple" : return RoastAppleStamina;
                 default: return 0;
             }
         }

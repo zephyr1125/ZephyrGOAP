@@ -25,7 +25,7 @@ namespace Zephyr.GOAP.Editor
         private VisualTreeAsset _nodeVisualTree;
         private VisualElement _nodeContainer;
         private VisualElement _statesTip;
-        private Button _editorLoggingButton;
+        private Button _editorLoggingButton, _autoPageButton;
         private VisualElement _currentStatesContainer;
 
         private static int NodeWidth = 320;
@@ -39,6 +39,7 @@ namespace Zephyr.GOAP.Editor
         private bool _mouseMidButtonDown;
 
         private bool _editorLogging;
+        private bool _autoPage;
 
         private EditorGoapDebugger _editorDebugger;
 
@@ -77,13 +78,16 @@ namespace Zephyr.GOAP.Editor
                     Reset();
                     Init();
                 });
+            
             _editorLoggingButton = rootVisualElement.Q<Button>("editor-button");
-            _editorLoggingButton.RegisterCallback<MouseUpEvent>(
-                evt => SetEditorLogging());
-            rootVisualElement.Q<Button>("prev-button").RegisterCallback<MouseUpEvent>(
-                evt => PrevResult());
-            rootVisualElement.Q<Button>("next-button").RegisterCallback<MouseUpEvent>(
-                evt => NextResult());
+            _editorLoggingButton.clicked += SetEditorLogging;
+
+            _autoPageButton = rootVisualElement.Q<Button>("auto-button");
+            _autoPageButton.clicked += SetAutoPage;
+            
+            rootVisualElement.Q<Button>("prev-button").clicked += PrevResult;
+            rootVisualElement.Q<Button>("next-button").clicked += NextResult;
+            
             _currentStatesContainer = rootVisualElement.Q("current-states-container");
             
             rootVisualElement.AddManipulator(this);
@@ -98,6 +102,7 @@ namespace Zephyr.GOAP.Editor
             _canvasPos = Vector2.zero;
 
             _editorLogging = false;
+            _autoPage = false;
             
             //鼠标提示
             var statesVT =
@@ -112,14 +117,20 @@ namespace Zephyr.GOAP.Editor
         
         private void Reset()
         {
-            _nodeContainer.Clear();
-            _currentStatesContainer.Clear();
+            _nodeContainer?.Clear();
+            _currentStatesContainer?.Clear();
         }
 
         private void SetEditorLogging()
         {
             _editorLogging = !_editorLogging;
             _editorLoggingButton.text = "Editor|" + (_editorLogging ? "ON" : "OFF");
+        }
+
+        private void SetAutoPage()
+        {
+            _autoPage = !_autoPage;
+            _autoPageButton.text = "Auto|" + (_autoPage ? "ON" : "OFF");
         }
 
         private void OnPlayModeChange(PlayModeStateChange state)
@@ -313,6 +324,7 @@ namespace Zephyr.GOAP.Editor
             Reset();
             ConstructInfo();
             ConstructGraph();
+            if (_autoPage) _currentResult = _log.results.Count - 1;
         }
 
         private void PrevResult()

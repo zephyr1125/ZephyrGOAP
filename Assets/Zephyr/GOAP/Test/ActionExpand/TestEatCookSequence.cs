@@ -73,7 +73,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
         public override void TearDown()
         {
             base.TearDown();
-            Utils.RoastPeachReward = 3;
+            Utils.RoastPeachStamina = 0.3f;
             _debugger.Dispose();
         }
 
@@ -94,7 +94,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
         [Test]
         public void RewardChange_PlanChange()
         {
-            Utils.RoastPeachReward = 2;
+            Utils.RoastPeachStamina = 0.2f;
             
             _system.Update();
             EntityManager.CompleteAllJobs();

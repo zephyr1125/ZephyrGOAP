@@ -12,7 +12,7 @@ namespace Zephyr.GOAP.Game.System
             Entities.WithAll<Agent, Translation>().ForEach(
                 (Entity entity, ref Translation translation) =>
                 {
-                    AgentTalkManager.Instance.UpdateAgentPosition(entity, translation);
+                    AgentInfoManager.Instance.UpdateAgentPosition(entity, translation);
                 });
         }
     }

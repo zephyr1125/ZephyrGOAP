@@ -1,11 +1,13 @@
+using System.Globalization;
 using TMPro;
 using UnityEngine;
 
 namespace Zephyr.GOAP.Game.UI
 {
-    public class AgentTalk : MonoBehaviour
+    public class AgentInfo : MonoBehaviour
     {
-        public TMP_Text Text;
+        public TMP_Text ActionText;
+        public TMP_Text StaminaText;
         
         private Camera _camera;
         private Transform _transform;
@@ -21,9 +23,14 @@ namespace Zephyr.GOAP.Game.UI
             _transform.position = _camera.WorldToScreenPoint(agentPosition) + new Vector3(0, 84, 0);
         }
 
-        public void SetText(string text)
+        public void SetActionText(string text)
         {
-            Text.text = text;
+            ActionText.text = text;
+        }
+        
+        public void SetStaminaText(float stamina)
+        {
+            StaminaText.text = $"{stamina:F1}";
         }
     }
 }
