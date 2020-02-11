@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Transforms;
 using Zephyr.GOAP.Component.Trait;
 using Zephyr.GOAP.Game.ComponentData;
 using Zephyr.GOAP.Struct;
@@ -29,6 +30,7 @@ namespace Zephyr.GOAP.Test.SensorSystem
             _containerEntity = EntityManager.CreateEntity();
             
             EntityManager.AddComponentData(_containerEntity, new ItemContainerTrait());
+            EntityManager.AddComponentData(_containerEntity, new Translation());
             EntityManager.AddComponentData(_containerEntity, new ItemContainer
             {
                 Capacity = 1, IsTransferSource = true

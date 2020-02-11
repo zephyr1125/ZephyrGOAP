@@ -29,7 +29,7 @@ namespace Zephyr.GOAP.Test.Execute
             var itemBuffer = EntityManager.AddBuffer<ContainedItemRef>(_agentEntity);
             itemBuffer.Add(new ContainedItemRef
             {
-                ItemName = new NativeString64("food"),
+                ItemName = new NativeString64("roast_apple"),
                 ItemEntity = new Entity {Index = 99, Version = 9}
             });
             EntityManager.AddComponentData(_agentEntity, new Stamina {Value = 0});
@@ -56,7 +56,7 @@ namespace Zephyr.GOAP.Test.Execute
                 Target = _agentEntity,
                 Trait = typeof(ItemContainerTrait),
                 ValueTrait = typeof(FoodTrait),
-                ValueString = new NativeString64("food"),
+                ValueString = new NativeString64("roast_apple"),
             });
             //effect
             bufferStates.Add(new State

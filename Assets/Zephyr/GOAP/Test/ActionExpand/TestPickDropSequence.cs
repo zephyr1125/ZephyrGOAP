@@ -1,6 +1,8 @@
 using NUnit.Framework;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 using Zephyr.GOAP.Action;
 using Zephyr.GOAP.Component;
@@ -14,16 +16,13 @@ using Zephyr.GOAP.Test.Debugger;
 
 namespace Zephyr.GOAP.Test.ActionExpand
 {
-    public class TestPickDropSequence : TestBase
+    public class TestPickDropSequence : TestGoapBase
     {
         //一个原料，一个目标容器，一个agent，
         //实现 Pick -> Drop 的plan序列
 
-        private GoalPlanningSystem _system;
-        private Entity _itemSourceEntity, _targetContainerEntity, _agentEntity;
+        private Entity _itemSourceEntity, _targetContainerEntity;
         private ItemSourceSensorSystem _sensor;
-
-        private TestGoapDebugger _debugger;
 
         private State _goalState;
         
@@ -32,46 +31,32 @@ namespace Zephyr.GOAP.Test.ActionExpand
         {
             base.SetUp();
 
-            _system = World.GetOrCreateSystem<GoalPlanningSystem>();
-            _debugger = new TestGoapDebugger();
-            _system.Debugger = _debugger;
-
             _itemSourceEntity = EntityManager.CreateEntity();
             _targetContainerEntity = EntityManager.CreateEntity();
-            _agentEntity = EntityManager.CreateEntity();
             
             //游戏数据
             EntityManager.AddComponentData(_itemSourceEntity, new ItemContainer{IsTransferSource = true});
+            EntityManager.AddComponentData(_itemSourceEntity, new Translation());
             var itemBuffer = EntityManager.AddBuffer<ContainedItemRef>(_itemSourceEntity);
-            itemBuffer.Add(new ContainedItemRef {ItemName = new NativeString64("item")});
+            itemBuffer.Add(new ContainedItemRef {ItemName = "item"});
             EntityManager.AddComponentData(_targetContainerEntity, new ItemContainer{IsTransferSource = false});
             
             //GOAP数据
             EntityManager.AddComponentData(_itemSourceEntity, new ItemContainerTrait());
-            EntityManager.AddComponentData(_agentEntity, new Agent());
             EntityManager.AddComponentData(_agentEntity, new PickItemAction());
             EntityManager.AddComponentData(_agentEntity, new DropItemAction());
-            EntityManager.AddComponentData(_agentEntity, new GoalPlanning());
             var stateBuffer = EntityManager.AddBuffer<State>(_agentEntity);
             _goalState = new State
             {
                 Target = _targetContainerEntity,
                 Trait = typeof(ItemContainerTrait),
-                ValueString = new NativeString64("item"),
+                ValueString = "item",
             };
             stateBuffer.Add(_goalState);
             
-            World.GetOrCreateSystem<CurrentStatesHelper>().Update();
             //SensorGroup喂入CurrentStates数据
             _sensor = World.GetOrCreateSystem<ItemSourceSensorSystem>();
             _sensor.Update();
-        }
-
-        [TearDown]
-        public override void TearDown()
-        {
-            base.TearDown();
-            _debugger.Dispose();
         }
 
         [Test]
@@ -79,9 +64,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
         {
             _system.Update();
             EntityManager.CompleteAllJobs();
-
-            var goalNodeView = _debugger.GoalNodeView;
-
+            
             //Drop接Goal
             var dropNodeView = _debugger.GoalNodeView.Children[0];
             Assert.AreEqual(nameof(DropItemAction), dropNodeView.Name);
@@ -90,7 +73,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
             {
                 Target = _agentEntity,
                 Trait = typeof(ItemContainerTrait),
-                ValueString = new NativeString64("item"),
+                ValueString = "item",
             }));
             
             //Pick接Drop
@@ -101,7 +84,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
             {
                 Target = _itemSourceEntity,
                 Trait = typeof(ItemContainerTrait),
-                ValueString = new NativeString64("item"),
+                ValueString = "item",
             }));
             
             //start接pick
@@ -142,33 +125,11 @@ namespace Zephyr.GOAP.Test.ActionExpand
             //1 goal state + 2 precondition + 2 effect
             Assert.AreEqual(5, bufferStates.Length);
 
-            //0 is drop, 1 is pick
-            var nodeDrop = bufferNodes[0];
-            var nodePick = bufferNodes[1];
+            //0 is pick, 1 is drop
+            var nodePick = bufferNodes[0];
+            var nodeDrop = bufferNodes[1];
             for (var i = 0; i < bufferStates.Length; i++)
             {
-                //nodeDrop应该只有1个precondition
-                if ((nodeDrop.PreconditionsBitmask & (ulong)1 << i) > 0)
-                {
-                    Assert.AreEqual((ulong)1 << i, nodeDrop.PreconditionsBitmask);
-                    Assert.AreEqual(new State
-                    {
-                        Target = _agentEntity,
-                        Trait = typeof(ItemContainerTrait),
-                        ValueString = new NativeString64("item"),
-                    }, bufferStates[i]);
-                }
-                //和一个effect
-                if ((nodeDrop.EffectsBitmask & (ulong)1 << i) > 0)
-                {
-                    Assert.AreEqual((ulong)1 << i, nodeDrop.EffectsBitmask);
-                    Assert.AreEqual(new State
-                    {
-                        Target = _targetContainerEntity,
-                        Trait = typeof(ItemContainerTrait),
-                        ValueString = new NativeString64("item"),
-                    }, bufferStates[i]);
-                }
                 //nodePick应该只有1个precondition
                 if ((nodePick.PreconditionsBitmask & (ulong)1 << i) > 0)
                 {
@@ -177,7 +138,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
                     {
                         Target = _itemSourceEntity,
                         Trait = typeof(ItemContainerTrait),
-                        ValueString = new NativeString64("item"),
+                        ValueString = "item",
                     }, bufferStates[i]);
                 }
                 //和一个effect
@@ -188,7 +149,30 @@ namespace Zephyr.GOAP.Test.ActionExpand
                     {
                         Target = _agentEntity,
                         Trait = typeof(ItemContainerTrait),
-                        ValueString = new NativeString64("item"),
+                        ValueString = "item",
+                    }, bufferStates[i]);
+                }
+                //nodeDrop应该只有1个precondition
+                if ((nodeDrop.PreconditionsBitmask & (ulong)1 << i) > 0)
+                {
+                    Assert.AreEqual((ulong)1 << i, nodeDrop.PreconditionsBitmask);
+                    Assert.AreEqual(new State
+                    {
+                        Target = _agentEntity,
+                        Position = new float3(),
+                        Trait = typeof(ItemContainerTrait),
+                        ValueString = "item",
+                    }, bufferStates[i]);
+                }
+                //和一个effect
+                if ((nodeDrop.EffectsBitmask & (ulong)1 << i) > 0)
+                {
+                    Assert.AreEqual((ulong)1 << i, nodeDrop.EffectsBitmask);
+                    Assert.AreEqual(new State
+                    {
+                        Target = _targetContainerEntity,
+                        Trait = typeof(ItemContainerTrait),
+                        ValueString = "item",
                     }, bufferStates[i]);
                 }
             }

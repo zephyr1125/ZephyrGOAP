@@ -17,28 +17,15 @@ namespace Zephyr.GOAP.Test.ActionExpand
     /// 目标：wander
     /// 预期：规划出wander
     /// </summary>
-    public class TestWanderAction : TestBase
+    public class TestWanderAction : TestGoapBase
     {
-        private GoalPlanningSystem _system;
-        private Entity _agentEntity;
-
-        private TestGoapDebugger _debugger;
-
         [SetUp]
         public override void SetUp()
         {
             base.SetUp();
-
-            _system = World.GetOrCreateSystem<GoalPlanningSystem>();
-            _debugger = new TestGoapDebugger();
-            _system.Debugger = _debugger;
-
-            _agentEntity = EntityManager.CreateEntity();
-            EntityManager.SetName(_agentEntity, "test");
-
-            EntityManager.AddComponentData(_agentEntity, new Agent());
+            
             EntityManager.AddComponentData(_agentEntity, new WanderAction());
-            EntityManager.AddComponentData(_agentEntity, new GoalPlanning());
+            
             var stateBuffer = EntityManager.AddBuffer<State>(_agentEntity);
             stateBuffer.Add(new State
             {
@@ -46,7 +33,6 @@ namespace Zephyr.GOAP.Test.ActionExpand
                 Trait = typeof(WanderTrait),
             });
 
-            World.GetOrCreateSystem<CurrentStatesHelper>().Update();
             //给CurrentStates写入假环境数据：自己有原料、世界里有cooker和recipe
             var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
             buffer.Add(new State
@@ -62,13 +48,6 @@ namespace Zephyr.GOAP.Test.ActionExpand
             });
             var recipeSensorSystem = World.GetOrCreateSystem<RecipeSensorSystem>();
             recipeSensorSystem.Update();
-        }
-
-        [TearDown]
-        public override void TearDown()
-        {
-            base.TearDown();
-            _debugger.Dispose();
         }
 
         [Test]

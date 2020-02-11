@@ -17,28 +17,17 @@ namespace Zephyr.GOAP.Test.ActionExpand
     /// 目标：获得体力
     /// 预期：规划出Eat-Cook序列
     /// </summary>
-    public class TestEatCookSequence : TestBase
+    public class TestEatCookSequence : TestGoapBase
     {
-        private GoalPlanningSystem _system;
-        private Entity _agentEntity;
-
-        private TestGoapDebugger _debugger;
 
         [SetUp]
         public override void SetUp()
         {
             base.SetUp();
-
-            _system = World.GetOrCreateSystem<GoalPlanningSystem>();
-            _debugger = new TestGoapDebugger();
-            _system.Debugger = _debugger;
             
-            _agentEntity = EntityManager.CreateEntity();
-            
-            EntityManager.AddComponentData(_agentEntity, new Agent());
             EntityManager.AddComponentData(_agentEntity, new EatAction());
             EntityManager.AddComponentData(_agentEntity, new CookAction());
-            EntityManager.AddComponentData(_agentEntity, new GoalPlanning());
+            
             var stateBuffer = EntityManager.AddBuffer<State>(_agentEntity);
             stateBuffer.Add(new State
             {
@@ -46,14 +35,13 @@ namespace Zephyr.GOAP.Test.ActionExpand
                 Trait = typeof(StaminaTrait),
             });
             
-            World.GetOrCreateSystem<CurrentStatesHelper>().Update();
             //给CurrentStates写入假环境数据：自己有原料、世界里有餐桌、cooker、配方
             var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
             buffer.Add(new State
             {
                 Target = _agentEntity,
                 Trait = typeof(ItemContainerTrait),
-                ValueString = new NativeString64("raw_peach"),
+                ValueString = new NativeString64("raw_apple"),
             });
             buffer.Add(new State
             {
@@ -74,7 +62,6 @@ namespace Zephyr.GOAP.Test.ActionExpand
         {
             base.TearDown();
             Utils.RoastPeachStamina = 0.3f;
-            _debugger.Dispose();
         }
 
         [Test]
@@ -94,7 +81,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
         [Test]
         public void RewardChange_PlanChange()
         {
-            Utils.RoastPeachStamina = 0.2f;
+            Utils.RoastAppleStamina = 0.2f;
             
             _system.Update();
             EntityManager.CompleteAllJobs();

@@ -25,7 +25,6 @@ namespace Zephyr.GOAP.Test
             
             EntityManager.AddComponentData(_agentEntity, new Agent{ExecutingNodeId = 0});
             EntityManager.AddComponentData(_agentEntity, new Navigating());
-            EntityManager.AddComponentData(_agentEntity, new TargetPosition{Value = float3.zero});
             //agent必须带有已经规划好的任务列表
             var bufferNodes = EntityManager.AddBuffer<Node>(_agentEntity);
             bufferNodes.Add(new Node());
@@ -48,7 +47,7 @@ namespace Zephyr.GOAP.Test
         [Test]
         public void WaitForMovingDone()
         {
-            EntityManager.SetComponentData(_agentEntity, new TargetPosition{Value = new float3(9,0,0)});
+            EntityManager.AddComponentData(_agentEntity, new TargetPosition{Value = new float3(9,0,0)});
             
             _system.Update();
             _system.ECBSystem.Update();
