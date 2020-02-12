@@ -33,7 +33,7 @@ namespace Zephyr.GOAP.System.ActionExecuteSystem
         /// 启动时给agent赋予Wander组件
         /// </summary>
         // [BurstCompile]
-        [RequireComponentTag(typeof(WanderAction), typeof(ReadyToActing))]
+        [RequireComponentTag(typeof(WanderAction), typeof(ReadyToAct))]
         private struct ActionExecuteJob : IJobForEachWithEntity_EBBC<Node, State, Agent>
         {
             public EntityCommandBuffer.Concurrent ECBuffer;
@@ -49,7 +49,7 @@ namespace Zephyr.GOAP.System.ActionExecuteSystem
                 ECBuffer.AddComponent(jobIndex, entity, new Wander{Time = WanderTime});
 
                 //切换状态，在监视的job里通知执行完毕
-                Utils.NextAgentState<ReadyToActing, Acting>(entity, jobIndex,
+                Utils.NextAgentState<ReadyToAct, Acting>(entity, jobIndex,
                     ref ECBuffer, agent, false);
             }
         }
@@ -59,7 +59,7 @@ namespace Zephyr.GOAP.System.ActionExecuteSystem
         /// </summary>
         // [BurstCompile]
         [RequireComponentTag(typeof(WanderAction), typeof(Acting))]
-        [ExcludeComponent(typeof(ReadyToActing), typeof(Wander))]
+        [ExcludeComponent(typeof(ReadyToAct), typeof(Wander))]
         private struct ActionDoneJob : IJobForEachWithEntity_EBBC<Node, State, Agent>
         {
             public EntityCommandBuffer.Concurrent ECBuffer;
@@ -73,7 +73,7 @@ namespace Zephyr.GOAP.System.ActionExecuteSystem
                     return;
                 
                 //通知执行完毕
-                Utils.NextAgentState<Acting, ReadyToNavigating>(
+                Utils.NextAgentState<Acting, ReadyToNavigate>(
                     entity, jobIndex, ref ECBuffer, agent, true);
             }
         }

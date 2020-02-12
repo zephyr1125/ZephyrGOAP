@@ -26,7 +26,7 @@ namespace Zephyr.GOAP.System.ActionExecuteSystem
         }
 
         // [BurstCompile]
-        [RequireComponentTag(typeof(CookAction), typeof(ReadyToActing))]
+        [RequireComponentTag(typeof(CookAction), typeof(ReadyToAct))]
         public struct ActionExecuteJob : IJobForEachWithEntity_EBBBC<Node, State,
             ContainedItemRef, Agent>
         {
@@ -85,7 +85,7 @@ namespace Zephyr.GOAP.System.ActionExecuteSystem
                 containedItems.Add(new ContainedItemRef {ItemName = outputItemName});
                 
                 //通知执行完毕
-                Utils.NextAgentState<ReadyToActing, ReadyToNavigating>(
+                Utils.NextAgentState<ReadyToAct, ReadyToNavigate>(
                     entity, jobIndex, ref ECBuffer, agent, true);
             }
         }

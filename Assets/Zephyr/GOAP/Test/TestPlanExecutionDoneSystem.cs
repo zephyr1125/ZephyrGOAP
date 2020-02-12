@@ -21,7 +21,7 @@ namespace Zephyr.GOAP.Test
             _agentEntity = EntityManager.CreateEntity();
             
             EntityManager.AddComponentData(_agentEntity, new Agent{ExecutingNodeId = 2});
-            EntityManager.AddComponentData(_agentEntity, new ReadyToNavigating());
+            EntityManager.AddComponentData(_agentEntity, new ReadyToNavigate());
             var nodeBuffer = EntityManager.AddBuffer<Node>(_agentEntity);
             nodeBuffer.Add(new Node());
             nodeBuffer.Add(new Node());
@@ -55,7 +55,7 @@ namespace Zephyr.GOAP.Test
             EntityManager.CompleteAllJobs();
             
             Assert.IsTrue(EntityManager.HasComponent<NoGoal>(_agentEntity));
-            Assert.IsFalse(EntityManager.HasComponent<ReadyToNavigating>(_agentEntity));
+            Assert.IsFalse(EntityManager.HasComponent<ReadyToNavigate>(_agentEntity));
             
             Assert.Zero(EntityManager.GetComponentData<Agent>(_agentEntity).ExecutingNodeId);
         }

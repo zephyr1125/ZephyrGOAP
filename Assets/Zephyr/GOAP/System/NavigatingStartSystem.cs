@@ -21,7 +21,7 @@ namespace Zephyr.GOAP.System
         }
         
         // [BurstCompile]
-        [RequireComponentTag(typeof(ReadyToNavigating))]
+        [RequireComponentTag(typeof(ReadyToNavigate))]
         private struct NavigatingStartJob : IJobForEachWithEntity_EBC<Node, Agent>
         {
             public EntityCommandBuffer.Concurrent ECBuffer;
@@ -41,7 +41,7 @@ namespace Zephyr.GOAP.System
                 if (targetEntity == entity || targetEntity==Entity.Null)
                 {
                     //目标为空或agent自身，无需移动，直接跳到ReadyToActing
-                    Utils.NextAgentState<ReadyToNavigating, ReadyToActing>(
+                    Utils.NextAgentState<ReadyToNavigate, ReadyToAct>(
                         entity, jobIndex, ref ECBuffer, agent, false);
                     return;
                 }
@@ -56,7 +56,7 @@ namespace Zephyr.GOAP.System
                     new TargetPosition{Value = Translations[targetEntity].Value});
                 
                 //切换agent状态,等待移动结束
-                Utils.NextAgentState<ReadyToNavigating, Navigating>(entity, jobIndex,
+                Utils.NextAgentState<ReadyToNavigate, Navigating>(entity, jobIndex,
                     ref ECBuffer, agent, false);
             }
         }

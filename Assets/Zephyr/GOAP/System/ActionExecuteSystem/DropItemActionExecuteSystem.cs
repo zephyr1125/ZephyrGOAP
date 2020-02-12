@@ -22,7 +22,7 @@ namespace Zephyr.GOAP.System.ActionExecuteSystem
         }
 
         // [BurstCompile]
-        [RequireComponentTag(typeof(PickItemAction), typeof(ContainedItemRef), typeof(ReadyToActing))]
+        [RequireComponentTag(typeof(PickItemAction), typeof(ContainedItemRef), typeof(ReadyToAct))]
         public struct ActionExecuteJob : IJobForEachWithEntity_EBBC<Node, State, Agent>
         {
             [NativeDisableParallelForRestriction]
@@ -73,7 +73,7 @@ namespace Zephyr.GOAP.System.ActionExecuteSystem
                 buffer.Add(itemRef);
                 
                 //通知执行完毕
-                Utils.NextAgentState<ReadyToActing, ReadyToNavigating>(
+                Utils.NextAgentState<ReadyToAct, ReadyToNavigate>(
                     entity, jobIndex, ref ECBuffer, agent, true);
             }
         }

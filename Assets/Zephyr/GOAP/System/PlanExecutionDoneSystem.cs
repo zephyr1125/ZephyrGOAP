@@ -19,7 +19,7 @@ namespace Zephyr.GOAP.System
         }
 
         // [BurstCompile]
-        [RequireComponentTag(typeof(ReadyToNavigating))]
+        [RequireComponentTag(typeof(ReadyToNavigate))]
         private struct PlanExecutionDoneJob : IJobForEachWithEntity_EBBC<Node, State, Agent>
         {
             public EntityCommandBuffer.Concurrent ECBuffer;
@@ -34,7 +34,7 @@ namespace Zephyr.GOAP.System
                 states.Clear();
                 agent.ExecutingNodeId = 0;
                 
-                Utils.NextAgentState<ReadyToNavigating, NoGoal>(entity, jobIndex, ref ECBuffer,
+                Utils.NextAgentState<ReadyToNavigate, NoGoal>(entity, jobIndex, ref ECBuffer,
                     agent, false);
             }
         }

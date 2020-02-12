@@ -133,7 +133,7 @@ namespace Zephyr.GOAP.System
                     FindPath(ref nodeGraph, agentEntity);
                     
                     //切换agent状态
-                    Utils.NextAgentState<GoalPlanning, ReadyToNavigating>(agentEntity, EntityManager, false);
+                    Utils.NextAgentState<GoalPlanning, ReadyToNavigate>(agentEntity, EntityManager, false);
                 }
                 
                 uncheckedNodes.Dispose();

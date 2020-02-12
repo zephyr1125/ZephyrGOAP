@@ -26,7 +26,7 @@ namespace Zephyr.GOAP.Test.Execute
             _agentEntity = EntityManager.CreateEntity();
 
             EntityManager.AddComponentData(_agentEntity, new Agent{ExecutingNodeId = 0});
-            EntityManager.AddComponentData(_agentEntity, new ReadyToActing());
+            EntityManager.AddComponentData(_agentEntity, new ReadyToAct());
             EntityManager.AddComponentData(_agentEntity, new WanderAction());
             //agent必须带有已经规划好的任务列表
             var bufferNodes = EntityManager.AddBuffer<Node>(_agentEntity);
@@ -53,7 +53,7 @@ namespace Zephyr.GOAP.Test.Execute
             
             Assert.IsTrue(EntityManager.HasComponent<Wander>(_agentEntity));
             Assert.IsTrue(EntityManager.HasComponent<Acting>(_agentEntity));
-            Assert.IsFalse(EntityManager.HasComponent<ReadyToActing>(_agentEntity));
+            Assert.IsFalse(EntityManager.HasComponent<ReadyToAct>(_agentEntity));
             Assert.Zero(EntityManager.GetComponentData<Agent>(_agentEntity).ExecutingNodeId);
         }
 
@@ -71,8 +71,8 @@ namespace Zephyr.GOAP.Test.Execute
 
             var agent = EntityManager.GetComponentData<Agent>(_agentEntity);
             Assert.AreEqual(1,agent.ExecutingNodeId);
-            Assert.False(EntityManager.HasComponent<ReadyToActing>(_agentEntity));
-            Assert.True(EntityManager.HasComponent<ReadyToNavigating>(_agentEntity));
+            Assert.False(EntityManager.HasComponent<ReadyToAct>(_agentEntity));
+            Assert.True(EntityManager.HasComponent<ReadyToNavigate>(_agentEntity));
         }
     }
 }

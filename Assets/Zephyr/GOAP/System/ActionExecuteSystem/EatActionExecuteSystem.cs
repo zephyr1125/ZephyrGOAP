@@ -23,7 +23,7 @@ namespace Zephyr.GOAP.System.ActionExecuteSystem
         }
 
         // [BurstCompile]
-        [RequireComponentTag(typeof(EatAction), typeof(ReadyToActing))]
+        [RequireComponentTag(typeof(EatAction), typeof(ReadyToAct))]
         private struct ActionExecuteJob : IJobForEachWithEntity_EBBBCC<Node, State, ContainedItemRef,
             Agent, Stamina>
         {
@@ -68,7 +68,7 @@ namespace Zephyr.GOAP.System.ActionExecuteSystem
                 stamina.Value += Utils.GetFoodStamina(targetItemName);
                 
                 //通知执行完毕
-                Utils.NextAgentState<ReadyToActing, ReadyToNavigating>(
+                Utils.NextAgentState<ReadyToAct, ReadyToNavigate>(
                     entity, jobIndex, ref ECBuffer, agent, true);
             }
         }

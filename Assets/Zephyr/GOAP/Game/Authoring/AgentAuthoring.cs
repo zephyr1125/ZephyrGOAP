@@ -7,7 +7,7 @@ using Zephyr.GOAP.Component.Trait;
 using Zephyr.GOAP.Game.ComponentData;
 using Zephyr.GOAP.Struct;
 
-namespace Zephyr.GOAP.Authoring
+namespace Zephyr.GOAP.Game.Authoring
 {
     [RequiresEntityConversion]
     [ConverterVersion("Zephyr", 3)]

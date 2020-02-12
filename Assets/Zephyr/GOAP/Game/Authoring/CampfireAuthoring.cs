@@ -4,7 +4,7 @@ using UnityEngine;
 using Zephyr.GOAP.Component.Trait;
 using Zephyr.GOAP.Game.ComponentData;
 
-namespace Zephyr.GOAP.Authoring
+namespace Zephyr.GOAP.Game.Authoring
 {
     [RequiresEntityConversion]
     [ConverterVersion("Zephyr", 0)]

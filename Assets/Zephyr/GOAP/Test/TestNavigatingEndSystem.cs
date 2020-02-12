@@ -38,7 +38,7 @@ namespace Zephyr.GOAP.Test
             _system.ECBSystem.Update();
             EntityManager.CompleteAllJobs();
             
-            Assert.IsTrue(EntityManager.HasComponent<ReadyToActing>(_agentEntity));
+            Assert.IsTrue(EntityManager.HasComponent<ReadyToAct>(_agentEntity));
             Assert.IsFalse(EntityManager.HasComponent<Navigating>(_agentEntity));
             Assert.Zero(EntityManager.GetComponentData<Agent>(_agentEntity).ExecutingNodeId);
         }
@@ -53,7 +53,7 @@ namespace Zephyr.GOAP.Test
             _system.ECBSystem.Update();
             EntityManager.CompleteAllJobs();
             
-            Assert.IsFalse(EntityManager.HasComponent<ReadyToActing>(_agentEntity));
+            Assert.IsFalse(EntityManager.HasComponent<ReadyToAct>(_agentEntity));
             Assert.IsTrue(EntityManager.HasComponent<Navigating>(_agentEntity));
             Assert.Zero(EntityManager.GetComponentData<Agent>(_agentEntity).ExecutingNodeId);
         }
