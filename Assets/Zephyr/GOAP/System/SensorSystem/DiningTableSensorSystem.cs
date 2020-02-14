@@ -14,53 +14,35 @@ namespace Zephyr.GOAP.System.SensorSystem
     [UpdateInGroup(typeof(SensorSystemGroup))]
     public class DiningTableSensorSystem : JobComponentSystem
     {
-        private EntityQuery _diningTableQuery;
-
-        protected override void OnCreate()
-        {
-            _diningTableQuery = GetEntityQuery(typeof(DiningTableTrait), typeof(Translation));
-        }
-        
-        private struct SenseJob : IJobParallelFor
+        [RequireComponentTag(typeof(DiningTableTrait))]
+        private struct SenseJob : IJobForEachWithEntity_EC<Translation>
         {
             [NativeDisableContainerSafetyRestriction, WriteOnly]
             public BufferFromEntity<State> States;
 
             public Entity CurrentStatesEntity;
-
-            [DeallocateOnJobCompletion]
-            public NativeArray<Entity> Entities;
-
-            [DeallocateOnJobCompletion]
-            public NativeArray<Translation> Translations;
-
-            public void Execute(int index)
+            
+            public void Execute(Entity entity, int jobIndex, ref Translation translation)
             {
                 //写入diningTable
                 var buffer = States[CurrentStatesEntity];
                 buffer.Add(new State
                 {
-                    Target = Entities[index],
-                    Position = Translations[index].Value,
+                    Target = entity,
+                    Position = translation.Value,
                     Trait = typeof(DiningTableTrait),
                 });
             }
         }
-
+        
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            var entities = _diningTableQuery.ToEntityArray(Allocator.TempJob);
-            var translations =
-                _diningTableQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
-            
             var job = new SenseJob
             {
                 States = GetBufferFromEntity<State>(),
-                CurrentStatesEntity = CurrentStatesHelper.CurrentStatesEntity,
-                Entities = entities,
-                Translations = translations
+                CurrentStatesEntity = CurrentStatesHelper.CurrentStatesEntity
             };
-            var handle = job.Schedule(entities.Length, 32, inputDeps);
+            var handle = job.Schedule(this, inputDeps);
             return handle;
         }
     }
