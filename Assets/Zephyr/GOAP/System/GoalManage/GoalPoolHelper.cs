@@ -87,12 +87,8 @@ namespace Zephyr.GOAP.System.GoalManage
                 if (priority == existPriority) return;
                 
                 var goalExisted = bufferGoal[id];
-                bufferGoal[id] = new Goal
-                {
-                    State = goalExisted.State,
-                    Priority = priority,
-                    CreateTime = goalExisted.CreateTime
-                };
+                goalExisted.Priority = priority;
+                bufferGoal[id] = goalExisted;
                 return;
             }
             
