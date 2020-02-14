@@ -31,7 +31,7 @@ namespace Zephyr.GOAP.Game.System.AgentGoalMonitor
                 {
                     Target = entity,
                     Trait = typeof(StaminaTrait),
-                });
+                }, Time.ElapsedTime);
             });
         }
     }

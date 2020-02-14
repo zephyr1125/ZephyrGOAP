@@ -23,7 +23,7 @@ namespace Zephyr.GOAP.System.GoalManage
         {
             _entityManager = EntityManager;
             GlobalGoalPoolEntity = EntityManager.CreateEntity(
-                typeof(GlobalGoalPool), typeof(State), typeof(GoalPriority));
+                typeof(GlobalGoalPool), typeof(Goal));
             AgentGoalPoolEntities = new NativeHashMap<Entity, Entity>(7, Allocator.Persistent);
         }
 
@@ -31,8 +31,7 @@ namespace Zephyr.GOAP.System.GoalManage
         {
             Entities.WithAll<Agent>().WithNone<GoalPoolRef>().ForEach(entity =>
                 {
-                    var poolEntity = EntityManager.CreateEntity(
-                        typeof(State), typeof(GoalPriority));
+                    var poolEntity = EntityManager.CreateEntity(typeof(Goal));
                     EntityManager.AddComponentData(poolEntity,
                         new AgentGoalPool{Agent = entity});
 
@@ -53,57 +52,67 @@ namespace Zephyr.GOAP.System.GoalManage
         /// For outside ECS World
         /// </summary>
         /// <param name="state"></param>
+        /// <param name="time"></param>
         /// <param name="priority"></param>
-        public static void AddGlobalGoal(State state, Priority priority = Priority.Normal)
+        public static void AddGlobalGoal(State state, double time, Priority priority = Priority.Normal)
         {
-            var bufferState = _entityManager.GetBuffer<State>(GlobalGoalPoolEntity);
-            var bufferPriority = _entityManager.GetBuffer<GoalPriority>(GlobalGoalPoolEntity);
+            var bufferGoal = _entityManager.GetBuffer<Goal>(GlobalGoalPoolEntity);
 
-            bufferState.Add(state);
-            bufferPriority.Add(new GoalPriority {Priority = priority});
+            AddGoalToBuffer(bufferGoal, state, time, priority);
         }
-        
+
         /// <summary>
         /// For outside ECS World
         /// 如果state已存在，只调整优先级
         /// </summary>
         /// <param name="agentEntity"></param>
         /// <param name="state"></param>
+        /// <param name="time"></param>
         /// <param name="priority"></param>
-        public static void AddAgentGoal(Entity agentEntity, State state, Priority priority = Priority.Normal)
+        public static void AddAgentGoal(Entity agentEntity, State state, double time,
+            Priority priority = Priority.Normal)
         {
             var poolEntity = AgentGoalPoolEntities[agentEntity];
-            var bufferState = _entityManager.GetBuffer<State>(poolEntity);
-            var bufferPriority = _entityManager.GetBuffer<GoalPriority>(poolEntity);
+            var bufferGoal = _entityManager.GetBuffer<Goal>(poolEntity);
             
+            AddGoalToBuffer(bufferGoal, state, time, priority);
+        }
+
+        private static void AddGoalToBuffer(DynamicBuffer<Goal> bufferGoal, State state, double time,
+            Priority priority)
+        {
             //如果已经存在，只调整优先级
-            if (HasGoal(agentEntity, state, out var id, out var existPriority))
+            if (HasGoal(bufferGoal, state, out var id, out var existPriority))
             {
-                if (priority != existPriority)
+                if (priority == existPriority) return;
+                
+                var goalExisted = bufferGoal[id];
+                bufferGoal[id] = new Goal
                 {
-                    bufferPriority[id] = new GoalPriority{Priority = priority};
-                }   
+                    State = goalExisted.State,
+                    Priority = priority,
+                    CreateTime = goalExisted.CreateTime
+                };
                 return;
             }
             
-            bufferState.Add(state);
-            bufferPriority.Add(new GoalPriority {Priority = priority});
+            bufferGoal.Add(new Goal
+            {
+                State = state,
+                Priority = priority,
+                CreateTime = time
+            });
         }
 
-        public static bool HasGoal(Entity agentEntity, State state, out int id, out Priority priority)
+        private static bool HasGoal(DynamicBuffer<Goal> bufferGoal, State state, out int id, out Priority priority)
         {
-            var poolEntity = AgentGoalPoolEntities[agentEntity];
-            var bufferState = _entityManager.GetBuffer<State>(poolEntity);
-            var bufferPriority = _entityManager.GetBuffer<GoalPriority>(poolEntity);
-
-            for (var i = 0; i < bufferState.Length; i++)
+            for (var i = 0; i < bufferGoal.Length; i++)
             {
-                if (bufferState[i].Equals(state))
-                {
-                    id = i;
-                    priority = bufferPriority[i].Priority;
-                    return true;
-                }
+                if (!bufferGoal[i].State.Equals(state)) continue;
+                
+                id = i;
+                priority = bufferGoal[i].Priority;
+                return true;
             }
 
             id = -1;

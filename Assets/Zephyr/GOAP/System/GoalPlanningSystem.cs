@@ -7,12 +7,14 @@ using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.AgentState;
 using Zephyr.GOAP.Debugger;
 using Zephyr.GOAP.Struct;
+using Zephyr.GOAP.System.GoalManage;
 using Zephyr.GOAP.System.GoapPlanningJob;
 
 namespace Zephyr.GOAP.System
 {
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     [UpdateAfter(typeof(SensorSystemGroup))]
+    [UpdateAfter(typeof(AgentGoalMonitorSystemGroup))]
     public class GoalPlanningSystem : ComponentSystem
     {
         /// <summary>

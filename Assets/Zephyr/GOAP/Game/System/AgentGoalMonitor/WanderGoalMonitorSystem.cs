@@ -5,7 +5,6 @@ using Zephyr.GOAP.Component.GoalManage;
 using Zephyr.GOAP.Component.Trait;
 using Zephyr.GOAP.Game.ComponentData;
 using Zephyr.GOAP.Struct;
-using Zephyr.GOAP.System;
 using Zephyr.GOAP.System.GoalManage;
 
 namespace Zephyr.GOAP.Game.System.AgentGoalMonitor
@@ -30,7 +29,7 @@ namespace Zephyr.GOAP.Game.System.AgentGoalMonitor
                 {
                     Target = entity,
                     Trait = typeof(WanderTrait),
-                });
+                }, Time.ElapsedTime);
             });
         }
     }
