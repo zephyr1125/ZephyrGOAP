@@ -9,6 +9,8 @@ namespace Zephyr.GOAP
 {
     public class Utils
     {
+        public static float GoalMonitorSystemInterval = 1;
+        
         /// <summary>
         /// Agent的状态机使用，进入下一个指定状态
         /// </summary>
