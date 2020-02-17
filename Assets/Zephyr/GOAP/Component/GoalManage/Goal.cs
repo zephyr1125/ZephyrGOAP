@@ -1,11 +1,10 @@
 using System;
-using System.Collections.Generic;
 using Unity.Entities;
 using Zephyr.GOAP.Struct;
 
 namespace Zephyr.GOAP.Component.GoalManage
 {
-    public struct Goal : IBufferElementData, IComparable<Goal>
+    public struct Goal : IComponentData, IComparable<Goal>
     {
         public State State;
         public Priority Priority;

@@ -2,8 +2,8 @@ using Unity.Entities;
 
 namespace Zephyr.GOAP.Component.GoalManage
 {
-    public struct GlobalGoalPool : IComponentData
+    public struct AgentGoal : IComponentData
     {
-        
+        public Entity Agent;
     }
 }
