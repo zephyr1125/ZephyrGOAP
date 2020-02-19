@@ -2,12 +2,9 @@ using System.Linq;
 using NUnit.Framework;
 using Unity.Entities;
 using Zephyr.GOAP.Action;
-using Zephyr.GOAP.Component;
-using Zephyr.GOAP.Component.AgentState;
 using Zephyr.GOAP.Component.Trait;
 using Zephyr.GOAP.Struct;
 using Zephyr.GOAP.System;
-using Zephyr.GOAP.Test.Debugger;
 
 namespace Zephyr.GOAP.Test.ActionExpand
 {

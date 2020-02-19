@@ -58,6 +58,7 @@ namespace Zephyr.GOAP.System.GoalManage
                 new AgentGoal{Agent = agentEntity});
             EntityManager.AddComponentData(newGoalEntity, new Goal
                 {
+                    GoalEntity = newGoalEntity,
                     State = state,
                     Priority = priority,
                     CreateTime = time

@@ -6,6 +6,7 @@ namespace Zephyr.GOAP.Component.GoalManage
 {
     public struct Goal : IComponentData, IComparable<Goal>
     {
+        public Entity GoalEntity;
         public State State;
         public Priority Priority;
         public double CreateTime;

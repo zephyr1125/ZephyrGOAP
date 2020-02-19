@@ -56,13 +56,6 @@ namespace Zephyr.GOAP.Test.ActionExpand
             var recipeSensorSystem = World.GetOrCreateSystem<RecipeSensorSystem>();
             recipeSensorSystem.Update();
         }
-        
-        [TearDown]
-        public override void TearDown()
-        {
-            base.TearDown();
-            Utils.RoastPeachStamina = 0.3f;
-        }
 
         [Test]
         public void PlanEatCook()
@@ -81,6 +74,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
         [Test]
         public void RewardChange_PlanChange()
         {
+            var origin = Utils.RoastAppleStamina;
             Utils.RoastAppleStamina = 0.2f;
             
             _system.Update();
@@ -90,6 +84,8 @@ namespace Zephyr.GOAP.Test.ActionExpand
             var pathResult = _debugger.PathResult;
             Assert.AreEqual(2, pathResult.Length);
             Assert.AreEqual("EatAction", pathResult[1].Name);
+
+            Utils.RoastAppleStamina = origin;
         }
 
         /// <summary>
