@@ -8,6 +8,7 @@ using Zephyr.GOAP.Action;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.AgentState;
 using Zephyr.GOAP.Component.GoalManage;
+using Zephyr.GOAP.Component.GoalManage.GoalState;
 using Zephyr.GOAP.Struct;
 
 namespace Zephyr.GOAP.System.GoalManage
@@ -28,7 +29,7 @@ namespace Zephyr.GOAP.System.GoalManage
             _agentEntityQuery = GetEntityQuery(typeof(Agent));
         }
 
-        [ExcludeComponent(typeof(PlanningAgentRef))]
+        [ExcludeComponent(typeof(PlanningGoal))]
         private struct CollectAgentGoalsJob : IJobForEachWithEntity<Goal, AgentGoal>
         {
             [WriteOnly]
@@ -44,7 +45,7 @@ namespace Zephyr.GOAP.System.GoalManage
         /// “直接执行”的概念是自己有action能够以goal的state为目标
         /// </summary>
         [RequireComponentTag(typeof(GlobalGoal))]
-        [ExcludeComponent(typeof(PlanningAgentRef))]
+        [ExcludeComponent(typeof(PlanningGoal))]
         private struct CollectGlobalGoalsJob<T> : IJobForEachWithEntity<Goal> where T : struct, IAction
         {
             [ReadOnly]
@@ -169,7 +170,7 @@ namespace Zephyr.GOAP.System.GoalManage
                     
                         //此goal增加对本agent的引用
                         EntityManager.AddComponentData(availableGoals[0].GoalEntity,
-                            new PlanningAgentRef{agentEntity = entity});
+                            new PlanningGoal{AgentEntity = entity});
                         
                         //agent转换状态
                         Utils.NextAgentState<NoGoal, GoalPlanning>(entity, EntityManager, false);

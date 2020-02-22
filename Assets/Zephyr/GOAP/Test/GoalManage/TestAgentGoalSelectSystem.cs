@@ -5,6 +5,7 @@ using Zephyr.GOAP.Action;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.AgentState;
 using Zephyr.GOAP.Component.GoalManage;
+using Zephyr.GOAP.Component.GoalManage.GoalState;
 using Zephyr.GOAP.Component.Trait;
 using Zephyr.GOAP.Struct;
 using Zephyr.GOAP.System;
@@ -62,9 +63,9 @@ namespace Zephyr.GOAP.Test.GoalManage
             var buffer = EntityManager.GetBuffer<State>(_agentEntity);
             Assert.AreEqual(_gloabalItemGoalState, buffer[0]);
             
-            Assert.IsTrue(EntityManager.HasComponent<PlanningAgentRef>(_globalGoalItemEntity));
+            Assert.IsTrue(EntityManager.HasComponent<PlanningGoal>(_globalGoalItemEntity));
             Assert.AreEqual(_agentEntity,
-                EntityManager.GetComponentData<PlanningAgentRef>(_globalGoalItemEntity).agentEntity);
+                EntityManager.GetComponentData<PlanningGoal>(_globalGoalItemEntity).AgentEntity);
         }
     }
 }
