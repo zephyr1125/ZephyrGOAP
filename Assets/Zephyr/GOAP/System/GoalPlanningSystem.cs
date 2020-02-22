@@ -67,8 +67,7 @@ namespace Zephyr.GOAP.System
             }
 
             //从currentState的存储Entity上拿取current states
-            var currentStatesEntities = _currentStateQuery.ToEntityArray(Allocator.TempJob);
-            var currentStateBuffer = EntityManager.GetBuffer<State>(currentStatesEntities[0]);
+            var currentStateBuffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
             var stackData = new StackData
             {
                 CurrentStates = new StateGroup(ref currentStateBuffer, Allocator.TempJob)
@@ -147,7 +146,6 @@ namespace Zephyr.GOAP.System
             }
 
             agentEntities.Dispose();
-            currentStatesEntities.Dispose();
             stackData.Dispose();
         }
 

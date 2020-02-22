@@ -19,7 +19,7 @@ namespace Zephyr.GOAP.Game.System.AgentGoalMonitor
 
         protected override void OnMonitorUpdate()
         {
-            Entities.WithAll<Agent>().ForEach(
+            Entities.WithAll<Agent, WanderAction>().ForEach(
                 (Entity entity, ref Stamina stamina)=>
             {
                 if (stamina.Value < StaminaThreshold) return;
