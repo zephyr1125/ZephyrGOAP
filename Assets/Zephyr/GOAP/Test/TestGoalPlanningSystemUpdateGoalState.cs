@@ -20,15 +20,11 @@ namespace Zephyr.GOAP.Test
     /// </summary>
     public class TestGoalPlanningSystemUpdateGoalState : TestGoapBase
     {
-        private Entity _goalEntity;
-        
         [SetUp]
         public override void SetUp()
         {
             base.SetUp();
-
-            _goalEntity = EntityManager.CreateEntity();
-
+            
             var goalState = new State
             {
                 Target = _agentEntity,
@@ -47,8 +43,6 @@ namespace Zephyr.GOAP.Test
                 new PlanningGoal {AgentEntity = _agentEntity});
             
             EntityManager.AddComponentData(_agentEntity, new CookAction());
-            EntityManager.AddComponentData(_agentEntity,
-                new CurrentGoal{GoalEntity = _goalEntity});
             var stateBuffer = EntityManager.AddBuffer<State>(_agentEntity);
             stateBuffer.Add(goalState);
             
