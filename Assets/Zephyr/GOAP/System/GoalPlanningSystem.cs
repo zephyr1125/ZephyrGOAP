@@ -122,20 +122,17 @@ namespace Zephyr.GOAP.System
                 }
 
                 Debugger?.SetNodeGraph(ref nodeGraph, EntityManager);
-
-                EntityManager.RemoveComponent<PlanningGoal>(goalEntity);
+                
                 if (!foundPlan)
                 {
                     //在展开阶段没有能够链接到current state的话，就没有找到规划，也就不用继续寻路了
                     //目前对于规划失败的情况，就直接转入NoGoal状态
                     Debugger?.Log("goal plan failed : " + goalStates);
 
-                    EntityManager.AddComponentData(goalEntity,
-                        new PlanFailedGoal
-                            {AgentEntity = agentEntity, FailTime = Time.ElapsedTime});
-
                     EntityManager.GetBuffer<State>(agentEntity).Clear();
                     Utils.NextAgentState<GoalPlanning, NoGoal>(agentEntity, EntityManager, false);
+                    Utils.NextGoalState<PlanningGoal, PlanFailedGoal>(agentEntity, goalEntity,
+                        EntityManager, Time.ElapsedTime);
                 }
                 else
                 {
@@ -144,12 +141,11 @@ namespace Zephyr.GOAP.System
                     //应该把各个agent的nodeGraph存一起，然后一起并行跑
                     FindPath(ref nodeGraph, agentEntity);
 
-                    EntityManager.AddComponentData(goalEntity,
-                        new ExecutingGoal {AgentEntity = agentEntity});
-
                     //切换agent状态
                     Utils.NextAgentState<GoalPlanning, ReadyToNavigate>(agentEntity, EntityManager,
                         false);
+                    Utils.NextGoalState<PlanningGoal, ExecutingGoal>(agentEntity, goalEntity,
+                        EntityManager, Time.ElapsedTime);
                 }
 
                 uncheckedNodes.Dispose();

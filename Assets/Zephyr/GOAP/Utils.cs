@@ -1,7 +1,9 @@
 using Unity.Collections;
 using Unity.Entities;
+using UnityEngine;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.AgentState;
+using Zephyr.GOAP.Component.GoalManage.GoalState;
 using Zephyr.GOAP.Component.Trait;
 using Zephyr.GOAP.Struct;
 
@@ -49,6 +51,14 @@ namespace Zephyr.GOAP
                 entityManager.SetComponentData(agentEntity, agent);
             }
         }
+
+        public static void NextGoalState<T, U>(Entity agentEntity, Entity goalEntity, EntityManager entityManager,
+            double time) where T : struct, IComponentData, IGoalState where U : struct, IComponentData, IGoalState
+        {
+            entityManager.RemoveComponent<T>(goalEntity);
+            entityManager.AddComponentData(goalEntity,
+                new U{AgentEntity = agentEntity, Time = (float)time});
+            }
 
         /// <summary>
         /// 根据传入的配方输出筛选，传出其对应的输入State组

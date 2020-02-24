@@ -89,7 +89,7 @@ namespace Zephyr.GOAP.Test
             
             var planFailedGoal = EntityManager.GetComponentData<PlanFailedGoal>(_goalEntity);
             Assert.AreEqual(_agentEntity, planFailedGoal.AgentEntity);
-            Assert.AreEqual(9, planFailedGoal.FailTime);
+            Assert.AreEqual(9, planFailedGoal.Time);
         }
         
     }
