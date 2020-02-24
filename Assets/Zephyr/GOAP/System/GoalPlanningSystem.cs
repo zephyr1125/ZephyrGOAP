@@ -31,7 +31,7 @@ namespace Zephyr.GOAP.System
         /// </summary>
         public int PathNodeLimit = 1000;
         
-        private EntityQuery _agentQuery, _goalQuery;
+        private EntityQuery _agentQuery;
 
         public IGoapDebugger Debugger;
 
@@ -44,16 +44,14 @@ namespace Zephyr.GOAP.System
                 {
                     ComponentType.ReadOnly<Agent>(),
                     ComponentType.ReadOnly<GoalPlanning>(),
-                    ComponentType.ReadOnly<State>()
+                    ComponentType.ReadOnly<State>(),
+                    ComponentType.ReadOnly<CurrentGoal>(), 
                 },
                 None = new []
                 {
                     ComponentType.ReadOnly<Node>(), 
                 }
             });
-            _goalQuery = GetEntityQuery(
-                ComponentType.ReadOnly<Goal>(),
-                ComponentType.ReadOnly<PlanningGoal>());
         }
 
         protected override void OnUpdate()
@@ -68,34 +66,26 @@ namespace Zephyr.GOAP.System
                 return;
             }
 
-            var goalEntities = _goalQuery.ToEntityArray(Allocator.TempJob);
-            var planningGoals = _goalQuery.ToComponentDataArray<PlanningGoal>(Allocator.TempJob);
-
+            var agentCurrentGoals = _agentQuery.ToComponentDataArray<CurrentGoal>(Allocator.TempJob);
             //从currentState的存储Entity上拿取current states
             var currentStateBuffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
             var stackData = new StackData
             {
                 CurrentStates = new StateGroup(ref currentStateBuffer, Allocator.TempJob)
             };
-            
-            foreach (var agentEntity in agentEntities)
+
+            for (var i = 0; i < agentEntities.Length; i++)
             {
+                var agentEntity = agentEntities[i];
                 Debugger?.StartLog(EntityManager, agentEntity);
                 Debugger?.SetCurrentStates(ref stackData.CurrentStates, EntityManager);
-                
+
                 var foundPlan = false;
                 var goalStatesBuffer = EntityManager.GetBuffer<State>(agentEntity);
                 var goalStates = new StateGroup(ref goalStatesBuffer, Allocator.Temp);
 
                 //找到goalEntity
-                var goalEntity = Entity.Null;
-                for (var i = 0; i < planningGoals.Length; i++)
-                {
-                    var planningGoal = planningGoals[i];
-                    if (!planningGoal.AgentEntity.Equals(agentEntity)) continue;
-                    goalEntity = goalEntities[i];
-                    break;
-                }
+                var goalEntity = agentCurrentGoals[i].GoalEntity;
 
                 stackData.AgentEntity = agentEntity;
                 stackData.AgentPosition =
@@ -114,14 +104,14 @@ namespace Zephyr.GOAP.System
                 //goalNode进入待检查列表
                 uncheckedNodes.Add(goalNode);
 
-                var iteration = 1;    //goal node iteration is 0
-                
+                var iteration = 1; //goal node iteration is 0
+
                 while (uncheckedNodes.Length > 0 && iteration < ExpandIterations)
                 {
                     Debugger?.Log("Loop:");
                     //对待检查列表进行检查（与CurrentStates比对）
-                    if(CheckNodes(ref uncheckedNodes, ref nodeGraph, ref stackData.CurrentStates,
-                        ref unexpandedNodes))foundPlan = true;
+                    if (CheckNodes(ref uncheckedNodes, ref nodeGraph, ref stackData.CurrentStates,
+                        ref unexpandedNodes)) foundPlan = true;
 
                     //对待展开列表进行展开，并挑选进入待检查和展开后列表
                     ExpandNodes(ref unexpandedNodes, ref stackData, ref nodeGraph,
@@ -138,11 +128,12 @@ namespace Zephyr.GOAP.System
                 {
                     //在展开阶段没有能够链接到current state的话，就没有找到规划，也就不用继续寻路了
                     //目前对于规划失败的情况，就直接转入NoGoal状态
-                    Debugger?.Log("goal plan failed : "+goalStates);
+                    Debugger?.Log("goal plan failed : " + goalStates);
 
                     EntityManager.AddComponentData(goalEntity,
-                        new PlanFailedGoal{AgentEntity = agentEntity, FailTime = Time.ElapsedTime});
-                    
+                        new PlanFailedGoal
+                            {AgentEntity = agentEntity, FailTime = Time.ElapsedTime});
+
                     EntityManager.GetBuffer<State>(agentEntity).Clear();
                     Utils.NextAgentState<GoalPlanning, NoGoal>(agentEntity, EntityManager, false);
                 }
@@ -152,24 +143,24 @@ namespace Zephyr.GOAP.System
                     //todo 此处每一个agent跑一次,寻路Job没有并行
                     //应该把各个agent的nodeGraph存一起，然后一起并行跑
                     FindPath(ref nodeGraph, agentEntity);
-                    
+
                     EntityManager.AddComponentData(goalEntity,
-                        new ExecutingGoal{AgentEntity = agentEntity});
-                    
+                        new ExecutingGoal {AgentEntity = agentEntity});
+
                     //切换agent状态
-                    Utils.NextAgentState<GoalPlanning, ReadyToNavigate>(agentEntity, EntityManager, false);
+                    Utils.NextAgentState<GoalPlanning, ReadyToNavigate>(agentEntity, EntityManager,
+                        false);
                 }
-                
+
                 uncheckedNodes.Dispose();
                 unexpandedNodes.Dispose();
                 expandedNodes.Dispose();
                 nodeGraph.Dispose();
-                
+
                 Debugger?.LogDone();
             }
 
-            planningGoals.Dispose();
-            goalEntities.Dispose();
+            agentCurrentGoals.Dispose();
             agentEntities.Dispose();
             stackData.Dispose();
         }

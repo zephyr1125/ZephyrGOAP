@@ -47,6 +47,8 @@ namespace Zephyr.GOAP.Test
                 new PlanningGoal {AgentEntity = _agentEntity});
             
             EntityManager.AddComponentData(_agentEntity, new CookAction());
+            EntityManager.AddComponentData(_agentEntity,
+                new CurrentGoal{GoalEntity = _goalEntity});
             var stateBuffer = EntityManager.AddBuffer<State>(_agentEntity);
             stateBuffer.Add(goalState);
             

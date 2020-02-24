@@ -164,13 +164,19 @@ namespace Zephyr.GOAP.System.GoalManage
                     {
                         //按优先级和时间排序
                         availableGoals.Sort();
-                    
+
                         //选取第一个作为自己当前goal
-                        states.Add(availableGoals[0].State);
+                        var goal = availableGoals[0];
+                    
+                        states.Add(goal.State);
                     
                         //此goal增加对本agent的引用
-                        EntityManager.AddComponentData(availableGoals[0].GoalEntity,
+                        EntityManager.AddComponentData(goal.GoalEntity,
                             new PlanningGoal{AgentEntity = entity});
+                        
+                        //自身增加对goal的引用
+                        EntityManager.AddComponentData(entity,
+                            new CurrentGoal {GoalEntity = goal.GoalEntity});
                         
                         //agent转换状态
                         Utils.NextAgentState<NoGoal, GoalPlanning>(entity, EntityManager, false);

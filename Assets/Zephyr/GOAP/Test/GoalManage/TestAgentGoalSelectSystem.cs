@@ -67,5 +67,15 @@ namespace Zephyr.GOAP.Test.GoalManage
             Assert.AreEqual(_agentEntity,
                 EntityManager.GetComponentData<PlanningGoal>(_globalGoalItemEntity).AgentEntity);
         }
+
+        [Test]
+        public void AgentHasRefToGoal()
+        {
+            _system.Update();
+            EntityManager.CompleteAllJobs();
+            
+            Assert.AreEqual(_globalGoalItemEntity,
+                EntityManager.GetComponentData<CurrentGoal>(_agentEntity).GoalEntity);
+        }
     }
 }
