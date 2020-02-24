@@ -2,6 +2,8 @@ using NUnit.Framework;
 using Unity.Entities;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.AgentState;
+using Zephyr.GOAP.Component.GoalManage;
+using Zephyr.GOAP.Component.GoalManage.GoalState;
 using Zephyr.GOAP.Struct;
 using Zephyr.GOAP.System;
 
@@ -10,7 +12,7 @@ namespace Zephyr.GOAP.Test
     public class TestPlanExecutionDoneSystem : TestBase
     {
         private PlanExecutionDoneSystem _system;
-        private Entity _agentEntity;
+        private Entity _agentEntity, _goalEntity;
 
         [SetUp]
         public override void SetUp()
@@ -19,8 +21,15 @@ namespace Zephyr.GOAP.Test
 
             _system = World.GetOrCreateSystem<PlanExecutionDoneSystem>();
             _agentEntity = EntityManager.CreateEntity();
+            _goalEntity = EntityManager.CreateEntity();
+
+            EntityManager.AddComponentData(_goalEntity, new Goal());
+            EntityManager.AddComponentData(_goalEntity,
+                new ExecutingGoal{AgentEntity = _agentEntity});
             
             EntityManager.AddComponentData(_agentEntity, new Agent{ExecutingNodeId = 2});
+            EntityManager.AddComponentData(_agentEntity,
+                new CurrentGoal {GoalEntity = _goalEntity});
             EntityManager.AddComponentData(_agentEntity, new ReadyToNavigate());
             var nodeBuffer = EntityManager.AddBuffer<Node>(_agentEntity);
             nodeBuffer.Add(new Node());
@@ -76,6 +85,26 @@ namespace Zephyr.GOAP.Test
             Assert.AreEqual(1, stateBuffer.Length);
             
             Assert.AreEqual(1, EntityManager.GetComponentData<Agent>(_agentEntity).ExecutingNodeId);
+        }
+
+        [Test]
+        public void GoalDelete()
+        {
+            _system.Update();
+            _system.ECBSystem.Update();
+            EntityManager.CompleteAllJobs();
+            
+            Assert.IsFalse(EntityManager.Exists(_goalEntity));
+        }
+
+        [Test]
+        public void AgentRefToGoal_Delete()
+        {
+            _system.Update();
+            _system.ECBSystem.Update();
+            EntityManager.CompleteAllJobs();
+            
+            Assert.IsFalse(EntityManager.HasComponent<CurrentGoal>(_agentEntity));
         }
     }
 }

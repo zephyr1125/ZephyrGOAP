@@ -1,7 +1,10 @@
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using UnityEngine;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.AgentState;
+using Zephyr.GOAP.Component.GoalManage;
 using Zephyr.GOAP.Struct;
 
 namespace Zephyr.GOAP.System
@@ -20,12 +23,12 @@ namespace Zephyr.GOAP.System
 
         // [BurstCompile]
         [RequireComponentTag(typeof(ReadyToNavigate))]
-        private struct PlanExecutionDoneJob : IJobForEachWithEntity_EBBC<Node, State, Agent>
+        private struct PlanExecutionDoneJob : IJobForEachWithEntity_EBBCC<Node, State, Agent, CurrentGoal>
         {
             public EntityCommandBuffer.Concurrent ECBuffer;
             
             public void Execute(Entity entity, int jobIndex, DynamicBuffer<Node> nodes,
-                DynamicBuffer<State> states, ref Agent agent)
+                DynamicBuffer<State> states, ref Agent agent, [ReadOnly]ref CurrentGoal currentGoal)
             {
                 var pathLength = nodes.Length;
                 if (agent.ExecutingNodeId < pathLength) return;
@@ -33,6 +36,9 @@ namespace Zephyr.GOAP.System
                 ECBuffer.RemoveComponent<Node>(jobIndex, entity);
                 states.Clear();
                 agent.ExecutingNodeId = 0;
+                
+                ECBuffer.DestroyEntity(jobIndex, currentGoal.GoalEntity);
+                ECBuffer.RemoveComponent<CurrentGoal>(jobIndex, entity);
                 
                 Utils.NextAgentState<ReadyToNavigate, NoGoal>(entity, jobIndex, ref ECBuffer,
                     agent, false);
