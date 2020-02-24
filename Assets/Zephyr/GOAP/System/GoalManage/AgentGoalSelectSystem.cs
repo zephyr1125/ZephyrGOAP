@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -141,14 +142,15 @@ namespace Zephyr.GOAP.System.GoalManage
                     Assert.AreEqual(0, states.Length);
                     
                     var availableGoals = new NativeList<Goal>(Allocator.Temp);
+                    var failedBuffer = EntityManager.GetBuffer<FailedPlan>(entity);
                     
                     //加入我私有的goal
                     var enumerator = agentGoals.GetValuesForKey(entity);
                     while (enumerator.MoveNext())
                     {
                         var current = enumerator.Current;
-                        //todo 排除自己近期失败过的
-                        
+                        if (failedBuffer.Any(failedPlan =>
+                            failedPlan.GoalEntity == current.GoalEntity)) continue;
                         availableGoals.Add(current);
                     }
 
@@ -157,9 +159,11 @@ namespace Zephyr.GOAP.System.GoalManage
                     while (enumerator.MoveNext())
                     {
                         var current = enumerator.Current;
+                        if (failedBuffer.Any(failedPlan =>
+                            failedPlan.GoalEntity == current.GoalEntity)) continue;
                         availableGoals.Add(current);
                     }
-
+                    
                     if (availableGoals.Length > 0)
                     {
                         //按优先级和时间排序

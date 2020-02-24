@@ -3,6 +3,7 @@ using UnityEngine;
 using Zephyr.GOAP.Action;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.AgentState;
+using Zephyr.GOAP.Component.GoalManage;
 using Zephyr.GOAP.Component.Trait;
 using Zephyr.GOAP.Game.ComponentData;
 using Zephyr.GOAP.Struct;
@@ -10,7 +11,7 @@ using Zephyr.GOAP.Struct;
 namespace Zephyr.GOAP.Game.Authoring
 {
     [RequiresEntityConversion]
-    [ConverterVersion("Zephyr", 3)]
+    [ConverterVersion("Zephyr", 4)]
     public class AgentAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     {
         public string Name;
@@ -39,6 +40,8 @@ namespace Zephyr.GOAP.Game.Authoring
             dstManager.AddComponentData(entity, 
                 new ItemContainer{Capacity = 99, IsTransferSource = false});
             var buffer = dstManager.AddBuffer<ContainedItemRef>(entity);
+
+            dstManager.AddBuffer<FailedPlan>(entity);
         }
     }
 }

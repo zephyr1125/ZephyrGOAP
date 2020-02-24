@@ -5,6 +5,7 @@ using Unity.Core;
 using Unity.Entities;
 using UnityEngine;
 using Zephyr.GOAP.Action;
+using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.AgentState;
 using Zephyr.GOAP.Component.GoalManage;
 using Zephyr.GOAP.Component.GoalManage.GoalState;
@@ -91,6 +92,18 @@ namespace Zephyr.GOAP.Test
             Assert.AreEqual(_agentEntity, planFailedGoal.AgentEntity);
             Assert.AreEqual(9, planFailedGoal.Time);
         }
-        
+
+        [Test]
+        public void PlanFailed_RecordOnAgent()
+        {
+            World.SetTime(new TimeData(9, 0));
+            EntityManager.RemoveComponent<CookAction>(_agentEntity);
+            
+            _system.Update();
+            EntityManager.CompleteAllJobs();
+            
+            Assert.AreEqual(new FailedPlan{GoalEntity = _goalEntity, Time = 9},
+                EntityManager.GetBuffer<FailedPlan>(_agentEntity)[0]);
+        }
     }
 }

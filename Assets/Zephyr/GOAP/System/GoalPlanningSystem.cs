@@ -133,6 +133,9 @@ namespace Zephyr.GOAP.System
                     Utils.NextAgentState<GoalPlanning, NoGoal>(agentEntity, EntityManager, false);
                     Utils.NextGoalState<PlanningGoal, PlanFailedGoal>(agentEntity, goalEntity,
                         EntityManager, Time.ElapsedTime);
+
+                    var buffer = EntityManager.AddBuffer<FailedPlan>(agentEntity);
+                    buffer.Add(new FailedPlan {GoalEntity = goalEntity, Time = (float)Time.ElapsedTime});
                 }
                 else
                 {

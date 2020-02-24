@@ -1,3 +1,4 @@
+using System;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
@@ -9,7 +10,7 @@ using Zephyr.GOAP.Struct;
 
 namespace Zephyr.GOAP
 {
-    public class Utils
+    public static class Utils
     {
         public static float GoalMonitorSystemInterval = 1;
         
@@ -138,6 +139,21 @@ namespace Zephyr.GOAP
                 case "roast_apple" : return RoastAppleStamina;
                 default: return 0;
             }
+        }
+
+        public static bool Any<T>(this DynamicBuffer<T> buffer, Func<T, bool> prediction)
+            where T : struct, IBufferElementData
+        {
+            var any = false;
+            for (var i = 0; i < buffer.Length; i++)
+            {
+                var element = buffer[i];
+                if (!prediction(element)) continue;
+                any = true;
+                break;
+            }
+
+            return any;
         }
     }
 }
