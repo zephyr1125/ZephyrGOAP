@@ -40,7 +40,7 @@ namespace Zephyr.GOAP.Test.GoalManage
             };
 
             EntityManager.AddComponentData(_agentEntity, new Agent());
-            EntityManager.AddBuffer<FailedPlan>(_agentEntity);
+            EntityManager.AddBuffer<FailedPlanLog>(_agentEntity);
             EntityManager.AddComponentData(_agentEntity, new Translation());
             EntityManager.AddBuffer<State>(_agentEntity);
             EntityManager.AddComponentData(_agentEntity, new NoGoal());
@@ -82,8 +82,8 @@ namespace Zephyr.GOAP.Test.GoalManage
         [Test]
         public void ExcludeFailedPlan()
         {
-            EntityManager.GetBuffer<FailedPlan>(_agentEntity)
-                .Add(new FailedPlan {GoalEntity = _globalGoalItemEntity});
+            EntityManager.GetBuffer<FailedPlanLog>(_agentEntity)
+                .Add(new FailedPlanLog {GoalEntity = _globalGoalItemEntity});
             
             _system.Update();
             EntityManager.CompleteAllJobs();

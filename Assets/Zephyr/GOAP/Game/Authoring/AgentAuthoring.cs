@@ -41,7 +41,7 @@ namespace Zephyr.GOAP.Game.Authoring
                 new ItemContainer{Capacity = 99, IsTransferSource = false});
             var buffer = dstManager.AddBuffer<ContainedItemRef>(entity);
 
-            dstManager.AddBuffer<FailedPlan>(entity);
+            dstManager.AddBuffer<FailedPlanLog>(entity);
         }
     }
 }

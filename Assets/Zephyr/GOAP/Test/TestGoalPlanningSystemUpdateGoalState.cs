@@ -102,8 +102,8 @@ namespace Zephyr.GOAP.Test
             _system.Update();
             EntityManager.CompleteAllJobs();
             
-            Assert.AreEqual(new FailedPlan{GoalEntity = _goalEntity, Time = 9},
-                EntityManager.GetBuffer<FailedPlan>(_agentEntity)[0]);
+            Assert.AreEqual(new FailedPlanLog{GoalEntity = _goalEntity, Time = 9},
+                EntityManager.GetBuffer<FailedPlanLog>(_agentEntity)[0]);
         }
     }
 }

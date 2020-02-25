@@ -142,7 +142,7 @@ namespace Zephyr.GOAP.System.GoalManage
                     Assert.AreEqual(0, states.Length);
                     
                     var availableGoals = new NativeList<Goal>(Allocator.Temp);
-                    var failedBuffer = EntityManager.GetBuffer<FailedPlan>(entity);
+                    var failedBuffer = EntityManager.GetBuffer<FailedPlanLog>(entity);
                     
                     //加入我私有的goal
                     var enumerator = agentGoals.GetValuesForKey(entity);
