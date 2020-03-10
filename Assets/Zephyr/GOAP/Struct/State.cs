@@ -39,8 +39,9 @@ namespace Zephyr.GOAP.Struct
             //凡是other不明指的项目，都可以包含this
             if (other.Target!=Entity.Null && Target != other.Target) return false;
             if (other.Trait!=null && Trait != other.Trait) return false;
-            if (other.ValueTrait!=null && ValueTrait != other.ValueTrait) return false;
+            if (ValueTrait!=null && other.ValueTrait!=null && ValueTrait != other.ValueTrait) return false;
             if (!other.ValueString.Equals(new NativeString64()) && !ValueString.Equals(other.ValueString)) return false;
+            
             if (IsNegative != other.IsNegative) return false;
 
             return true;

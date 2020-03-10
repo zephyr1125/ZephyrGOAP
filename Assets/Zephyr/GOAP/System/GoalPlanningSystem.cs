@@ -292,14 +292,14 @@ namespace Zephyr.GOAP.System
             
             var entityManager = World.Active.EntityManager;
             var handle = default(JobHandle);
-            handle = ScheduleActionExpand<DropItemAction>(handle, entityManager, ref stackData,
-                ref unexpandedNodes, ref existedNodesHash, ref nodeStates,
-                nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
-                ref newlyCreatedNodesWriter, iteration);
-            handle = ScheduleActionExpand<PickItemAction>(handle, entityManager, ref stackData,
-                ref unexpandedNodes, ref existedNodesHash, ref nodeStates,
-                nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
-                ref newlyCreatedNodesWriter, iteration);
+            // handle = ScheduleActionExpand<DropItemAction>(handle, entityManager, ref stackData,
+            //     ref unexpandedNodes, ref existedNodesHash, ref nodeStates,
+            //     nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
+            //     ref newlyCreatedNodesWriter, iteration);
+            // handle = ScheduleActionExpand<PickItemAction>(handle, entityManager, ref stackData,
+            //     ref unexpandedNodes, ref existedNodesHash, ref nodeStates,
+            //     nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
+            //     ref newlyCreatedNodesWriter, iteration);
             handle = ScheduleActionExpand<EatAction>(handle, entityManager, ref stackData,
                 ref unexpandedNodes, ref existedNodesHash, ref nodeStates,
                 nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
@@ -309,6 +309,10 @@ namespace Zephyr.GOAP.System
                 nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
                 ref newlyCreatedNodesWriter, iteration);
             handle = ScheduleActionExpand<WanderAction>(handle, entityManager, ref stackData,
+                ref unexpandedNodes, ref existedNodesHash,  ref nodeStates,
+                nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
+                ref newlyCreatedNodesWriter, iteration);
+            handle = ScheduleActionExpand<TransferAction>(handle, entityManager, ref stackData,
                 ref unexpandedNodes, ref existedNodesHash,  ref nodeStates,
                 nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
                 ref newlyCreatedNodesWriter, iteration);
