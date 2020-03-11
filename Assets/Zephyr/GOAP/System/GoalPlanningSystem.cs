@@ -230,6 +230,7 @@ namespace Zephyr.GOAP.System
                 Debugger?.Log("check node: "+uncheckedNode.Name);
                 var uncheckedStates = nodeGraph.GetNodeStates(uncheckedNode, Allocator.Temp);
                 uncheckedStates.Sub(ref currentStates);
+                
                 //为了避免没有state的node(例如wander)与startNode有相同的hash，这种node被强制给了一个空state
                 //因此在只有1个state且内容为空时，也应视为找到了plan
                 if (uncheckedStates.Length() <= 0 ||
@@ -241,27 +242,25 @@ namespace Zephyr.GOAP.System
                     foundPlan = true;
                     //todo Early Exit
                 }
-                else
+                
+                //检查uncheckedNodes的parent是否已经存在于其children之中
+                //如果出现这种情况说明产生了循环，移去新得到的edge
+                //并且不不把此uncheckedNode加入待展开列表
+                var loop = false;
+                var children = nodeGraph.GetChildren(uncheckedNode);
+                if (children.Count > 0)
                 {
-                    //检查uncheckedNodes的parent是否已经存在于其children之中
-                    //如果出现这种情况说明产生了循环，移去新得到的edge
-                    //并且不不把此uncheckedNode加入待展开列表
-                    var loop = false;
-                    var children = nodeGraph.GetChildren(uncheckedNode);
-                    if (children.Count > 0)
+                    var edges = nodeGraph.GetEdgeToParents(uncheckedNode);
+                    while (edges.MoveNext())
                     {
-                        var edges = nodeGraph.GetEdgeToParents(uncheckedNode);
-                        while (edges.MoveNext())
-                        {
-                            if (!children.Contains(edges.Current.Parent)) continue;
-                            loop = true;
-                            nodeGraph.RemoveEdge(uncheckedNode, edges.Current.Parent);
-                            break;
-                        }
+                        if (!children.Contains(edges.Current.Parent)) continue;
+                        loop = true;
+                        nodeGraph.RemoveEdge(uncheckedNode, edges.Current.Parent);
+                        break;
                     }
-                    
-                    if(!loop)unexpandedNodes.Add(uncheckedNode);
                 }
+                
+                if(!loop)unexpandedNodes.Add(uncheckedNode);
 
                 uncheckedStates.Dispose();
             }
