@@ -1,5 +1,6 @@
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 using Zephyr.GOAP.Component.Trait;
 using Zephyr.GOAP.Struct;
@@ -20,14 +21,12 @@ namespace Zephyr.GOAP.Action
         {
             foreach (var targetState in targetStates)
             {
-                var foodState = new State
+                var itemSourceState = new State
                 {
-                    Target = stackData.AgentEntity,
-                    Trait = typeof(ItemContainerTrait),
-                    ValueTrait = typeof(FoodTrait),
+                    Trait = typeof(ItemSourceTrait),
                 };
-                //只针对自身食物类物品需求的goal state
-                if (!targetState.BelongTo(foodState)) continue;
+                //只针对物品源需求的goal state
+                if (!targetState.BelongTo(itemSourceState)) continue;
                 
                 //如果targetState有指明物品名，则直接寻找其是否为cooker的产物
                 //这是因为在指定物品名的情况下，有可能会省略ValueTrait
@@ -60,6 +59,36 @@ namespace Zephyr.GOAP.Action
         public StateGroup GetSettings(ref State targetState, ref StackData stackData, Allocator allocator)
         {
             var settings = new StateGroup(1, allocator);
+
+            if (targetState.Target == Entity.Null)
+            {
+                //首先寻找最近的Cooker，如果没有则没有setting
+                var cookerState = new State {Trait = typeof(CookerTrait)};
+                var cookerStates = stackData.CurrentStates.GetBelongingStates(cookerState, Allocator.Temp);
+                if (cookerStates.Length() <= 0)
+                {
+                    cookerStates.Dispose();
+                    return settings;
+                }
+
+                var nearestDistance = float.MaxValue;
+                var nearestState = new State();
+                var agentPosition = stackData.AgentPosition;
+                foreach (var state in cookerStates)
+                {
+                    var distance = math.distance(state.Position, agentPosition);
+                    if (!(distance < nearestDistance)) continue;
+                    nearestDistance = distance;
+                    nearestState = state;
+                }
+
+                //todo 将来还需要考虑排除忙碌的cooker
+                targetState.Target = nearestState.Target;
+                targetState.Position = nearestState.Position;
+            
+                cookerStates.Dispose();
+            }
+           
             
             if (!targetState.ValueString.Equals(new NativeString64()))
             {
@@ -102,13 +131,7 @@ namespace Zephyr.GOAP.Action
         public void GetPreconditions(ref State targetState, ref State setting,
             ref StackData stackData, ref StateGroup preconditions)
         {
-            //世界里有cooker
-            preconditions.Add(new State
-            {
-                Trait = typeof(CookerTrait),
-            });
-            
-            //自己有其生产所需原料
+            //cooker有其生产所需原料
             var targetRecipeInputFilter = new State
             {
                 Trait = typeof(RecipeOutputTrait),
@@ -117,19 +140,19 @@ namespace Zephyr.GOAP.Action
             };
             var inputs = Utils.GetRecipeInputInCurrentStates(ref stackData.CurrentStates,
                 targetRecipeInputFilter, Allocator.Temp);
-            //把查到的配方转化为对自己拥有的需求
+            //把查到的配方转化为对此设施拥有的需求
             preconditions.Add(new State
             {
-                Target = stackData.AgentEntity,
-                Trait = typeof(ItemContainerTrait),
+                Target = setting.Target,    //Target仍是同一设施
+                Trait = typeof(ItemDestinationTrait),
                 ValueString = inputs[0].ValueString,
             });
             if (!inputs[1].Equals(State.Null))
             {
                 preconditions.Add(new State
                 {
-                    Target = stackData.AgentEntity,
-                    Trait = typeof(ItemContainerTrait),
+                    Target = setting.Target,
+                    Trait = typeof(ItemDestinationTrait),
                     ValueString = inputs[1].ValueString,
                 });
             }
@@ -139,7 +162,7 @@ namespace Zephyr.GOAP.Action
         public void GetEffects(ref State targetState, ref State setting,
             ref StackData stackData, ref StateGroup effects)
         {
-            //自己拥有了cook产物
+            //设施拥有了cook产物
             effects.Add(setting);
         }
 

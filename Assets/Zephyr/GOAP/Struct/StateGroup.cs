@@ -166,6 +166,17 @@ namespace Zephyr.GOAP.Struct
             return State.Null;
         }
 
+        public StateGroup GetBelongingStates(State belongTo, Allocator allocator)
+        {
+            var group = new StateGroup(3, allocator);
+            foreach (var state in _states)
+            {
+                if (state.BelongTo(belongTo)) group.Add(state);
+            }
+
+            return group;
+        }
+
         public void WriteBuffer(ref DynamicBuffer<State> buffer)
         {
             foreach (var state in _states)
