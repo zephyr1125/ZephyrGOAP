@@ -246,6 +246,36 @@ namespace Zephyr.GOAP.Struct
                 found = _nodeToParent.TryGetNextValue(out edge, ref it);
             }
         }
+
+        public void ReplaceNodeState(Node node, State before, State after)
+        {
+            var found = _nodeStates.TryGetFirstValue(node, out var foundState, out var it);
+            while (found)
+            {
+                if (foundState.Equals(before))
+                {
+                    _nodeStates.Remove(it);
+                    _nodeStates.Add(node, after);
+                    return;
+                }
+                found = _nodeStates.TryGetNextValue(out foundState, ref it);
+            }
+        }
+        
+        public void ReplaceNodePrecondition(Node node, State before, State after)
+        {
+            var found = _preconditions.TryGetFirstValue(node, out var foundState, out var it);
+            while (found)
+            {
+                if (foundState.Equals(before))
+                {
+                    _preconditions.Remove(it);
+                    _preconditions.Add(node, after);
+                    return;
+                }
+                found = _preconditions.TryGetNextValue(out foundState, ref it);
+            }
+        }
         
         public void Dispose()
         {

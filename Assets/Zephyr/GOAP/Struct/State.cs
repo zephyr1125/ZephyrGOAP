@@ -56,5 +56,14 @@ namespace Zephyr.GOAP.Struct
             hash = hash * 31 + IsNegative.GetHashCode();
             return hash;
         }
+
+        /// <summary>
+        /// 是否为范围型state
+        /// </summary>
+        /// <returns></returns>
+        public bool IsScopeState()
+        {
+            return ValueString.Equals(new NativeString64()) || Target.Equals(Entity.Null);
+        }
     }
 }

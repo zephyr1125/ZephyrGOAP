@@ -121,7 +121,7 @@ namespace Zephyr.GOAP.System
                     iteration++;
                 }
 
-                Debugger?.SetNodeGraph(ref nodeGraph, EntityManager);
+               
                 
                 if (!foundPlan)
                 {
@@ -136,13 +136,22 @@ namespace Zephyr.GOAP.System
 
                     var buffer = EntityManager.AddBuffer<FailedPlanLog>(agentEntity);
                     buffer.Add(new FailedPlanLog {GoalEntity = goalEntity, Time = (float)Time.ElapsedTime});
+                    
+                    Debugger?.SetNodeGraph(ref nodeGraph, EntityManager);
                 }
                 else
                 {
                     //寻路
                     //todo 此处每一个agent跑一次,寻路Job没有并行
                     //应该把各个agent的nodeGraph存一起，然后一起并行跑
-                    FindPath(ref nodeGraph, agentEntity);
+                    var pathResult = FindPath(ref nodeGraph);
+                    UnifyPathNodeStates(ref stackData.CurrentStates, ref nodeGraph, ref pathResult);
+                    SavePath(ref pathResult, ref nodeGraph, agentEntity);
+                    
+                    Debugger?.SetNodeGraph(ref nodeGraph, EntityManager);
+                    Debugger?.SetPathResult(ref pathResult);
+                    
+                    pathResult.Dispose();
 
                     //切换agent状态
                     Utils.NextAgentState<GoalPlanning, ReadyToNavigate>(agentEntity, EntityManager,
@@ -164,7 +173,7 @@ namespace Zephyr.GOAP.System
             stackData.Dispose();
         }
 
-        private void FindPath(ref NodeGraph nodeGraph, Entity agentEntity)
+        private NativeList<Node> FindPath(ref NodeGraph nodeGraph)
         {
             var pathResult = new NativeList<Node>(Allocator.TempJob);
             var pathFindingJob = new PathFindingJob
@@ -179,8 +188,66 @@ namespace Zephyr.GOAP.System
             var handle = pathFindingJob.Schedule();
             handle.Complete();
 
-            Debugger?.SetPathResult(ref pathResult);
+            return pathResult;
+        }
 
+        /// <summary>
+        /// 把path中所有宽泛的state和precondition，用其child的具体effect替代
+        /// </summary>
+        /// <param name="currentStates"></param>
+        /// <param name="nodeGraph"></param>
+        /// <param name="pathResult"></param>
+        private void UnifyPathNodeStates(ref StateGroup currentStates, ref NodeGraph nodeGraph,
+            ref NativeList<Node> pathResult)
+        {
+            //goal -> start, 不包含start
+            for (var i = 0; i < pathResult.Length; i++)
+            {
+                var node = pathResult[i];
+                
+                var nodeStates = nodeGraph.GetNodeStates(node, Allocator.Temp);
+                var nodePreconditions = nodeGraph.GetNodePreconditions(node, Allocator.Temp);
+                var childEffects = new StateGroup();
+                if (i == pathResult.Length - 1)
+                {
+                    //对于最后一个node，需要与世界状态作比对
+                    childEffects = currentStates;
+                }
+                else
+                {
+                    var child = pathResult[i + 1];
+                    childEffects = nodeGraph.GetNodeEffects(child, Allocator.Temp);
+                }
+                
+                foreach (var state in nodeStates)
+                {
+                    if (!state.IsScopeState()) continue;
+                    //在子节点中寻找对应的具体effect
+                    var childSpecificEffect = default(State);
+                    foreach (var childEffect in childEffects)
+                    {
+                        if (!childEffect.BelongTo(state)) continue;
+                        childSpecificEffect = childEffect;
+                        break;
+                    }
+                    if (childSpecificEffect.Equals(default)) continue;
+                    //以子节点的具体effect替换自己的宽泛state
+                    nodeGraph.ReplaceNodeState(node, state, childSpecificEffect);
+                    //precondition里一样的state也如此替换
+                    foreach (var nodePrecondition in nodePreconditions)
+                    {
+                        if (!nodePrecondition.Equals(state)) continue;
+                        nodeGraph.ReplaceNodePrecondition(node, nodePrecondition, childSpecificEffect);
+                    }
+                }
+                
+                nodeStates.Dispose();
+                nodePreconditions.Dispose();
+            }
+        }
+
+        private void SavePath(ref NativeList<Node> pathResult, ref NodeGraph nodeGraph, Entity agentEntity)
+        {
             //保存结果
             var nodeBuffer = EntityManager.AddBuffer<Node>(agentEntity);
             var stateBuffer =
@@ -208,8 +275,6 @@ namespace Zephyr.GOAP.System
                 preconditions.Dispose();
                 effects.Dispose();
             }
-
-            pathResult.Dispose();
         }
 
         /// <summary>

@@ -75,7 +75,8 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     var effects = new StateGroup(1, Allocator.Temp);
 
                     _action.GetPreconditions(ref targetState, ref setting, ref _stackData, ref preconditions);
-                    ReplacePreconditionsWithSpecificStates(_stackData.AgentPosition, ref preconditions);
+                    //此处寻找最近过于武断，会出现不合理的选择，被转移到各Action自己的GetSettings里处理
+                    // ReplacePreconditionsWithSpecificStates(_stackData.AgentPosition, ref preconditions);
                 
                     _action.GetEffects(ref targetState, ref setting, ref _stackData, ref effects);
 
