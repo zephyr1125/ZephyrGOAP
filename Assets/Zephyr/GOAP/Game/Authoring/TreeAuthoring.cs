@@ -24,9 +24,10 @@ namespace Zephyr.GOAP.Game.Authoring
 #if UNITY_EDITOR
             dstManager.SetName(entity, Name);
 #endif
+            dstManager.AddComponentData(entity, new RawSourceTrait());
             dstManager.AddComponentData(entity, new ItemContainerTrait());
             dstManager.AddComponentData(entity, 
-                new ItemContainer{Capacity = 10, IsTransferSource = true});
+                new ItemContainer{Capacity = 10, IsTransferSource = false});
             var buffer = dstManager.AddBuffer<ContainedItemRef>(entity);
             for (var i = 0; i < FruitAmount; i++)
             {
