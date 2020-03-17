@@ -121,8 +121,6 @@ namespace Zephyr.GOAP.System
                     iteration++;
                 }
 
-               
-                
                 if (!foundPlan)
                 {
                     //在展开阶段没有能够链接到current state的话，就没有找到规划，也就不用继续寻路了
@@ -380,7 +378,11 @@ namespace Zephyr.GOAP.System
                 ref unexpandedNodes, ref existedNodesHash,  ref nodeStates,
                 nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
                 ref newlyCreatedNodesWriter, iteration);
-            
+            handle = ScheduleActionExpand<CollectAction>(handle, entityManager, ref stackData,
+                ref unexpandedNodes, ref existedNodesHash,  ref nodeStates,
+                nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
+                ref newlyCreatedNodesWriter, iteration);
+
             handle.Complete();
             existedNodesHash.Dispose();
             nodeStates.Dispose();

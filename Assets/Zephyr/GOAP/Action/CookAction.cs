@@ -30,7 +30,12 @@ namespace Zephyr.GOAP.Action
                 
                 //如果targetState有指明物品名，则直接寻找其是否为cooker的产物
                 //这是因为在指定物品名的情况下，有可能会省略ValueTrait
-                if (!IsItemInRecipes(targetState.ValueString, ref stackData)) continue;
+                if (!targetState.ValueString.Equals(default)
+                    &&!IsItemInRecipes(targetState.ValueString, ref stackData)) continue;
+                
+                //如果没有指定物品名，则必须指定FoodTrait
+                if (targetState.ValueString.Equals(default) &&
+                    targetState.ValueTrait != typeof(FoodTrait)) continue;
                 
                 return targetState;
             }

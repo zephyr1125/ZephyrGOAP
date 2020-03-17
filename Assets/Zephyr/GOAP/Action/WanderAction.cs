@@ -46,7 +46,6 @@ namespace Zephyr.GOAP.Action
             ref StackData stackData, ref StateGroup preconditions)
         {
             //没有precondition
-            preconditions.Add(new State());
         }
 
         public void GetEffects(ref State targetState, ref State setting,
