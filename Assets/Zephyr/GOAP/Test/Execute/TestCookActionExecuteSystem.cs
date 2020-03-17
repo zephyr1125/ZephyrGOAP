@@ -15,7 +15,7 @@ namespace Zephyr.GOAP.Test.Execute
     public class TestCookActionExecuteSystem : TestBase
     {
         private CookActionExecuteSystem _system;
-        private Entity _agentEntity;
+        private Entity _agentEntity, _cookerEntity;
 
         [SetUp]
         public override void SetUp()
@@ -25,9 +25,10 @@ namespace Zephyr.GOAP.Test.Execute
             _system = World.GetOrCreateSystem<CookActionExecuteSystem>();
 
             _agentEntity = EntityManager.CreateEntity();
+            _cookerEntity = EntityManager.CreateEntity();
             
-            //agent预存好原料
-            var itemBuffer = EntityManager.AddBuffer<ContainedItemRef>(_agentEntity);
+            //cooker预存好原料
+            var itemBuffer = EntityManager.AddBuffer<ContainedItemRef>(_cookerEntity);
             itemBuffer.Add(new ContainedItemRef
             {
                 ItemName = new NativeString64("input0"),
@@ -46,57 +47,55 @@ namespace Zephyr.GOAP.Test.Execute
             var bufferNodes = EntityManager.AddBuffer<Node>(_agentEntity);
             bufferNodes.Add(new Node
             {
-                Name = new NativeString64(nameof(CookAction)),
-                PreconditionsBitmask = 3,
-                EffectsBitmask = 1 << 2,
+                Name = nameof(CookAction),
+                PreconditionsBitmask = 3,   //0,1
+                EffectsBitmask = 1 << 2,    //2
             });
             var bufferStates = EntityManager.AddBuffer<State>(_agentEntity);
             bufferStates.Add(new State
             {
-                Target = _agentEntity,
-                Trait = typeof(ItemContainerTrait),
-                ValueString = new NativeString64("input0"),
+                Target = _cookerEntity,
+                Trait = typeof(ItemDestinationTrait),
+                ValueString = "input0",
             });
             bufferStates.Add(new State
             {
-                Target = _agentEntity,
-                Trait = typeof(ItemContainerTrait),
-                ValueString = new NativeString64("input1"),
+                Target = _cookerEntity,
+                Trait = typeof(ItemDestinationTrait),
+                ValueString = "input1",
             });
             bufferStates.Add(new State
             {
-                Target = _agentEntity,
-                Trait = typeof(ItemContainerTrait),
-                ValueString = new NativeString64("output"),
+                Target = _cookerEntity,
+                Trait = typeof(ItemSourceTrait),
+                ValueString = "output",
             });
         }
 
         [Test]
-        public void AgentRemoveInput()
+        public void CookerRemoveInput()
         {
             _system.Update();
             _system.ECBSystem.Update();
             EntityManager.CompleteAllJobs();
 
-            var itemBuffer = EntityManager.GetBuffer<ContainedItemRef>(_agentEntity);
+            var itemBuffer = EntityManager.GetBuffer<ContainedItemRef>(_cookerEntity);
             var items = itemBuffer.ToNativeArray(Allocator.Temp);
-            Assert.IsFalse(items.Any(item => item.ItemName.Equals(
-                new NativeString64("input0"))));
-            Assert.IsFalse(items.Any(item => item.ItemName.Equals(
-                new NativeString64("input1"))));
+            Assert.IsFalse(items.Any(item => item.ItemName.Equals("input0")));
+            Assert.IsFalse(items.Any(item => item.ItemName.Equals("input1")));
             items.Dispose();
         }
 
         [Test]
-        public void AgentGotOutput()
+        public void CookerGotOutput()
         {
             _system.Update();
             _system.ECBSystem.Update();
             EntityManager.CompleteAllJobs();
             
-            var itemBuffer = EntityManager.GetBuffer<ContainedItemRef>(_agentEntity);
+            var itemBuffer = EntityManager.GetBuffer<ContainedItemRef>(_cookerEntity);
             Assert.AreEqual(1, itemBuffer.Length);
-            Assert.AreEqual(new NativeString64("output"), itemBuffer[0].ItemName);
+            Assert.IsTrue(itemBuffer[0].ItemName.Equals("output"));
         }
 
         [Test]
