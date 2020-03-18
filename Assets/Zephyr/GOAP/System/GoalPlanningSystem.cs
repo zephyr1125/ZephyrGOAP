@@ -382,6 +382,14 @@ namespace Zephyr.GOAP.System
                 ref unexpandedNodes, ref existedNodesHash,  ref nodeStates,
                 nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
                 ref newlyCreatedNodesWriter, iteration);
+            handle = ScheduleActionExpand<PickRawAction>(handle, entityManager, ref stackData,
+                ref unexpandedNodes, ref existedNodesHash,  ref nodeStates,
+                nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
+                ref newlyCreatedNodesWriter, iteration);
+            handle = ScheduleActionExpand<DropRawAction>(handle, entityManager, ref stackData,
+                ref unexpandedNodes, ref existedNodesHash,  ref nodeStates,
+                nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
+                ref newlyCreatedNodesWriter, iteration);
 
             handle.Complete();
             existedNodesHash.Dispose();

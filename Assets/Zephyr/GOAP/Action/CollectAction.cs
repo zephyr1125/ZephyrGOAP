@@ -82,7 +82,12 @@ namespace Zephyr.GOAP.Action
         public void GetPreconditions(ref State targetState, ref State setting,
             ref StackData stackData, ref StateGroup preconditions)
         {
-            //由于在Sensor中已根据周围有无资源设置了collector的ItemPotentialSource，此处无需再设置precondition
+            preconditions.Add(new State
+            {
+                Target = setting.Target,
+                Trait = typeof(RawDestinationTrait),
+                ValueString = setting.ValueString
+            });
         }
 
         public void GetEffects(ref State targetState, ref State setting,

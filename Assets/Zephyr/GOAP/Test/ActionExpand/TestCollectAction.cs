@@ -1,6 +1,4 @@
-using System.Linq;
 using NUnit.Framework;
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Zephyr.GOAP.Action;
@@ -8,7 +6,6 @@ using Zephyr.GOAP.Component.AgentState;
 using Zephyr.GOAP.Component.Trait;
 using Zephyr.GOAP.Struct;
 using Zephyr.GOAP.System;
-using Zephyr.GOAP.System.SensorSystem;
 
 namespace Zephyr.GOAP.Test.ActionExpand
 {
@@ -39,7 +36,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
                 ValueString = "raw_peach"
             });
             
-            //给CurrentStates写入假环境数据：世界里有collector和raw
+            //给CurrentStates写入假环境数据：世界里有collector和collector已有原料
             var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
             buffer.Add(new State
             {
@@ -51,6 +48,12 @@ namespace Zephyr.GOAP.Test.ActionExpand
             {
                 Target = _collectorEntity,
                 Trait = typeof(ItemPotentialSourceTrait),
+                ValueString = "raw_peach"
+            });
+            buffer.Add(new State
+            {
+                Target = _collectorEntity,
+                Trait = typeof(RawDestinationTrait),
                 ValueString = "raw_peach"
             });
         }
@@ -83,6 +86,23 @@ namespace Zephyr.GOAP.Test.ActionExpand
             Assert.Zero(EntityManager.GetBuffer<State>(_agentEntity).Length);
         }
 
+        /// <summary>
+        /// collector上没有原料则失败
+        /// </summary>
+        [Test]
+        public void NoRaw_Fail()
+        {
+            var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
+            buffer.RemoveAt(2);
+            
+            _system.Update();
+            EntityManager.CompleteAllJobs();
+            
+            Assert.IsTrue(EntityManager.HasComponent<NoGoal>(_agentEntity));
+            Assert.IsFalse(EntityManager.HasComponent<GoalPlanning>(_agentEntity));
+            Assert.Zero(EntityManager.GetBuffer<State>(_agentEntity).Length);
+        }
+
         [Test]
         public void MultiCollector_ChooseNearest()
         {
@@ -100,6 +120,12 @@ namespace Zephyr.GOAP.Test.ActionExpand
                 Target = newCollectorEntity,
                 Trait = typeof(ItemPotentialSourceTrait),
                 ValueString = "raw_peach",
+            });
+            buffer.Add(new State
+            {
+                Target = newCollectorEntity,
+                Trait = typeof(RawDestinationTrait),
+                ValueString = "raw_peach"
             });
             
             _system.Update();
