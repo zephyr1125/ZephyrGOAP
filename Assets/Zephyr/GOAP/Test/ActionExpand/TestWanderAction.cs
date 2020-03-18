@@ -17,7 +17,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
     /// 目标：wander
     /// 预期：规划出wander
     /// </summary>
-    public class TestWanderAction : TestGoapBase
+    public class TestWanderAction : TestActionExpandBase
     {
         [SetUp]
         public override void SetUp()

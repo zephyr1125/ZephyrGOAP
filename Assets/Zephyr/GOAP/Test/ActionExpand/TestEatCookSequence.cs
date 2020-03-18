@@ -17,7 +17,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
     /// 目标：获得体力
     /// 预期：规划出Eat-Cook序列
     /// </summary>
-    public class TestEatCookSequence : TestGoapBase
+    public class TestEatCookSequence : TestActionExpandBase
     {
 
         [SetUp]

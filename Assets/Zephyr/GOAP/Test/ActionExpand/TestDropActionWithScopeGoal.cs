@@ -9,7 +9,7 @@ using Zephyr.GOAP.System;
 
 namespace Zephyr.GOAP.Test.ActionExpand
 {
-    public class TestDropActionWithScopeGoal : TestGoapBase
+    public class TestDropActionWithScopeGoal : TestActionExpandBase
     {
         [SetUp]
         public override void SetUp()

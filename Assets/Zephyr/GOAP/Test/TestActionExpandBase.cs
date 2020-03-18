@@ -9,7 +9,7 @@ using Zephyr.GOAP.Test.Debugger;
 
 namespace Zephyr.GOAP.Test
 {
-    public class TestGoapBase : TestBase
+    public class TestActionExpandBase : TestBase
     {
         protected GoalPlanningSystem _system;
         protected Entity _agentEntity, _goalEntity;

@@ -14,7 +14,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
     /// 目标：目标容器有物品
     /// 期望：Collect+Transfer
     /// </summary>
-    public class TestCollectAction : TestGoapBase
+    public class TestCollectAction : TestActionExpandBase
     {
         private Entity _collectorEntity, _itemDestinationEntity;
         

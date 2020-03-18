@@ -13,7 +13,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
     /// 目标：Collector提供指定物品
     /// 期望：PickRaw + DropRaw + Collect
     /// </summary>
-    public class TestPickDropCollectRawSequence : TestGoapBase
+    public class TestPickDropCollectRawSequence : TestActionExpandBase
     {
         private Entity _collectorEntity, _rawSourceEntity;
         

@@ -16,7 +16,7 @@ using Zephyr.GOAP.Test.Debugger;
 
 namespace Zephyr.GOAP.Test.ActionExpand
 {
-    public class TestPickDropSequence : TestGoapBase
+    public class TestPickDropSequence : TestActionExpandBase
     {
         //一个原料，一个目标容器，一个agent，
         //实现 Pick -> Drop 的plan序列

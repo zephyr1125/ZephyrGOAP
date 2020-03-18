@@ -12,7 +12,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
     /// 目标：获得体力
     /// 预期：规划出Eat
     /// </summary>
-    public class TestEatAction : TestGoapBase
+    public class TestEatAction : TestActionExpandBase
     {
         [SetUp]
         public override void SetUp()

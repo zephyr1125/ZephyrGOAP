@@ -18,7 +18,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
     /// 目标：获得体力
     /// 预期：规划出Eat
     /// </summary>
-    public class TestCookAction : TestGoapBase
+    public class TestCookAction : TestActionExpandBase
     {
         private Entity _cookerEntity;
         

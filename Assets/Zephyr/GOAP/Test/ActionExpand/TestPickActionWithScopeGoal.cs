@@ -11,7 +11,7 @@ using Zephyr.GOAP.Test.Debugger;
 
 namespace Zephyr.GOAP.Test.ActionExpand
 {
-    public class TestPickActionWithScopeGoal : TestGoapBase
+    public class TestPickActionWithScopeGoal : TestActionExpandBase
     {
         [SetUp]
         public override void SetUp()

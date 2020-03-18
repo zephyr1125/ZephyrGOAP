@@ -19,7 +19,7 @@ namespace Zephyr.GOAP.Test
     /// <summary>
     /// goal被planning之后要变化状态
     /// </summary>
-    public class TestGoalPlanningSystemUpdateGoalState : TestGoapBase
+    public class TestGoalPlanningSystemUpdateGoalState : TestActionExpandBase
     {
         [SetUp]
         public override void SetUp()
