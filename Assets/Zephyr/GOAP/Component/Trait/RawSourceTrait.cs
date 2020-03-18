@@ -1,3 +1,4 @@
+using Unity.Collections;
 using Unity.Entities;
 
 namespace Zephyr.GOAP.Component.Trait
@@ -7,5 +8,6 @@ namespace Zephyr.GOAP.Component.Trait
     /// </summary>
     public struct RawSourceTrait : IComponentData, ITrait
     {
+        public NativeString64 RawName;
     }
 }

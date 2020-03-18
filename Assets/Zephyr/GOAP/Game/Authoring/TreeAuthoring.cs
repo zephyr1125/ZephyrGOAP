@@ -14,8 +14,7 @@ namespace Zephyr.GOAP.Game.Authoring
 
         [ValueDropdown("FruitNames")]
         public string FruitName;
-        public int FruitAmount;
-        
+
         private static string[] FruitNames = { "raw_apple", "raw_peach" };
         
         public void Convert(Entity entity, EntityManager dstManager,
@@ -24,15 +23,7 @@ namespace Zephyr.GOAP.Game.Authoring
 #if UNITY_EDITOR
             dstManager.SetName(entity, Name);
 #endif
-            dstManager.AddComponentData(entity, new RawSourceTrait());
-            dstManager.AddComponentData(entity, new ItemContainerTrait());
-            dstManager.AddComponentData(entity, 
-                new ItemContainer{Capacity = 10, IsTransferSource = false});
-            var buffer = dstManager.AddBuffer<ContainedItemRef>(entity);
-            for (var i = 0; i < FruitAmount; i++)
-            {
-                buffer.Add(new ContainedItemRef{ItemName = FruitName});
-            }
+            dstManager.AddComponentData(entity, new RawSourceTrait{RawName = FruitName});
         }
     }
 }
