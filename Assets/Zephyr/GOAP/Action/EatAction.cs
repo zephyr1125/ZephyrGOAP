@@ -6,7 +6,7 @@ using Zephyr.GOAP.Struct;
 namespace Zephyr.GOAP.Action
 {
     /// <summary>
-    /// Eat的setting为自己拥有各种食物，用于precondition
+    /// Eat的setting为各种食物的餐桌，用于precondition
     /// </summary>
     public struct EatAction : IComponentData, IAction
     {
@@ -37,26 +37,34 @@ namespace Zephyr.GOAP.Action
         {
             var settings = new StateGroup(1, allocator);
             
-            //自己有食物
-            var template = new State
+            //setting为有食物的餐桌
+            var diningTableTemplate = new State
             {
-                Target = stackData.AgentEntity,
-                Trait = typeof(ItemContainerTrait),
-                ValueTrait = typeof(FoodTrait),
+                Trait = typeof(DiningTableTrait),
             };
-            
-            //todo 此处应查询define获得所有食物，示例里暂时从工具方法获取
+            var tables =
+                stackData.CurrentStates.GetBelongingStates(diningTableTemplate, Allocator.Temp);
             var itemNames =
                 Utils.GetItemNamesOfSpecificTrait(typeof(FoodTrait),
                     Allocator.Temp);
-            for (var i = 0; i < itemNames.Length; i++)
+            //todo 此处考虑直接寻找最近的餐桌以避免setting过于膨胀
+            foreach (var table in tables)
             {
-                var state = template;
-                state.ValueString = itemNames[i];
-                settings.Add(state);
+                for (var i = 0; i < itemNames.Length; i++)
+                {
+                    var itemName = itemNames[i];
+                    var foodOnTableTemplate = new State
+                    {
+                        Target = table.Target,
+                        Trait = typeof(ItemContainerTrait),
+                        ValueString = itemName
+                    };
+                    settings.Add(foodOnTableTemplate);
+                }
             }
-
+            
             itemNames.Dispose();
+            tables.Dispose();
 
             return settings;
         }
@@ -64,13 +72,8 @@ namespace Zephyr.GOAP.Action
         public void GetPreconditions(ref State targetState, ref State setting,
             ref StackData stackData, ref StateGroup preconditions)
         {
-            //自己有食物
+            //有食物的餐桌
             preconditions.Add(setting);
-            //世界里有餐桌
-            preconditions.Add(new State
-            {
-                Trait = typeof(DiningTableTrait),
-            });
         }
 
         public void GetEffects(ref State targetState, ref State setting,
@@ -91,7 +94,7 @@ namespace Zephyr.GOAP.Action
             ref StackData stackData, ref StateGroup preconditions)
         {
             //导航目标为餐桌
-            return preconditions[1].Target;
+            return preconditions[0].Target;
         }
     }
 }

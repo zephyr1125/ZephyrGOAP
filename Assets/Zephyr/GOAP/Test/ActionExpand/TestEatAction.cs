@@ -14,10 +14,14 @@ namespace Zephyr.GOAP.Test.ActionExpand
     /// </summary>
     public class TestEatAction : TestActionExpandBase
     {
+        private Entity _diningTableEntity;
+        
         [SetUp]
         public override void SetUp()
         {
             base.SetUp();
+
+            _diningTableEntity = EntityManager.CreateEntity();
 
             EntityManager.AddComponentData(_agentEntity, new EatAction());
             
@@ -28,33 +32,44 @@ namespace Zephyr.GOAP.Test.ActionExpand
                 Trait = typeof(StaminaTrait),
             });
             
-            //给CurrentStates写入假环境数据：自己有食物、世界里有餐桌
+            //给CurrentStates写入假环境数据：世界里有餐桌，餐桌上有食物
             var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
             buffer.Add(new State
             {
-                Target = _agentEntity,
-                Trait = typeof(ItemContainerTrait),
-                ValueTrait = typeof(FoodTrait),
+                Target = _diningTableEntity,
+                Trait = typeof(DiningTableTrait),
             });
             buffer.Add(new State
             {
-                Target = new Entity{Index = 9, Version = 9},
-                Trait = typeof(DiningTableTrait),
+                Target = _diningTableEntity,
+                Trait = typeof(ItemContainerTrait),
+                ValueString = "raw_apple",
             });
         }
 
         [Test]
-        public void MultiFood()
+        public void PlanEat()
         {
             _system.Update();
             EntityManager.CompleteAllJobs();
             
-            Assert.AreEqual(4, _debugger.GoalNodeView.Children.Count);
+            var result = _debugger.PathResult[1];
+            Assert.AreEqual(nameof(EatAction), result.Name);
+            Assert.IsTrue(result.States[0].Target.Equals(_diningTableEntity));
+            Assert.IsTrue(result.Preconditions.Any(state=>state.ValueString.Equals("raw_apple")));
         }
 
         [Test]
         public void ChooseBestRewardFood()
         {
+            var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
+            buffer.Add(new State
+            {
+                Target = _diningTableEntity,
+                Trait = typeof(ItemContainerTrait),
+                ValueString = "roast_apple",
+            });
+            
             _system.Update();
             EntityManager.CompleteAllJobs();
             
