@@ -20,7 +20,7 @@ namespace Zephyr.GOAP.Action
             //针对“目标获得物品”的state
             var stateFilter = new State
             {
-                Trait = typeof(ItemContainerTrait),
+                Trait = typeof(ItemDestinationTrait),
             };
             var agent = stackData.AgentEntity;
             //额外：target不能为自身
@@ -61,6 +61,7 @@ namespace Zephyr.GOAP.Action
             //我自己需要有指定的物品
             var state = setting;
             state.Target = stackData.AgentEntity;
+            state.Trait = typeof(ItemTransferTrait);
             preconditions.Add(state);
         }
 

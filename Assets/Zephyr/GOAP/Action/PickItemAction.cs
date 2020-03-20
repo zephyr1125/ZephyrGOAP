@@ -18,11 +18,11 @@ namespace Zephyr.GOAP.Action
         public State GetTargetGoalState([ReadOnly]ref StateGroup targetStates,
             [ReadOnly]ref StackData stackData)
         {
-            //针对“自身获得物品”的state
+            //针对“自身运输物品”的state
             var stateFilter = new State
             {
                 Target = stackData.AgentEntity,
-                Trait = typeof(ItemContainerTrait),
+                Trait = typeof(ItemTransferTrait),
             };
             return targetStates.GetBelongingState(stateFilter);
         }
@@ -67,6 +67,7 @@ namespace Zephyr.GOAP.Action
         {
             var state = setting;
             state.Target = Entity.Null;
+            state.Trait = typeof(ItemSourceTrait);
             preconditions.Add(state);
         }
 

@@ -22,7 +22,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
             stateBuffer.Add(new State
             {
                 Target = new Entity {Index = 9, Version = 9},
-                Trait = typeof(ItemContainerTrait),
+                Trait = typeof(ItemDestinationTrait),
                 ValueTrait = typeof(FoodTrait)
             });
             
