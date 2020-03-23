@@ -9,6 +9,8 @@ namespace Zephyr.GOAP.Editor
     {
         public static void AddStatesToContainer(VisualElement container, StateView[] states)
         {
+            if (states == null) return;
+            
             var stateTexts = new List<string>(states.Length);
             for (var i = 0; i < states.Length; i++)
             {

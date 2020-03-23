@@ -3,13 +3,10 @@ using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
 using Zephyr.GOAP.Action;
-using Zephyr.GOAP.Component;
-using Zephyr.GOAP.Component.AgentState;
 using Zephyr.GOAP.Component.Trait;
 using Zephyr.GOAP.Struct;
 using Zephyr.GOAP.System;
 using Zephyr.GOAP.System.SensorSystem;
-using Zephyr.GOAP.Test.Debugger;
 
 namespace Zephyr.GOAP.Test.ActionExpand
 {
@@ -20,13 +17,20 @@ namespace Zephyr.GOAP.Test.ActionExpand
     public class TestEatCookSequence : TestActionExpandBase
     {
 
+        private Entity _cookerEntity, _diningTableEntity;
+
         [SetUp]
         public override void SetUp()
         {
             base.SetUp();
+
+            _cookerEntity = EntityManager.CreateEntity();
+            _diningTableEntity = EntityManager.CreateEntity();
             
             EntityManager.AddComponentData(_agentEntity, new EatAction());
             EntityManager.AddComponentData(_agentEntity, new CookAction());
+            EntityManager.AddComponentData(_agentEntity, new PickItemAction());
+            EntityManager.AddComponentData(_agentEntity, new DropItemAction());
             
             var stateBuffer = EntityManager.AddBuffer<State>(_agentEntity);
             stateBuffer.Add(new State
@@ -35,24 +39,25 @@ namespace Zephyr.GOAP.Test.ActionExpand
                 Trait = typeof(StaminaTrait),
             });
             
-            //给CurrentStates写入假环境数据：自己有原料、世界里有餐桌、cooker、配方
+            //给CurrentStates写入假环境数据：世界里有餐桌、cooker有原料、配方
             var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
             buffer.Add(new State
             {
-                Target = _agentEntity,
-                Trait = typeof(ItemContainerTrait),
-                ValueString = new NativeString64("raw_apple"),
-            });
-            buffer.Add(new State
-            {
-                Target = new Entity{Index = 9, Version = 9},
-                Trait = typeof(DiningTableTrait),
-            });
-            buffer.Add(new State
-            {
-                Target = new Entity{Index = 9, Version = 1},
+                Target = _cookerEntity,
                 Trait = typeof(CookerTrait),
             });
+            buffer.Add(new State
+            {
+                Target = _cookerEntity,
+                Trait = typeof(ItemDestinationTrait),
+                ValueString = "raw_apple",
+            });
+            buffer.Add(new State
+            {
+                Target = _diningTableEntity,
+                Trait = typeof(DiningTableTrait),
+            });
+            
             var recipeSensorSystem = World.GetOrCreateSystem<RecipeSensorSystem>();
             recipeSensorSystem.Update();
         }
@@ -65,9 +70,11 @@ namespace Zephyr.GOAP.Test.ActionExpand
             
             Debug.Log(_debugger.GoalNodeView);
             var pathResult = _debugger.PathResult;
-            Assert.AreEqual(3, pathResult.Length);
-            Assert.AreEqual("EatAction", pathResult[1].Name);
-            Assert.AreEqual("CookAction", pathResult[2].Name);
+            Assert.AreEqual(5, pathResult.Length);
+            Assert.AreEqual(nameof(EatAction), pathResult[1].Name);
+            Assert.AreEqual(nameof(DropItemAction), pathResult[2].Name);
+            Assert.AreEqual(nameof(PickItemAction), pathResult[3].Name);
+            Assert.AreEqual(nameof(CookAction), pathResult[4].Name);
         }
         
         //改变reward设置，规划随之改变
@@ -83,7 +90,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
             Debug.Log(_debugger.GoalNodeView);
             var pathResult = _debugger.PathResult;
             Assert.AreEqual(2, pathResult.Length);
-            Assert.AreEqual("EatAction", pathResult[1].Name);
+            Assert.AreEqual(nameof(EatAction), pathResult[1].Name);
 
             Utils.RoastAppleStamina = origin;
         }

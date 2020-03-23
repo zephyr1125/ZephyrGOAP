@@ -2,6 +2,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Transforms;
+using UnityEngine;
 using Zephyr.GOAP.Action;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.AgentState;
@@ -120,6 +121,10 @@ namespace Zephyr.GOAP.System
                     //直至待展开列表为空或Early Exit
                     iteration++;
                 }
+
+                var nodes = nodeGraph.GetNodes(Allocator.Temp);
+                Debug.Log($"{nodes.Length} nodes in graph");
+                nodes.Dispose();
 
                 if (!foundPlan)
                 {

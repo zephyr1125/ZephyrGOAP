@@ -193,14 +193,11 @@ namespace Zephyr.GOAP.Editor
         private void ConstructNode(VisualElement parent, NodeView node, ref List<int> nodeCounts)
         {
             var iteration = node.Iteration;
-            if (nodeCounts.Count <= iteration)
+            while (nodeCounts.Count <= iteration)
             {
                 nodeCounts.Add(0);
             }
-            else
-            {
-                nodeCounts[iteration]++;
-            }
+            nodeCounts[iteration]++;
 
             var drawPos = new Vector2(NodeDistance + iteration * (NodeWidth+NodeDistance),
                 NodeDistance + nodeCounts[iteration] * (NodeHeight+NodeDistance));

@@ -42,7 +42,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
             buffer.Add(new State
             {
                 Target = _diningTableEntity,
-                Trait = typeof(ItemContainerTrait),
+                Trait = typeof(ItemDestinationTrait),
                 ValueString = "raw_apple",
             });
         }
@@ -66,7 +66,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
             buffer.Add(new State
             {
                 Target = _diningTableEntity,
-                Trait = typeof(ItemContainerTrait),
+                Trait = typeof(ItemDestinationTrait),
                 ValueString = "roast_apple",
             });
             

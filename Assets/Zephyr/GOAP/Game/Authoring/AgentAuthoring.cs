@@ -30,10 +30,14 @@ namespace Zephyr.GOAP.Game.Authoring
             dstManager.AddComponentData(entity, new NoGoal());
             dstManager.AddBuffer<State>(entity);
             
-            dstManager.AddComponentData(entity, new TransferAction());
+            dstManager.AddComponentData(entity, new PickItemAction());
+            dstManager.AddComponentData(entity, new DropItemAction());
+            dstManager.AddComponentData(entity, new PickRawAction());
+            dstManager.AddComponentData(entity, new DropRawAction());
             dstManager.AddComponentData(entity, new EatAction());
             dstManager.AddComponentData(entity, new CookAction());
             dstManager.AddComponentData(entity, new WanderAction());
+            dstManager.AddComponentData(entity, new CollectAction());
             
             dstManager.AddComponentData(entity, new ItemContainerTrait());
             dstManager.AddComponentData(entity, 

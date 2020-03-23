@@ -50,16 +50,22 @@ namespace Zephyr.GOAP.Editor
         {
             var preconditionContainer = _statesTip.Q("preconditions");
             preconditionContainer.Clear();
-            foreach (var precondition in Node.Preconditions)
+            if (Node.Preconditions != null)
             {
-                preconditionContainer.Add(new Label(precondition.ToString()));
+                foreach (var precondition in Node.Preconditions)
+                {
+                    preconditionContainer.Add(new Label(precondition.ToString()));
+                }
             }
-            
+
             var effectContainer = _statesTip.Q("effects");
             effectContainer.Clear();
-            foreach (var effect in Node.Effects)
+            if (Node.Effects != null)
             {
-                effectContainer.Add(new Label(effect.ToString()));
+                foreach (var effect in Node.Effects)
+                {
+                    effectContainer.Add(new Label(effect.ToString()));
+                }
             }
         }
 

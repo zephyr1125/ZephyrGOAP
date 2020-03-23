@@ -56,7 +56,7 @@ namespace Zephyr.GOAP.Action
                     var foodOnTableTemplate = new State
                     {
                         Target = table.Target,
-                        Trait = typeof(ItemContainerTrait),
+                        Trait = typeof(ItemDestinationTrait),
                         ValueString = itemName
                     };
                     settings.Add(foodOnTableTemplate);

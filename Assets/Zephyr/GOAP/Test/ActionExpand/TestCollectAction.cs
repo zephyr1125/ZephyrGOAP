@@ -12,7 +12,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
 
     /// <summary>
     /// 目标：目标容器有物品
-    /// 期望：Collect+Transfer
+    /// 期望：Collect+Pick+Drop
     /// </summary>
     public class TestCollectAction : TestActionExpandBase
     {
@@ -26,7 +26,8 @@ namespace Zephyr.GOAP.Test.ActionExpand
             _collectorEntity = EntityManager.CreateEntity();
             _itemDestinationEntity = EntityManager.CreateEntity();
 
-            EntityManager.AddComponentData(_agentEntity, new TransferAction());
+            EntityManager.AddComponentData(_agentEntity, new PickItemAction());
+            EntityManager.AddComponentData(_agentEntity, new DropItemAction());
             EntityManager.AddComponentData(_agentEntity, new CollectAction());
             var stateBuffer = EntityManager.AddBuffer<State>(_agentEntity);
             stateBuffer.Add(new State
@@ -65,8 +66,9 @@ namespace Zephyr.GOAP.Test.ActionExpand
             EntityManager.CompleteAllJobs();
             
             var result = _debugger.PathResult;
-            Assert.AreEqual(nameof(TransferAction), result[1].Name);
-            Assert.AreEqual(nameof(CollectAction), result[2].Name);
+            Assert.AreEqual(nameof(DropItemAction), result[1].Name);
+            Assert.AreEqual(nameof(PickItemAction), result[2].Name);
+            Assert.AreEqual(nameof(CollectAction), result[3].Name);
         }
 
         /// <summary>
@@ -132,9 +134,10 @@ namespace Zephyr.GOAP.Test.ActionExpand
             EntityManager.CompleteAllJobs();
             
             var result = _debugger.PathResult;
-            Assert.AreEqual(nameof(TransferAction), result[1].Name);
-            Assert.AreEqual(nameof(CollectAction), result[2].Name);
-            Assert.IsTrue(result[2].Effects[0].Target.Equals(newCollectorEntity));
+            Assert.AreEqual(nameof(DropItemAction), result[1].Name);
+            Assert.AreEqual(nameof(PickItemAction), result[2].Name);
+            Assert.AreEqual(nameof(CollectAction), result[3].Name);
+            Assert.IsTrue(result[3].Effects[0].Target.Equals(newCollectorEntity));
         }
 
         //世界里同时有collector和直接物品源时，选择cost最小的方案
@@ -158,9 +161,11 @@ namespace Zephyr.GOAP.Test.ActionExpand
             _system.Update();
             EntityManager.CompleteAllJobs();
             
-            Assert.AreEqual(2, _debugger.PathResult.Length);
-            var result = _debugger.PathResult[1];
-            Assert.AreEqual(nameof(TransferAction), result.Name);
+            Assert.AreEqual(3, _debugger.PathResult.Length);
+            var result = _debugger.PathResult;
+            Assert.AreEqual(nameof(DropItemAction), result[1].Name);
+            Assert.AreEqual(nameof(PickItemAction), result[2].Name);
+            Assert.IsTrue(result[2].States[0].Target.Equals(itemSourceEntity));
         }
     }
 }

@@ -184,7 +184,8 @@ namespace Zephyr.GOAP.Test.ActionExpand
             //测试场景：某容器需要roast_apple，另一容器就有提供，agent既可以直接transfer，也可以cook再transfer
             //todo 目前没有把运输距离纳入cost计算，会直接选择transfer，将来需要测试不同距离的情况
             
-            EntityManager.AddComponentData(_agentEntity, new TransferAction());
+            EntityManager.AddComponentData(_agentEntity, new PickItemAction());
+            EntityManager.AddComponentData(_agentEntity, new DropItemAction());
 
             var itemDestinationEntity = EntityManager.CreateEntity();
             var itemSourceEntity = EntityManager.CreateEntity();
@@ -210,8 +211,9 @@ namespace Zephyr.GOAP.Test.ActionExpand
             _system.Update();
             EntityManager.CompleteAllJobs();
             
-            var result = _debugger.PathResult[1];
-            Assert.AreEqual(nameof(TransferAction), result.Name);
+            var result = _debugger.PathResult[2];
+            Assert.AreEqual(nameof(PickItemAction), result.Name);
+            Assert.IsTrue(result.States[0].Target.Equals(itemSourceEntity));
         }
     }
 }
