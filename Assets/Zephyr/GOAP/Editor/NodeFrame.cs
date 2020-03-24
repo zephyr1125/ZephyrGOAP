@@ -10,6 +10,10 @@ namespace Zephyr.GOAP.Editor
 
         private VisualElement _statesTip;
 
+        private bool _mouse0Down;
+
+        private Vector2 _mouseDragStartPos, _frameDragStartPos;
+
         public NodeFrame(NodeView node, Vector2 drawPos, Vector2 size, VisualElement statesTip)
         {
             Node = node;
@@ -24,6 +28,9 @@ namespace Zephyr.GOAP.Editor
             target.RegisterCallback<MouseEnterEvent>(OnMouseEnter);
             target.RegisterCallback<MouseMoveEvent>(OnMouseMove);
             target.RegisterCallback<MouseLeaveEvent>(OnMouseLeave);
+            //拖拽
+            target.RegisterCallback<MouseDownEvent>(OnMouseDown);
+            target.RegisterCallback<MouseUpEvent>(OnMouseUp);
 
             _statesTip = statesTip;
         }
@@ -39,11 +46,42 @@ namespace Zephyr.GOAP.Editor
         private void OnMouseMove(MouseEventBase<MouseMoveEvent> evt)
         {
             UpdateStatesTipPos(evt.mousePosition);
+            if (_mouse0Down)
+            {
+                var distance = evt.mousePosition - _mouseDragStartPos;
+                Node.DrawPos = _frameDragStartPos + distance;
+                style.left = Node.DrawPos.x;
+                style.top = Node.DrawPos.y;
+            }
         }
         
         private void OnMouseLeave(MouseEventBase<MouseLeaveEvent> evt)
         {
             UpdateStatesTipPos(new Vector2(0, -100));
+        }
+        
+        private void OnMouseDown(MouseEventBase<MouseDownEvent> evt)
+        {
+            switch (evt.button)
+            {
+                case 0:
+                    //左键
+                    _mouse0Down = true;
+                    _mouseDragStartPos = evt.mousePosition;
+                    _frameDragStartPos = Node.DrawPos;
+                    break;
+            }
+        }
+        
+        private void OnMouseUp(MouseEventBase<MouseUpEvent> evt)
+        {
+            switch (evt.button)
+            {
+                case 0:
+                    //左键
+                    _mouse0Down = false;
+                    break;
+            }
         }
 
         private void SetStatesTip()
