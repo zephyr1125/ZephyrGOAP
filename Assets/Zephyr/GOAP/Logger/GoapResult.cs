@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
+using JetBrains.Annotations;
 using Unity.Collections;
 using Unity.Entities;
 using Zephyr.GOAP.Struct;
@@ -10,50 +12,107 @@ namespace Zephyr.GOAP.Logger
     [Serializable]
     public class GoapResult
     {
-        public EntityView Agent;
+        public EntityLog agent;
 
-        public NodeView GoalNodeView;
+        public List<NodeLog> nodes;
 
-        public List<StateView> CurrentStates;
+        public List<EdgeLog> edges;
 
-        public string TimeStart;
+        public List<StateLog> currentStates;
+
+        public string timeStart;
         
-        public string TimeCost;
+        public string timeCost;
 
         private DateTime _timeStart;
 
+        private int[] _pathHash;
+
         public void StartLog(EntityManager entityManager, Entity agent)
         {
-            Agent = new EntityView(entityManager, agent);
+            this.agent = new EntityLog(entityManager, agent);
             _timeStart = DateTime.Now;
-            TimeStart = DateTime.Now.ToString(CultureInfo.InvariantCulture);
+            timeStart = DateTime.Now.ToString(CultureInfo.InvariantCulture);
+            
+            nodes = new List<NodeLog>();
+            edges = new List<EdgeLog>();
+            currentStates = new List<StateLog>();
         }
         
         public void SetNodeGraph(ref NodeGraph nodeGraph, EntityManager entityManager)
         {
-            GoalNodeView = NodeView.ConstructNodeTree(ref nodeGraph, entityManager);
+            //转换所有node
+            var nodesData = nodeGraph.GetNodes(Allocator.Temp);
+            foreach (var node in nodesData)
+            {
+                nodes.Add(new NodeLog(ref nodeGraph, entityManager, node));
+            }
+            //转换所有edge
+            var edgesData = nodeGraph.GetEdges(Allocator.Temp);
+            foreach (var edge in edgesData)
+            {
+                edges.Add(new EdgeLog(edge));
+            }
+
+            nodesData.Dispose();
         }
 
         public void SetPathResult(ref NativeList<Node> pathResult)
         {
-            GoalNodeView.SetPath(ref pathResult);
-            TimeCost = (DateTime.Now - _timeStart).TotalMilliseconds.ToString(CultureInfo.InvariantCulture);
+            _pathHash = new int[pathResult.Length];
+            for (var i = 0; i < pathResult.Length; i++)
+            {
+                var node = pathResult[i];
+                _pathHash[i] = node.HashCode;
+                
+                foreach (var nodeLog in nodes)
+                {
+                    if (nodeLog.hashCode != node.HashCode) continue;
+                    nodeLog.isPath = true;
+                    break;
+                }
+            }
+
+            timeCost = (DateTime.Now - _timeStart).TotalMilliseconds.ToString(CultureInfo.InvariantCulture);
         }
 
         public void SetCurrentStates(ref StateGroup currentStates, EntityManager entityManager)
         {
-            if (CurrentStates == null) CurrentStates = new List<StateView>(currentStates.Length());
             foreach (var currentState in currentStates)
             {
-                CurrentStates.Add(new StateView(entityManager, currentState));
+                this.currentStates.Add(new StateLog(entityManager, currentState));
             }
         }
 
-        public NodeView[] GetPathResult()
+        public NodeLog[] GetPathResult()
         {
-            var pathResult = new List<NodeView>();
-            GoalNodeView.GetPath(ref pathResult);
-            return pathResult.ToArray();
+            var pathResult = new NodeLog[_pathHash.Length];
+            for (var i = 0; i < _pathHash.Length; i++)
+            {
+                var node = nodes.Find(n=>n.hashCode==_pathHash[i]);
+                pathResult[i] = node;
+            }
+
+            return pathResult;
+        }
+
+        public NodeLog[] GetChildren(NodeLog parent)
+        {
+            var result = new List<NodeLog>();
+            var hashCodes = new List<int>();
+            var parentHash = parent.hashCode;
+            foreach (var edge in edges)
+            {
+                if (edge.parentHash != parentHash) continue;
+                hashCodes.Add(edge.childHash);
+            }
+
+            foreach (var hashCode in hashCodes)
+            {
+                result.Add(nodes.Find(node => node.hashCode == hashCode));
+            }
+            
+            return result.ToArray();
         }
     }
 }

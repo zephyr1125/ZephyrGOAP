@@ -56,10 +56,10 @@ namespace Zephyr.GOAP.Test.ActionExpand
             _system.Update();
             EntityManager.CompleteAllJobs();
 
-            Debug.Log(_debugger.GoalNodeView);
-            Assert.AreEqual(1, _debugger.GoalNodeView.Children[0].States.Length);
+            Debug.Log(_debugger.GoalNodeLog);
+            Assert.AreEqual(1, _debugger.GetChildren(_debugger.GoalNodeLog)[0].states.Length);
             var pathResult = _debugger.PathResult;
-            Assert.AreEqual(nameof(WanderAction), _debugger.PathResult[1].Name);
+            Assert.AreEqual(nameof(WanderAction), _debugger.PathResult[1].name);
             Debug.Log(pathResult);
         }
     }

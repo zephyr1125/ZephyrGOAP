@@ -63,8 +63,8 @@ namespace Zephyr.GOAP.Test.ActionExpand
             EntityManager.CompleteAllJobs();
             
             var result = _debugger.PathResult[1];
-            Assert.AreEqual(nameof(CookAction), result.Name);
-            Assert.IsTrue(result.States[0].Target.Equals(_cookerEntity));
+            Assert.AreEqual(nameof(CookAction), result.name);
+            Assert.IsTrue(result.states[0].Target.Equals(_cookerEntity));
         }
 
         //对未指明Target的goal进行规划
@@ -80,8 +80,8 @@ namespace Zephyr.GOAP.Test.ActionExpand
             EntityManager.CompleteAllJobs();
             
             var result = _debugger.PathResult[1];
-            Assert.AreEqual(nameof(CookAction), result.Name);
-            Assert.IsTrue(result.States[0].Target.Equals(_cookerEntity));
+            Assert.AreEqual(nameof(CookAction), result.name);
+            Assert.IsTrue(result.states[0].Target.Equals(_cookerEntity));
         }
 
         /// <summary>
@@ -120,8 +120,8 @@ namespace Zephyr.GOAP.Test.ActionExpand
             EntityManager.CompleteAllJobs();
             
             var result = _debugger.PathResult[1];
-            Assert.AreEqual(nameof(CookAction), result.Name);
-            Assert.IsTrue(result.States[0].Target.Equals(_cookerEntity));
+            Assert.AreEqual(nameof(CookAction), result.name);
+            Assert.IsTrue(result.states[0].Target.Equals(_cookerEntity));
         }
         
         //只指定ValueTrait的，根据配方产生多个node
@@ -138,10 +138,11 @@ namespace Zephyr.GOAP.Test.ActionExpand
             EntityManager.CompleteAllJobs();
             
             //2种有配方的方案
-            Assert.AreEqual(2, _debugger.GoalNodeView.Children.Count);
-            Assert.IsTrue(_debugger.GoalNodeView.Children.Any(nodeView => nodeView.States.Any(
+            var children = _debugger.GetChildren(_debugger.GoalNodeLog);
+            Assert.AreEqual(2, children.Length);
+            Assert.IsTrue(children.Any(nodeLog => nodeLog.states.Any(
                 state => state.ValueString.Equals("raw_apple"))));
-            Assert.IsTrue(_debugger.GoalNodeView.Children.Any(nodeView => nodeView.States.Any(
+            Assert.IsTrue(children.Any(nodeLog => nodeLog.states.Any(
                 state => state.ValueString.Equals("raw_peach"))));
         }
 
@@ -173,8 +174,8 @@ namespace Zephyr.GOAP.Test.ActionExpand
             EntityManager.CompleteAllJobs();
             
             var result = _debugger.PathResult[1];
-            Assert.AreEqual(nameof(CookAction), result.Name);
-            Assert.IsTrue(result.States[0].Target.Equals(newCookerEntity));
+            Assert.AreEqual(nameof(CookAction), result.name);
+            Assert.IsTrue(result.states[0].Target.Equals(newCookerEntity));
         }
 
         //世界里同时有cooker和直接物品源时，选择cost最小的方案
@@ -212,8 +213,8 @@ namespace Zephyr.GOAP.Test.ActionExpand
             EntityManager.CompleteAllJobs();
             
             var result = _debugger.PathResult[2];
-            Assert.AreEqual(nameof(PickItemAction), result.Name);
-            Assert.IsTrue(result.States[0].Target.Equals(itemSourceEntity));
+            Assert.AreEqual(nameof(PickItemAction), result.name);
+            Assert.IsTrue(result.states[0].Target.Equals(itemSourceEntity));
         }
     }
 }

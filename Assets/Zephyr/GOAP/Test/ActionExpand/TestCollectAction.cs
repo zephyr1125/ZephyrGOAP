@@ -66,9 +66,9 @@ namespace Zephyr.GOAP.Test.ActionExpand
             EntityManager.CompleteAllJobs();
             
             var result = _debugger.PathResult;
-            Assert.AreEqual(nameof(DropItemAction), result[1].Name);
-            Assert.AreEqual(nameof(PickItemAction), result[2].Name);
-            Assert.AreEqual(nameof(CollectAction), result[3].Name);
+            Assert.AreEqual(nameof(DropItemAction), result[1].name);
+            Assert.AreEqual(nameof(PickItemAction), result[2].name);
+            Assert.AreEqual(nameof(CollectAction), result[3].name);
         }
 
         /// <summary>
@@ -134,10 +134,10 @@ namespace Zephyr.GOAP.Test.ActionExpand
             EntityManager.CompleteAllJobs();
             
             var result = _debugger.PathResult;
-            Assert.AreEqual(nameof(DropItemAction), result[1].Name);
-            Assert.AreEqual(nameof(PickItemAction), result[2].Name);
-            Assert.AreEqual(nameof(CollectAction), result[3].Name);
-            Assert.IsTrue(result[3].Effects[0].Target.Equals(newCollectorEntity));
+            Assert.AreEqual(nameof(DropItemAction), result[1].name);
+            Assert.AreEqual(nameof(PickItemAction), result[2].name);
+            Assert.AreEqual(nameof(CollectAction), result[3].name);
+            Assert.IsTrue(result[3].effects[0].Target.Equals(newCollectorEntity));
         }
 
         //世界里同时有collector和直接物品源时，选择cost最小的方案
@@ -163,9 +163,9 @@ namespace Zephyr.GOAP.Test.ActionExpand
             
             Assert.AreEqual(3, _debugger.PathResult.Length);
             var result = _debugger.PathResult;
-            Assert.AreEqual(nameof(DropItemAction), result[1].Name);
-            Assert.AreEqual(nameof(PickItemAction), result[2].Name);
-            Assert.IsTrue(result[2].States[0].Target.Equals(itemSourceEntity));
+            Assert.AreEqual(nameof(DropItemAction), result[1].name);
+            Assert.AreEqual(nameof(PickItemAction), result[2].name);
+            Assert.IsTrue(result[2].states[0].Target.Equals(itemSourceEntity));
         }
     }
 }

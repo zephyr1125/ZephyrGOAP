@@ -54,10 +54,15 @@ namespace Zephyr.GOAP.Test.Debugger
             writer.Close();
         }
 
-        public NodeView GoalNodeView => _goapLog.GetGoalNodeView();
+        public NodeLog GoalNodeLog => _goapLog.GetGoalNodeView();
 
-        public NodeView[] PathResult => _goapLog.GetPathResult();
+        public NodeLog[] PathResult => _goapLog.GetPathResult();
 
+        public NodeLog[] GetChildren(NodeLog parent)
+        {
+            return _goapLog.GetChildren(parent);
+        }
+        
         public void Log(string log)
         {
             Debug.Log(log);

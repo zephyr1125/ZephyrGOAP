@@ -68,13 +68,13 @@ namespace Zephyr.GOAP.Test.ActionExpand
             _system.Update();
             EntityManager.CompleteAllJobs();
             
-            Debug.Log(_debugger.GoalNodeView);
+            Debug.Log(_debugger.GoalNodeLog);
             var pathResult = _debugger.PathResult;
             Assert.AreEqual(5, pathResult.Length);
-            Assert.AreEqual(nameof(EatAction), pathResult[1].Name);
-            Assert.AreEqual(nameof(DropItemAction), pathResult[2].Name);
-            Assert.AreEqual(nameof(PickItemAction), pathResult[3].Name);
-            Assert.AreEqual(nameof(CookAction), pathResult[4].Name);
+            Assert.AreEqual(nameof(EatAction), pathResult[1].name);
+            Assert.AreEqual(nameof(DropItemAction), pathResult[2].name);
+            Assert.AreEqual(nameof(PickItemAction), pathResult[3].name);
+            Assert.AreEqual(nameof(CookAction), pathResult[4].name);
         }
         
         //改变reward设置，规划随之改变
@@ -87,10 +87,10 @@ namespace Zephyr.GOAP.Test.ActionExpand
             _system.Update();
             EntityManager.CompleteAllJobs();
             
-            Debug.Log(_debugger.GoalNodeView);
+            Debug.Log(_debugger.GoalNodeLog);
             var pathResult = _debugger.PathResult;
             Assert.AreEqual(2, pathResult.Length);
-            Assert.AreEqual(nameof(EatAction), pathResult[1].Name);
+            Assert.AreEqual(nameof(EatAction), pathResult[1].name);
 
             Utils.RoastAppleStamina = origin;
         }

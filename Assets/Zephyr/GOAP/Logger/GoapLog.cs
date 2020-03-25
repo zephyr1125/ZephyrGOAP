@@ -45,14 +45,19 @@ namespace Zephyr.GOAP.Logger
             _currentLog.SetCurrentStates(ref currentStates, entityManager);
         }
 
-        public NodeView GetGoalNodeView()
+        public NodeLog GetGoalNodeView()
         {
-            return _currentLog.GoalNodeView;
+            return _currentLog.nodes[0];
         }
 
-        public NodeView[] GetPathResult()
+        public NodeLog[] GetPathResult()
         {
             return _currentLog.GetPathResult();
+        }
+
+        public NodeLog[] GetChildren(NodeLog parent)
+        {
+            return _currentLog.GetChildren(parent);
         }
     }
 

@@ -102,6 +102,11 @@ namespace Zephyr.GOAP.Struct
             return nodes;
         }
 
+        public NativeArray<Edge> GetEdges(Allocator allocator)
+        {
+            return _nodeToParent.GetValueArray(allocator);
+        }
+
         /// <summary>
         /// 查询一组node是否已存在于图中
         /// </summary>

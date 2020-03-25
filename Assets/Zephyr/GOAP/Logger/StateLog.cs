@@ -7,27 +7,27 @@ using Zephyr.GOAP.Struct;
 namespace Zephyr.GOAP.Logger
 {
     [Serializable]
-    public class StateView
+    public class StateLog
     {
-        public EntityView Target;
+        public EntityLog Target;
         public string Trait;
         public string ValueString;
         public string ValueTrait;
         public bool IsNegative;
 
-        public StateView(EntityManager entityManager, State state)
+        public StateLog(EntityManager entityManager, State state)
         {
-            Target = new EntityView(entityManager, state.Target);
+            Target = new EntityLog(entityManager, state.Target);
             if(state.Trait!=default)Trait = state.Trait.ToString();
             ValueString = state.ValueString.ToString();
             if(state.ValueTrait!=default)ValueTrait = state.ValueTrait.ToString();
             IsNegative = state.IsNegative;
         }
 
-        public static StateView[] CreateStateViews(EntityManager entityManager, State[] states)
+        public static StateLog[] CreateStateViews(EntityManager entityManager, State[] states)
         {
-            var stateViews = new List<StateView>(states.Length);
-            stateViews.AddRange(states.Select(t => new StateView(entityManager, t)));
+            var stateViews = new List<StateLog>(states.Length);
+            stateViews.AddRange(states.Select(t => new StateLog(entityManager, t)));
             return stateViews.ToArray();
         }
 

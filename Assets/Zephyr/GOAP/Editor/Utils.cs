@@ -7,7 +7,7 @@ namespace Zephyr.GOAP.Editor
 {
     public class Utils
     {
-        public static void AddStatesToContainer(VisualElement container, StateView[] states)
+        public static void AddStatesToContainer(VisualElement container, StateLog[] states)
         {
             if (states == null) return;
             

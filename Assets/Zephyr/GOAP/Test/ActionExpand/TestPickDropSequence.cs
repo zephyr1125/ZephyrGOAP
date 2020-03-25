@@ -66,10 +66,10 @@ namespace Zephyr.GOAP.Test.ActionExpand
             EntityManager.CompleteAllJobs();
             
             //Drop接Goal
-            var dropNodeView = _debugger.GoalNodeView.Children[0];
-            Assert.AreEqual(nameof(DropItemAction), dropNodeView.Name);
-            Assert.AreEqual(1, dropNodeView.States.Length);
-            Assert.IsTrue(dropNodeView.States[0].Equals(new State
+            var dropNodeLog = _debugger.GetChildren(_debugger.GoalNodeLog)[0];
+            Assert.AreEqual(nameof(DropItemAction), dropNodeLog.name);
+            Assert.AreEqual(1, dropNodeLog.states.Length);
+            Assert.IsTrue(dropNodeLog.states[0].Equals(new State
             {
                 Target = _agentEntity,
                 Trait = typeof(ItemContainerTrait),
@@ -77,10 +77,10 @@ namespace Zephyr.GOAP.Test.ActionExpand
             }));
             
             //Pick接Drop
-            var pickNodeView = dropNodeView.Children[0];
-            Assert.AreEqual(nameof(PickItemAction), pickNodeView.Name);
-            Assert.AreEqual(1, pickNodeView.States.Length);
-            Assert.IsTrue(pickNodeView.States[0].Equals(new State
+            var pickNodeView = _debugger.GetChildren(dropNodeLog)[0];
+            Assert.AreEqual(nameof(PickItemAction), pickNodeView.name);
+            Assert.AreEqual(1, pickNodeView.states.Length);
+            Assert.IsTrue(pickNodeView.states[0].Equals(new State
             {
                 Target = _itemSourceEntity,
                 Trait = typeof(ItemContainerTrait),
@@ -88,9 +88,9 @@ namespace Zephyr.GOAP.Test.ActionExpand
             }));
             
             //start接pick
-            var startNodeView = pickNodeView.Children[0];
-            Assert.AreEqual("start", startNodeView.Name);
-            Assert.Zero(startNodeView.States.Length);
+            var startNodeView = _debugger.GetChildren(pickNodeView)[0];
+            Assert.AreEqual("start", startNodeView.name);
+            Assert.Zero(startNodeView.states.Length);
         }
 
         [Test]

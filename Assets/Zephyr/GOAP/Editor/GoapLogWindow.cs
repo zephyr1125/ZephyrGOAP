@@ -3,6 +3,7 @@ using System.Globalization;
 using System.IO;
 using Unity.Entities;
 using UnityEditor;
+using UnityEditor.Graphs;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Zephyr.GOAP.Logger;
@@ -171,10 +172,10 @@ namespace Zephyr.GOAP.Editor
 
             var result = _log.results[_currentResult];
             rootVisualElement.Q<Label>("agent-name").text = 
-                $"[{result.Agent}] {result.TimeCost}ms at ({result.TimeStart})";
+                $"[{result.agent}] {result.timeCost}ms at ({result.timeStart})";
             
             _currentStatesContainer.Clear();
-            foreach (var states in _log.results[_currentResult].CurrentStates)
+            foreach (var states in _log.results[_currentResult].currentStates)
             {
                 _currentStatesContainer.Add(new Label(states.ToString()));
             }
@@ -185,14 +186,15 @@ namespace Zephyr.GOAP.Editor
             if (_log == null) return;
             var nodeCounts = new List<int>();    //记录每一层的Node数量以便向下排列
 
-            var goalNode = _log.results[_currentResult].GoalNodeView;
-            ConstructNode(_nodeContainer, goalNode, ref nodeCounts);
-            ConstructConnections(_nodeContainer, goalNode);
+            var nodes = _log.results[_currentResult].nodes;
+            ConstructNode(_nodeContainer, ref nodes, 0, ref nodeCounts);
+            ConstructConnections(_nodeContainer, nodes, _log.results[_currentResult].edges);
         }
 
-        private void ConstructNode(VisualElement parent, NodeView node, ref List<int> nodeCounts)
+        private void ConstructNode(VisualElement parent, ref List<NodeLog>nodes, int id, ref List<int> nodeCounts)
         {
-            var iteration = node.Iteration;
+            var node = nodes[id];
+            var iteration = node.iteration;
             while (nodeCounts.Count <= iteration)
             {
                 nodeCounts.Add(0);
@@ -201,51 +203,45 @@ namespace Zephyr.GOAP.Editor
 
             var drawPos = new Vector2(NodeDistance + iteration * (NodeWidth+NodeDistance),
                 NodeDistance + nodeCounts[iteration] * (NodeHeight+NodeDistance));
-            var frame = new NodeFrame(node, drawPos, NodeSize, _statesTip);
+            var frame = new NodeView(node, drawPos, NodeSize, _statesTip);
             parent.Add(frame);
             _nodeVisualTree.CloneTree(frame);
             
-            frame.name = node.Name;
-            frame.Q<Label>("name").text = node.Name;
-            frame.Q<Label>("reward").text = node.Reward.ToString(CultureInfo.InvariantCulture);
-            if(node.IsPath)frame.Q("titlebar").style.backgroundColor =
+            frame.name = node.name;
+            frame.Q<Label>("name").text = node.name;
+            frame.Q<Label>("reward").text = node.reward.ToString(CultureInfo.InvariantCulture);
+            if(node.isPath)frame.Q("titlebar").style.backgroundColor =
                 new StyleColor(new Color(0f, 0.29f, 0.12f));
             
-            Utils.AddStatesToContainer(frame.Q("states"), node.States);
+            Utils.AddStatesToContainer(frame.Q("states"), node.states);
 
-            if (node.Children == null) return;
-            for (var i = 0; i < node.Children.Count; i++)
-            {
-                var child = node.Children[i];
-                ConstructNode(parent, child, ref nodeCounts);
-            }
+            if (id >= nodes.Count - 1) return;
+            ConstructNode(parent, ref nodes, id+1, ref nodeCounts);
         }
 
-        private void ConstructConnections(VisualElement parent, NodeView goalNode)
+        private void ConstructConnections(VisualElement parent, List<NodeLog> nodes, List<EdgeLog> edges)
         {
             var connectionContainer = new IMGUIContainer(() =>
             {
-                DrawConnection(goalNode);
+                foreach (var edge in edges)
+                {
+                    DrawConnection(nodes, edge);
+                }
                 Handles.color = Color.white;
             });
             parent.Add(connectionContainer);
             connectionContainer.SendToBack();
         }
 
-        private void DrawConnection(NodeView node)
+        private void DrawConnection(List<NodeLog> nodes, EdgeLog edge)
         {
-            if (node.Children == null) return;
-
-            var childrenSum = node.Children.Count;
-            for (var i = 0; i < node.Children.Count; i++)
-            {
-                var child = node.Children[i];
-                var startPos = node.DrawPos + new Vector2(NodeWidth, NodeHeight / 2);
-                var endPos = child.DrawPos + new Vector2(0, NodeHeight / 2);
-                Handles.color = node.IsPath && child.IsPath ? Color.green : new Color(0.67f, 0.67f, 0.67f);
-                Handles.DrawLine(startPos, endPos);
-                DrawConnection(child);
-            }
+            var parentNode = nodes.Find(node => node.hashCode == edge.parentHash);
+            var childNode = nodes.Find(node => node.hashCode == edge.childHash);
+            
+            var startPos = parentNode.DrawPos + new Vector2(NodeWidth, NodeHeight / 2);
+            var endPos = childNode.DrawPos + new Vector2(0, NodeHeight / 2);
+            Handles.color = parentNode.isPath && childNode.isPath ? Color.green : new Color(0.67f, 0.67f, 0.67f);
+            Handles.DrawLine(startPos, endPos);
         }
 
         public VisualElement target { get; set; }

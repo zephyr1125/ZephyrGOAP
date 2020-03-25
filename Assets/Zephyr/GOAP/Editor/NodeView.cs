@@ -4,9 +4,9 @@ using Zephyr.GOAP.Logger;
 
 namespace Zephyr.GOAP.Editor
 {
-    public class NodeFrame : VisualElement, IManipulator
+    public class NodeView : VisualElement, IManipulator
     {
-        public NodeView Node;
+        public NodeLog Node;
 
         private VisualElement _statesTip;
 
@@ -14,7 +14,7 @@ namespace Zephyr.GOAP.Editor
 
         private Vector2 _mouseDragStartPos, _frameDragStartPos;
 
-        public NodeFrame(NodeView node, Vector2 drawPos, Vector2 size, VisualElement statesTip)
+        public NodeView(NodeLog node, Vector2 drawPos, Vector2 size, VisualElement statesTip)
         {
             Node = node;
             Node.DrawPos = drawPos;
@@ -88,9 +88,9 @@ namespace Zephyr.GOAP.Editor
         {
             var preconditionContainer = _statesTip.Q("preconditions");
             preconditionContainer.Clear();
-            if (Node.Preconditions != null)
+            if (Node.preconditions != null)
             {
-                foreach (var precondition in Node.Preconditions)
+                foreach (var precondition in Node.preconditions)
                 {
                     preconditionContainer.Add(new Label(precondition.ToString()));
                 }
@@ -98,9 +98,9 @@ namespace Zephyr.GOAP.Editor
 
             var effectContainer = _statesTip.Q("effects");
             effectContainer.Clear();
-            if (Node.Effects != null)
+            if (Node.effects != null)
             {
-                foreach (var effect in Node.Effects)
+                foreach (var effect in Node.effects)
                 {
                     effectContainer.Add(new Label(effect.ToString()));
                 }

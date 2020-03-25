@@ -35,16 +35,18 @@ namespace Zephyr.GOAP.Test.ActionExpand
         {
             _system.Update();
             EntityManager.CompleteAllJobs();
+
+            var children = _debugger.GetChildren(_debugger.GoalNodeLog);
             
-            Assert.AreEqual(4, _debugger.GoalNodeView.Children.Count);
-            Assert.IsTrue(_debugger.GoalNodeView.Children.Any(
-                nodeView => nodeView.States[0].ValueString.Equals("raw_apple")));
-            Assert.IsTrue(_debugger.GoalNodeView.Children.Any(
-                nodeView => nodeView.States[0].ValueString.Equals("roast_apple")));
-            Assert.IsTrue(_debugger.GoalNodeView.Children.Any(
-                nodeView => nodeView.States[0].ValueString.Equals("raw_peach")));
-            Assert.IsTrue(_debugger.GoalNodeView.Children.Any(
-                nodeView => nodeView.States[0].ValueString.Equals("roast_apple")));
+            Assert.AreEqual(4, children.Length);
+            Assert.IsTrue(children.Any(
+                nodeLog => nodeLog.states[0].ValueString.Equals("raw_apple")));
+            Assert.IsTrue(children.Any(
+                nodeLog => nodeLog.states[0].ValueString.Equals("roast_apple")));
+            Assert.IsTrue(children.Any(
+                nodeLog => nodeLog.states[0].ValueString.Equals("raw_peach")));
+            Assert.IsTrue(children.Any(
+                nodeLog => nodeLog.states[0].ValueString.Equals("roast_apple")));
         }
     }
 }
