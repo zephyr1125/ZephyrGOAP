@@ -17,7 +17,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
     public class TestEatCookSequence : TestActionExpandBase
     {
 
-        private Entity _cookerEntity, _diningTableEntity;
+        private Entity _cookerEntity, _diningTableEntity, _itemSourceEntity;
 
         [SetUp]
         public override void SetUp()
@@ -26,6 +26,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
 
             _cookerEntity = EntityManager.CreateEntity();
             _diningTableEntity = EntityManager.CreateEntity();
+            _itemSourceEntity = EntityManager.CreateEntity();
             
             EntityManager.AddComponentData(_agentEntity, new EatAction());
             EntityManager.AddComponentData(_agentEntity, new CookAction());
@@ -39,7 +40,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
                 Trait = typeof(StaminaTrait),
             });
             
-            //给CurrentStates写入假环境数据：世界里有餐桌、cooker有原料、配方
+            //给CurrentStates写入假环境数据：世界里有餐桌、有原料、配方
             var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
             buffer.Add(new State
             {
@@ -48,8 +49,8 @@ namespace Zephyr.GOAP.Test.ActionExpand
             });
             buffer.Add(new State
             {
-                Target = _cookerEntity,
-                Trait = typeof(ItemDestinationTrait),
+                Target = _itemSourceEntity,
+                Trait = typeof(ItemSourceTrait),
                 ValueString = "raw_apple",
             });
             buffer.Add(new State
@@ -70,11 +71,13 @@ namespace Zephyr.GOAP.Test.ActionExpand
             
             Debug.Log(_debugger.GoalNodeLog);
             var pathResult = _debugger.PathResult;
-            Assert.AreEqual(5, pathResult.Length);
+            Assert.AreEqual(7, pathResult.Length);
             Assert.AreEqual(nameof(EatAction), pathResult[1].name);
             Assert.AreEqual(nameof(DropItemAction), pathResult[2].name);
             Assert.AreEqual(nameof(PickItemAction), pathResult[3].name);
             Assert.AreEqual(nameof(CookAction), pathResult[4].name);
+            Assert.AreEqual(nameof(DropItemAction), pathResult[5].name);
+            Assert.AreEqual(nameof(PickItemAction), pathResult[6].name);
         }
         
         //改变reward设置，规划随之改变
@@ -83,14 +86,16 @@ namespace Zephyr.GOAP.Test.ActionExpand
         {
             var origin = Utils.RoastAppleStamina;
             Utils.RoastAppleStamina = 0.2f;
-            
+
             _system.Update();
             EntityManager.CompleteAllJobs();
             
             Debug.Log(_debugger.GoalNodeLog);
             var pathResult = _debugger.PathResult;
-            Assert.AreEqual(2, pathResult.Length);
+            Assert.AreEqual(4, pathResult.Length);
             Assert.AreEqual(nameof(EatAction), pathResult[1].name);
+            Assert.AreEqual(nameof(DropItemAction), pathResult[2].name);
+            Assert.AreEqual(nameof(PickItemAction), pathResult[3].name);
 
             Utils.RoastAppleStamina = origin;
         }

@@ -33,30 +33,26 @@ namespace Zephyr.GOAP.Test.ActionExpand
 
             _itemSourceEntity = EntityManager.CreateEntity();
             _targetContainerEntity = EntityManager.CreateEntity();
-            
-            //游戏数据
-            EntityManager.AddComponentData(_itemSourceEntity, new ItemContainer{IsTransferSource = true});
-            EntityManager.AddComponentData(_itemSourceEntity, new Translation());
-            var itemBuffer = EntityManager.AddBuffer<ContainedItemRef>(_itemSourceEntity);
-            itemBuffer.Add(new ContainedItemRef {ItemName = "item"});
-            EntityManager.AddComponentData(_targetContainerEntity, new ItemContainer{IsTransferSource = false});
-            
+
             //GOAP数据
-            EntityManager.AddComponentData(_itemSourceEntity, new ItemContainerTrait());
             EntityManager.AddComponentData(_agentEntity, new PickItemAction());
             EntityManager.AddComponentData(_agentEntity, new DropItemAction());
-            var stateBuffer = EntityManager.AddBuffer<State>(_agentEntity);
+            var buffer = EntityManager.AddBuffer<State>(_agentEntity);
             _goalState = new State
             {
                 Target = _targetContainerEntity,
-                Trait = typeof(ItemContainerTrait),
+                Trait = typeof(ItemDestinationTrait),
                 ValueString = "item",
             };
-            stateBuffer.Add(_goalState);
+            buffer.Add(_goalState);
             
-            //SensorGroup喂入CurrentStates数据
-            _sensor = World.GetOrCreateSystem<ItemSourceSensorSystem>();
-            _sensor.Update();
+            buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
+            buffer.Add(new State
+            {
+                Target = _itemSourceEntity,
+                Trait = typeof(ItemSourceTrait),
+                ValueString = "item"
+            });
         }
 
         [Test]
@@ -72,7 +68,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
             Assert.IsTrue(dropNodeLog.states[0].Equals(new State
             {
                 Target = _agentEntity,
-                Trait = typeof(ItemContainerTrait),
+                Trait = typeof(ItemTransferTrait),
                 ValueString = "item",
             }));
             
@@ -83,7 +79,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
             Assert.IsTrue(pickNodeView.states[0].Equals(new State
             {
                 Target = _itemSourceEntity,
-                Trait = typeof(ItemContainerTrait),
+                Trait = typeof(ItemSourceTrait),
                 ValueString = "item",
             }));
             
@@ -134,23 +130,23 @@ namespace Zephyr.GOAP.Test.ActionExpand
                 if ((nodePick.PreconditionsBitmask & (ulong)1 << i) > 0)
                 {
                     Assert.AreEqual((ulong)1 << i, nodePick.PreconditionsBitmask);
-                    Assert.AreEqual(new State
+                    Assert.IsTrue(bufferStates[i].Equals(new State
                     {
                         Target = _itemSourceEntity,
-                        Trait = typeof(ItemContainerTrait),
+                        Trait = typeof(ItemSourceTrait),
                         ValueString = "item",
-                    }, bufferStates[i]);
+                    }));
                 }
                 //和一个effect
                 if ((nodePick.EffectsBitmask & (ulong)1 << i) > 0)
                 {
                     Assert.AreEqual((ulong)1 << i, nodePick.EffectsBitmask);
-                    Assert.AreEqual(new State
+                    Assert.IsTrue(bufferStates[i].Equals(new State
                     {
                         Target = _agentEntity,
-                        Trait = typeof(ItemContainerTrait),
+                        Trait = typeof(ItemTransferTrait),
                         ValueString = "item",
-                    }, bufferStates[i]);
+                    }));
                 }
                 //nodeDrop应该只有1个precondition
                 if ((nodeDrop.PreconditionsBitmask & (ulong)1 << i) > 0)
@@ -160,7 +156,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
                     {
                         Target = _agentEntity,
                         Position = new float3(),
-                        Trait = typeof(ItemContainerTrait),
+                        Trait = typeof(ItemTransferTrait),
                         ValueString = "item",
                     }, bufferStates[i]);
                 }
@@ -171,7 +167,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
                     Assert.AreEqual(new State
                     {
                         Target = _targetContainerEntity,
-                        Trait = typeof(ItemContainerTrait),
+                        Trait = typeof(ItemDestinationTrait),
                         ValueString = "item",
                     }, bufferStates[i]);
                 }
@@ -190,19 +186,6 @@ namespace Zephyr.GOAP.Test.ActionExpand
             
             buffer = EntityManager.GetBuffer<Node>(_agentEntity);
             Assert.AreEqual(1, buffer.Length);
-        }
-
-        [Test]
-        public void NoItemInWorld_Fail()
-        {
-            var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
-            buffer.Clear();
-            
-            _system.Update();
-            EntityManager.CompleteAllJobs();
-            
-            var pathResult = _debugger.PathResult;
-            Debug.Log(pathResult);
         }
     }
 }

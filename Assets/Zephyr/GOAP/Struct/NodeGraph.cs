@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Collections;
 
 namespace Zephyr.GOAP.Struct
@@ -96,8 +97,12 @@ namespace Zephyr.GOAP.Struct
         public NativeList<Node> GetNodes(Allocator allocator)
         {
             var keys = _nodeToParent.GetKeyArray(Allocator.Temp);
-            var nodes = new NativeList<Node>(keys.Length + 1, allocator) {_goalNode};
-            nodes.AddRange(keys);
+            var keysDistinct = keys.Distinct();
+            var nodes = new NativeList<Node>(keysDistinct.Count(), allocator) {_goalNode};
+            foreach (var key in keysDistinct)
+            {
+                nodes.Add(key);
+            }
             keys.Dispose();
             return nodes;
         }
