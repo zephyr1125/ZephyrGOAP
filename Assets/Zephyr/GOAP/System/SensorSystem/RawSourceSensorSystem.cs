@@ -15,8 +15,7 @@ namespace Zephyr.GOAP.System.SensorSystem
     [UpdateInGroup(typeof(SensorSystemGroup))]
     public class RawSourceSensorSystem : JobComponentSystem
     {
-        [RequireComponentTag(typeof(RawSourceTrait))]
-        private struct SenseJob : IJobForEachWithEntity_EBCC<ContainedItemRef, ItemContainer, Translation>
+        private struct SenseJob : IJobForEachWithEntity_ECC<RawSourceTrait, Translation>
         {
             [NativeDisableContainerSafetyRestriction, WriteOnly]
             public BufferFromEntity<State> States;
@@ -24,19 +23,16 @@ namespace Zephyr.GOAP.System.SensorSystem
             public Entity CurrentStatesEntity;
 
             public void Execute(Entity entity, int jobIndex,
-                DynamicBuffer<ContainedItemRef> itemRefs, ref ItemContainer container, ref Translation translation)
+                ref RawSourceTrait rawSourceTrait, ref Translation translation)
             {
                 var buffer = States[CurrentStatesEntity];
-                foreach (var itemRef in itemRefs)
+                buffer.Add(new State
                 {
-                    buffer.Add(new State
-                    {
-                        Target = entity,
-                        Position = translation.Value,
-                        Trait = typeof(RawSourceTrait),
-                        ValueString = itemRef.ItemName
-                    });
-                }
+                    Target = entity,
+                    Position = translation.Value,
+                    Trait = typeof(RawSourceTrait),
+                    ValueString = rawSourceTrait.RawName
+                });
             }
         }
         

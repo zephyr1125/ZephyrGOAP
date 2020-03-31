@@ -38,16 +38,14 @@ namespace Zephyr.GOAP.System.ActionExecuteSystem
                 if (!currentNode.Name.Equals(new NativeString64(nameof(EatAction))))
                     return;
 
-                //从precondition里找食物.此时自身应该已经具有指定的食物
+                //从precondition里找食物.此时餐桌应该已经具有指定的食物
                 var targetItemName = new NativeString64();
                 for (var i = 0; i < states.Length; i++)
                 {
                     var mask = currentNode.PreconditionsBitmask & (ulong) 1 << i;
                     if ( mask <= 0) continue;
                     var precondition = states[i];
-                    if (precondition.Target != entity) continue;
-                    if (precondition.Trait != typeof(ItemContainerTrait)) continue;
-                    if (precondition.ValueTrait != typeof(FoodTrait)) continue;
+                    if (precondition.Trait != typeof(ItemDestinationTrait)) continue;
 
                     targetItemName = precondition.ValueString;
                     break;

@@ -7,7 +7,7 @@ using Zephyr.GOAP.Game.ComponentData;
 namespace Zephyr.GOAP.Game.Authoring
 {
     [RequiresEntityConversion]
-    [ConverterVersion("Zephyr", 0)]
+    [ConverterVersion("Zephyr", 1)]
     public class CampfireAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     {
         public string Name;
@@ -27,6 +27,8 @@ namespace Zephyr.GOAP.Game.Authoring
             {
                 buffer.Add(new ContainedOutput {ItemOutput = output});
             }
+            dstManager.AddComponentData(entity, new ItemContainer{IsTransferSource = true});
+            dstManager.AddBuffer<ContainedItemRef>(entity);
         }
     }
 }
