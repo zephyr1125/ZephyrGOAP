@@ -21,7 +21,8 @@ namespace Zephyr.GOAP.Action
         float GetReward([ReadOnly] ref State targetState, ref State setting,
             [ReadOnly] ref StackData stackData);
 
-        Entity GetNavigatingSubject(ref State targetState, ref State setting,
-            [ReadOnly] ref StackData stackData, ref StateGroup preconditions);
+        void GetNavigatingSubjectInfo(ref State targetState, ref State setting,
+            [ReadOnly] ref StackData stackData, ref StateGroup preconditions,
+            out NodeNavigatingSubjectType subjectType, out byte subjectId);
     }
 }

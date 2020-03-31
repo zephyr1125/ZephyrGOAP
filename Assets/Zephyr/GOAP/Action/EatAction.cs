@@ -90,11 +90,13 @@ namespace Zephyr.GOAP.Action
             return Utils.GetFoodReward(setting.ValueString);
         }
 
-        public Entity GetNavigatingSubject(ref State targetState, ref State setting,
-            ref StackData stackData, ref StateGroup preconditions)
+        public void GetNavigatingSubjectInfo(ref State targetState, ref State setting,
+            ref StackData stackData, ref StateGroup preconditions,
+            out NodeNavigatingSubjectType subjectType, out byte subjectId)
         {
             //导航目标为餐桌
-            return preconditions[0].Target;
+            subjectType = NodeNavigatingSubjectType.PreconditionTarget;
+            subjectId = 0;
         }
     }
 }

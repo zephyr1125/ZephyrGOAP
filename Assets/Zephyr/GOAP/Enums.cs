@@ -9,4 +9,9 @@ namespace Zephyr.GOAP
         Urgent = 3,
         Max = 4
     }
+
+    public enum NodeNavigatingSubjectType
+    {
+        PreconditionTarget, EffectTarget, Null
+    }
 }

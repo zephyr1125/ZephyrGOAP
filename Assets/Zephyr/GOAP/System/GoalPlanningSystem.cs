@@ -149,6 +149,7 @@ namespace Zephyr.GOAP.System
                     //应该把各个agent的nodeGraph存一起，然后一起并行跑
                     var pathResult = FindPath(ref nodeGraph);
                     UnifyPathNodeStates(ref stackData.CurrentStates, ref nodeGraph, ref pathResult);
+                    ApplyPathNodeNavigatingSubjects(ref nodeGraph, ref pathResult);
                     SavePath(ref pathResult, ref nodeGraph, agentEntity);
                     
                     Debugger?.SetNodeGraph(ref nodeGraph, EntityManager);
@@ -246,6 +247,36 @@ namespace Zephyr.GOAP.System
                 
                 nodeStates.Dispose();
                 nodePreconditions.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// 在明确了所有节点的具体state之后，赋予各自导航目标
+        /// </summary>
+        /// <param name="nodeGraph"></param>
+        /// <param name="pathResult"></param>
+        private void ApplyPathNodeNavigatingSubjects(ref NodeGraph nodeGraph, ref NativeList<Node> pathResult)
+        {
+            for (var i = 0; i < pathResult.Length; i++)
+            {
+                var node = pathResult[i];
+                switch (node.NavigatingSubjectType)
+                {
+                    case NodeNavigatingSubjectType.Null:
+                        continue;
+                    case NodeNavigatingSubjectType.PreconditionTarget:
+                        var preconditions = nodeGraph.GetNodePreconditions(node, Allocator.Temp);
+                        node.NavigatingSubject = preconditions[node.NavigatingSubjectId].Target;
+                        preconditions.Dispose();
+                        break;
+                    case NodeNavigatingSubjectType.EffectTarget:
+                        var effects = nodeGraph.GetNodeEffects(node, Allocator.Temp);
+                        node.NavigatingSubject = effects[node.NavigatingSubjectId].Target;
+                        effects.Dispose();
+                        break;
+                }
+
+                pathResult[i] = node;
             }
         }
 

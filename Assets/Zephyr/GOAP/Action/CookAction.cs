@@ -176,11 +176,13 @@ namespace Zephyr.GOAP.Action
             return -1;
         }
 
-        public Entity GetNavigatingSubject(ref State targetState, ref State setting,
-            ref StackData stackData, ref StateGroup preconditions)
+        public void GetNavigatingSubjectInfo(ref State targetState, ref State setting,
+            ref StackData stackData, ref StateGroup preconditions,
+                out NodeNavigatingSubjectType subjectType, out byte subjectId)
         {
             //移动目标为生产设施
-            return preconditions[0].Target;
+            subjectType = NodeNavigatingSubjectType.PreconditionTarget;
+            subjectId = 0;
         }
     }
 }

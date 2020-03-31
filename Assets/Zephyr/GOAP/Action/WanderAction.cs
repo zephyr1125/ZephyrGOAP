@@ -60,10 +60,12 @@ namespace Zephyr.GOAP.Action
             return 0;
         }
 
-        public Entity GetNavigatingSubject(ref State targetState, ref State setting,
-            ref StackData stackData, ref StateGroup preconditions)
+        public void GetNavigatingSubjectInfo(ref State targetState, ref State setting,
+            ref StackData stackData, ref StateGroup preconditions,
+            out NodeNavigatingSubjectType subjectType, out byte subjectId)
         {
-            return Entity.Null;
+            subjectType = NodeNavigatingSubjectType.Null;
+            subjectId = 0;
         }
     }
 }

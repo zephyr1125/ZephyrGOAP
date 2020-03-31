@@ -31,6 +31,15 @@ namespace Zephyr.GOAP.Struct
         public ulong EffectsBitmask;
 
         /// <summary>
+        /// 由于在ActionExpand时尚不能明确precondition的具体目标
+        /// 只能在此时存下这个action的目标类型与编号
+        /// 等到UnifyPathNodeStates之后再具体赋值NavigatingSubject
+        /// </summary>
+        public NodeNavigatingSubjectType NavigatingSubjectType;
+
+        public byte NavigatingSubjectId;
+
+        /// <summary>
         /// 用于给Navigating指明导航目标
         /// </summary>
         public Entity NavigatingSubject;
@@ -42,15 +51,6 @@ namespace Zephyr.GOAP.Struct
             Iteration = iteration;
             NavigatingSubject = navigatingSubject;
             HashCode = states.GetHashCode();
-        }
-        
-        public Node(ref State state, NativeString64 name, float reward, int iteration, Entity navigatingSubject = new Entity()) : this()
-        {
-            Name = name;
-            Reward = reward;
-            Iteration = iteration;
-            NavigatingSubject = navigatingSubject;
-            HashCode = state.GetHashCode();
         }
 
         public bool Equals(Node other)
