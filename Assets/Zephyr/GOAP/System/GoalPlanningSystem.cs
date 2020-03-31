@@ -23,7 +23,7 @@ namespace Zephyr.GOAP.System
         /// <summary>
         /// 对goal展开的层数上限
         /// </summary>
-        public int ExpandIterations = 10;
+        public int ExpandIterations = 100;
 
         public int PathFindingIterations = 1000;
 
@@ -99,7 +99,8 @@ namespace Zephyr.GOAP.System
                 var nodeGraph = new NodeGraph(512, Allocator.TempJob);
 
                 var goalPrecondition = new StateGroup();
-                var goalNode = new Node(ref goalPrecondition, ref goalStates,
+                var goalEffects = new StateGroup();
+                var goalNode = new Node(ref goalPrecondition, ref goalEffects, ref goalStates,
                     new NativeString64("goal"), 0, 0);
                 
                 //goalNode进入graph

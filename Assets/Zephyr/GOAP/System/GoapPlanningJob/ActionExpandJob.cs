@@ -61,8 +61,11 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         public void Execute(int jobIndex)
         {
             var unexpandedNode = _unexpandedNodes[jobIndex];
-            var targetStates = new StateGroup(3, _nodeStates.GetValuesForKey(unexpandedNode), Allocator.Temp);
+            var leftStates = new StateGroup(1, _nodeStates.GetValuesForKey(unexpandedNode), Allocator.Temp);
+            var targetStates = new StateGroup(leftStates, 1, Allocator.Temp);
+            //只考虑其中首个候选state
             var targetState = _action.GetTargetGoalState(ref targetStates, ref _stackData);
+            targetStates.Dispose();
 
             if (!targetState.Equals(State.Null))
             {
@@ -85,7 +88,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
 
                     if (effects.Length() > 0)
                     {
-                        var newStates = new StateGroup(targetStates, Allocator.Temp);
+                        var newStates = new StateGroup(leftStates, Allocator.Temp);
                         newStates.SubForEffect(ref effects);
                         newStates.Merge(preconditions);
 
@@ -94,7 +97,8 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
 
                         _action.GetNavigatingSubjectInfo(ref targetState, ref setting,
                             ref _stackData, ref preconditions, out var subjectType, out var subjectId);
-                        var node = new Node(ref preconditions, ref effects, _action.GetName(), reward, _iteration, subjectType, subjectId);
+                        var node = new Node(ref preconditions, ref effects, ref newStates, 
+                            _action.GetName(), reward, _iteration, subjectType, subjectId);
                         
                         var nodeExisted = _existedNodesHash.Contains(node.HashCode);
 
@@ -112,40 +116,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                 }
                 settings.Dispose();
             }
-            targetStates.Dispose();
-        }
-
-        /// <summary>
-        /// 把preconditions里能够找到具体目标的范围state用具体目标替代
-        /// </summary>
-        /// <param name="agentPosition"></param>
-        /// <param name="preconditions"></param>
-        private void ReplacePreconditionsWithSpecificStates(float3 agentPosition, ref StateGroup preconditions)
-        {
-            for (var i = 0; i < preconditions.Length(); i++)
-            {
-                if (preconditions[i].Target != Entity.Null) continue;
-                
-                var nearestDistance = float.MaxValue;
-                var nearestTarget = new State();
-                foreach (var currentState in _stackData.CurrentStates)
-                {
-                    if (!currentState.BelongTo(preconditions[i])) continue;
-
-                    //此处寻找最近目标
-                    var distance = math.distance(agentPosition, currentState.Position);
-                    if (distance < nearestDistance)
-                    {
-                        nearestDistance = distance;
-                        nearestTarget = currentState;
-                    }
-                }
-
-                if (nearestDistance < float.MaxValue)
-                {
-                    preconditions[i] = nearestTarget;
-                }
-            }
+            leftStates.Dispose();
         }
         
         /// <summary>

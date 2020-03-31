@@ -41,9 +41,10 @@ namespace Zephyr.GOAP.Test
         public void SameStates_NodesAreEqual()
         {
             var nonPrecondition = new StateGroup();
-            var node0 = new Node(ref nonPrecondition, ref _states0,
+            var nonEffect = new StateGroup();
+            var node0 = new Node(ref nonPrecondition, ref nonEffect, ref _states0,
                 new NativeString64("node0"), 0, 0);
-            var node1 = new Node(ref nonPrecondition, ref _states1,
+            var node1 = new Node(ref nonPrecondition, ref nonEffect, ref _states1,
                 new NativeString64("node1"), 0, 0);
             
             Assert.AreEqual(node1, node0);
@@ -60,9 +61,10 @@ namespace Zephyr.GOAP.Test
             });
             
             var nonPrecondition = new StateGroup();
-            var node0 = new Node(ref nonPrecondition, ref _states0,
+            var nonEffect = new StateGroup();
+            var node0 = new Node(ref nonPrecondition, ref nonEffect, ref _states0,
                 new NativeString64("node0"), 0, 0);
-            var node1 = new Node(ref nonPrecondition, ref _states1,
+            var node1 = new Node(ref nonPrecondition, ref nonEffect, ref _states1,
                 new NativeString64("node1"), 0, 0);
             
             Assert.AreNotEqual(node1, node0);

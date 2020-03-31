@@ -1119,7 +1119,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Name: A
-  InitialStamina: 0.7
+  InitialStamina: 0.5
   StaminaChangeSpeed: -0.04
 --- !u!114 &1338530250
 MonoBehaviour:

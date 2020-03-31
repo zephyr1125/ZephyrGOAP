@@ -47,7 +47,7 @@ namespace Zephyr.GOAP.Test
                 ValueString = new NativeString64("test"),
             }};
             var goalPreconditions = new StateGroup();
-            _goalNode = new Node(ref goalPreconditions, ref goalStates,
+            _goalNode = new Node(ref goalPreconditions, ref goalStates, ref goalStates,
                 new NativeString64("goal"), 0, 0);
             
             _nodeGraph.SetGoalNode(_goalNode, ref goalStates);

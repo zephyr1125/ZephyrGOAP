@@ -27,13 +27,29 @@ namespace Zephyr.GOAP.Struct
             }
         }
 
-        public StateGroup(int length, NativeMultiHashMap<Node, State>.Enumerator copyFrom,
+        public StateGroup(int initialCapacity, NativeMultiHashMap<Node, State>.Enumerator copyFrom,
             Allocator allocator)
         {
-            _states = new NativeList<State>(length, allocator);
+            _states = new NativeList<State>(initialCapacity, allocator);
             while (copyFrom.MoveNext())
             {
                 _states.Add(copyFrom.Current);
+            }
+        }
+        
+        /// <summary>
+        /// 只拷贝来源的前几个state
+        /// </summary>
+        /// <param name="copyFrom"></param>
+        /// <param name="length"></param>
+        /// <param name="allocator"></param>
+        public StateGroup(StateGroup copyFrom, int length, Allocator allocator)
+        {
+            _states = new NativeList<State>(copyFrom.Length(), allocator);
+            for (var i = 0; i < length; i++)
+            {
+                var state = copyFrom._states[i];
+                _states.Add(state);
             }
         }
         

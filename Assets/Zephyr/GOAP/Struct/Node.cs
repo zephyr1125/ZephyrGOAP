@@ -44,7 +44,8 @@ namespace Zephyr.GOAP.Struct
         /// </summary>
         public Entity NavigatingSubject;
 
-        public Node(ref StateGroup preconditions, ref StateGroup effects, NativeString64 name, float reward, int iteration,
+        public Node(ref StateGroup preconditions, ref StateGroup effects, ref StateGroup states, 
+            NativeString64 name, float reward, int iteration,
             NodeNavigatingSubjectType subjectType = NodeNavigatingSubjectType.Null, byte subjectId = 0) : this()
         {
             Name = name;
@@ -56,6 +57,7 @@ namespace Zephyr.GOAP.Struct
             HashCode = 17;
             HashCode = HashCode * 31 + preconditions.GetHashCode();
             HashCode = HashCode * 31 + effects.GetHashCode();
+            HashCode = HashCode * 31 + states.GetHashCode();
         }
 
         public bool Equals(Node other)
