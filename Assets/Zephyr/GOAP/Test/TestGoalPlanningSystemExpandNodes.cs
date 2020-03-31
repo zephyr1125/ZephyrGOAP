@@ -46,7 +46,9 @@ namespace Zephyr.GOAP.Test
                 Trait = typeof(ItemContainerTrait),
                 ValueString = new NativeString64("test"),
             }};
-            _goalNode = new Node(ref goalStates, new NativeString64("goal"), 0, 0);
+            var goalPreconditions = new StateGroup();
+            _goalNode = new Node(ref goalPreconditions, ref goalStates,
+                new NativeString64("goal"), 0, 0);
             
             _nodeGraph.SetGoalNode(_goalNode, ref goalStates);
             

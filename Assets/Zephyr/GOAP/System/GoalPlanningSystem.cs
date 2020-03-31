@@ -98,7 +98,10 @@ namespace Zephyr.GOAP.System
 
                 var nodeGraph = new NodeGraph(512, Allocator.TempJob);
 
-                var goalNode = new Node(ref goalStates, new NativeString64("goal"), 0, 0);
+                var goalPrecondition = new StateGroup();
+                var goalNode = new Node(ref goalPrecondition, ref goalStates,
+                    new NativeString64("goal"), 0, 0);
+                
                 //goalNode进入graph
                 nodeGraph.SetGoalNode(goalNode, ref goalStates);
 

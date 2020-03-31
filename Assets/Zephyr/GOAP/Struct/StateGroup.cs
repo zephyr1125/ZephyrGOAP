@@ -198,9 +198,13 @@ namespace Zephyr.GOAP.Struct
         public override int GetHashCode()
         {
             var sum = 0;
-            foreach (var state in _states)
+            if (_states.IsCreated)
             {
-                sum += state.GetHashCode();
+                for (var i = 0; i < _states.Length; i++)
+                {
+                    var state = _states[i];
+                    sum += state.GetHashCode();
+                }
             }
 
             return sum;

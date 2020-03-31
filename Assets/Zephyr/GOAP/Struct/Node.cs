@@ -44,13 +44,18 @@ namespace Zephyr.GOAP.Struct
         /// </summary>
         public Entity NavigatingSubject;
 
-        public Node(ref StateGroup states, NativeString64 name, float reward, int iteration, Entity navigatingSubject = new Entity()) : this()
+        public Node(ref StateGroup preconditions, ref StateGroup effects, NativeString64 name, float reward, int iteration,
+            NodeNavigatingSubjectType subjectType = NodeNavigatingSubjectType.Null, byte subjectId = 0) : this()
         {
             Name = name;
             Reward = reward;
             Iteration = iteration;
-            NavigatingSubject = navigatingSubject;
-            HashCode = states.GetHashCode();
+            NavigatingSubjectType = subjectType;
+            NavigatingSubjectId = subjectId;
+            
+            HashCode = 17;
+            HashCode = HashCode * 31 + preconditions.GetHashCode();
+            HashCode = HashCode * 31 + effects.GetHashCode();
         }
 
         public bool Equals(Node other)
