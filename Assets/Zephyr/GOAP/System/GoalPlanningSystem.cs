@@ -209,22 +209,30 @@ namespace Zephyr.GOAP.System
             ref NativeList<Node> pathResult)
         {
             //goal -> start, 不包含start
-            for (var i = 0; i < pathResult.Length; i++)
+            for (var i = pathResult.Length - 1; i >= 0; i--)
             {
                 var node = pathResult[i];
                 
                 var nodeStates = nodeGraph.GetNodeStates(node, Allocator.Temp);
                 var nodePreconditions = nodeGraph.GetNodePreconditions(node, Allocator.Temp);
-                var childEffects = new StateGroup();
+                var childStates = new StateGroup();
                 if (i == pathResult.Length - 1)
                 {
                     //对于最后一个node，需要与世界状态作比对
-                    childEffects = currentStates;
+                    childStates = currentStates;
                 }
                 else
                 {
                     var child = pathResult[i + 1];
-                    childEffects = nodeGraph.GetNodeEffects(child, Allocator.Temp);
+                    childStates = nodeGraph.GetNodeStates(child, Allocator.Temp);
+                    var childEffects = nodeGraph.GetNodeEffects(child, Allocator.Temp);
+                    var childPreconditions = nodeGraph.GetNodePreconditions(child, Allocator.Temp);
+                    
+                    childStates.Sub(ref childPreconditions);
+                    childStates.Merge(childEffects);
+                    
+                    childEffects.Dispose();
+                    childPreconditions.Dispose();
                 }
                 
                 foreach (var state in nodeStates)
@@ -232,7 +240,7 @@ namespace Zephyr.GOAP.System
                     if (!state.IsScopeState()) continue;
                     //在子节点中寻找对应的具体effect
                     var childSpecificEffect = default(State);
-                    foreach (var childEffect in childEffects)
+                    foreach (var childEffect in childStates)
                     {
                         if (!childEffect.BelongTo(state)) continue;
                         childSpecificEffect = childEffect;
