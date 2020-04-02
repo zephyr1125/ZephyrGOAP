@@ -30,22 +30,22 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             var graphSize = NodeGraph.Length();
                 
             //Generate Working Containers
-            var openSet = new NativeMinHeap(graphSize, Allocator.Temp);
+            var openSet = new NativeMinHeap<int>(graphSize, Allocator.Temp);
             var cameFrom = new NativeHashMap<int, int>(graphSize, Allocator.Temp);
             var rewardSum = new NativeHashMap<int, float>(graphSize, Allocator.Temp);
 
             // Path finding
             var startId = StartNodeId;
             var goalId = GoalNodeId;
-                
-            openSet.Push(new MinHeapNode(startId, 0));
+
+            openSet.Push(new MinHeapNode<int>(startId, 0));
             rewardSum[startId] = 0;
 
             var currentId = -1;
             while (_iterations<IterationLimit && openSet.HasNext())
             {
                 var currentNode = openSet[openSet.Pop()];
-                currentId = currentNode.Id;
+                currentId = currentNode.Content;
                 
                 //不使用early quit，因为会使用非最优解
                 //early quit
@@ -67,7 +67,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     if (rewardSum.ContainsKey(neighbourId) && rewardSum[neighbourId] >= newReward) continue;
                         
                     var priority = -(newReward + NodeGraph[neighbourId].Heuristic(ref NodeGraph));
-                    openSet.Push(new MinHeapNode(neighbourId, priority));
+                    openSet.Push(new MinHeapNode<int>(neighbourId, priority));
                     cameFrom[neighbourId] = currentId;
                     rewardSum[neighbourId] = newReward;
                 }

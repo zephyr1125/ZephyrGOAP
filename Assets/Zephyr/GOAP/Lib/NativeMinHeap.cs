@@ -7,7 +7,7 @@ namespace Zephyr.GOAP.Lib
     [NativeContainerSupportsDeallocateOnJobCompletion]
     [NativeContainerSupportsMinMaxWriteRestriction]
     [NativeContainer]
-    public unsafe struct NativeMinHeap : IDisposable
+    public unsafe struct NativeMinHeap<T> : IDisposable where T : struct
     {
         [NativeDisableUnsafePtrRestriction] private void* m_Buffer;
         private int m_capacity;
@@ -30,9 +30,9 @@ namespace Zephyr.GOAP.Lib
             UnsafeUtility.MemClear(m_Buffer, (long) m_capacity * UnsafeUtility.SizeOf<MinHeapNode>());*/
         }
  
-        private static void Allocate(int capacity, Allocator allocator, out NativeMinHeap nativeMinHeap)
+        private static void Allocate(int capacity, Allocator allocator, out NativeMinHeap<T> nativeMinHeap)
         {
-            var size = (long) UnsafeUtility.SizeOf<MinHeapNode>() * capacity;
+            var size = (long) UnsafeUtility.SizeOf<MinHeapNode<T>>() * capacity;
             if (allocator <= Allocator.None)
                 throw new ArgumentException("Allocator must be Temp, TempJob or Persistent", nameof (allocator));
             if (capacity < 0)
@@ -41,7 +41,7 @@ namespace Zephyr.GOAP.Lib
                 throw new ArgumentOutOfRangeException(nameof (capacity),
                     $"Length * sizeof(T) cannot exceed {(object) int.MaxValue} bytes");
  
-            nativeMinHeap.m_Buffer = UnsafeUtility.Malloc(size, UnsafeUtility.AlignOf<MinHeapNode>(), allocator);
+            nativeMinHeap.m_Buffer = UnsafeUtility.Malloc(size, UnsafeUtility.AlignOf<MinHeapNode<T>>(), allocator);
             nativeMinHeap.m_capacity = capacity;
             nativeMinHeap.m_AllocatorLabel = allocator;
             nativeMinHeap.m_MinIndex = 0;
@@ -64,7 +64,7 @@ namespace Zephyr.GOAP.Lib
             return m_head >= 0;
         }
  
-        public void Push(MinHeapNode node)
+        public void Push(MinHeapNode<T> node)
         {
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             if (m_length == m_capacity)
@@ -76,7 +76,7 @@ namespace Zephyr.GOAP.Lib
             {
                 m_head = m_length;
             }
-            else if (node.ExpectedCost < this[m_head].ExpectedCost)
+            else if (node.Priority < this[m_head].Priority)
             {
                 node.Next = m_head;
                 m_head = m_length;
@@ -86,7 +86,7 @@ namespace Zephyr.GOAP.Lib
                 var currentPtr = m_head;
                 var current = this[currentPtr];
  
-                while (current.Next >= 0 && this[current.Next].ExpectedCost <= node.ExpectedCost)
+                while (current.Next >= 0 && this[current.Next].Priority <= node.Priority)
                 {
                     currentPtr = current.Next;
                     current = this[current.Next];
@@ -112,7 +112,7 @@ namespace Zephyr.GOAP.Lib
             return result;
         }
  
-        public MinHeapNode this[int index]
+        public MinHeapNode<T> this[int index]
         {
             get
             {
@@ -122,7 +122,7 @@ namespace Zephyr.GOAP.Lib
                 AtomicSafetyHandle.CheckReadAndThrow(m_Safety);
 #endif
    
-                return UnsafeUtility.ReadArrayElement<MinHeapNode>(m_Buffer, index);
+                return UnsafeUtility.ReadArrayElement<MinHeapNode<T>>(m_Buffer, index);
             }
         }
  
@@ -156,17 +156,17 @@ namespace Zephyr.GOAP.Lib
 #endif
     }
  
-    public struct MinHeapNode
+    public struct MinHeapNode<T> where T:struct
     {
-        public MinHeapNode(int id, float expectedCost)
+        public MinHeapNode(T content, float priority)
         {
-            Id = id;
-            ExpectedCost = expectedCost;
+            Content = content;
+            Priority = priority;
             Next = -1;
         }
  
-        public int Id { get; } // TODO to position
-        public float ExpectedCost { get; }
+        public T Content { get; } // TODO to position
+        public float Priority { get; }
         public int Next { get; set; }
     }
 }
