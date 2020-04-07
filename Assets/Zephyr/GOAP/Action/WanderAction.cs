@@ -21,7 +21,7 @@ namespace Zephyr.GOAP.Action
             {
                 var wanderState = new State
                 {
-                    Target = stackData.AgentEntity,
+                    Target = stackData.AgentEntities[stackData.CurrentAgentId],
                     Trait = typeof(WanderTrait),
                 };
                 //只针对自身wander

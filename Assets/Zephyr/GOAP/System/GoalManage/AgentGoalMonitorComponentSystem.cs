@@ -1,6 +1,7 @@
 using Unity.Collections;
 using Unity.Entities;
 using Zephyr.GOAP.Component.GoalManage;
+using Zephyr.GOAP.Component.GoalManage.GoalState;
 using Zephyr.GOAP.Struct;
 
 namespace Zephyr.GOAP.System.GoalManage
@@ -13,7 +14,7 @@ namespace Zephyr.GOAP.System.GoalManage
         private double _timeLastUpdate;
 
         private EntityQuery _agentGoalQuery;
-
+        
         private NativeArray<Goal> _existedGoals;
         
         protected override void OnCreate()
@@ -50,6 +51,7 @@ namespace Zephyr.GOAP.System.GoalManage
                 var goalExisted = _existedGoals[id];
                 goalExisted.Priority = priority;
                 _existedGoals[id] = goalExisted;
+                
                 return;
             }
 
@@ -63,6 +65,10 @@ namespace Zephyr.GOAP.System.GoalManage
                     Priority = priority,
                     CreateTime = time
                 });
+            EntityManager.AddComponentData(newGoalEntity, new IdleGoal
+            {
+                Time = (float)time
+            });
         }
 
         private bool HasGoal(State state, out int id, out Priority priority)

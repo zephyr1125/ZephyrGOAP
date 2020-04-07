@@ -53,12 +53,11 @@ namespace Zephyr.GOAP
             }
         }
 
-        public static void NextGoalState<T, U>(Entity agentEntity, Entity goalEntity, EntityManager entityManager,
+        public static void NextGoalState<T, U>(Entity goalEntity, EntityManager entityManager,
             double time) where T : struct, IComponentData, IGoalState where U : struct, IComponentData, IGoalState
         {
             entityManager.RemoveComponent<T>(goalEntity);
-            entityManager.AddComponentData(goalEntity,
-                new U{AgentEntity = agentEntity, Time = (float)time});
+            entityManager.AddComponentData(goalEntity, new U{Time = (float)time});
             }
 
         /// <summary>

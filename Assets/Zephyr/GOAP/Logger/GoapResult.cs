@@ -12,7 +12,6 @@ namespace Zephyr.GOAP.Logger
     [Serializable]
     public class GoapResult
     {
-        public EntityLog agent;
 
         public List<NodeLog> nodes;
 
@@ -28,9 +27,8 @@ namespace Zephyr.GOAP.Logger
 
         private int[] _pathHash;
 
-        public void StartLog(EntityManager entityManager, Entity agent)
+        public void StartLog(EntityManager entityManager)
         {
-            this.agent = new EntityLog(entityManager, agent);
             _timeStart = DateTime.Now;
             timeStart = DateTime.Now.ToString(CultureInfo.InvariantCulture);
             

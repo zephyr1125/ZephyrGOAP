@@ -18,11 +18,11 @@ namespace Zephyr.GOAP.Logger
             results = new List<GoapResult>();
         }
 
-        public void StartLog(EntityManager entityManager, Entity agent)
+        public void StartLog(EntityManager entityManager)
         {
             _currentLog = new GoapResult();
             results.Add(_currentLog);
-            _currentLog.StartLog(entityManager, agent);
+            _currentLog.StartLog(entityManager);
         }
 
         public GoapResult GetResult(int id)

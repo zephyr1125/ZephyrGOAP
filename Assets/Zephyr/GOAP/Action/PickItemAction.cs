@@ -21,7 +21,7 @@ namespace Zephyr.GOAP.Action
             //针对“自身运输物品”的state
             var stateFilter = new State
             {
-                Target = stackData.AgentEntity,
+                Target = stackData.AgentEntities[stackData.CurrentAgentId],
                 Trait = typeof(ItemTransferTrait),
             };
             return targetStates.GetBelongingState(stateFilter);

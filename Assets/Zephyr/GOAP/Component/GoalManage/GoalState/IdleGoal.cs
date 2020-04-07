@@ -3,9 +3,9 @@ using Unity.Entities;
 namespace Zephyr.GOAP.Component.GoalManage.GoalState
 {
     /// <summary>
-    /// 表示一个goal正在被一个agent规划中
+    /// 表示一个goal尚未被规划
     /// </summary>
-    public struct PlanningGoal : IComponentData, IGoalState
+    public struct IdleGoal : IComponentData, IGoalState
     {
         public float Time { get; set; }
     }

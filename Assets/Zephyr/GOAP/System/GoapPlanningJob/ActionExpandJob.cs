@@ -80,10 +80,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     _action.GetPreconditions(ref targetState, ref setting, ref _stackData, ref preconditions);
                     //为了避免没有state的node(例如wander)与startNode有相同的hash，这种node被强制给了一个空state
                     if(preconditions.Length()==0)preconditions.Add(new State());
-                    
-                    //此处寻找最近过于武断，会出现不合理的选择，被转移到各Action自己的GetSettings里处理
-                    // ReplacePreconditionsWithSpecificStates(_stackData.AgentPosition, ref preconditions);
-                
+
                     _action.GetEffects(ref targetState, ref setting, ref _stackData, ref effects);
 
                     if (effects.Length() > 0)
@@ -97,8 +94,10 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
 
                         _action.GetNavigatingSubjectInfo(ref targetState, ref setting,
                             ref _stackData, ref preconditions, out var subjectType, out var subjectId);
+                        
                         var node = new Node(ref preconditions, ref effects, ref newStates, 
-                            _action.GetName(), reward, _iteration, subjectType, subjectId);
+                            _action.GetName(), reward, _iteration,
+                            _stackData.AgentEntities[_stackData.CurrentAgentId], subjectType, subjectId);
                         
                         var nodeExisted = _existedNodesHash.Contains(node.HashCode);
 

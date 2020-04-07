@@ -21,7 +21,7 @@ namespace Zephyr.GOAP.Action
             {
                 var staminaState = new State
                 {
-                    Target = stackData.AgentEntity,
+                    Target = stackData.AgentEntities[stackData.CurrentAgentId],
                     Trait = typeof(StaminaTrait),
                 };
                 //只针对自身stamina的正面goal state

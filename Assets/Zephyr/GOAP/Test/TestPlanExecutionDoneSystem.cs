@@ -25,7 +25,7 @@ namespace Zephyr.GOAP.Test
 
             EntityManager.AddComponentData(_goalEntity, new Goal());
             EntityManager.AddComponentData(_goalEntity,
-                new ExecutingGoal{AgentEntity = _agentEntity});
+                new ExecutingGoal{});
             
             EntityManager.AddComponentData(_agentEntity, new Agent{ExecutingNodeId = 2});
             EntityManager.AddComponentData(_agentEntity,

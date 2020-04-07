@@ -10,7 +10,7 @@ namespace Zephyr.GOAP.Debugger
     /// </summary>
     public interface IGoapDebugger
     {
-        void StartLog(EntityManager entityManager, Entity agent);
+        void StartLog(EntityManager entityManager);
         
         void SetNodeGraph(ref NodeGraph nodeGraph, EntityManager entityManager);
 

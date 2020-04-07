@@ -24,6 +24,13 @@ namespace Zephyr.GOAP.Struct
         /// </summary>
         public readonly int HashCode;
 
+        public Entity AgentExecutorEntity;
+
+        /// <summary>
+        /// 预测的执行开始与结束时间
+        /// </summary>
+        public double ExecuteStartTime, ExecuteEndTime;
+
         /// <summary>
         /// 当node被当做path存在agent上时，用bitmask指示其preconditions和effects对应的states in buffer
         /// </summary>
@@ -45,7 +52,7 @@ namespace Zephyr.GOAP.Struct
         public Entity NavigatingSubject;
 
         public Node(ref StateGroup preconditions, ref StateGroup effects, ref StateGroup states, 
-            NativeString64 name, float reward, int iteration,
+            NativeString64 name, float reward, int iteration, Entity agentExecutorEntity,
             NodeNavigatingSubjectType subjectType = NodeNavigatingSubjectType.Null, byte subjectId = 0) : this()
         {
             Name = name;
@@ -53,11 +60,13 @@ namespace Zephyr.GOAP.Struct
             Iteration = iteration;
             NavigatingSubjectType = subjectType;
             NavigatingSubjectId = subjectId;
+            AgentExecutorEntity = agentExecutorEntity;
             
             HashCode = 17;
             HashCode = HashCode * 31 + preconditions.GetHashCode();
             HashCode = HashCode * 31 + effects.GetHashCode();
             HashCode = HashCode * 31 + states.GetHashCode();
+            HashCode = HashCode * 31 + agentExecutorEntity.GetHashCode();
         }
 
         public bool Equals(Node other)

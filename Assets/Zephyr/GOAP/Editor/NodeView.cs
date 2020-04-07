@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Zephyr.GOAP.Logger;
@@ -24,6 +25,7 @@ namespace Zephyr.GOAP.Editor
             style.top = drawPos.y;
             style.width = size.x;
             style.height = size.y;
+            
             this.AddManipulator(this);
             target.RegisterCallback<MouseEnterEvent>(OnMouseEnter);
             target.RegisterCallback<MouseMoveEvent>(OnMouseMove);

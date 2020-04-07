@@ -16,7 +16,7 @@ namespace Zephyr.GOAP.Logger
 
         public float reward;
 
-        public EntityLog navigationSubject;
+        public EntityLog agentExecutorEntity, navigationSubject;
 
         public StateLog[] states, preconditions, effects;
 
@@ -36,6 +36,7 @@ namespace Zephyr.GOAP.Logger
             iteration = node.Iteration;
             reward = node.Reward;
             navigationSubject = new EntityLog(entityManager, node.NavigatingSubject);
+            agentExecutorEntity = new EntityLog(entityManager, node.AgentExecutorEntity);
             states = StateLog.CreateStateViews(entityManager, nodeGraph.GetNodeStates(node));
             preconditions = StateLog.CreateStateViews(entityManager, nodeGraph.GetNodePreconditions(node));
             effects = StateLog.CreateStateViews(entityManager, nodeGraph.GetNodeEffects(node));

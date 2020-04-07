@@ -61,7 +61,8 @@ namespace Zephyr.GOAP.Action
                         ValueString = targetState.ValueString
                     };
                     if(stackData.CurrentStates.GetBelongingState(collectState).Equals(default))continue;
-                    var distance = math.distance(collector.Position, stackData.AgentPosition);
+                    var distance = math.distance(collector.Position,
+                        stackData.AgentPositions[stackData.CurrentAgentId]);
                     if (distance >= nearestDistance) continue;
                     nearestDistance = distance;
                     nearestCollectorState = collector;

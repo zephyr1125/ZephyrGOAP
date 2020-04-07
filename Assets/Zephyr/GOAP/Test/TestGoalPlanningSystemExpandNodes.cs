@@ -48,7 +48,7 @@ namespace Zephyr.GOAP.Test
             }};
             var goalPreconditions = new StateGroup();
             _goalNode = new Node(ref goalPreconditions, ref goalStates, ref goalStates,
-                new NativeString64("goal"), 0, 0);
+                new NativeString64("goal"), 0, 0, Entity.Null);
             
             _nodeGraph.SetGoalNode(_goalNode, ref goalStates);
             
@@ -61,7 +61,7 @@ namespace Zephyr.GOAP.Test
                 ValueString = new NativeString64("test"),
             });
             
-            _stackData = new StackData{AgentEntity = _agentEntity, CurrentStates = _currentStates};
+            _stackData = new StackData{CurrentStates = _currentStates};
         }
 
         [TearDown]

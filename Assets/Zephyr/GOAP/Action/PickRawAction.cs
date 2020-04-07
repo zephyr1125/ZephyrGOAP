@@ -22,7 +22,7 @@ namespace Zephyr.GOAP.Action
             //针对“自身获得原料”的state
             var stateFilter = new State
             {
-                Target = stackData.AgentEntity,
+                Target = stackData.AgentEntities[stackData.CurrentAgentId],
                 Trait = typeof(RawTransferTrait),
             };
             return targetStates.GetBelongingState(stateFilter);

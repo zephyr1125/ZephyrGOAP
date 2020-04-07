@@ -41,7 +41,7 @@ namespace Zephyr.GOAP.Test
             EntityManager.AddComponentData(_goalEntity,
                 new AgentGoal {Agent = _agentEntity});
             EntityManager.AddComponentData(_goalEntity,
-                new PlanningGoal {AgentEntity = _agentEntity});
+                new PlanningGoal());
             
             EntityManager.AddComponentData(_agentEntity, new CookAction());
             var stateBuffer = EntityManager.AddBuffer<State>(_agentEntity);
@@ -72,8 +72,6 @@ namespace Zephyr.GOAP.Test
             
             Assert.IsFalse(EntityManager.HasComponent<PlanningGoal>(_goalEntity));
             Assert.IsTrue(EntityManager.HasComponent<ExecutingGoal>(_goalEntity));
-            Assert.AreEqual(_agentEntity,
-                EntityManager.GetComponentData<ExecutingGoal>(_goalEntity).AgentEntity);
         }
 
         [Test]
@@ -89,7 +87,6 @@ namespace Zephyr.GOAP.Test
             Assert.IsTrue(EntityManager.HasComponent<PlanFailedGoal>(_goalEntity));
             
             var planFailedGoal = EntityManager.GetComponentData<PlanFailedGoal>(_goalEntity);
-            Assert.AreEqual(_agentEntity, planFailedGoal.AgentEntity);
             Assert.AreEqual(9, planFailedGoal.Time);
         }
 
@@ -102,7 +99,7 @@ namespace Zephyr.GOAP.Test
             _system.Update();
             EntityManager.CompleteAllJobs();
             
-            Assert.AreEqual(new FailedPlanLog{GoalEntity = _goalEntity, Time = 9},
+            Assert.AreEqual(new FailedPlanLog{Time = 9},
                 EntityManager.GetBuffer<FailedPlanLog>(_agentEntity)[0]);
         }
     }

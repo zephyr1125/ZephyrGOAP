@@ -19,9 +19,9 @@ namespace Zephyr.GOAP.Editor
             _onLogDone = onLogDone;
         }
         
-        public void StartLog(EntityManager entityManager, Entity agent)
+        public void StartLog(EntityManager entityManager)
         {
-            _goapLog.StartLog(entityManager, agent);
+            _goapLog.StartLog(entityManager);
         }
 
         public void SetNodeGraph(ref NodeGraph nodeGraph, EntityManager entityManager)

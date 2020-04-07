@@ -78,7 +78,7 @@ namespace Zephyr.GOAP.Action
 
                 var nearestDistance = float.MaxValue;
                 var nearestState = new State();
-                var agentPosition = stackData.AgentPosition;
+                var agentPosition = stackData.AgentPositions[stackData.CurrentAgentId];
                 foreach (var state in cookerStates)
                 {
                     var distance = math.distance(state.Position, agentPosition);

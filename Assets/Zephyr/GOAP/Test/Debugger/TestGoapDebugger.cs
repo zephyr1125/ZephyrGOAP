@@ -13,13 +13,13 @@ namespace Zephyr.GOAP.Test.Debugger
     {
         private GoapLog _goapLog;
 
-        public void StartLog(EntityManager entityManager, Entity agent)
+        public void StartLog(EntityManager entityManager)
         {
             if (_goapLog == null)
             {
                 _goapLog = new GoapLog();
             }
-            _goapLog.StartLog(entityManager, agent);
+            _goapLog.StartLog(entityManager);
         }
 
         public void SetNodeGraph(ref NodeGraph nodeGraph, EntityManager entityManager)

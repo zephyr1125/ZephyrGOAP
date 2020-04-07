@@ -43,6 +43,9 @@ namespace Zephyr.GOAP.Editor
         private bool _autoPage;
 
         private EditorGoapDebugger _editorDebugger;
+        
+        private static Dictionary<Entity, StyleColor> _agentColors;
+        private static readonly Color BaseAgentColor = new Color(0f, 0.29f, 0.12f);
 
         private void OnEnable()
         {
@@ -172,7 +175,7 @@ namespace Zephyr.GOAP.Editor
 
             var result = _log.results[_currentResult];
             rootVisualElement.Q<Label>("agent-name").text = 
-                $"[{result.agent}] {result.timeCost}ms at ({result.timeStart})";
+                $"{result.timeCost}ms at ({result.timeStart})";
             
             _currentStatesContainer.Clear();
             foreach (var states in _log.results[_currentResult].currentStates)
@@ -208,15 +211,38 @@ namespace Zephyr.GOAP.Editor
             _nodeVisualTree.CloneTree(frame);
             
             frame.name = node.name;
-            frame.Q<Label>("name").text = node.name;
+            frame.Q<Label>("name").text = $"{node.name}[{node.agentExecutorEntity}]";
             frame.Q<Label>("reward").text = node.reward.ToString(CultureInfo.InvariantCulture);
-            if(node.isPath)frame.Q("titlebar").style.backgroundColor =
-                new StyleColor(new Color(0f, 0.29f, 0.12f));
+            
+            if (node.isPath)
+            {
+                frame.Q("titlebar").style.backgroundColor = GetAgentColor(node.agentExecutorEntity);
+            };
+            
             
             Utils.AddStatesToContainer(frame.Q("states"), node.states);
 
             if (id >= nodes.Count - 1) return;
             ConstructNode(parent, ref nodes, id+1, ref nodeCounts);
+        }
+        
+        private StyleColor GetAgentColor(EntityLog agentEntity)
+        {
+            var agentEntityStruct = new Entity{Index = agentEntity.index, Version = agentEntity.version};
+            if(_agentColors == null)_agentColors = new Dictionary<Entity, StyleColor>();
+
+            if (!_agentColors.ContainsKey(agentEntityStruct))
+            {
+                var agentSum = _agentColors.Count;
+                var sumR = BaseAgentColor.r + 0.3f*agentSum;
+                var sumG = BaseAgentColor.g + 0.3f*agentSum;
+                var sumB = BaseAgentColor.b + 0.3f*agentSum;
+                var color = new Color(sumR - (int) sumR, sumG - (int) sumG, sumB - (int) sumB);
+                
+                _agentColors.Add(agentEntityStruct, color);
+            }
+
+            return _agentColors[agentEntityStruct];
         }
 
         private void ConstructConnections(VisualElement parent, List<NodeLog> nodes, List<EdgeLog> edges)

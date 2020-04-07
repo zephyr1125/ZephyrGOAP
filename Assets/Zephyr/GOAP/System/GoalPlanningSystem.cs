@@ -9,6 +9,7 @@ using Zephyr.GOAP.Component.AgentState;
 using Zephyr.GOAP.Component.GoalManage;
 using Zephyr.GOAP.Component.GoalManage.GoalState;
 using Zephyr.GOAP.Debugger;
+using Zephyr.GOAP.Lib;
 using Zephyr.GOAP.Struct;
 using Zephyr.GOAP.System.GoalManage;
 using Zephyr.GOAP.System.GoapPlanningJob;
@@ -32,7 +33,7 @@ namespace Zephyr.GOAP.System
         /// </summary>
         public int PathNodeLimit = 1000;
         
-        private EntityQuery _agentQuery;
+        private EntityQuery _agentQuery, _goalQuery;
 
         public IGoapDebugger Debugger;
 
@@ -45,142 +46,170 @@ namespace Zephyr.GOAP.System
                 {
                     ComponentType.ReadOnly<Agent>(),
                     ComponentType.ReadOnly<GoalPlanning>(),
-                    ComponentType.ReadOnly<State>(),
-                    ComponentType.ReadOnly<CurrentGoal>(), 
+                    ComponentType.ReadOnly<Translation>(), 
                 },
                 None = new []
                 {
-                    ComponentType.ReadOnly<Node>(), 
+                    ComponentType.ReadOnly<Node>(),
+                    ComponentType.ReadOnly<CurrentGoal>(), 
                 }
+            });
+            _goalQuery = GetEntityQuery(new EntityQueryDesc
+            {
+                All = new[] {ComponentType.ReadOnly<Goal>()},
+                None = new[] {ComponentType.ReadOnly<PlanningGoal>()}
             });
         }
 
         protected override void OnUpdate()
         {
-            //todo 首先，应有goal挑选系统已经把goal分配到了各个agent身上，以及goal states也以buffer形式存于agent身上
-            //SensorSystemGroup提前做好CurrentState的准备
-            
+            //如果没有空闲agent,不运行
             var agentEntities = _agentQuery.ToEntityArray(Allocator.TempJob);
             if (agentEntities.Length <= 0)
             {
                 agentEntities.Dispose();
                 return;
             }
+            
+            //找到最急需的一个goal
+            var goal = GetMostPriorityGoal(true);
+            var goalStates = new StateGroup(1, Allocator.TempJob) {goal.State};
 
-            var agentCurrentGoals = _agentQuery.ToComponentDataArray<CurrentGoal>(Allocator.TempJob);
             //从currentState的存储Entity上拿取current states
             var currentStateBuffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
-            var stackData = new StackData
+            
+            //组织StackData
+            var agentTranslations = _agentQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
+            var stackData = new StackData(ref agentEntities, ref agentTranslations,
+                new StateGroup(ref currentStateBuffer, Allocator.TempJob));
+            agentTranslations.Dispose();
+
+            Debugger?.StartLog(EntityManager);
+            Debugger?.SetCurrentStates(ref stackData.CurrentStates, EntityManager);
+
+            var uncheckedNodes = new NativeList<Node>(Allocator.TempJob);
+            var unexpandedNodes = new NativeList<Node>(Allocator.TempJob);
+            var expandedNodes = new NativeList<Node>(Allocator.TempJob);
+
+            var nodeGraph = new NodeGraph(512, Allocator.TempJob);
+
+            var goalPrecondition = new StateGroup();
+            var goalEffects = new StateGroup();
+            var goalNode = new Node(ref goalPrecondition, ref goalEffects, ref goalStates,
+                new NativeString64("goal"), 0, 0, Entity.Null);
+            
+            //goalNode进入graph
+            nodeGraph.SetGoalNode(goalNode, ref goalStates);
+
+            //goalNode进入待检查列表
+            uncheckedNodes.Add(goalNode);
+
+            var iteration = 1; //goal node iteration is 0
+            var foundPlan = false;
+            
+            while (uncheckedNodes.Length > 0 && iteration < ExpandIterations)
             {
-                CurrentStates = new StateGroup(ref currentStateBuffer, Allocator.TempJob)
-            };
+                Debugger?.Log("Loop:");
+                //对待检查列表进行检查（与CurrentStates比对）
+                if (CheckNodes(ref uncheckedNodes, ref nodeGraph, ref stackData.CurrentStates,
+                    ref unexpandedNodes)) foundPlan = true;
 
-            for (var i = 0; i < agentEntities.Length; i++)
-            {
-                var agentEntity = agentEntities[i];
-                Debugger?.StartLog(EntityManager, agentEntity);
-                Debugger?.SetCurrentStates(ref stackData.CurrentStates, EntityManager);
+                //对待展开列表进行展开，并挑选进入待检查和展开后列表
+                ExpandNodes(ref unexpandedNodes, ref stackData, ref nodeGraph,
+                    ref uncheckedNodes, ref expandedNodes, iteration);
 
-                var foundPlan = false;
-                var goalStatesBuffer = EntityManager.GetBuffer<State>(agentEntity);
-                var goalStates = new StateGroup(ref goalStatesBuffer, Allocator.Temp);
-
-                //找到goalEntity
-                var goalEntity = agentCurrentGoals[i].GoalEntity;
-
-                stackData.AgentEntity = agentEntity;
-                stackData.AgentPosition =
-                    EntityManager.GetComponentData<Translation>(agentEntity).Value;
-
-                var uncheckedNodes = new NativeList<Node>(Allocator.TempJob);
-                var unexpandedNodes = new NativeList<Node>(Allocator.TempJob);
-                var expandedNodes = new NativeList<Node>(Allocator.TempJob);
-
-                var nodeGraph = new NodeGraph(512, Allocator.TempJob);
-
-                var goalPrecondition = new StateGroup();
-                var goalEffects = new StateGroup();
-                var goalNode = new Node(ref goalPrecondition, ref goalEffects, ref goalStates,
-                    new NativeString64("goal"), 0, 0);
-                
-                //goalNode进入graph
-                nodeGraph.SetGoalNode(goalNode, ref goalStates);
-
-                //goalNode进入待检查列表
-                uncheckedNodes.Add(goalNode);
-
-                var iteration = 1; //goal node iteration is 0
-
-                while (uncheckedNodes.Length > 0 && iteration < ExpandIterations)
-                {
-                    Debugger?.Log("Loop:");
-                    //对待检查列表进行检查（与CurrentStates比对）
-                    if (CheckNodes(ref uncheckedNodes, ref nodeGraph, ref stackData.CurrentStates,
-                        ref unexpandedNodes)) foundPlan = true;
-
-                    //对待展开列表进行展开，并挑选进入待检查和展开后列表
-                    ExpandNodes(ref unexpandedNodes, ref stackData, ref nodeGraph,
-                        ref uncheckedNodes, ref expandedNodes, iteration);
-
-                    //直至待展开列表为空或Early Exit
-                    iteration++;
-                }
-
-                var nodes = nodeGraph.GetNodes(Allocator.Temp);
-                Debug.Log($"{nodes.Length} nodes in graph");
-                nodes.Dispose();
-
-                if (!foundPlan)
-                {
-                    //在展开阶段没有能够链接到current state的话，就没有找到规划，也就不用继续寻路了
-                    //目前对于规划失败的情况，就直接转入NoGoal状态
-                    Debugger?.Log("goal plan failed : " + goalStates);
-
-                    EntityManager.GetBuffer<State>(agentEntity).Clear();
-                    Utils.NextAgentState<GoalPlanning, NoGoal>(agentEntity, EntityManager, false);
-                    Utils.NextGoalState<PlanningGoal, PlanFailedGoal>(agentEntity, goalEntity,
-                        EntityManager, Time.ElapsedTime);
-
-                    var buffer = EntityManager.AddBuffer<FailedPlanLog>(agentEntity);
-                    buffer.Add(new FailedPlanLog {GoalEntity = goalEntity, Time = (float)Time.ElapsedTime});
-                    
-                    Debugger?.SetNodeGraph(ref nodeGraph, EntityManager);
-                }
-                else
-                {
-                    //寻路
-                    //todo 此处每一个agent跑一次,寻路Job没有并行
-                    //应该把各个agent的nodeGraph存一起，然后一起并行跑
-                    var pathResult = FindPath(ref nodeGraph);
-                    UnifyPathNodeStates(ref stackData.CurrentStates, ref nodeGraph, ref pathResult);
-                    ApplyPathNodeNavigatingSubjects(ref nodeGraph, ref pathResult);
-                    SavePath(ref pathResult, ref nodeGraph, agentEntity);
-                    
-                    Debugger?.SetNodeGraph(ref nodeGraph, EntityManager);
-                    Debugger?.SetPathResult(ref pathResult);
-                    
-                    pathResult.Dispose();
-
-                    //切换agent状态
-                    Utils.NextAgentState<GoalPlanning, ReadyToNavigate>(agentEntity, EntityManager,
-                        false);
-                    Utils.NextGoalState<PlanningGoal, ExecutingGoal>(agentEntity, goalEntity,
-                        EntityManager, Time.ElapsedTime);
-                }
-
-                uncheckedNodes.Dispose();
-                unexpandedNodes.Dispose();
-                expandedNodes.Dispose();
-                nodeGraph.Dispose();
-
-                Debugger?.LogDone();
+                //直至待展开列表为空或Early Exit
+                iteration++;
             }
 
-            agentCurrentGoals.Dispose();
+            var nodes = nodeGraph.GetNodes(Allocator.Temp);
+            Debug.Log($"{nodes.Length} nodes in graph");
+            nodes.Dispose();
+
+            if (!foundPlan)
+            {
+                //在展开阶段没有能够链接到current state的话，就没有找到规划，也就不用继续寻路了
+                //目前对于规划失败的情况，就直接转入NoGoal状态
+                Debugger?.Log("goal plan failed : " + goalStates);
+                
+                Utils.NextGoalState<PlanningGoal, PlanFailedGoal>(goal.GoalEntity,
+                    EntityManager, Time.ElapsedTime);
+
+                var buffer = EntityManager.AddBuffer<FailedPlanLog>(goal.GoalEntity);
+                buffer.Add(new FailedPlanLog {Time = (float)Time.ElapsedTime});
+                
+                Debugger?.SetNodeGraph(ref nodeGraph, EntityManager);
+            }
+            else
+            {
+                //寻路
+                var pathResult = FindPath(ref nodeGraph);
+                UnifyPathNodeStates(ref stackData.CurrentStates, ref nodeGraph, ref pathResult);
+                ApplyPathNodeNavigatingSubjects(ref nodeGraph, ref pathResult);
+                SavePath(ref pathResult, ref nodeGraph);
+                
+                Debugger?.SetNodeGraph(ref nodeGraph, EntityManager);
+                Debugger?.SetPathResult(ref pathResult);
+                
+                pathResult.Dispose();
+
+                Utils.NextGoalState<PlanningGoal, ExecutingGoal>(goal.GoalEntity,
+                    EntityManager, Time.ElapsedTime);
+            }
+
+            uncheckedNodes.Dispose();
+            unexpandedNodes.Dispose();
+            expandedNodes.Dispose();
+            nodeGraph.Dispose();
+
+            Debugger?.LogDone();
+            
+            goalStates.Dispose();
             agentEntities.Dispose();
             stackData.Dispose();
         }
 
+        /// <summary>
+        /// 获取最优先goal
+        /// </summary>
+        /// <param name="setState">是否设置goal的状态为规划中</param>
+        /// <returns></returns>
+        private Goal GetMostPriorityGoal(bool setState)
+        {
+            var goals = _goalQuery.ToComponentDataArray<Goal>(Allocator.TempJob);
+            var sortedGoals = new NativeMinHeap<Goal>(100, Allocator.TempJob);
+            foreach (var goal in goals)
+            {
+                var priority = CalcGoalPriority(goal.Priority, goal.CreateTime);
+                sortedGoals.Push(new MinHeapNode<Goal>(goal, priority));
+            }
+
+            var minNode = sortedGoals[sortedGoals.Pop()];
+
+            if (setState)
+            {
+                Utils.NextGoalState<IdleGoal, PlanningGoal>(minNode.Content.GoalEntity,
+                    EntityManager, Time.ElapsedTime);
+            }
+            
+            sortedGoals.Dispose();
+            goals.Dispose();
+
+            return minNode.Content;
+        }
+
+        /// <summary>
+        /// 基于goal的priority和createTime为goal计算排序时的优先级
+        /// todo 正式项目应开放编辑具体公式以方便修改
+        /// </summary>
+        /// <param name="priority"></param>
+        /// <param name="createTime"></param>
+        /// <returns></returns>
+        private float CalcGoalPriority(Priority priority, double createTime)
+        {
+            return (float) (Priority.Max - priority + createTime / 60);
+        }
+        
         private NativeList<Node> FindPath(ref NodeGraph nodeGraph)
         {
             var pathResult = new NativeList<Node>(Allocator.TempJob);
@@ -292,35 +321,35 @@ namespace Zephyr.GOAP.System
             }
         }
 
-        private void SavePath(ref NativeList<Node> pathResult, ref NodeGraph nodeGraph, Entity agentEntity)
+        private void SavePath(ref NativeList<Node> pathResult, ref NodeGraph nodeGraph)
         {
             //保存结果
-            var nodeBuffer = EntityManager.AddBuffer<Node>(agentEntity);
-            var stateBuffer =
-                EntityManager.GetBuffer<State>(agentEntity); //已经在创建goal的时候创建了state buffer以容纳goal state
-            for (var i = pathResult.Length-1; i > 0; i--)    //path的0号为goal，不存
-            {
-                var node = pathResult[i];
-                var preconditions = nodeGraph.GetNodePreconditions(node, Allocator.Temp);
-                var effects = nodeGraph.GetNodeEffects(node, Allocator.Temp);
-
-                foreach (var precondition in preconditions)
-                {
-                    stateBuffer.Add(precondition);
-                    node.PreconditionsBitmask |= (ulong) 1 << stateBuffer.Length - 1;
-                }
-
-                foreach (var effect in effects)
-                {
-                    stateBuffer.Add(effect);
-                    node.EffectsBitmask |= (ulong) 1 << stateBuffer.Length - 1;
-                }
-
-                nodeBuffer.Add(node);
-
-                preconditions.Dispose();
-                effects.Dispose();
-            }
+            // var nodeBuffer = EntityManager.AddBuffer<Node>(agentEntity);
+            // var stateBuffer =
+            //     EntityManager.GetBuffer<State>(agentEntity); //已经在创建goal的时候创建了state buffer以容纳goal state
+            // for (var i = pathResult.Length-1; i > 0; i--)    //path的0号为goal，不存
+            // {
+            //     var node = pathResult[i];
+            //     var preconditions = nodeGraph.GetNodePreconditions(node, Allocator.Temp);
+            //     var effects = nodeGraph.GetNodeEffects(node, Allocator.Temp);
+            //
+            //     foreach (var precondition in preconditions)
+            //     {
+            //         stateBuffer.Add(precondition);
+            //         node.PreconditionsBitmask |= (ulong) 1 << stateBuffer.Length - 1;
+            //     }
+            //
+            //     foreach (var effect in effects)
+            //     {
+            //         stateBuffer.Add(effect);
+            //         node.EffectsBitmask |= (ulong) 1 << stateBuffer.Length - 1;
+            //     }
+            //
+            //     nodeBuffer.Add(node);
+            //
+            //     preconditions.Dispose();
+            //     effects.Dispose();
+            // }
         }
 
         /// <summary>
@@ -458,15 +487,19 @@ namespace Zephyr.GOAP.System
             NativeMultiHashMap<Node, State>.ParallelWriter effectWriter,
             ref NativeQueue<Node>.ParallelWriter newlyCreatedNodesWriter, int iteration) where T : struct, IAction
         {
-            if (entityManager.HasComponent<T>(stackData.AgentEntity))
+            for (var i = 0; i < stackData.AgentEntities.Length; i++)
             {
-                dependHandle = new ActionExpandJob<T>(ref unexpandedNodes, ref existedNodesHash,
-                    ref stackData, ref nodeStates,
-                    nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
-                    ref newlyCreatedNodesWriter, iteration, new T()).Schedule(
-                    unexpandedNodes, 0, dependHandle);
+                stackData.CurrentAgentId = i;
+                var agentEntity = stackData.AgentEntities[i];
+                if (entityManager.HasComponent<T>(agentEntity))
+                {
+                    dependHandle = new ActionExpandJob<T>(ref unexpandedNodes, ref existedNodesHash,
+                        ref stackData, ref nodeStates,
+                        nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
+                        ref newlyCreatedNodesWriter, iteration, new T()).Schedule(
+                        unexpandedNodes, 0, dependHandle);
+                }
             }
-
             return dependHandle;
         }
     }

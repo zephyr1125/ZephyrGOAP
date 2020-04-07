@@ -23,9 +23,9 @@ namespace Zephyr.GOAP.Action
             {
                 Trait = typeof(RawDestinationTrait),
             };
-            var agent = stackData.AgentEntity;
+            var agents = stackData.AgentEntities;
             //额外：target不能为自身
-            return targetStates.GetState(state => state.Target != agent && state.BelongTo(stateFilter));
+            return targetStates.GetState(state => !agents.Contains(state.Target) && state.BelongTo(stateFilter));
         }
         
         public StateGroup GetSettings(ref State targetState, ref StackData stackData, Allocator allocator)
@@ -44,7 +44,7 @@ namespace Zephyr.GOAP.Action
         {
             //我自己需要有指定的原料
             var state = setting;
-            state.Target = stackData.AgentEntity;
+            state.Target = stackData.AgentEntities[stackData.CurrentAgentId];
             state.Trait = typeof(RawTransferTrait);
             preconditions.Add(state);
         }

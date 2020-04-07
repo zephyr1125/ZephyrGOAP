@@ -25,13 +25,12 @@ namespace Zephyr.GOAP.Test.ActionExpand
             base.SetUp();
             
             EntityManager.AddComponentData(_agentEntity, new WanderAction());
-            
-            var stateBuffer = EntityManager.AddBuffer<State>(_agentEntity);
-            stateBuffer.Add(new State
+
+            AddGoal(_agentEntity, new State
             {
                 Target = _agentEntity,
                 Trait = typeof(WanderTrait),
-            });
+            }, Priority.Normal, 0);
 
             //给CurrentStates写入假环境数据：自己有原料、世界里有cooker和recipe
             var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);

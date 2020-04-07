@@ -22,9 +22,9 @@ namespace Zephyr.GOAP.Action
             {
                 Trait = typeof(ItemDestinationTrait),
             };
-            var agent = stackData.AgentEntity;
-            //额外：target不能为自身
-            return targetStates.GetState(state => state.Target != agent && state.BelongTo(stateFilter));
+            var agents = stackData.AgentEntities;
+            //额外：target不能为agent
+            return targetStates.GetState(state => !agents.Contains(state.Target) && state.BelongTo(stateFilter));
         }
         
         public StateGroup GetSettings(ref State targetState, ref StackData stackData, Allocator allocator)
@@ -60,7 +60,7 @@ namespace Zephyr.GOAP.Action
         {
             //我自己需要有指定的物品
             var state = setting;
-            state.Target = stackData.AgentEntity;
+            state.Target = stackData.AgentEntities[stackData.CurrentAgentId];
             state.Trait = typeof(ItemTransferTrait);
             preconditions.Add(state);
         }

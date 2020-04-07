@@ -1,9 +1,12 @@
+using System;
 using NUnit.Framework;
 using Unity.Entities;
 using Unity.Transforms;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.AgentState;
 using Zephyr.GOAP.Component.GoalManage;
+using Zephyr.GOAP.Component.GoalManage.GoalState;
+using Zephyr.GOAP.Struct;
 using Zephyr.GOAP.System;
 using Zephyr.GOAP.Test.Debugger;
 
@@ -29,12 +32,9 @@ namespace Zephyr.GOAP.Test
             _goalEntity = EntityManager.CreateEntity();
             
             EntityManager.AddComponentData(_agentEntity, new Agent());
-            EntityManager.AddBuffer<FailedPlanLog>(_agentEntity);
             EntityManager.AddComponentData(_agentEntity, new Translation());
             EntityManager.AddComponentData(_agentEntity, new GoalPlanning());
-            EntityManager.AddComponentData(_agentEntity,
-                new CurrentGoal{GoalEntity = _goalEntity});
-            
+
             World.GetOrCreateSystem<CurrentStatesHelper>().Update();
         }
 
@@ -43,6 +43,27 @@ namespace Zephyr.GOAP.Test
         {
             base.TearDown();
             _debugger.Dispose();
+        }
+
+        protected void AddGoal(Entity agentEntity, State goalState, Priority priority, double time)
+        {
+            var newGoalEntity = EntityManager.CreateEntity();
+            if (agentEntity != Entity.Null)
+            {
+                EntityManager.AddComponentData(newGoalEntity,
+                    new AgentGoal{Agent = agentEntity});
+            }
+            EntityManager.AddComponentData(newGoalEntity, new Goal
+            {
+                GoalEntity = newGoalEntity,
+                State = goalState,
+                Priority = priority,
+                CreateTime = time
+            });
+            EntityManager.AddComponentData(newGoalEntity, new IdleGoal
+            {
+                Time = (float)time
+            });
         }
     }
 }
