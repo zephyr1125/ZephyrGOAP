@@ -33,7 +33,6 @@ namespace Zephyr.GOAP.Test
             
             EntityManager.AddComponentData(_agentEntity, new Agent());
             EntityManager.AddComponentData(_agentEntity, new Translation());
-            EntityManager.AddComponentData(_agentEntity, new GoalPlanning());
 
             World.GetOrCreateSystem<CurrentStatesHelper>().Update();
         }
@@ -45,25 +44,25 @@ namespace Zephyr.GOAP.Test
             _debugger.Dispose();
         }
 
-        protected void AddGoal(Entity agentEntity, State goalState, Priority priority, double time)
+        protected void SetGoal(State goalState,
+         Priority priority = Priority.Normal, double time = 0)
         {
-            var newGoalEntity = EntityManager.CreateEntity();
-            if (agentEntity != Entity.Null)
+            EntityManager.AddComponentData(_goalEntity, new Goal
             {
-                EntityManager.AddComponentData(newGoalEntity,
-                    new AgentGoal{Agent = agentEntity});
-            }
-            EntityManager.AddComponentData(newGoalEntity, new Goal
-            {
-                GoalEntity = newGoalEntity,
+                GoalEntity = _goalEntity,
                 State = goalState,
                 Priority = priority,
                 CreateTime = time
             });
-            EntityManager.AddComponentData(newGoalEntity, new IdleGoal
+            EntityManager.AddComponentData(_goalEntity, new IdleGoal
             {
                 Time = (float)time
             });
+        }
+
+        protected Goal GetGoal()
+        {
+            return EntityManager.GetComponentData<Goal>(_goalEntity);
         }
     }
 }

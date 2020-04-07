@@ -45,7 +45,6 @@ namespace Zephyr.GOAP.System
                 All = new []
                 {
                     ComponentType.ReadOnly<Agent>(),
-                    ComponentType.ReadOnly<GoalPlanning>(),
                     ComponentType.ReadOnly<Translation>(), 
                 },
                 None = new []

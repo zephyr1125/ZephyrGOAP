@@ -6,6 +6,8 @@ using Unity.Mathematics;
 using UnityEngine;
 using Zephyr.GOAP.Action;
 using Zephyr.GOAP.Component.AgentState;
+using Zephyr.GOAP.Component.GoalManage;
+using Zephyr.GOAP.Component.GoalManage.GoalState;
 using Zephyr.GOAP.Component.Trait;
 using Zephyr.GOAP.Logger;
 using Zephyr.GOAP.Struct;
@@ -30,8 +32,8 @@ namespace Zephyr.GOAP.Test.ActionExpand
             _cookerEntity = EntityManager.CreateEntity();
             
             EntityManager.AddComponentData(_agentEntity, new CookAction());
-            var stateBuffer = EntityManager.AddBuffer<State>(_agentEntity);
-            stateBuffer.Add(new State
+            
+            SetGoal(new State
             {
                 Target = _cookerEntity,
                 Trait = typeof(ItemSourceTrait),
@@ -71,10 +73,9 @@ namespace Zephyr.GOAP.Test.ActionExpand
         [Test]
         public void PlanCookForNullTarget()
         {
-            var buffer = EntityManager.GetBuffer<State>(_agentEntity);
-            var goal = buffer[0];
-            goal.Target = Entity.Null;
-            buffer[0] = goal;
+            var goal = GetGoal();
+            goal.State.Target = Entity.Null;
+            SetGoal(goal.State);
             
             _system.Update();
             EntityManager.CompleteAllJobs();
@@ -90,32 +91,28 @@ namespace Zephyr.GOAP.Test.ActionExpand
         [Test]
         public void NullTargetAndNoCooker_Fail()
         {
-            var buffer = EntityManager.GetBuffer<State>(_agentEntity);
-            var goal = buffer[0];
-            goal.Target = Entity.Null;
-            buffer[0] = goal;
+            var goal = GetGoal();
+            goal.State.Target = Entity.Null;
+            SetGoal(goal.State);
             
-            buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
+            var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
             buffer.RemoveAt(1);
             
             _system.Update();
             EntityManager.CompleteAllJobs();
             
-            Assert.IsTrue(EntityManager.HasComponent<NoGoal>(_agentEntity));
-            Assert.IsFalse(EntityManager.HasComponent<GoalPlanning>(_agentEntity));
-            Assert.Zero(EntityManager.GetBuffer<State>(_agentEntity).Length);
+            Assert.IsTrue(EntityManager.HasComponent<FailedPlanLog>((_goalEntity)));
         }
 
         //对只指定ValueTrait的goal进行规划
         [Test]
         public void PlanCookForValueTrait()
         {
-            var buffer = EntityManager.GetBuffer<State>(_agentEntity);
-            var goal = buffer[0];
-            goal.ValueString = new NativeString64();
-            goal.ValueTrait = typeof(FoodTrait);
-            buffer[0] = goal;
-            
+            var goal = GetGoal();
+            goal.State.ValueString = new NativeString64();
+            goal.State.ValueTrait = typeof(FoodTrait);
+            SetGoal(goal.State);
+
             _system.Update();
             EntityManager.CompleteAllJobs();
             
@@ -128,18 +125,17 @@ namespace Zephyr.GOAP.Test.ActionExpand
         [Test]
         public void MultiSettingToMultiNodes()
         {
-            var buffer = EntityManager.GetBuffer<State>(_agentEntity);
-            var goal = buffer[0];
-            goal.ValueString = new NativeString64();
-            goal.ValueTrait = typeof(FoodTrait);
-            buffer[0] = goal;
+            var goal = GetGoal();
+            goal.State.ValueString = new NativeString64();
+            goal.State.ValueTrait = typeof(FoodTrait);
+            SetGoal(goal.State);
             
             _system.Update();
             EntityManager.CompleteAllJobs();
             
-            //2种有配方的方案
+            //3种有配方的方案
             var children = _debugger.GetChildren(_debugger.GoalNodeLog);
-            Assert.AreEqual(2, children.Length);
+            Assert.AreEqual(3, children.Length);
             Assert.IsTrue(children.Any(nodeLog => nodeLog.states.Any(
                 state => state.ValueString.Equals("raw_apple"))));
             Assert.IsTrue(children.Any(nodeLog => nodeLog.states.Any(
@@ -165,10 +161,9 @@ namespace Zephyr.GOAP.Test.ActionExpand
                 ValueString = new NativeString64("raw_peach"),
             });
             
-            buffer = EntityManager.GetBuffer<State>(_agentEntity);
-            var goal = buffer[0];
-            goal.Target = Entity.Null;
-            buffer[0] = goal;
+            var goal = GetGoal();
+            goal.State.Target = Entity.Null;
+            SetGoal(goal.State);
             
             _system.Update();
             EntityManager.CompleteAllJobs();
@@ -191,16 +186,16 @@ namespace Zephyr.GOAP.Test.ActionExpand
             var itemDestinationEntity = EntityManager.CreateEntity();
             var itemSourceEntity = EntityManager.CreateEntity();
             
-            var buffer = EntityManager.GetBuffer<State>(_agentEntity);
-            buffer.Clear();
-            buffer.Add(new State
+            var goal = GetGoal();
+            goal.State = new State
             {
                 Target = itemDestinationEntity,
                 Trait = typeof(ItemDestinationTrait),
                 ValueString = "roast_peach"
-            });
+            };
+            SetGoal(goal.State);
             
-            buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
+            var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
             buffer.Add(new State
             {
                 Target = itemSourceEntity,

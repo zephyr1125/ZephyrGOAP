@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Zephyr.GOAP.Action;
 using Zephyr.GOAP.Component.AgentState;
+using Zephyr.GOAP.Component.GoalManage;
 using Zephyr.GOAP.Component.Trait;
 using Zephyr.GOAP.Struct;
 using Zephyr.GOAP.System;
@@ -29,9 +30,8 @@ namespace Zephyr.GOAP.Test.ActionExpand
             EntityManager.AddComponentData(_agentEntity, new PickItemAction());
             EntityManager.AddComponentData(_agentEntity, new DropItemAction());
             EntityManager.AddComponentData(_agentEntity, new CollectAction());
-            var stateBuffer = EntityManager.AddBuffer<State>(_agentEntity);
-            stateBuffer.Add(new State
-            {
+            
+            SetGoal(new State{
                 Target = _itemDestinationEntity,
                 Trait = typeof(ItemDestinationTrait),
                 ValueString = "raw_peach"
@@ -83,9 +83,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
             _system.Update();
             EntityManager.CompleteAllJobs();
             
-            Assert.IsTrue(EntityManager.HasComponent<NoGoal>(_agentEntity));
-            Assert.IsFalse(EntityManager.HasComponent<GoalPlanning>(_agentEntity));
-            Assert.Zero(EntityManager.GetBuffer<State>(_agentEntity).Length);
+            Assert.IsTrue(EntityManager.HasComponent<FailedPlanLog>(_goalEntity));
         }
 
         /// <summary>
@@ -100,9 +98,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
             _system.Update();
             EntityManager.CompleteAllJobs();
             
-            Assert.IsTrue(EntityManager.HasComponent<NoGoal>(_agentEntity));
-            Assert.IsFalse(EntityManager.HasComponent<GoalPlanning>(_agentEntity));
-            Assert.Zero(EntityManager.GetBuffer<State>(_agentEntity).Length);
+            Assert.IsTrue(EntityManager.HasComponent<FailedPlanLog>(_goalEntity));
         }
 
         [Test]
