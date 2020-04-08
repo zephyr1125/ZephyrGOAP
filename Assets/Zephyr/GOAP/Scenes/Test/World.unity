@@ -595,6 +595,8 @@ MonoBehaviour:
   Name: D
   InitialStamina: 1
   StaminaChangeSpeed: -0.03
+  CookLevel: 0
+  CollectLevel: 0
 --- !u!114 &454054362
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -651,7 +653,7 @@ Transform:
   m_GameObject: {fileID: 495885709}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.75, y: 1, z: 0.75}
   m_Children: []
   m_Father: {fileID: 905876751}
   m_RootOrder: 0
@@ -844,6 +846,8 @@ MonoBehaviour:
   Name: C
   InitialStamina: 0.3
   StaminaChangeSpeed: -0.02
+  CookLevel: 0
+  CollectLevel: 0
 --- !u!114 &757954836
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -889,7 +893,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &905876749
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -905,6 +909,8 @@ MonoBehaviour:
   Name: B
   InitialStamina: 0.5
   StaminaChangeSpeed: -0.04
+  CookLevel: 0
+  CollectLevel: 0
 --- !u!114 &905876750
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -917,7 +923,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8dff9719b444630a6b74f5fc18cfcce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxMoveSpeed: 3
+  MaxMoveSpeed: 6
 --- !u!4 &905876751
 Transform:
   m_ObjectHideFlags: 0
@@ -966,6 +972,8 @@ MonoBehaviour:
   Name: F
   InitialStamina: 1
   StaminaChangeSpeed: -0.03
+  CookLevel: 0
+  CollectLevel: 0
 --- !u!114 &978614384
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1121,6 +1129,8 @@ MonoBehaviour:
   Name: A
   InitialStamina: 0.5
   StaminaChangeSpeed: -0.04
+  CookLevel: 1
+  CollectLevel: 1
 --- !u!114 &1338530250
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1276,6 +1286,8 @@ MonoBehaviour:
   Name: G
   InitialStamina: 0.2
   StaminaChangeSpeed: -0.05
+  CookLevel: 0
+  CollectLevel: 0
 --- !u!114 &1570140976
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1430,6 +1442,8 @@ MonoBehaviour:
   Name: E
   InitialStamina: 0.8
   StaminaChangeSpeed: -0.02
+  CookLevel: 0
+  CollectLevel: 0
 --- !u!114 &1707738387
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,7 +1,5 @@
 using Unity.Collections;
-using Unity.Entities;
 using Unity.Jobs;
-using Unity.Mathematics;
 using Zephyr.GOAP.Action;
 using Zephyr.GOAP.Struct;
 

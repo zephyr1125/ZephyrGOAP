@@ -11,12 +11,14 @@ using Zephyr.GOAP.Struct;
 namespace Zephyr.GOAP.Game.Authoring
 {
     [RequiresEntityConversion]
-    [ConverterVersion("Zephyr", 4)]
+    [ConverterVersion("Zephyr", 6)]
     public class AgentAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     {
         public string Name;
         public float InitialStamina;
         public float StaminaChangeSpeed;
+
+        public int CookLevel, CollectLevel;
         
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
@@ -35,9 +37,9 @@ namespace Zephyr.GOAP.Game.Authoring
             dstManager.AddComponentData(entity, new PickRawAction());
             dstManager.AddComponentData(entity, new DropRawAction());
             dstManager.AddComponentData(entity, new EatAction());
-            dstManager.AddComponentData(entity, new CookAction());
+            dstManager.AddComponentData(entity, new CookAction{Level = CookLevel});
             dstManager.AddComponentData(entity, new WanderAction());
-            dstManager.AddComponentData(entity, new CollectAction());
+            dstManager.AddComponentData(entity, new CollectAction{Level = CollectLevel});
             
             dstManager.AddComponentData(entity, new ItemContainerTrait());
             dstManager.AddComponentData(entity, 
