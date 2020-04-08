@@ -55,23 +55,22 @@ namespace Zephyr.GOAP.System
             });
             _goalQuery = GetEntityQuery(new EntityQueryDesc
             {
-                All = new[] {ComponentType.ReadOnly<Goal>()},
-                None = new[] {ComponentType.ReadOnly<PlanningGoal>()}
+                All = new[] {ComponentType.ReadOnly<Goal>(), ComponentType.ReadOnly<IdleGoal>(), },
             });
         }
 
         protected override void OnUpdate()
         {
-            //如果没有空闲agent,不运行
+            //如果没有空闲agent或者没有任务,不运行
             var agentEntities = _agentQuery.ToEntityArray(Allocator.TempJob);
-            if (agentEntities.Length <= 0)
+            if (agentEntities.Length <= 0 || _goalQuery.CalculateEntityCount() <= 0)
             {
                 agentEntities.Dispose();
                 return;
             }
             
             //找到最急需的一个goal
-            var goal = GetMostPriorityGoal(true);
+            var goal = GetMostPriorityGoal();
             var goalStates = new StateGroup(1, Allocator.TempJob) {goal.State};
 
             //从currentState的存储Entity上拿取current states
@@ -131,7 +130,7 @@ namespace Zephyr.GOAP.System
                 //目前对于规划失败的情况，就直接转入NoGoal状态
                 Debugger?.Log("goal plan failed : " + goalStates);
                 
-                Utils.NextGoalState<PlanningGoal, PlanFailedGoal>(goal.GoalEntity,
+                Utils.NextGoalState<IdleGoal, PlanFailedGoal>(goal.GoalEntity,
                     EntityManager, Time.ElapsedTime);
 
                 var buffer = EntityManager.AddBuffer<FailedPlanLog>(goal.GoalEntity);
@@ -152,7 +151,7 @@ namespace Zephyr.GOAP.System
                 
                 pathResult.Dispose();
 
-                Utils.NextGoalState<PlanningGoal, ExecutingGoal>(goal.GoalEntity,
+                Utils.NextGoalState<IdleGoal, ExecutingGoal>(goal.GoalEntity,
                     EntityManager, Time.ElapsedTime);
             }
 
@@ -171,9 +170,8 @@ namespace Zephyr.GOAP.System
         /// <summary>
         /// 获取最优先goal
         /// </summary>
-        /// <param name="setState">是否设置goal的状态为规划中</param>
         /// <returns></returns>
-        private Goal GetMostPriorityGoal(bool setState)
+        private Goal GetMostPriorityGoal()
         {
             var goals = _goalQuery.ToComponentDataArray<Goal>(Allocator.TempJob);
             var sortedGoals = new NativeMinHeap<Goal>(100, Allocator.TempJob);
@@ -185,12 +183,6 @@ namespace Zephyr.GOAP.System
 
             var minNode = sortedGoals[sortedGoals.Pop()];
 
-            if (setState)
-            {
-                Utils.NextGoalState<IdleGoal, PlanningGoal>(minNode.Content.GoalEntity,
-                    EntityManager, Time.ElapsedTime);
-            }
-            
             sortedGoals.Dispose();
             goals.Dispose();
 
@@ -367,6 +359,8 @@ namespace Zephyr.GOAP.System
             foreach (var uncheckedNode in uncheckedNodes)
             {
                 Debugger?.Log("check node: "+uncheckedNode.Name);
+                nodeGraph.CleanAllDuplicateStates(uncheckedNode);
+                
                 var uncheckedStates = nodeGraph.GetNodeStates(uncheckedNode, Allocator.Temp);
                 uncheckedStates.Sub(ref currentStates);
                 
@@ -477,7 +471,7 @@ namespace Zephyr.GOAP.System
             newlyCreatedNodes.Dispose();
         }
         
-        private JobHandle ScheduleActionExpand<T>(JobHandle dependHandle, EntityManager entityManager,
+        private JobHandle ScheduleActionExpand<T>(JobHandle handle, EntityManager entityManager,
             ref StackData stackData, ref NativeList<Node> unexpandedNodes,
             ref NativeArray<int> existedNodesHash, ref NativeMultiHashMap<Node, State>  nodeStates,
             NativeMultiHashMap<Node, Edge>.ParallelWriter nodeToParentWriter, 
@@ -492,14 +486,14 @@ namespace Zephyr.GOAP.System
                 var agentEntity = stackData.AgentEntities[i];
                 if (entityManager.HasComponent<T>(agentEntity))
                 {
-                    dependHandle = new ActionExpandJob<T>(ref unexpandedNodes, ref existedNodesHash,
+                    handle = new ActionExpandJob<T>(ref unexpandedNodes, ref existedNodesHash,
                         ref stackData, ref nodeStates,
                         nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
                         ref newlyCreatedNodesWriter, iteration, new T()).Schedule(
-                        unexpandedNodes, 0, dependHandle);
+                        unexpandedNodes, 6, handle);
                 }
             }
-            return dependHandle;
+            return handle;
         }
     }
 }
