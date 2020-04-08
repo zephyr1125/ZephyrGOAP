@@ -18,8 +18,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
             
             EntityManager.AddComponentData(_agentEntity, new DropItemAction());
 
-            var stateBuffer = EntityManager.AddBuffer<State>(_agentEntity);
-            stateBuffer.Add(new State
+            SetGoal(new State
             {
                 Target = new Entity {Index = 9, Version = 9},
                 Trait = typeof(ItemDestinationTrait),
@@ -38,7 +37,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
 
             var children = _debugger.GetChildren(_debugger.GoalNodeLog);
             
-            Assert.AreEqual(4, children.Length);
+            Assert.AreEqual(5, children.Length);
             Assert.IsTrue(children.Any(
                 nodeLog => nodeLog.states[0].ValueString.Equals("raw_apple")));
             Assert.IsTrue(children.Any(

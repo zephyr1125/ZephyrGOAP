@@ -33,8 +33,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
             EntityManager.AddComponentData(_agentEntity, new PickItemAction());
             EntityManager.AddComponentData(_agentEntity, new DropItemAction());
             
-            var stateBuffer = EntityManager.AddBuffer<State>(_agentEntity);
-            stateBuffer.Add(new State
+            SetGoal(new State
             {
                 Target = _agentEntity,
                 Trait = typeof(StaminaTrait),
@@ -98,29 +97,6 @@ namespace Zephyr.GOAP.Test.ActionExpand
             Assert.AreEqual(nameof(PickItemAction), pathResult[3].name);
 
             Utils.RoastAppleStamina = origin;
-        }
-
-        /// <summary>
-        /// 非明确的precondition需要被明确的所替代
-        /// </summary>
-        [Test]
-        public void ReplaceNonSpecificPreconditions()
-        {
-            _system.Update();
-            EntityManager.CompleteAllJobs();
-
-            var nodes = EntityManager.GetBuffer<Node>(_agentEntity);
-            var states = EntityManager.GetBuffer<State>(_agentEntity);
-
-            var eatNodePrefabsMask = nodes[0].PreconditionsBitmask;
-            for (var i = 0; i < states.Length; i++)
-            {
-                if ((eatNodePrefabsMask & ((ulong) 1 << i)) > 0 &&
-                    states[i].Trait == typeof(DiningTableTrait))
-                {
-                    Assert.AreEqual(new Entity{Index = 9, Version = 9}, states[i].Target);
-                }
-            }
         }
     }
 }

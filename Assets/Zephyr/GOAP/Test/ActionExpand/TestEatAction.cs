@@ -25,8 +25,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
 
             EntityManager.AddComponentData(_agentEntity, new EatAction());
             
-            var stateBuffer = EntityManager.AddBuffer<State>(_agentEntity);
-            stateBuffer.Add(new State
+            SetGoal(new State
             {
                 Target = _agentEntity,
                 Trait = typeof(StaminaTrait),

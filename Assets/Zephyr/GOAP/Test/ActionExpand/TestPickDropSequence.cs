@@ -37,16 +37,15 @@ namespace Zephyr.GOAP.Test.ActionExpand
             //GOAP数据
             EntityManager.AddComponentData(_agentEntity, new PickItemAction());
             EntityManager.AddComponentData(_agentEntity, new DropItemAction());
-            var buffer = EntityManager.AddBuffer<State>(_agentEntity);
-            _goalState = new State
+            
+            SetGoal(new State
             {
                 Target = _targetContainerEntity,
                 Trait = typeof(ItemDestinationTrait),
                 ValueString = "item",
-            };
-            buffer.Add(_goalState);
+            });
             
-            buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
+            var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
             buffer.Add(new State
             {
                 Target = _itemSourceEntity,
