@@ -286,7 +286,36 @@ namespace Zephyr.GOAP.Struct
                 found = _preconditions.TryGetNextValue(out foundState, ref it);
             }
         }
-        
+
+        /// <summary>
+        /// 由于ActionExpand的并行会导致产生重复state
+        /// 因此在CheckNodes中进行清理
+        /// </summary>
+        /// <param name="node"></param>
+        public void CleanAllDuplicateStates(Node node)
+        {
+            CleanDuplicateStates(_preconditions, node);
+            CleanDuplicateStates(_effects, node);
+            CleanDuplicateStates(_nodeStates, node);
+        }
+
+        private void CleanDuplicateStates(NativeMultiHashMap<Node, State> container, Node node)
+        {
+            var lastState = new State();
+            var found = container.TryGetFirstValue(node, out var foundState, out var it);
+            while (found)
+            {
+                if (foundState.Equals(lastState))
+                {
+                    container.Remove(it);
+                }
+
+                lastState = foundState;
+                found = container.TryGetNextValue(out foundState, ref it);
+            }
+        }
+
+
         public void Dispose()
         {
             _nodeToParent.Dispose();
