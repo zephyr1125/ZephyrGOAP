@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
+using UnityEngine.Profiling;
 using Zephyr.GOAP.Action;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.Trait;
@@ -106,8 +107,17 @@ namespace Zephyr.GOAP.Test.ActionExpand
         [Test]
         public void PlanCookCollect()
         {
+            Profiler.logFile = nameof(TestCookCollectSequenceWithMultiAgent);
+            Profiler.enableBinaryLog = true;
+            Profiler.enabled = true;
+            
+            Profiler.BeginSample(nameof(TestCookCollectSequenceWithMultiAgent));
             _system.Update();
             EntityManager.CompleteAllJobs();
+            Profiler.EndSample();
+
+            Profiler.enabled = false;
+            Profiler.logFile = "";
             
             Debug.Log(_debugger.GoalNodeLog);
             // var pathResult = _debugger.PathResult;

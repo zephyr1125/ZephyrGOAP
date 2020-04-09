@@ -121,7 +121,7 @@ namespace Zephyr.GOAP.System
             }
 
             var nodes = nodeGraph.GetNodes(Allocator.Temp);
-            Debug.Log($"{nodes.Length} nodes in graph");
+            Debugger?.Log($"{nodes.Length} nodes in graph");
             nodes.Dispose();
 
             if (!foundPlan)

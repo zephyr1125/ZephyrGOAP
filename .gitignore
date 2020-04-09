@@ -41,3 +41,6 @@ Publish/
 /Assets/Plugins/
 /PlanDebugger/
 /GoapTestLog/
+
+# Profiler Log
+*.raw

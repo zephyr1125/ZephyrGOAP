@@ -65,7 +65,7 @@ namespace Zephyr.GOAP.Test.Debugger
         
         public void Log(string log)
         {
-            Debug.Log(log);
+            // Debug.Log(log);
         }
 
         public void Dispose()
