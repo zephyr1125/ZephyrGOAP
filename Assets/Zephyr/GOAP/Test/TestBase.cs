@@ -5,7 +5,6 @@ namespace Zephyr.GOAP.Test
 {
     public class TestBase
     {
-        protected static World PreviousWorld;
         protected static World World;
         protected EntityManager EntityManager;
         protected EntityManager.EntityManagerDebug ManagerDebug;
@@ -13,8 +12,7 @@ namespace Zephyr.GOAP.Test
         [SetUp]
         public virtual void SetUp()
         {
-            PreviousWorld = World.Active;
-            World = World.Active = new World("Test World");
+            World = new World("Test World");
 
             EntityManager = World.EntityManager;
             ManagerDebug = new EntityManager.EntityManagerDebug(EntityManager);
@@ -26,10 +24,6 @@ namespace Zephyr.GOAP.Test
             if (EntityManager != null)
             {
                 World.Dispose();
-                World = null;
-
-                World.Active = PreviousWorld;
-                PreviousWorld = null;
                 EntityManager = null;
             }
         }

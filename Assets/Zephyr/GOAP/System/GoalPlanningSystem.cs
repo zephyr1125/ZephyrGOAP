@@ -422,37 +422,36 @@ namespace Zephyr.GOAP.System
             var preconditionWriter = nodeGraph.PreconditionWriter;
             var effectWriter = nodeGraph.EffectWriter;
             
-            var entityManager = World.Active.EntityManager;
             var handle = default(JobHandle);
-            handle = ScheduleActionExpand<DropItemAction>(handle, entityManager, ref stackData,
+            handle = ScheduleActionExpand<DropItemAction>(handle, ref stackData,
                 ref unexpandedNodes, ref existedNodesHash, ref nodeStates,
                 nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
                 ref newlyCreatedNodesWriter, iteration);
-            handle = ScheduleActionExpand<PickItemAction>(handle, entityManager, ref stackData,
+            handle = ScheduleActionExpand<PickItemAction>(handle, ref stackData,
                 ref unexpandedNodes, ref existedNodesHash, ref nodeStates,
                 nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
                 ref newlyCreatedNodesWriter, iteration);
-            handle = ScheduleActionExpand<EatAction>(handle, entityManager, ref stackData,
+            handle = ScheduleActionExpand<EatAction>(handle, ref stackData,
                 ref unexpandedNodes, ref existedNodesHash, ref nodeStates,
                 nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
                 ref newlyCreatedNodesWriter, iteration);
-            handle = ScheduleActionExpand<CookAction>(handle, entityManager, ref stackData,
+            handle = ScheduleActionExpand<CookAction>(handle, ref stackData,
                 ref unexpandedNodes, ref existedNodesHash, ref nodeStates,
                 nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
                 ref newlyCreatedNodesWriter, iteration);
-            handle = ScheduleActionExpand<WanderAction>(handle, entityManager, ref stackData,
+            handle = ScheduleActionExpand<WanderAction>(handle, ref stackData,
                 ref unexpandedNodes, ref existedNodesHash,  ref nodeStates,
                 nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
                 ref newlyCreatedNodesWriter, iteration);
-            handle = ScheduleActionExpand<CollectAction>(handle, entityManager, ref stackData,
+            handle = ScheduleActionExpand<CollectAction>(handle, ref stackData,
                 ref unexpandedNodes, ref existedNodesHash,  ref nodeStates,
                 nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
                 ref newlyCreatedNodesWriter, iteration);
-            handle = ScheduleActionExpand<PickRawAction>(handle, entityManager, ref stackData,
+            handle = ScheduleActionExpand<PickRawAction>(handle,ref stackData,
                 ref unexpandedNodes, ref existedNodesHash,  ref nodeStates,
                 nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
                 ref newlyCreatedNodesWriter, iteration);
-            handle = ScheduleActionExpand<DropRawAction>(handle, entityManager, ref stackData,
+            handle = ScheduleActionExpand<DropRawAction>(handle, ref stackData,
                 ref unexpandedNodes, ref existedNodesHash,  ref nodeStates,
                 nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
                 ref newlyCreatedNodesWriter, iteration);
@@ -471,7 +470,7 @@ namespace Zephyr.GOAP.System
             newlyCreatedNodes.Dispose();
         }
         
-        private JobHandle ScheduleActionExpand<T>(JobHandle handle, EntityManager entityManager,
+        private JobHandle ScheduleActionExpand<T>(JobHandle handle,
             ref StackData stackData, ref NativeList<Node> unexpandedNodes,
             ref NativeArray<int> existedNodesHash, ref NativeMultiHashMap<Node, State>  nodeStates,
             NativeMultiHashMap<Node, Edge>.ParallelWriter nodeToParentWriter, 
@@ -484,7 +483,7 @@ namespace Zephyr.GOAP.System
             {
                 stackData.CurrentAgentId = i;
                 var agentEntity = stackData.AgentEntities[i];
-                if (entityManager.HasComponent<T>(agentEntity))
+                if (EntityManager.HasComponent<T>(agentEntity))
                 {
                     handle = new ActionExpandJob<T>(ref unexpandedNodes, ref existedNodesHash,
                         ref stackData, ref nodeStates,

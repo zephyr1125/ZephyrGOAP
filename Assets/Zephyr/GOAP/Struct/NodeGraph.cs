@@ -86,7 +86,7 @@ namespace Zephyr.GOAP.Struct
         /// <returns></returns>
         public int Length()
         {
-            return _nodeToParent.Length + 1;
+            return _nodeToParent.Count() + 1;
         }
 
         public NativeMultiHashMap<Node, Edge>.Enumerator GetEdgeToParents(Node node)
