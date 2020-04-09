@@ -17,6 +17,8 @@ namespace Zephyr.GOAP.Struct
         /// -Cost/+Reward
         /// </summary>
         public readonly float Reward;
+
+        public float ExecuteTime, NavigateTime;
         
         /// <summary>
         /// 用于比较两个Node是否是同一个node
@@ -25,11 +27,6 @@ namespace Zephyr.GOAP.Struct
         public readonly int HashCode;
 
         public Entity AgentExecutorEntity;
-
-        /// <summary>
-        /// 预测的执行开始与结束时间
-        /// </summary>
-        public double ExecuteStartTime, ExecuteEndTime;
 
         /// <summary>
         /// 当node被当做path存在agent上时，用bitmask指示其preconditions和effects对应的states in buffer
@@ -52,11 +49,12 @@ namespace Zephyr.GOAP.Struct
         public Entity NavigatingSubject;
 
         public Node(ref StateGroup preconditions, ref StateGroup effects, ref StateGroup states, 
-            NativeString64 name, float reward, int iteration, Entity agentExecutorEntity,
+            NativeString64 name, float reward, float executeTime, int iteration, Entity agentExecutorEntity,
             NodeNavigatingSubjectType subjectType = NodeNavigatingSubjectType.Null, byte subjectId = 0) : this()
         {
             Name = name;
             Reward = reward;
+            ExecuteTime = executeTime;
             Iteration = iteration;
             NavigatingSubjectType = subjectType;
             NavigatingSubjectId = subjectId;

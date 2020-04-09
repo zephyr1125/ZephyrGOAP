@@ -2,6 +2,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Zephyr.GOAP.Component.Trait;
 using Zephyr.GOAP.Struct;
+using Zephyr.GOAP.System.ActionExecuteSystem;
 
 namespace Zephyr.GOAP.Action
 {
@@ -58,6 +59,11 @@ namespace Zephyr.GOAP.Action
         public float GetReward(ref State targetState, ref State setting, ref StackData stackData)
         {
             return 0;
+        }
+
+        public float GetExecuteTime(ref State targetState, ref State setting, ref StackData stackData)
+        {
+            return WanderActionExecuteSystem.WanderTime;
         }
 
         public void GetNavigatingSubjectInfo(ref State targetState, ref State setting,

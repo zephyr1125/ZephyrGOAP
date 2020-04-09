@@ -89,12 +89,15 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
 
                         var reward =
                             _action.GetReward(ref targetState, ref setting, ref _stackData);
+                        
+                        var time =
+                            _action.GetExecuteTime(ref targetState, ref setting, ref _stackData);
 
                         _action.GetNavigatingSubjectInfo(ref targetState, ref setting,
                             ref _stackData, ref preconditions, out var subjectType, out var subjectId);
                         
                         var node = new Node(ref preconditions, ref effects, ref newStates, 
-                            _action.GetName(), reward, _iteration,
+                            _action.GetName(), reward, time, _iteration,
                             _stackData.AgentEntities[_stackData.CurrentAgentId], subjectType, subjectId);
                         
                         var nodeExisted = _existedNodesHash.Contains(node.HashCode);

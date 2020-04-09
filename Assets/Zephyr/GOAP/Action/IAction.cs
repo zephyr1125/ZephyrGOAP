@@ -20,6 +20,9 @@ namespace Zephyr.GOAP.Action
         
         float GetReward([ReadOnly] ref State targetState, ref State setting,
             [ReadOnly] ref StackData stackData);
+        
+        float GetExecuteTime([ReadOnly] ref State targetState, ref State setting,
+            [ReadOnly] ref StackData stackData);
 
         void GetNavigatingSubjectInfo(ref State targetState, ref State setting,
             [ReadOnly] ref StackData stackData, ref StateGroup preconditions,

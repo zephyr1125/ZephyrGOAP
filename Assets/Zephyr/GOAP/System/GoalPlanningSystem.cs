@@ -94,7 +94,7 @@ namespace Zephyr.GOAP.System
             var goalPrecondition = new StateGroup();
             var goalEffects = new StateGroup();
             var goalNode = new Node(ref goalPrecondition, ref goalEffects, ref goalStates,
-                new NativeString64("goal"), 0, 0, Entity.Null);
+                new NativeString64("goal"), 0, 0, 0, Entity.Null);
             
             //goalNode进入graph
             nodeGraph.SetGoalNode(goalNode, ref goalStates);
@@ -485,10 +485,11 @@ namespace Zephyr.GOAP.System
                 var agentEntity = stackData.AgentEntities[i];
                 if (EntityManager.HasComponent<T>(agentEntity))
                 {
+                    var action = EntityManager.GetComponentData<T>(agentEntity);
                     handle = new ActionExpandJob<T>(ref unexpandedNodes, ref existedNodesHash,
                         ref stackData, ref nodeStates,
                         nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
-                        ref newlyCreatedNodesWriter, iteration, new T()).Schedule(
+                        ref newlyCreatedNodesWriter, iteration, action).Schedule(
                         unexpandedNodes, 6, handle);
                 }
             }

@@ -43,9 +43,9 @@ namespace Zephyr.GOAP.Test
             var nonPrecondition = new StateGroup();
             var nonEffect = new StateGroup();
             var node0 = new Node(ref nonPrecondition, ref nonEffect, ref _states0,
-                new NativeString64("node0"), 0, 0, Entity.Null);
+                new NativeString64("node0"), 0, 0, 0, Entity.Null);
             var node1 = new Node(ref nonPrecondition, ref nonEffect, ref _states1,
-                new NativeString64("node1"), 0, 0, Entity.Null);
+                new NativeString64("node1"), 0, 0, 0, Entity.Null);
             
             Assert.AreEqual(node1, node0);
             Assert.IsTrue(node0.Equals(node1));
@@ -63,9 +63,9 @@ namespace Zephyr.GOAP.Test
             var nonPrecondition = new StateGroup();
             var nonEffect = new StateGroup();
             var node0 = new Node(ref nonPrecondition, ref nonEffect, ref _states0,
-                new NativeString64("node0"), 0, 0, Entity.Null);
+                new NativeString64("node0"), 0, 0, 0, Entity.Null);
             var node1 = new Node(ref nonPrecondition, ref nonEffect, ref _states1,
-                new NativeString64("node1"), 0, 0, Entity.Null);
+                new NativeString64("node1"), 0, 0, 0, Entity.Null);
             
             Assert.AreNotEqual(node1, node0);
             Assert.IsFalse(node0.Equals(node1));

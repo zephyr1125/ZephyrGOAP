@@ -178,6 +178,11 @@ namespace Zephyr.GOAP.Action
             return -1;
         }
 
+        public float GetExecuteTime(ref State targetState, ref State setting, ref StackData stackData)
+        {
+            return 4 / (float) (Level + 1);
+        }
+
         public void GetNavigatingSubjectInfo(ref State targetState, ref State setting,
             ref StackData stackData, ref StateGroup preconditions,
                 out NodeNavigatingSubjectType subjectType, out byte subjectId)

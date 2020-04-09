@@ -48,7 +48,7 @@ namespace Zephyr.GOAP.Test
             }};
             var goalPreconditions = new StateGroup();
             _goalNode = new Node(ref goalPreconditions, ref goalStates, ref goalStates,
-                new NativeString64("goal"), 0, 0, Entity.Null);
+                new NativeString64("goal"), 0, 0, 0, Entity.Null);
             
             _nodeGraph.SetGoalNode(_goalNode, ref goalStates);
             
