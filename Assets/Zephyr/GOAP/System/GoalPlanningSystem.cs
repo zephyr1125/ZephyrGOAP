@@ -228,17 +228,18 @@ namespace Zephyr.GOAP.System
             //start -> goal, 不包含start
             var startNode = nodeGraph.GetStartNode();
             var node = startNode;
-            var nodes = new NativeQueue<Node>(Allocator.Temp);
-            nodeGraph.GetParents(node, ref nodes);
+            var edges = new NativeQueue<Edge>(Allocator.Temp);
+            nodeGraph.GetEdges(node, ref edges);
             
-            while (nodes.Count > 0)
+            while (edges.Count > 0)
             {
-                var child = node;
-                node = nodes.Dequeue();
+                var edge = edges.Dequeue();
+                node = edge.Parent;
+                var child = edge.Child;
                
                 var nodeStates = nodeGraph.GetNodeStates(node, Allocator.Temp);
                 var nodePreconditions = nodeGraph.GetNodePreconditions(node, Allocator.Temp);
-                var childStates = new StateGroup();
+                StateGroup childStates;
                 var isLastNode = child.Equals(startNode);
                 if (isLastNode)
                 {
@@ -284,10 +285,10 @@ namespace Zephyr.GOAP.System
                 nodePreconditions.Dispose();
                 if(!isLastNode)childStates.Dispose();
                 
-                nodeGraph.GetParents(node, ref nodes);
+                nodeGraph.GetEdges(node, ref edges);
             } 
 
-            nodes.Dispose();
+            edges.Dispose();
         }
 
         /// <summary>

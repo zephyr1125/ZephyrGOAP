@@ -319,14 +319,14 @@ namespace Zephyr.GOAP.Struct
         /// 
         /// </summary>
         /// <returns>parents</returns>
-        public void GetParents(Node node, ref NativeQueue<Node> queue)
+        public void GetEdges(Node node, ref NativeQueue<Edge> queue)
         {
             var size = _nodeToParent.Count();
             var sizeOfNodeParents = _nodeToParent.CountValuesForKey(node);
             var found = _nodeToParent.TryGetFirstValue(node, out var foundEdge, out var it);
             while (found)
             {
-                queue.Enqueue(foundEdge.Parent);
+                queue.Enqueue(foundEdge);
                 found = _nodeToParent.TryGetNextValue(out foundEdge, ref it);
             }
         }
