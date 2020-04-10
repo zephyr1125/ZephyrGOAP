@@ -14,9 +14,18 @@
 .title {
     color: rgb(207, 207, 207);
     -unity-font-style: bold;
+    flex-grow: 1;
 }
 
 .reward {
     -unity-font-style: normal;
     color: rgb(97, 243, 176);
+    background-color: rgba(63, 63, 63, 255);
+}
+
+.time {
+    color: rgba(221, 215, 76, 255);
+    flex-direction: column;
+    right: auto;
+    background-color: rgba(63, 63, 63, 255);
 }

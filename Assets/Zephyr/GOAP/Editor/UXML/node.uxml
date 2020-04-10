@@ -1,10 +1,11 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
-    <ui:VisualElement name="frame" class="frame" style="position: absolute;">
+    <ui:VisualElement name="frame" class="frame" style="position: absolute;&#10;">
         <Style src="node.uss" />
-        <ui:VisualElement name="titlebar" class="title" style="flex-direction: row; flex-grow: 0; align-items: auto; flex-shrink: 0; background-color: rgb(63, 63, 63); -unity-text-align: upper-center; justify-content: space-between; flex-wrap: no-wrap; width: auto;">
-            <ui:Label text="name" name="name" class="title" />
+        <ui:VisualElement name="titlebar" class="title" style="flex-direction: row;&#10;flex-grow: 0;&#10;align-items: auto;&#10;flex-shrink: 0;&#10;background-color: rgb(63, 63, 63);&#10;-unity-text-align: upper-center;&#10;justify-content: space-between;&#10;flex-wrap: no-wrap;&#10;width: auto;&#10;">
+            <ui:Label text="name" name="name" class="title" style="flex-grow: 1;&#10;-unity-text-align: upper-left;&#10;" />
+            <ui:Label text="0" name="time" class="time" style="-unity-font-style: normal;&#10;" />
             <ui:Label text="0" name="reward" class="reward" />
         </ui:VisualElement>
-        <ui:VisualElement name="states" style="flex-grow: 1; background-color: rgb(130, 130, 130);" />
+        <ui:VisualElement name="states" style="flex-grow: 1;&#10;background-color: rgb(130, 130, 130);&#10;" />
     </ui:VisualElement>
 </ui:UXML>
