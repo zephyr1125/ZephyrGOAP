@@ -315,6 +315,22 @@ namespace Zephyr.GOAP.Struct
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>parents</returns>
+        public void GetParents(Node node, ref NativeQueue<Node> queue)
+        {
+            var size = _nodeToParent.Count();
+            var sizeOfNodeParents = _nodeToParent.CountValuesForKey(node);
+            var found = _nodeToParent.TryGetFirstValue(node, out var foundEdge, out var it);
+            while (found)
+            {
+                queue.Enqueue(foundEdge.Parent);
+                found = _nodeToParent.TryGetNextValue(out foundEdge, ref it);
+            }
+        }
+
 
         public void Dispose()
         {

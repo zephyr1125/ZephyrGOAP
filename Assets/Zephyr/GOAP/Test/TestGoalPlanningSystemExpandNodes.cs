@@ -14,7 +14,8 @@ namespace Zephyr.GOAP.Test
 
         private Entity _agentEntity, _targetEntity;
 
-        private NativeList<Node> _uncheckedNodes;
+        private NativeHashMap<int, Node> _uncheckedNodes;
+        private NativeHashMap<int, Node>.ParallelWriter _uncheckedNodesWriter;
         private NativeList<Node> _unexpandedNodes;
         private NativeList<Node> _expandedNodes;
         private NodeGraph _nodeGraph;
@@ -33,7 +34,8 @@ namespace Zephyr.GOAP.Test
             EntityManager.AddComponentData(_agentEntity, new DropItemAction());
             
             
-            _uncheckedNodes = new NativeList<Node>(Allocator.Persistent);
+            _uncheckedNodes = new NativeHashMap<int, Node>(32, Allocator.Persistent);
+            _uncheckedNodesWriter = _uncheckedNodes.AsParallelWriter();
             _unexpandedNodes = new NativeList<Node>(Allocator.Persistent);
             _expandedNodes = new NativeList<Node>(Allocator.Persistent);
             
@@ -83,10 +85,10 @@ namespace Zephyr.GOAP.Test
         public void NewNodeIntoUnCheckedList()
         {
             _system.ExpandNodes(ref _unexpandedNodes, ref _stackData, ref _nodeGraph,
-                ref _uncheckedNodes, ref _expandedNodes, 1);
+                ref _uncheckedNodesWriter, ref _expandedNodes, 1);
             
             Assert.AreEqual(2, _nodeGraph.Length());
-            Assert.AreEqual(1, _uncheckedNodes.Length);
+            Assert.AreEqual(1, _uncheckedNodes.Count());
             var states = _nodeGraph.GetNodeStates(_uncheckedNodes[0], Allocator.Temp);
             Assert.AreEqual(1, states.Length());
             Assert.AreEqual(new State
@@ -104,7 +106,7 @@ namespace Zephyr.GOAP.Test
         public void OldNodeIntoExpandedList()
         {
             _system.ExpandNodes(ref _unexpandedNodes, ref _stackData, ref _nodeGraph,
-                ref _uncheckedNodes, ref _expandedNodes, 1);
+                ref _uncheckedNodesWriter, ref _expandedNodes, 1);
             
             Assert.AreEqual(2, _nodeGraph.Length());
             Assert.AreEqual(1, _expandedNodes.Length);
@@ -126,7 +128,7 @@ namespace Zephyr.GOAP.Test
         public void ClearUnExpandedList()
         {
             _system.ExpandNodes(ref _unexpandedNodes, ref _stackData, ref _nodeGraph,
-                ref _uncheckedNodes, ref _expandedNodes, 1);
+                ref _uncheckedNodesWriter, ref _expandedNodes, 1);
             
             Assert.AreEqual(0, _unexpandedNodes.Length);
         }
@@ -138,12 +140,12 @@ namespace Zephyr.GOAP.Test
             EntityManager.RemoveComponent<DropItemAction>(_agentEntity);
             
             _system.ExpandNodes(ref _unexpandedNodes, ref _stackData, ref _nodeGraph,
-                ref _uncheckedNodes, ref _expandedNodes, 1);
+                ref _uncheckedNodesWriter, ref _expandedNodes, 1);
             
             Assert.AreEqual(1, _nodeGraph.Length());
             Assert.AreEqual(1, _expandedNodes.Length);
             Assert.AreEqual(0, _unexpandedNodes.Length);
-            Assert.AreEqual(0, _uncheckedNodes.Length);
+            Assert.AreEqual(0, _uncheckedNodes.Count());
             var states = _nodeGraph.GetNodeStates(_expandedNodes[0], Allocator.Temp);
             Assert.AreEqual(1, states.Length());
             Assert.AreEqual(new State

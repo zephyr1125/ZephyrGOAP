@@ -28,7 +28,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         private NativeMultiHashMap<Node, State>.ParallelWriter _preconditionWriter;
         private NativeMultiHashMap<Node, State>.ParallelWriter _effectWriter;
         
-        private NativeQueue<Node>.ParallelWriter _newlyCreatedNodesWriter;
+        private NativeHashMap<int, Node>.ParallelWriter _newlyCreatedNodesWriter;
 
         private readonly int _iteration;
 
@@ -41,7 +41,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             NativeMultiHashMap<Node, State>.ParallelWriter nodeStateWriter, 
             NativeMultiHashMap<Node, State>.ParallelWriter preconditionWriter, 
             NativeMultiHashMap<Node, State>.ParallelWriter effectWriter,
-            ref NativeQueue<Node>.ParallelWriter newlyCreatedNodesWriter, int iteration, T action)
+            ref NativeHashMap<int, Node>.ParallelWriter newlyCreatedNodesWriter, int iteration, T action)
         {
             _unexpandedNodes = unexpandedNodes;
             _existedNodesHash = existedNodesHash;
@@ -106,7 +106,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                         AddRouteNode(node, nodeExisted, ref newStates, _nodeToParentWriter,
                             _nodeStateWriter, _preconditionWriter, _effectWriter,
                             ref preconditions, ref effects, unexpandedNode, _action.GetName());
-                        _newlyCreatedNodesWriter.Enqueue(node);
+                        _newlyCreatedNodesWriter.TryAdd(node.HashCode, node);
 
                         newStates.Dispose();
                     }

@@ -10,6 +10,8 @@ namespace Zephyr.GOAP.Action
     /// </summary>
     public struct PickItemAction : IComponentData, IAction
     {
+        public int Level;
+        
         public NativeString64 GetName()
         {
             return new NativeString64(nameof(PickItemAction));

@@ -11,6 +11,8 @@ namespace Zephyr.GOAP.Action
     /// </summary>
     public struct WanderAction : IComponentData, IAction
     {
+        public int Level;
+        
         public NativeString64 GetName()
         {
             return new NativeString64(nameof(WanderAction));

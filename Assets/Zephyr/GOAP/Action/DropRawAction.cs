@@ -11,6 +11,8 @@ namespace Zephyr.GOAP.Action
     /// </summary>
     public struct DropRawAction : IComponentData, IAction
     {
+        public int Level;
+        
         public NativeString64 GetName()
         {
             return new NativeString64(nameof(DropRawAction));
