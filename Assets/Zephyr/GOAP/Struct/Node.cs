@@ -1,6 +1,7 @@
 using System;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 
 namespace Zephyr.GOAP.Struct
 {
@@ -47,6 +48,8 @@ namespace Zephyr.GOAP.Struct
         /// 用于给Navigating指明导航目标
         /// </summary>
         public Entity NavigatingSubject;
+
+        public float3 NavigatingSubjectPosition;
 
         public Node(ref StateGroup preconditions, ref StateGroup effects, ref StateGroup states, 
             NativeString64 name, float reward, float executeTime, int iteration, Entity agentExecutorEntity,

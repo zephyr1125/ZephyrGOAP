@@ -7,6 +7,7 @@ using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.GoalManage;
 using Zephyr.GOAP.Component.GoalManage.GoalState;
 using Zephyr.GOAP.Debugger;
+using Zephyr.GOAP.Game.ComponentData;
 using Zephyr.GOAP.Lib;
 using Zephyr.GOAP.Struct;
 using Zephyr.GOAP.System.GoalManage;
@@ -44,6 +45,7 @@ namespace Zephyr.GOAP.System
                 {
                     ComponentType.ReadOnly<Agent>(),
                     ComponentType.ReadOnly<Translation>(), 
+                    ComponentType.ReadOnly<MaxMoveSpeed>(), 
                 },
                 None = new []
                 {
@@ -74,8 +76,11 @@ namespace Zephyr.GOAP.System
             //从currentState的存储Entity上拿取current states
             var currentStateBuffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
             
-            //组织StackData
             var agentTranslations = _agentQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
+            var agentMoveSpeeds = _agentQuery.ToComponentDataArray<MaxMoveSpeed>(Allocator.TempJob);
+            var agentStartTimes = new NativeArray<float>(agentTranslations.Length, Allocator.TempJob);
+            
+            //组织StackData
             var stackData = new StackData(ref agentEntities, ref agentTranslations,
                 new StateGroup(ref currentStateBuffer, Allocator.TempJob));
             agentTranslations.Dispose();
@@ -139,9 +144,11 @@ namespace Zephyr.GOAP.System
             }
             else
             {
-                //寻路
                 UnifyNodeStates(ref stackData.CurrentStates, ref nodeGraph);
-                var pathResult = FindPath(ref nodeGraph);
+                CalcNodeNavigateTimes(ref stackData, ref nodeGraph);
+                //寻路
+                var pathResult = FindPath(ref nodeGraph, ref stackData,
+                    ref agentMoveSpeeds, ref agentStartTimes);
                 ApplyPathNodeNavigatingSubjects(ref nodeGraph, ref pathResult);
                 SavePath(ref pathResult, ref nodeGraph);
                 
@@ -162,6 +169,8 @@ namespace Zephyr.GOAP.System
             Debugger?.LogDone();
             
             goalStates.Dispose();
+            agentMoveSpeeds.Dispose();
+            agentStartTimes.Dispose();
             agentEntities.Dispose();
             stackData.Dispose();
         }
@@ -191,16 +200,17 @@ namespace Zephyr.GOAP.System
         /// <summary>
         /// 基于goal的priority和createTime为goal计算排序时的优先级
         /// todo 正式项目应开放编辑具体公式以方便修改
-        /// </summary>
         /// <param name="priority"></param>
         /// <param name="createTime"></param>
         /// <returns></returns>
+        /// </summary>
         private float CalcGoalPriority(Priority priority, double createTime)
         {
             return (float) (Priority.Max - priority + createTime / 60);
         }
         
-        private NativeList<Node> FindPath(ref NodeGraph nodeGraph)
+        private NativeList<Node> FindPath(ref NodeGraph nodeGraph, ref StackData stackData,
+            ref NativeArray<MaxMoveSpeed> agentMoveSpeed, ref NativeArray<float> agentStartTime)
         {
             var pathResult = new NativeList<Node>(Allocator.TempJob);
             var pathFindingJob = new PathFindingJob
@@ -209,6 +219,10 @@ namespace Zephyr.GOAP.System
                 GoalNodeId = nodeGraph.GetGoalNode().GetHashCode(),
                 IterationLimit = PathFindingIterations,
                 NodeGraph = nodeGraph,
+                AgentEntities =  stackData.AgentEntities,
+                AgentStartPositions = stackData.AgentPositions,
+                AgentMoveSpeeds = agentMoveSpeed,
+                AgentStartTime = agentStartTime,
                 PathNodeLimit = PathNodeLimit,
                 Result = pathResult
             };
@@ -291,6 +305,28 @@ namespace Zephyr.GOAP.System
             edges.Dispose();
         }
 
+        private void CalcNodeNavigateTimes(ref StackData stackData, ref NodeGraph nodeGraph)
+        {
+            //start -> goal, 不包含start
+            var startNode = nodeGraph.GetStartNode();
+            var node = startNode;
+            var edges = new NativeQueue<Edge>(Allocator.Temp);
+            nodeGraph.GetEdges(node, ref edges);
+            
+            while (edges.Count > 0)
+            {
+                var edge = edges.Dequeue();
+                node = edge.Parent;
+                var child = edge.Child;
+                
+                
+                
+                nodeGraph.GetEdges(node, ref edges);
+            } 
+
+            edges.Dispose();
+        }
+
         /// <summary>
         /// 在明确了所有节点的具体state之后，赋予各自导航目标
         /// </summary>
@@ -307,12 +343,16 @@ namespace Zephyr.GOAP.System
                         continue;
                     case NodeNavigatingSubjectType.PreconditionTarget:
                         var preconditions = nodeGraph.GetNodePreconditions(node, Allocator.Temp);
-                        node.NavigatingSubject = preconditions[node.NavigatingSubjectId].Target;
+                        var subjectPrecondition = preconditions[node.NavigatingSubjectId];
+                        node.NavigatingSubject = subjectPrecondition.Target;
+                        node.NavigatingSubjectPosition = subjectPrecondition.Position;
                         preconditions.Dispose();
                         break;
                     case NodeNavigatingSubjectType.EffectTarget:
                         var effects = nodeGraph.GetNodeEffects(node, Allocator.Temp);
-                        node.NavigatingSubject = effects[node.NavigatingSubjectId].Target;
+                        var subjectEffect = effects[node.NavigatingSubjectId];
+                        node.NavigatingSubject = subjectEffect.Target;
+                        node.NavigatingSubjectPosition = subjectEffect.Position;
                         effects.Dispose();
                         break;
                 }
