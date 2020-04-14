@@ -40,6 +40,12 @@ namespace Zephyr.GOAP.Logger
             _currentLog.SetPathResult(ref pathResult);
         }
 
+        public void SetNodeTimes(EntityManager entityManager,
+            ref NativeMultiHashMap<int, NodeTime> nodeTimes)
+        {
+            _currentLog.SetNodeTimes(entityManager, ref nodeTimes);
+        }
+
         public void SetCurrentStates(ref StateGroup currentStates, EntityManager entityManager)
         {
             _currentLog.SetCurrentStates(ref currentStates, entityManager);

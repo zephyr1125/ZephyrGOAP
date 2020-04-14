@@ -24,6 +24,11 @@ namespace Zephyr.GOAP.Logger
             if (!string.IsNullOrEmpty(name)) return name;
             return $"{index},{version}";
         }
+        
+        public bool Equals(EntityLog entityLog)
+        {
+            return index == entityLog.index && version == entityLog.version;
+        }
 
         public bool Equals(Entity entity)
         {

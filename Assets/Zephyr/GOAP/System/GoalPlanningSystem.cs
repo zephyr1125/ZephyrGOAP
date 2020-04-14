@@ -147,15 +147,18 @@ namespace Zephyr.GOAP.System
                 UnifyNodeStates(ref stackData.CurrentStates, ref nodeGraph);
                 CalcNodeNavigateTimes(ref stackData, ref nodeGraph);
                 //寻路
+                var nodeTimeResult = new NativeMultiHashMap<int, NodeTime>(nodeGraph.Length(), Allocator.TempJob);
                 var pathResult = FindPath(ref nodeGraph, ref stackData,
-                    ref agentMoveSpeeds, ref agentStartTimes);
+                    ref agentMoveSpeeds, ref agentStartTimes, ref nodeTimeResult);
                 ApplyPathNodeNavigatingSubjects(ref nodeGraph, ref pathResult);
                 SavePath(ref pathResult, ref nodeGraph);
                 
                 Debugger?.SetNodeGraph(ref nodeGraph, EntityManager);
                 Debugger?.SetPathResult(ref pathResult);
+                Debugger?.SetNodeTimes(EntityManager, ref nodeTimeResult);
                 
                 pathResult.Dispose();
+                nodeTimeResult.Dispose();
 
                 Utils.NextGoalState<IdleGoal, ExecutingGoal>(goal.GoalEntity,
                     EntityManager, Time.ElapsedTime);
@@ -210,7 +213,8 @@ namespace Zephyr.GOAP.System
         }
         
         private NativeList<Node> FindPath(ref NodeGraph nodeGraph, ref StackData stackData,
-            ref NativeArray<MaxMoveSpeed> agentMoveSpeed, ref NativeArray<float> agentStartTime)
+            ref NativeArray<MaxMoveSpeed> agentMoveSpeed, ref NativeArray<float> agentStartTime,
+            ref NativeMultiHashMap<int, NodeTime> timeResult)
         {
             var pathResult = new NativeList<Node>(Allocator.TempJob);
             var pathFindingJob = new PathFindingJob
@@ -224,7 +228,8 @@ namespace Zephyr.GOAP.System
                 AgentMoveSpeeds = agentMoveSpeed,
                 AgentStartTime = agentStartTime,
                 PathNodeLimit = PathNodeLimit,
-                Result = pathResult
+                Result = pathResult,
+                TimeResult = timeResult
             };
             var handle = pathFindingJob.Schedule();
             handle.Complete();

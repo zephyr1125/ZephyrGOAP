@@ -1,5 +1,6 @@
 using Unity.Collections;
 using Unity.Entities;
+using Zephyr.GOAP.Logger;
 using Zephyr.GOAP.Struct;
 
 namespace Zephyr.GOAP.Debugger
@@ -17,6 +18,9 @@ namespace Zephyr.GOAP.Debugger
         void SetPathResult(ref NativeList<Node> pathResult);
 
         void SetCurrentStates(ref StateGroup currentStates, EntityManager entityManager);
+
+        void SetNodeTimes(EntityManager entityManager,
+            ref NativeMultiHashMap<int, NodeTime> nodeTimes);
 
         void LogDone();
 

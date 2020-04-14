@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
@@ -16,7 +17,12 @@ namespace Zephyr.GOAP.Logger
 
         public float reward;
 
-        public float executeTime, navigateTime;
+        public float executeTime;
+
+        /// <summary>
+        /// 指各个agent到此节点时的累计时间
+        /// </summary>
+        public NodeTimeLog[] nodeTimeLogs;
 
         public EntityLog agentExecutorEntity, navigationSubject;
 
@@ -38,13 +44,30 @@ namespace Zephyr.GOAP.Logger
             iteration = node.Iteration;
             reward = node.Reward;
             executeTime = node.ExecuteTime;
-            navigateTime = node.NavigateTime;
             navigationSubject = new EntityLog(entityManager, node.NavigatingSubject);
             agentExecutorEntity = new EntityLog(entityManager, node.AgentExecutorEntity);
-            states = StateLog.CreateStateViews(entityManager, nodeGraph.GetNodeStates(node));
-            preconditions = StateLog.CreateStateViews(entityManager, nodeGraph.GetNodePreconditions(node));
-            effects = StateLog.CreateStateViews(entityManager, nodeGraph.GetNodeEffects(node));
+            states = StateLog.CreateStateLogs(entityManager, nodeGraph.GetNodeStates(node));
+            preconditions = StateLog.CreateStateLogs(entityManager, nodeGraph.GetNodePreconditions(node));
+            effects = StateLog.CreateStateLogs(entityManager, nodeGraph.GetNodeEffects(node));
             hashCode = node.HashCode;
+        }
+
+        public void SetAgentTotalTime(EntityManager entityManager, NativeMultiHashMap<int,NodeTime>.Enumerator enumerator)
+        {
+            nodeTimeLogs = NodeTimeLog.CreateNodeTimeLogs(entityManager, agentExecutorEntity, enumerator);
+        }
+
+        public string NodeTimesToString()
+        {
+            var sorted = new SortedSet<NodeTimeLog>(nodeTimeLogs);
+            var text = new StringBuilder();
+            foreach (var log in sorted)
+            {
+                text.Append(log);
+                text.Append(",");
+            }
+            if(text.Length>0)text.Remove(text.Length - 1, 1);
+            return text.ToString();
         }
     }
 }

@@ -34,6 +34,8 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
 
         [NativeDisableParallelForRestriction]
         public NativeList<Node> Result;
+
+        public NativeMultiHashMap<int, NodeTime> TimeResult;
             
         public void Execute()
         {
@@ -46,7 +48,6 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             var openSet = new NativeMinHeap<int>(graphSize, Allocator.Temp);
             var cameFrom = new NativeHashMap<int, int>(graphSize, Allocator.Temp);
             var rewardSum = new NativeHashMap<int, float>(graphSize, Allocator.Temp);
-            var timeSum = new NativeMultiHashMap<int, NodeTime>(graphSize, Allocator.Temp);
 
             // Path finding
             var startId = StartNodeId;
@@ -55,7 +56,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             openSet.Push(new MinHeapNode<int>(startId, 0));
             
             rewardSum[startId] = 0;
-            InitTimeSum(ref timeSum, startId);
+            InitTimeSum(ref TimeResult, startId);
 
             var currentId = -1;
             while (_iterations<IterationLimit && openSet.HasNext())
@@ -85,14 +86,14 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
 
                     var neighbourExecutor = neighbourNode.AgentExecutorEntity;
                     var neighbourExecutorMoveSpeed = FindAgentSpeed(neighbourExecutor);
-                    var neighbourTimes = CalcNeighbourTimeSum(ref timeSum, currentId, neighbourId,
+                    var neighbourTimes = CalcNeighbourTimeSum(ref TimeResult, currentId, neighbourId,
                         neighbourNode, neighbourExecutorMoveSpeed, Allocator.Temp);
                     var newLongestTime = GetLongestTime(ref neighbourTimes);
 
                     //如果记录已存在，新的时间更长则skip，相等则考虑reward更小skip
                     if (rewardSum.ContainsKey(neighbourId))
                     {
-                        var times = timeSum.GetValuesForKey(neighbourId);
+                        var times = TimeResult.GetValuesForKey(neighbourId);
                         var oldLongestTime = 0f;
                         foreach (var time in times)
                         {
@@ -107,7 +108,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     }
 
                     //新记录更好，覆盖旧记录
-                    SaveTimeSum(ref timeSum, neighbourId, ref neighbourTimes);
+                    SaveTimeSum(ref TimeResult, neighbourId, ref neighbourTimes);
                     var priority = newLongestTime -
                                    (newRewardSum + neighbourNode.Heuristic(ref NodeGraph));
                     openSet.Push(new MinHeapNode<int>(neighbourId, priority));
@@ -152,7 +153,6 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             openSet.Dispose();
             cameFrom.Dispose();
             rewardSum.Dispose();
-            timeSum.Dispose();
         }
 
         private void InitTimeSum(ref NativeMultiHashMap<int, NodeTime> timeSum, int startId)

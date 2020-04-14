@@ -32,6 +32,12 @@ namespace Zephyr.GOAP.Test.Debugger
             _goapLog.SetPathResult(ref pathResult);
         }
 
+        public void SetNodeTimes(EntityManager entityManager,
+            ref NativeMultiHashMap<int, NodeTime> nodeTimes)
+        {
+            _goapLog.SetNodeTimes(entityManager, ref nodeTimes);
+        }
+
         public void SetCurrentStates(ref StateGroup currentStates, EntityManager entityManager)
         {
             _goapLog.SetCurrentStates(ref currentStates, entityManager);

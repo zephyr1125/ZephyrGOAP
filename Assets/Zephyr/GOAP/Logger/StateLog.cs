@@ -24,11 +24,11 @@ namespace Zephyr.GOAP.Logger
             IsNegative = state.IsNegative;
         }
 
-        public static StateLog[] CreateStateViews(EntityManager entityManager, State[] states)
+        public static StateLog[] CreateStateLogs(EntityManager entityManager, State[] states)
         {
-            var stateViews = new List<StateLog>(states.Length);
-            stateViews.AddRange(states.Select(t => new StateLog(entityManager, t)));
-            return stateViews.ToArray();
+            var stateLogs = new List<StateLog>(states.Length);
+            stateLogs.AddRange(states.Select(t => new StateLog(entityManager, t)));
+            return stateLogs.ToArray();
         }
 
         public override string ToString()

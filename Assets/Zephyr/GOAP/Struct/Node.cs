@@ -19,7 +19,7 @@ namespace Zephyr.GOAP.Struct
         /// </summary>
         public readonly float Reward;
 
-        public float ExecuteTime, NavigateTime;
+        public float ExecuteTime;
         
         /// <summary>
         /// 用于比较两个Node是否是同一个node
