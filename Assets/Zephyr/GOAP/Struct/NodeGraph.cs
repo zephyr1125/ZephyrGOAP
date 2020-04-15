@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Unity.Collections;
+using UnityEngine.Assertions;
 
 namespace Zephyr.GOAP.Struct
 {
@@ -79,7 +79,21 @@ namespace Zephyr.GOAP.Struct
             _nodeToParent.Add(_startNodeHash, new Edge(parent, startNode));
         }
 
-        public Node this[int hashCode] => _nodes[hashCode];
+        public Node this[int hashCode]
+        {
+            get
+            {
+                return _nodes[hashCode];
+            }
+            set
+            {
+                Assert.IsTrue(_nodes.ContainsKey(hashCode), "You can't direct add node.");
+                Assert.IsTrue(value.HashCode.Equals(hashCode), 
+                    "You can't modify existed Node so that affected its HashCode");
+
+                _nodes[hashCode] = value;
+            }
+        }
 
         /// <summary>
         /// 询问node的数量

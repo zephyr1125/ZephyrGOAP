@@ -313,7 +313,6 @@ namespace Zephyr.GOAP.System
         /// 在明确了所有节点的具体state之后，赋予各自导航目标
         /// </summary>
         /// <param name="nodeGraph"></param>
-        /// <param name="pathResult"></param>
         private void ApplyNodeNavigatingSubjects(ref NodeGraph nodeGraph)
         {
             //start -> goal, 不包含start
@@ -325,7 +324,8 @@ namespace Zephyr.GOAP.System
             while (edges.Count > 0)
             {
                 var edge = edges.Dequeue();
-                node = nodeGraph[edge.ParentHash];
+                var nodeHash = edge.ParentHash;
+                node = nodeGraph[nodeHash];
                 
                 switch (node.NavigatingSubjectType)
                 {
@@ -346,6 +346,8 @@ namespace Zephyr.GOAP.System
                         effects.Dispose();
                         break;
                 }
+
+                nodeGraph[nodeHash] = node;
                 
                 nodeGraph.GetEdges(node, ref edges);
             }
