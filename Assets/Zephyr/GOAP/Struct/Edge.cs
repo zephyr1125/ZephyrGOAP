@@ -4,15 +4,13 @@ namespace Zephyr.GOAP.Struct
 {
     public struct Edge
     {
-        public Node Parent;
-        public Node Child;
-        public NativeString64 ActionName;
+        public int ParentHash;
+        public int ChildHash;
 
-        public Edge(Node parent, Node child, NativeString64 actionName)
+        public Edge(Node parent, Node child)
         {
-            Parent = parent;
-            Child = child;
-            ActionName = actionName;
+            ParentHash = parent.HashCode;
+            ChildHash = child.HashCode;
         }
     }
 }

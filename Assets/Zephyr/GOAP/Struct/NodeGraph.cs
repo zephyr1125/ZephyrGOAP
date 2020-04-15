@@ -66,7 +66,7 @@ namespace Zephyr.GOAP.Struct
         /// </summary>
         /// <param name="parent"></param>
         /// <param name="actionName"></param>
-        public void LinkStartNode(Node parent, NativeString64 actionName)
+        public void LinkStartNode(Node parent)
         {
             //start node的iteration设置为此Node+1
             var iteration = parent.Iteration;
@@ -76,7 +76,7 @@ namespace Zephyr.GOAP.Struct
                 startNode.Iteration = iteration + 1;
                 _nodes[_startNodeHash] = startNode;
             }
-            _nodeToParent.Add(_startNodeHash, new Edge(parent, startNode, actionName));
+            _nodeToParent.Add(_startNodeHash, new Edge(parent, startNode));
         }
 
         public Node this[int hashCode] => _nodes[hashCode];
@@ -186,18 +186,21 @@ namespace Zephyr.GOAP.Struct
             return result.ToArray();
         }
 
-        public List<Node> GetChildren(Node node)
+        public NativeList<int> GetChildren(Node node, Allocator allocator)
         {
-            var result = new List<Node>();
-            var values = _nodeToParent.GetValueArray(Allocator.Temp);
-            foreach (var edge in values)
+            var result = new NativeList<int>(allocator);
+            var allEdges = _nodeToParent.GetValueArray(Allocator.Temp);
+            
+            for (var i = 0; i < allEdges.Length; i++)
             {
-                if (edge.Parent.Equals(node))
+                var edge = allEdges[i];
+                if (node.HashCode.Equals(edge.ParentHash))
                 {
-                    result.Add(edge.Child);
+                    result.Add(edge.ChildHash);
                 }
             }
-            values.Dispose();
+
+            allEdges.Dispose();
             return result;
         }
 
@@ -217,7 +220,7 @@ namespace Zephyr.GOAP.Struct
                 out var edge, out var it);
             while (found)
             {
-                if (edge.Parent.Equals(parent))
+                if (edge.ParentHash.Equals(parent.HashCode))
                 {
                     _nodeToParent.Remove(it);
                     return;

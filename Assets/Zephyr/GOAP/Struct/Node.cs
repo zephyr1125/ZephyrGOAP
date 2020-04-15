@@ -92,7 +92,7 @@ namespace Zephyr.GOAP.Struct
             var edges = nodeGraph.GetEdgeToParents(this);
             foreach (var edge in edges)
             {
-                neighboursId.Add(edge.Parent.HashCode);
+                neighboursId.Add(edge.ParentHash);
             }
         }
 

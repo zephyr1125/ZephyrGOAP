@@ -10,8 +10,8 @@ namespace Zephyr.GOAP.Logger
 
         public EdgeLog(Edge edge)
         {
-            parentHash = edge.Parent.HashCode;
-            childHash = edge.Child.HashCode;
+            parentHash = edge.ParentHash;
+            childHash = edge.ChildHash;
         }
     }
 }

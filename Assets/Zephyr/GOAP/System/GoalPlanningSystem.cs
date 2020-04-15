@@ -145,7 +145,6 @@ namespace Zephyr.GOAP.System
             else
             {
                 UnifyNodeStates(ref stackData.CurrentStates, ref nodeGraph);
-                CalcNodeNavigateTimes(ref stackData, ref nodeGraph);
                 ApplyNodeNavigatingSubjects(ref nodeGraph);
                 //寻路
                 var nodeTimeResult = new NativeMultiHashMap<int, NodeTime>(nodeGraph.Length(), Allocator.TempJob);
@@ -253,8 +252,8 @@ namespace Zephyr.GOAP.System
             while (edges.Count > 0)
             {
                 var edge = edges.Dequeue();
-                node = edge.Parent;
-                var child = edge.Child;
+                node = nodeGraph[edge.ParentHash];
+                var child = nodeGraph[edge.ChildHash];
                
                 var nodeStates = nodeGraph.GetNodeStates(node, Allocator.Temp);
                 var nodePreconditions = nodeGraph.GetNodePreconditions(node, Allocator.Temp);
@@ -310,28 +309,6 @@ namespace Zephyr.GOAP.System
             edges.Dispose();
         }
 
-        private void CalcNodeNavigateTimes(ref StackData stackData, ref NodeGraph nodeGraph)
-        {
-            //start -> goal, 不包含start
-            var startNode = nodeGraph.GetStartNode();
-            var node = startNode;
-            var edges = new NativeQueue<Edge>(Allocator.Temp);
-            nodeGraph.GetEdges(node, ref edges);
-            
-            while (edges.Count > 0)
-            {
-                var edge = edges.Dequeue();
-                node = edge.Parent;
-                var child = edge.Child;
-                
-                
-                
-                nodeGraph.GetEdges(node, ref edges);
-            } 
-
-            edges.Dispose();
-        }
-
         /// <summary>
         /// 在明确了所有节点的具体state之后，赋予各自导航目标
         /// </summary>
@@ -348,7 +325,7 @@ namespace Zephyr.GOAP.System
             while (edges.Count > 0)
             {
                 var edge = edges.Dequeue();
-                node = edge.Parent;
+                node = nodeGraph[edge.ParentHash];
                 
                 switch (node.NavigatingSubjectType)
                 {
@@ -436,7 +413,7 @@ namespace Zephyr.GOAP.System
                 {
                     //找到Plan，追加起点Node
                     Debugger?.Log("found plan: "+uncheckedNode.Name);
-                    nodeGraph.LinkStartNode(uncheckedNode, new NativeString64("start"));
+                    nodeGraph.LinkStartNode(uncheckedNode);
                     foundPlan = true;
                     //todo Early Exit
                 }
@@ -445,18 +422,20 @@ namespace Zephyr.GOAP.System
                 //如果出现这种情况说明产生了循环，移去新得到的edge
                 //并且不不把此uncheckedNode加入待展开列表
                 var loop = false;
-                var children = nodeGraph.GetChildren(uncheckedNode);
-                if (children.Count > 0)
+                
+                var children = nodeGraph.GetChildren(uncheckedNode, Allocator.Temp);
+                if (children.Length > 0)
                 {
                     var edges = nodeGraph.GetEdgeToParents(uncheckedNode);
                     while (edges.MoveNext())
                     {
-                        if (!children.Contains(edges.Current.Parent)) continue;
+                        if (!children.Contains(edges.Current.ParentHash)) continue;
                         loop = true;
-                        nodeGraph.RemoveEdge(uncheckedNode, edges.Current.Parent);
+                        nodeGraph.RemoveEdge(uncheckedNode, nodeGraph[edges.Current.ParentHash]);
                         break;
                     }
                 }
+                children.Dispose();
                 
                 if(!loop)unexpandedNodes.Add(uncheckedNode);
 
