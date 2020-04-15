@@ -18,12 +18,12 @@ namespace Zephyr.GOAP.Struct
         [ReadOnly]
         private NativeMultiHashMap<int, State> _effects;
 
-        private Node _goalNode;
+        private int _goalNodeHash;
 
         /// <summary>
         /// 起点Node代表当前状态，没有Action
         /// </summary>
-        private Node _startNode;
+        private int _startNodeHash;
 
         public NodeGraph(int initialCapacity, Allocator allocator)
         {
@@ -32,18 +32,26 @@ namespace Zephyr.GOAP.Struct
             _nodeStates = new NativeMultiHashMap<int, State>(initialCapacity*4, allocator);
             _preconditions = new NativeMultiHashMap<int, State>(initialCapacity*3, allocator);
             _effects = new NativeMultiHashMap<int, State>(initialCapacity*3, allocator);
-            _goalNode = default;
-            _startNode = new Node(){Name = new NativeString64("start")};
-            _nodes.Add(_startNode.HashCode, _startNode);
+            
+            var startNode = new Node(){Name = new NativeString64("start")};
+            _startNodeHash = startNode.HashCode;
+            _nodes.Add(_startNodeHash, startNode);
+            _goalNodeHash = 0;
         }
 
         public void SetGoalNode(Node goal, ref StateGroup stateGroup)
         {
-            _goalNode = goal;
-            _nodes.Add(_goalNode.HashCode, _goalNode);
+            if (_goalNodeHash != 0)
+            {
+                _nodes.Remove(_goalNodeHash);
+                _nodeStates.Remove(_goalNodeHash);
+            }
+            
+            _goalNodeHash = goal.HashCode;
+            _nodes.Add(_goalNodeHash, goal);
             foreach (var state in stateGroup)
             {
-                _nodeStates.Add(_goalNode.HashCode, state);
+                _nodeStates.Add(_goalNodeHash, state);
             }
         }
 
@@ -62,8 +70,13 @@ namespace Zephyr.GOAP.Struct
         {
             //start node的iteration设置为此Node+1
             var iteration = parent.Iteration;
-            if (_startNode.Iteration <= iteration) _startNode.Iteration = iteration + 1;
-            _nodeToParent.Add(_startNode.HashCode, new Edge(parent, _startNode, actionName));
+            var startNode = _nodes[_startNodeHash];
+            if (startNode.Iteration <= iteration)
+            {
+                startNode.Iteration = iteration + 1;
+                _nodes[_startNodeHash] = startNode;
+            }
+            _nodeToParent.Add(_startNodeHash, new Edge(parent, startNode, actionName));
         }
 
         public Node this[int hashCode] => _nodes[hashCode];
@@ -190,12 +203,12 @@ namespace Zephyr.GOAP.Struct
 
         public Node GetStartNode()
         {
-            return _startNode;
+            return _nodes[_startNodeHash];
         }
 
         public Node GetGoalNode()
         {
-            return _goalNode;
+            return _nodes[_goalNodeHash];
         }
 
         public void RemoveEdge(Node child, Node parent)
@@ -295,6 +308,7 @@ namespace Zephyr.GOAP.Struct
 
         public void Dispose()
         {
+            _nodes.Dispose();
             _nodeToParent.Dispose();
             _nodeStates.Dispose();
             _preconditions.Dispose();

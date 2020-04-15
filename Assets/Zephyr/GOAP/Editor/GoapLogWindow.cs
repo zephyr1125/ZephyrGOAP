@@ -215,7 +215,7 @@ namespace Zephyr.GOAP.Editor
             frame.Q<Label>("time").text = $"{node.NodeTimesToString()}/{node.executeTime}";
             frame.Q<Label>("reward").text = node.reward.ToString(CultureInfo.InvariantCulture);
             
-            if (node.isPath)
+            if (node.isPath && !node.agentExecutorEntity.Equals(Entity.Null))
             {
                 frame.Q("titlebar").style.backgroundColor = GetAgentColor(node.agentExecutorEntity);
             };
@@ -235,10 +235,9 @@ namespace Zephyr.GOAP.Editor
             if (!_agentColors.ContainsKey(agentEntityStruct))
             {
                 var agentSum = _agentColors.Count;
-                var sumR = BaseAgentColor.r + 0.3f*agentSum;
-                var sumG = BaseAgentColor.g + 0.3f*agentSum;
-                var sumB = BaseAgentColor.b + 0.3f*agentSum;
-                var color = new Color(sumR - (int) sumR, sumG - (int) sumG, sumB - (int) sumB);
+                Color.RGBToHSV(BaseAgentColor, out var h, out var s, out var v);
+                var newH = h + 0.11f * agentSum;
+                var color = Color.HSVToRGB(newH - (int) newH, s, v);
                 
                 _agentColors.Add(agentEntityStruct, color);
             }
