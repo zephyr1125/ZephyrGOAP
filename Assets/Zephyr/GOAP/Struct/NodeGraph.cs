@@ -8,13 +8,15 @@ namespace Zephyr.GOAP.Struct
     public struct NodeGraph : IDisposable
     {
         [ReadOnly]
-        private NativeMultiHashMap<Node, Edge> _nodeToParent;
+        private NativeHashMap<int, Node> _nodes;
         [ReadOnly]
-        private NativeMultiHashMap<Node, State> _nodeStates;
+        private NativeMultiHashMap<int, Edge> _nodeToParent;
         [ReadOnly]
-        private NativeMultiHashMap<Node, State> _preconditions;
+        private NativeMultiHashMap<int, State> _nodeStates;
         [ReadOnly]
-        private NativeMultiHashMap<Node, State> _effects;
+        private NativeMultiHashMap<int, State> _preconditions;
+        [ReadOnly]
+        private NativeMultiHashMap<int, State> _effects;
 
         private Node _goalNode;
 
@@ -25,27 +27,31 @@ namespace Zephyr.GOAP.Struct
 
         public NodeGraph(int initialCapacity, Allocator allocator)
         {
-            _nodeToParent = new NativeMultiHashMap<Node, Edge>(initialCapacity, allocator);
-            _nodeStates = new NativeMultiHashMap<Node, State>(initialCapacity*4, allocator);
-            _preconditions = new NativeMultiHashMap<Node, State>(initialCapacity*3, allocator);
-            _effects = new NativeMultiHashMap<Node, State>(initialCapacity*3, allocator);
+            _nodes = new NativeHashMap<int, Node>(initialCapacity, allocator);
+            _nodeToParent = new NativeMultiHashMap<int, Edge>(initialCapacity, allocator);
+            _nodeStates = new NativeMultiHashMap<int, State>(initialCapacity*4, allocator);
+            _preconditions = new NativeMultiHashMap<int, State>(initialCapacity*3, allocator);
+            _effects = new NativeMultiHashMap<int, State>(initialCapacity*3, allocator);
             _goalNode = default;
             _startNode = new Node(){Name = new NativeString64("start")};
+            _nodes.Add(_startNode.HashCode, _startNode);
         }
 
         public void SetGoalNode(Node goal, ref StateGroup stateGroup)
         {
             _goalNode = goal;
+            _nodes.Add(_goalNode.HashCode, _goalNode);
             foreach (var state in stateGroup)
             {
-                _nodeStates.Add(_goalNode, state);
+                _nodeStates.Add(_goalNode.HashCode, state);
             }
         }
 
-        public NativeMultiHashMap<Node, Edge>.ParallelWriter NodeToParentWriter => _nodeToParent.AsParallelWriter();
-        public NativeMultiHashMap<Node, State>.ParallelWriter NodeStateWriter => _nodeStates.AsParallelWriter();
-        public NativeMultiHashMap<Node, State>.ParallelWriter PreconditionWriter => _preconditions.AsParallelWriter();
-        public NativeMultiHashMap<Node, State>.ParallelWriter EffectWriter => _effects.AsParallelWriter();
+        public NativeHashMap<int, Node>.ParallelWriter NodesWriter => _nodes.AsParallelWriter();
+        public NativeMultiHashMap<int, Edge>.ParallelWriter NodeToParentWriter => _nodeToParent.AsParallelWriter();
+        public NativeMultiHashMap<int, State>.ParallelWriter NodeStateWriter => _nodeStates.AsParallelWriter();
+        public NativeMultiHashMap<int, State>.ParallelWriter PreconditionWriter => _preconditions.AsParallelWriter();
+        public NativeMultiHashMap<int, State>.ParallelWriter EffectWriter => _effects.AsParallelWriter();
 
         /// <summary>
         /// 追加对起点的链接
@@ -57,28 +63,10 @@ namespace Zephyr.GOAP.Struct
             //start node的iteration设置为此Node+1
             var iteration = parent.Iteration;
             if (_startNode.Iteration <= iteration) _startNode.Iteration = iteration + 1;
-            _nodeToParent.Add(_startNode, new Edge(parent, _startNode, actionName));
+            _nodeToParent.Add(_startNode.HashCode, new Edge(parent, _startNode, actionName));
         }
 
-        public Node this[int hashCode]
-        {
-            get
-            {
-                var resultNode = default(Node);
-                var keys = _nodeStates.GetKeyArray(Allocator.Temp);
-                foreach (var node in keys)
-                {
-                    if (node.GetHashCode() == hashCode)
-                    {
-                        resultNode = node;
-                        break;
-                    }
-                }
-                
-                keys.Dispose();
-                return resultNode;
-            }
-        }
+        public Node this[int hashCode] => _nodes[hashCode];
 
         /// <summary>
         /// 询问node的数量
@@ -86,25 +74,17 @@ namespace Zephyr.GOAP.Struct
         /// <returns></returns>
         public int Length()
         {
-            return _nodeToParent.Count() + 1;
+            return _nodes.Count();
         }
 
-        public NativeMultiHashMap<Node, Edge>.Enumerator GetEdgeToParents(Node node)
+        public NativeMultiHashMap<int, Edge>.Enumerator GetEdgeToParents(Node node)
         {
-            return _nodeToParent.GetValuesForKey(node);
+            return _nodeToParent.GetValuesForKey(node.HashCode);
         }
 
-        public NativeList<Node> GetNodes(Allocator allocator)
+        public NativeArray<Node> GetNodes(Allocator allocator)
         {
-            var keys = _nodeToParent.GetKeyArray(Allocator.Temp);
-            var keysDistinct = keys.Distinct();
-            var nodes = new NativeList<Node>(keysDistinct.Count(), allocator) {_goalNode};
-            foreach (var key in keysDistinct)
-            {
-                nodes.Add(key);
-            }
-            keys.Dispose();
-            return nodes;
+            return _nodes.GetValueArray(allocator);
         }
 
         public NativeArray<Edge> GetEdges(Allocator allocator)
@@ -112,33 +92,9 @@ namespace Zephyr.GOAP.Struct
             return _nodeToParent.GetValueArray(allocator);
         }
 
-        /// <summary>
-        /// 查询一组node是否已存在于图中
-        /// </summary>
-        /// <param name="nodes"></param>
-        /// <param name="allocator"></param>
-        /// <returns></returns>
-        public NativeArray<bool> NodesExisted(ref NativeList<Node> nodes, Allocator allocator)
-        {
-            var result = new NativeArray<bool>(nodes.Length, allocator);
-            for (var i = 0; i < nodes.Length; i++)
-            {
-                result[i] = _nodeToParent.ContainsKey(nodes[i]);
-            }
-
-            return result;
-        }
-
         public NativeArray<int> GetAllNodesHash(Allocator allocator)
         {
-            var nodes = _nodeToParent.GetKeyArray(Allocator.Temp);
-            var result = new NativeArray<int>(nodes.Length, allocator);
-            for (var i = 0; i < nodes.Length; i++)
-            {
-                result[i] = nodes[i].HashCode;
-            }
-            nodes.Dispose();
-            return result;
+            return _nodes.GetKeyArray(allocator);
         }
         
         /// <summary>
@@ -146,15 +102,15 @@ namespace Zephyr.GOAP.Struct
         /// </summary>
         /// <param name="nodes"></param>
         /// <param name="allocator"></param>
-        public NativeMultiHashMap<Node, State> GetNodeStates(ref NativeList<Node> nodes, Allocator allocator)
+        public NativeMultiHashMap<int, State> GetNodeStates(ref NativeList<Node> nodes, Allocator allocator)
         {
-            var results = new NativeMultiHashMap<Node, State>(nodes.Length*6, allocator);
+            var results = new NativeMultiHashMap<int, State>(nodes.Length*6, allocator);
             for (var i = 0; i < nodes.Length; i++)
             {
-                var states = _nodeStates.GetValuesForKey(nodes[i]);
+                var states = _nodeStates.GetValuesForKey(nodes[i].HashCode);
                 while (states.MoveNext())
                 {
-                    results.Add(nodes[i], states.Current);
+                    results.Add(nodes[i].HashCode, states.Current);
                 }
             }
 
@@ -168,14 +124,14 @@ namespace Zephyr.GOAP.Struct
         /// <param name="allocator"></param>
         public StateGroup GetNodeStates(Node node, Allocator allocator)
         {
-            var states = _nodeStates.GetValuesForKey(node);
+            var states = _nodeStates.GetValuesForKey(node.HashCode);
             return new StateGroup(1, states, allocator);
         }
         
         public State[] GetNodeStates(Node node)
         {
             var result = new List<State>();
-            foreach (var state in _nodeStates.GetValuesForKey(node))
+            foreach (var state in _nodeStates.GetValuesForKey(node.HashCode))
             {
                 result.Add(state);
             }
@@ -185,14 +141,14 @@ namespace Zephyr.GOAP.Struct
         
         public StateGroup GetNodePreconditions(Node node, Allocator allocator)
         {
-            var states = _preconditions.GetValuesForKey(node);
+            var states = _preconditions.GetValuesForKey(node.HashCode);
             return new StateGroup(1, states, allocator);
         }
         
         public State[] GetNodePreconditions(Node node)
         {
             var result = new List<State>();
-            foreach (var state in _preconditions.GetValuesForKey(node))
+            foreach (var state in _preconditions.GetValuesForKey(node.HashCode))
             {
                 result.Add(state);
             }
@@ -202,14 +158,14 @@ namespace Zephyr.GOAP.Struct
         
         public StateGroup GetNodeEffects(Node node, Allocator allocator)
         {
-            var states = _effects.GetValuesForKey(node);
+            var states = _effects.GetValuesForKey(node.HashCode);
             return new StateGroup(1, states, allocator);
         }
         
         public State[] GetNodeEffects(Node node)
         {
             var result = new List<State>();
-            foreach (var state in _effects.GetValuesForKey(node))
+            foreach (var state in _effects.GetValuesForKey(node.HashCode))
             {
                 result.Add(state);
             }
@@ -244,7 +200,8 @@ namespace Zephyr.GOAP.Struct
 
         public void RemoveEdge(Node child, Node parent)
         {
-            var found = _nodeToParent.TryGetFirstValue(child, out var edge, out var it);
+            var found = _nodeToParent.TryGetFirstValue(child.HashCode,
+                out var edge, out var it);
             while (found)
             {
                 if (edge.Parent.Equals(parent))
@@ -259,13 +216,14 @@ namespace Zephyr.GOAP.Struct
 
         public void ReplaceNodeState(Node node, State before, State after)
         {
-            var found = _nodeStates.TryGetFirstValue(node, out var foundState, out var it);
+            var found = _nodeStates.TryGetFirstValue(node.HashCode,
+                out var foundState, out var it);
             while (found)
             {
                 if (foundState.Equals(before))
                 {
                     _nodeStates.Remove(it);
-                    _nodeStates.Add(node, after);
+                    _nodeStates.Add(node.HashCode, after);
                     return;
                 }
                 found = _nodeStates.TryGetNextValue(out foundState, ref it);
@@ -274,13 +232,14 @@ namespace Zephyr.GOAP.Struct
         
         public void ReplaceNodePrecondition(Node node, State before, State after)
         {
-            var found = _preconditions.TryGetFirstValue(node, out var foundState, out var it);
+            var found = _preconditions.TryGetFirstValue(node.HashCode,
+                out var foundState, out var it);
             while (found)
             {
                 if (foundState.Equals(before))
                 {
                     _preconditions.Remove(it);
-                    _preconditions.Add(node, after);
+                    _preconditions.Add(node.HashCode, after);
                     return;
                 }
                 found = _preconditions.TryGetNextValue(out foundState, ref it);
@@ -299,10 +258,11 @@ namespace Zephyr.GOAP.Struct
             CleanDuplicateStates(_nodeStates, node);
         }
 
-        private void CleanDuplicateStates(NativeMultiHashMap<Node, State> container, Node node)
+        private void CleanDuplicateStates(NativeMultiHashMap<int, State> container, Node node)
         {
             var lastState = new State();
-            var found = container.TryGetFirstValue(node, out var foundState, out var it);
+            var found = container.TryGetFirstValue(node.HashCode,
+                out var foundState, out var it);
             while (found)
             {
                 if (foundState.Equals(lastState))
@@ -322,8 +282,9 @@ namespace Zephyr.GOAP.Struct
         public void GetEdges(Node node, ref NativeQueue<Edge> queue)
         {
             var size = _nodeToParent.Count();
-            var sizeOfNodeParents = _nodeToParent.CountValuesForKey(node);
-            var found = _nodeToParent.TryGetFirstValue(node, out var foundEdge, out var it);
+            var sizeOfNodeParents = _nodeToParent.CountValuesForKey(node.HashCode);
+            var found = _nodeToParent.TryGetFirstValue(node.HashCode,
+                out var foundEdge, out var it);
             while (found)
             {
                 queue.Enqueue(foundEdge);

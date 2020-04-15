@@ -146,11 +146,11 @@ namespace Zephyr.GOAP.System
             {
                 UnifyNodeStates(ref stackData.CurrentStates, ref nodeGraph);
                 CalcNodeNavigateTimes(ref stackData, ref nodeGraph);
+                ApplyNodeNavigatingSubjects(ref nodeGraph);
                 //寻路
                 var nodeTimeResult = new NativeMultiHashMap<int, NodeTime>(nodeGraph.Length(), Allocator.TempJob);
                 var pathResult = FindPath(ref nodeGraph, ref stackData,
                     ref agentMoveSpeeds, ref agentStartTimes, ref nodeTimeResult);
-                ApplyPathNodeNavigatingSubjects(ref nodeGraph, ref pathResult);
                 SavePath(ref pathResult, ref nodeGraph);
                 
                 Debugger?.SetNodeGraph(ref nodeGraph, EntityManager);
@@ -337,11 +337,19 @@ namespace Zephyr.GOAP.System
         /// </summary>
         /// <param name="nodeGraph"></param>
         /// <param name="pathResult"></param>
-        private void ApplyPathNodeNavigatingSubjects(ref NodeGraph nodeGraph, ref NativeList<Node> pathResult)
+        private void ApplyNodeNavigatingSubjects(ref NodeGraph nodeGraph)
         {
-            for (var i = 0; i < pathResult.Length; i++)
+            //start -> goal, 不包含start
+            var startNode = nodeGraph.GetStartNode();
+            var node = startNode;
+            var edges = new NativeQueue<Edge>(Allocator.Temp);
+            nodeGraph.GetEdges(node, ref edges);
+
+            while (edges.Count > 0)
             {
-                var node = pathResult[i];
+                var edge = edges.Dequeue();
+                node = edge.Parent;
+                
                 switch (node.NavigatingSubjectType)
                 {
                     case NodeNavigatingSubjectType.Null:
@@ -361,9 +369,11 @@ namespace Zephyr.GOAP.System
                         effects.Dispose();
                         break;
                 }
-
-                pathResult[i] = node;
+                
+                nodeGraph.GetEdges(node, ref edges);
             }
+            
+            edges.Dispose();
         }
 
         private void SavePath(ref NativeList<Node> pathResult, ref NodeGraph nodeGraph)
@@ -471,6 +481,7 @@ namespace Zephyr.GOAP.System
 
             var existedNodesHash = nodeGraph.GetAllNodesHash(Allocator.TempJob);
             var nodeStates = nodeGraph.GetNodeStates(ref unexpandedNodes, Allocator.TempJob);
+            var nodesWriter = nodeGraph.NodesWriter;
             var nodeToParentWriter = nodeGraph.NodeToParentWriter;
             var nodeStateWriter = nodeGraph.NodeStateWriter;
             var preconditionWriter = nodeGraph.PreconditionWriter;
@@ -478,35 +489,35 @@ namespace Zephyr.GOAP.System
             
             var handle = default(JobHandle);
             handle = ScheduleActionExpand<DropItemAction>(handle, ref stackData,
-                ref unexpandedNodes, ref existedNodesHash, ref nodeStates,
+                ref unexpandedNodes, ref existedNodesHash, ref nodeStates, nodesWriter,
                 nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
                 ref uncheckedNodes, iteration);
             handle = ScheduleActionExpand<PickItemAction>(handle, ref stackData,
-                ref unexpandedNodes, ref existedNodesHash, ref nodeStates,
+                ref unexpandedNodes, ref existedNodesHash, ref nodeStates, nodesWriter,
                 nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
                 ref uncheckedNodes, iteration);
             handle = ScheduleActionExpand<EatAction>(handle, ref stackData,
-                ref unexpandedNodes, ref existedNodesHash, ref nodeStates,
+                ref unexpandedNodes, ref existedNodesHash, ref nodeStates, nodesWriter,
                 nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
                 ref uncheckedNodes, iteration);
             handle = ScheduleActionExpand<CookAction>(handle, ref stackData,
-                ref unexpandedNodes, ref existedNodesHash, ref nodeStates,
+                ref unexpandedNodes, ref existedNodesHash, ref nodeStates, nodesWriter,
                 nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
                 ref uncheckedNodes, iteration);
             handle = ScheduleActionExpand<WanderAction>(handle, ref stackData,
-                ref unexpandedNodes, ref existedNodesHash,  ref nodeStates,
+                ref unexpandedNodes, ref existedNodesHash,  ref nodeStates, nodesWriter,
                 nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
                 ref uncheckedNodes, iteration);
             handle = ScheduleActionExpand<CollectAction>(handle, ref stackData,
-                ref unexpandedNodes, ref existedNodesHash,  ref nodeStates,
+                ref unexpandedNodes, ref existedNodesHash,  ref nodeStates, nodesWriter,
                 nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
                 ref uncheckedNodes, iteration);
             handle = ScheduleActionExpand<PickRawAction>(handle,ref stackData,
-                ref unexpandedNodes, ref existedNodesHash,  ref nodeStates,
+                ref unexpandedNodes, ref existedNodesHash,  ref nodeStates, nodesWriter,
                 nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
                 ref uncheckedNodes, iteration);
             handle = ScheduleActionExpand<DropRawAction>(handle, ref stackData,
-                ref unexpandedNodes, ref existedNodesHash,  ref nodeStates,
+                ref unexpandedNodes, ref existedNodesHash,  ref nodeStates, nodesWriter,
                 nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
                 ref uncheckedNodes, iteration);
 
@@ -520,11 +531,12 @@ namespace Zephyr.GOAP.System
         
         private JobHandle ScheduleActionExpand<T>(JobHandle handle,
             ref StackData stackData, ref NativeList<Node> unexpandedNodes,
-            ref NativeArray<int> existedNodesHash, ref NativeMultiHashMap<Node, State>  nodeStates,
-            NativeMultiHashMap<Node, Edge>.ParallelWriter nodeToParentWriter, 
-            NativeMultiHashMap<Node, State>.ParallelWriter nodeStateWriter, 
-            NativeMultiHashMap<Node, State>.ParallelWriter preconditionWriter, 
-            NativeMultiHashMap<Node, State>.ParallelWriter effectWriter,
+            ref NativeArray<int> existedNodesHash, ref NativeMultiHashMap<int, State>  nodeStates,
+            NativeHashMap<int, Node>.ParallelWriter nodesWriter,
+            NativeMultiHashMap<int, Edge>.ParallelWriter nodeToParentWriter, 
+            NativeMultiHashMap<int, State>.ParallelWriter nodeStateWriter, 
+            NativeMultiHashMap<int, State>.ParallelWriter preconditionWriter, 
+            NativeMultiHashMap<int, State>.ParallelWriter effectWriter,
             ref NativeHashMap<int, Node>.ParallelWriter newlyCreatedNodesWriter, int iteration) where T : struct, IAction, IComponentData
         {
             for (var i = 0; i < stackData.AgentEntities.Length; i++)
@@ -535,7 +547,7 @@ namespace Zephyr.GOAP.System
                 {
                     var action = EntityManager.GetComponentData<T>(agentEntity);
                     handle = new ActionExpandJob<T>(ref unexpandedNodes, ref existedNodesHash,
-                        ref stackData, ref nodeStates,
+                        ref stackData, ref nodeStates, nodesWriter,
                         nodeToParentWriter, nodeStateWriter, preconditionWriter, effectWriter,
                         ref newlyCreatedNodesWriter, iteration, action).Schedule(
                         unexpandedNodes, 6, handle);

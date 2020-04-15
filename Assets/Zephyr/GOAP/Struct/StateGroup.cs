@@ -27,7 +27,7 @@ namespace Zephyr.GOAP.Struct
             }
         }
 
-        public StateGroup(int initialCapacity, NativeMultiHashMap<Node, State>.Enumerator copyFrom,
+        public StateGroup(int initialCapacity, NativeMultiHashMap<int, State>.Enumerator copyFrom,
             Allocator allocator)
         {
             _states = new NativeList<State>(initialCapacity, allocator);
