@@ -147,7 +147,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         {
             newNode.Name = actionName;
             
-            nodeToParentWriter.Add(newNode.HashCode, new Edge(parent, newNode, actionName));
+            nodeToParentWriter.Add(newNode.HashCode, new Edge(parent, newNode));
             if(!nodeExisted)
             {
                 nodesWriter.TryAdd(newNode.HashCode, newNode);
