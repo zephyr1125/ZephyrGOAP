@@ -19,8 +19,10 @@ namespace Zephyr.GOAP.Debugger
 
         void SetCurrentStates(ref StateGroup currentStates, EntityManager entityManager);
 
-        void SetNodeTimes(EntityManager entityManager,
-            ref NativeMultiHashMap<int, NodeTime> nodeTimes);
+        void SetNodeAgentInfos(EntityManager entityManager,
+            ref NativeMultiHashMap<int, NodeAgentInfo> nodeAgentInfos);
+
+        void SetNodeTotalTimes(ref NativeHashMap<int, float> nodeTimes);
 
         void LogDone();
 

@@ -35,7 +35,14 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         [NativeDisableParallelForRestriction]
         public NativeList<Node> Result;
 
-        public NativeMultiHashMap<int, NodeTime> TimeResult;
+        /// <summary>
+        /// 各node的total time
+        /// </summary>
+        public NativeHashMap<int, float> NodeTotalTimes;
+        /// <summary>
+        /// 各node上的各agent的信息
+        /// </summary>
+        public NativeMultiHashMap<int, NodeAgentInfo> NodeAgentInfos;
             
         public void Execute()
         {
@@ -56,7 +63,8 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             openSet.Push(new MinHeapNode<int>(startId, 0));
             
             rewardSum[startId] = 0;
-            InitTimeSum(ref TimeResult, startId);
+            InitNodeAgentInfos(ref NodeAgentInfos, startId);
+            InitNodeTotalTimes(ref NodeTotalTimes, startId);
 
             var currentId = -1;
             while (_iterations<IterationLimit && openSet.HasNext())
@@ -86,36 +94,34 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
 
                     var neighbourExecutor = neighbourNode.AgentExecutorEntity;
                     var neighbourExecutorMoveSpeed = FindAgentSpeed(neighbourExecutor);
-                    var neighbourTimes = CalcNeighbourTimeSum(ref TimeResult, currentId, neighbourId,
-                        neighbourNode, neighbourExecutorMoveSpeed, Allocator.Temp);
-                    var newLongestTime = GetLongestTime(ref neighbourTimes);
+                    var neighbourAgentsInfo = UpdateNeighbourAgentsInfo(
+                        ref NodeAgentInfos, currentId, neighbourNode, neighbourExecutorMoveSpeed,
+                        Allocator.Temp, out var neighbourTime);
+                    var newTotalTime = NodeTotalTimes[currentId] + neighbourTime;
 
                     //如果记录已存在，新的时间更长则skip，相等则考虑reward更小skip
                     if (rewardSum.ContainsKey(neighbourId))
                     {
-                        var times = TimeResult.GetValuesForKey(neighbourId);
-                        var oldLongestTime = 0f;
-                        foreach (var time in times)
-                        {
-                            if (time.TotalTime > oldLongestTime) oldLongestTime = time.TotalTime;
-                        }
-
-                        if (newLongestTime > oldLongestTime) continue;
+                        var oldTotalTime = NodeTotalTimes[neighbourId];
+                        if (newTotalTime > oldTotalTime) continue;
 
                         var fewerReward = newRewardSum <= rewardSum[neighbourId];
-                        if (Math.Abs(newLongestTime - oldLongestTime) < 0.1f && fewerReward)
+                        if (Math.Abs(newTotalTime - oldTotalTime) < 0.1f && fewerReward)
                             continue;
                     }
 
                     //新记录更好，覆盖旧记录
-                    SaveTimeSum(ref TimeResult, neighbourId, ref neighbourTimes);
-                    var priority = newLongestTime -
+                    SaveNeighbourAgentsInfo(ref NodeAgentInfos, neighbourId, ref neighbourAgentsInfo);
+                    //覆盖总时长
+                    NodeTotalTimes[neighbourId] = newTotalTime;
+                    
+                    var priority = newTotalTime -
                                    (newRewardSum + neighbourNode.Heuristic(ref NodeGraph));
                     openSet.Push(new MinHeapNode<int>(neighbourId, priority));
                     cameFrom[neighbourId] = currentId;
                     rewardSum[neighbourId] = newRewardSum;
 
-                    neighbourTimes.Dispose();
+                    neighbourAgentsInfo.Dispose();
                 }
 
                 _iterations++;
@@ -155,83 +161,87 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             rewardSum.Dispose();
         }
 
-        private void InitTimeSum(ref NativeMultiHashMap<int, NodeTime> timeSum, int startId)
+        private void InitNodeAgentInfos(ref NativeMultiHashMap<int, NodeAgentInfo> nodeAgentInfos, int startId)
         {
             for (var i = 0; i < AgentEntities.Length; i++)
             {
-                timeSum.Add(startId, new NodeTime
+                nodeAgentInfos.Add(startId, new NodeAgentInfo
                 {
                     AgentEntity = AgentEntities[i],
                     EndPosition = AgentStartPositions[i],
-                    TotalTime = AgentStartTime[i]
+                    NavigateTime = AgentStartTime[i]
                 });
             }
         }
-
-        private NativeList<NodeTime> CalcNeighbourTimeSum(ref NativeMultiHashMap<int, NodeTime> timeSum,
-            int currentNodeId, int neighbourNodeId, Node neighbourNode, float neighbourExecutorMoveSpeed, Allocator allocator)
+        
+        private void InitNodeTotalTimes(ref NativeHashMap<int, float> nodeTotalTimes, int startId)
         {
-            var nodeTimes = new NativeList<NodeTime>(10, allocator);
-            //遍历currentNode的各agent的Time信息
-            var found = timeSum.TryGetFirstValue(currentNodeId, out var currentAgentTime, out var it);
+            nodeTotalTimes.Add(startId, 0);
+        }
+
+        /// <summary>
+        /// 更新各个agent在指定neighbour node上的信息
+        /// </summary>
+        /// <param name="agentsInfoOnNode"></param>
+        /// <param name="currentNodeId"></param>
+        /// <param name="neighbourNode"></param>
+        /// <param name="neighbourExecutorMoveSpeed"></param>
+        /// <param name="allocator"></param>
+        /// <param name="neighbourTime">neighbour node的导航+执行时间</param>
+        /// <returns>新的agents信息</returns>
+        private NativeList<NodeAgentInfo> UpdateNeighbourAgentsInfo(ref NativeMultiHashMap<int, NodeAgentInfo> agentsInfoOnNode,
+            int currentNodeId, Node neighbourNode, float neighbourExecutorMoveSpeed, Allocator allocator, out float neighbourTime)
+        {
+            var agentsInfo = new NativeList<NodeAgentInfo>(10, allocator);
+            var neighbourTimeCount = 0f;
+
+            //遍历currentNode的各agent的信息
+            var found = agentsInfoOnNode.TryGetFirstValue(currentNodeId, out var currentNodeAgentInfo, out var it);
             while (found)
             {
                 //对于neighbour的执行者，进行时间计算后，再拷贝给neighbour
                 //其他agent的时间信息则直接拷贝给neighbour
-                if (currentAgentTime.AgentEntity.Equals(neighbourNode.AgentExecutorEntity))
+                if (currentNodeAgentInfo.AgentEntity.Equals(neighbourNode.AgentExecutorEntity))
                 {
-                    var distance = math.distance(currentAgentTime.EndPosition,
+                    var distance = math.distance(currentNodeAgentInfo.EndPosition,
                         neighbourNode.NavigatingSubjectPosition);
                     var timeNavigate = distance / neighbourExecutorMoveSpeed;
-                    var newTime = new NodeTime
+                    neighbourTimeCount = timeNavigate + neighbourNode.ExecuteTime;
+                    var newInfo = new NodeAgentInfo
                     {
                         AgentEntity = neighbourNode.AgentExecutorEntity,
                         EndPosition = neighbourNode.NavigatingSubjectPosition,
-                        TotalTime = currentAgentTime.TotalTime + timeNavigate + neighbourNode.ExecuteTime,
+                        NavigateTime = timeNavigate,
+                        ExecuteTime = neighbourNode.ExecuteTime,
                     };
-                    nodeTimes.Add(newTime);
+                    agentsInfo.Add(newInfo);
                 }
                 else
                 {
-                    nodeTimes.Add(currentAgentTime);
+                    var newInfo = currentNodeAgentInfo;
+                    newInfo.ExecuteTime = 0;
+                    newInfo.NavigateTime = 0;
+                    agentsInfo.Add(newInfo);
                 }
-                found = timeSum.TryGetNextValue(out currentAgentTime, ref it);
+                found = agentsInfoOnNode.TryGetNextValue(out currentNodeAgentInfo, ref it);
             }
 
-            return nodeTimes;
+            neighbourTime = neighbourTimeCount;
+            return agentsInfo;
         }
 
-        private void SaveTimeSum(ref NativeMultiHashMap<int, NodeTime> timeSum, int neighbourId,
-            ref NativeList<NodeTime> newTimes)
+        private void SaveNeighbourAgentsInfo(ref NativeMultiHashMap<int, NodeAgentInfo> agentsInfo, int neighbourId,
+            ref NativeList<NodeAgentInfo> newInfos)
         {
-            if (timeSum.ContainsKey(neighbourId))
+            if (agentsInfo.ContainsKey(neighbourId))
             {
-                timeSum.Remove(neighbourId);
+                agentsInfo.Remove(neighbourId);
             }
 
-            for (var i = 0; i < newTimes.Length; i++)
+            for (var i = 0; i < newInfos.Length; i++)
             {
-                timeSum.Add(neighbourId, newTimes[i]);
+                agentsInfo.Add(neighbourId, newInfos[i]);
             }
-        }
-
-        /// <summary>
-        /// 获取某一个Node中所有Agent的Time里最长的一个
-        /// </summary>
-        /// <param name="nodeTimes"></param>
-        /// <returns></returns>
-        private float GetLongestTime(ref NativeList<NodeTime> nodeTimes)
-        {
-            var longest = 0f;
-            for (var i = 0; i < nodeTimes.Length; i++)
-            {
-                if (nodeTimes[i].TotalTime > longest)
-                {
-                    longest = nodeTimes[i].TotalTime;
-                }
-            }
-
-            return longest;
         }
 
         private float FindAgentSpeed(Entity agentEntity)

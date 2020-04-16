@@ -110,7 +110,7 @@ namespace Zephyr.GOAP.Editor
 
             var agentsContainer = _statesTip.Q("agents");
             agentsContainer.Clear();
-            var nodeTimeLogs = Node.NodeTimesFull();
+            var nodeTimeLogs = Node.NodeAgentInfos();
             if (nodeTimeLogs.Length > 0)
             {
                 foreach (var timeLog in nodeTimeLogs)

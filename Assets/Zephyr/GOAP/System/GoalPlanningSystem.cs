@@ -2,6 +2,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Transforms;
+using UnityEngine;
 using Zephyr.GOAP.Action;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.GoalManage;
@@ -147,17 +148,19 @@ namespace Zephyr.GOAP.System
                 UnifyNodeStates(ref stackData.CurrentStates, ref nodeGraph);
                 ApplyNodeNavigatingSubjects(ref nodeGraph);
                 //寻路
-                var nodeTimeResult = new NativeMultiHashMap<int, NodeTime>(nodeGraph.Length(), Allocator.TempJob);
+                var nodeAgentInfos = new NativeMultiHashMap<int, NodeAgentInfo>(nodeGraph.Length(), Allocator.TempJob);
+                var nodeTotalTimes = new NativeHashMap<int, float>(nodeGraph.Length(), Allocator.TempJob);
                 var pathResult = FindPath(ref nodeGraph, ref stackData,
-                    ref agentMoveSpeeds, ref agentStartTimes, ref nodeTimeResult);
+                    ref agentMoveSpeeds, ref agentStartTimes, ref nodeAgentInfos, ref nodeTotalTimes);
                 SavePath(ref pathResult, ref nodeGraph);
                 
                 Debugger?.SetNodeGraph(ref nodeGraph, EntityManager);
                 Debugger?.SetPathResult(ref pathResult);
-                Debugger?.SetNodeTimes(EntityManager, ref nodeTimeResult);
+                Debugger?.SetNodeAgentInfos(EntityManager, ref nodeAgentInfos);
+                Debugger?.SetNodeTotalTimes(ref nodeTotalTimes);
                 
                 pathResult.Dispose();
-                nodeTimeResult.Dispose();
+                nodeAgentInfos.Dispose();
 
                 Utils.NextGoalState<IdleGoal, ExecutingGoal>(goal.GoalEntity,
                     EntityManager, Time.ElapsedTime);
@@ -213,7 +216,8 @@ namespace Zephyr.GOAP.System
         
         private NativeList<Node> FindPath(ref NodeGraph nodeGraph, ref StackData stackData,
             ref NativeArray<MaxMoveSpeed> agentMoveSpeed, ref NativeArray<float> agentStartTime,
-            ref NativeMultiHashMap<int, NodeTime> timeResult)
+            ref NativeMultiHashMap<int, NodeAgentInfo> nodeAgentInfos,
+            ref NativeHashMap<int, float> nodeTotalTimes)
         {
             var pathResult = new NativeList<Node>(Allocator.TempJob);
             var pathFindingJob = new PathFindingJob
@@ -228,7 +232,8 @@ namespace Zephyr.GOAP.System
                 AgentStartTime = agentStartTime,
                 PathNodeLimit = PathNodeLimit,
                 Result = pathResult,
-                TimeResult = timeResult
+                NodeAgentInfos = nodeAgentInfos,
+                NodeTotalTimes = nodeTotalTimes
             };
             var handle = pathFindingJob.Schedule();
             handle.Complete();

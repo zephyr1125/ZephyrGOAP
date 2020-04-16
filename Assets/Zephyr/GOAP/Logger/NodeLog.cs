@@ -17,12 +17,12 @@ namespace Zephyr.GOAP.Logger
 
         public float reward;
 
-        public float executeTime;
-
         /// <summary>
         /// 指各个agent到此节点时的累计时间
         /// </summary>
-        public NodeTimeLog[] nodeTimeLogs;
+        public NodeAgentInfoLog[] nodeAgentInfos;
+
+        public float totalTime;
 
         public EntityLog agentExecutorEntity, navigationSubject;
 
@@ -43,7 +43,6 @@ namespace Zephyr.GOAP.Logger
             name = node.Name.ToString();
             iteration = node.Iteration;
             reward = node.Reward;
-            executeTime = node.ExecuteTime;
             navigationSubject = new EntityLog(entityManager, node.NavigatingSubject);
             agentExecutorEntity = new EntityLog(entityManager, node.AgentExecutorEntity);
             states = StateLog.CreateStateLogs(entityManager, nodeGraph.GetNodeStates(node));
@@ -52,39 +51,27 @@ namespace Zephyr.GOAP.Logger
             hashCode = node.HashCode;
         }
 
-        public void SetAgentTotalTime(EntityManager entityManager, NativeMultiHashMap<int,NodeTime>.Enumerator enumerator)
+        public void SetAgentInfo(EntityManager entityManager, NativeMultiHashMap<int,NodeAgentInfo>.Enumerator enumerator)
         {
-            nodeTimeLogs = NodeTimeLog.CreateNodeTimeLogs(entityManager, agentExecutorEntity, enumerator);
+            nodeAgentInfos = NodeAgentInfoLog.CreateNodeAgentInfoLogs(entityManager, agentExecutorEntity, enumerator);
+        }
+
+        public void SetTotalTime(float time)
+        {
+            totalTime = time;
         }
 
         /// <summary>
-        /// 简化版的各agent时间信息
+        /// 各agent信息
         /// </summary>
         /// <returns></returns>
-        public string NodeTimesToString()
+        public string[] NodeAgentInfos()
         {
-            var sorted = new SortedSet<NodeTimeLog>(nodeTimeLogs);
-            var text = new StringBuilder();
-            foreach (var log in sorted)
-            {
-                text.Append(log);
-                text.Append(",");
-            }
-            if(text.Length>0)text.Remove(text.Length - 1, 1);
-            return text.ToString();
-        }
-
-        /// <summary>
-        /// 完整版的各agent时间信息
-        /// </summary>
-        /// <returns></returns>
-        public string[] NodeTimesFull()
-        {
-            var sorted = new SortedSet<NodeTimeLog>(nodeTimeLogs);
+            var sorted = new SortedSet<NodeAgentInfoLog>(nodeAgentInfos);
             var texts = new List<string>();
             foreach (var log in sorted)
             {
-                texts.Add(log.ToStringFull());
+                texts.Add(log.ToString());
             }
 
             return texts.ToArray();
