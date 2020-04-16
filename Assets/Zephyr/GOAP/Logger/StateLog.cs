@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.Entities;
 using Zephyr.GOAP.Struct;
+using Unity.Mathematics;
 
 namespace Zephyr.GOAP.Logger
 {
@@ -10,6 +11,7 @@ namespace Zephyr.GOAP.Logger
     public class StateLog
     {
         public EntityLog Target;
+        public float3 Position;
         public string Trait;
         public string ValueString;
         public string ValueTrait;
@@ -18,6 +20,7 @@ namespace Zephyr.GOAP.Logger
         public StateLog(EntityManager entityManager, State state)
         {
             Target = new EntityLog(entityManager, state.Target);
+            Position = state.Position;
             if(state.Trait!=default)Trait = state.Trait.ToString();
             ValueString = state.ValueString.ToString();
             if(state.ValueTrait!=default)ValueTrait = state.ValueTrait.ToString();
@@ -36,7 +39,10 @@ namespace Zephyr.GOAP.Logger
             var negative = IsNegative ? "-" : "+";
             var trait = string.IsNullOrEmpty(Trait) ? "" : $"({Trait})";
             var valueTrait = string.IsNullOrEmpty(ValueTrait) ? "" : $"<{ValueTrait}>";
-            return $"{negative}[{Target}]{trait}{valueTrait}{ValueString}";
+            var position = Target.Equals(Entity.Null)
+                ? ""
+                : $"({Position.x},{Position.y},{Position.z})";
+            return $"{negative}[{Target}]{trait}{valueTrait}{ValueString}{position}";
         }
 
         /// <summary>

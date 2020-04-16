@@ -54,6 +54,12 @@ namespace Zephyr.GOAP.Logger
             return $"{colorPrefix}{totalTime}{colorSuffix}";
         }
 
+        public string ToStringFull()
+        {
+            var position = $"({endPosition.x},{endPosition.y},{endPosition.z})";
+            return $"[{agentEntity}]{totalTime}{position}";
+        }
+
         public int CompareTo(NodeTimeLog other)
         {
             if (ReferenceEquals(this, other)) return 0;

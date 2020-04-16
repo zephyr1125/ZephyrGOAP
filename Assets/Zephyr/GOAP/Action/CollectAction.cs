@@ -88,6 +88,7 @@ namespace Zephyr.GOAP.Action
             preconditions.Add(new State
             {
                 Target = setting.Target,
+                Position = setting.Position,
                 Trait = typeof(RawDestinationTrait),
                 ValueString = setting.ValueString
             });

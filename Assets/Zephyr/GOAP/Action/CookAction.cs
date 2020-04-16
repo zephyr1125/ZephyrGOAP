@@ -151,6 +151,7 @@ namespace Zephyr.GOAP.Action
             preconditions.Add(new State
             {
                 Target = setting.Target,    //Target仍是同一设施
+                Position = setting.Position,
                 Trait = typeof(ItemDestinationTrait),
                 ValueString = inputs[0].ValueString,
             });
@@ -159,6 +160,7 @@ namespace Zephyr.GOAP.Action
                 preconditions.Add(new State
                 {
                     Target = setting.Target,
+                    Position = setting.Position,
                     Trait = typeof(ItemDestinationTrait),
                     ValueString = inputs[1].ValueString,
                 });

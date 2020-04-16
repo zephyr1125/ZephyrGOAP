@@ -57,6 +57,10 @@ namespace Zephyr.GOAP.Logger
             nodeTimeLogs = NodeTimeLog.CreateNodeTimeLogs(entityManager, agentExecutorEntity, enumerator);
         }
 
+        /// <summary>
+        /// 简化版的各agent时间信息
+        /// </summary>
+        /// <returns></returns>
         public string NodeTimesToString()
         {
             var sorted = new SortedSet<NodeTimeLog>(nodeTimeLogs);
@@ -68,6 +72,22 @@ namespace Zephyr.GOAP.Logger
             }
             if(text.Length>0)text.Remove(text.Length - 1, 1);
             return text.ToString();
+        }
+
+        /// <summary>
+        /// 完整版的各agent时间信息
+        /// </summary>
+        /// <returns></returns>
+        public string[] NodeTimesFull()
+        {
+            var sorted = new SortedSet<NodeTimeLog>(nodeTimeLogs);
+            var texts = new List<string>();
+            foreach (var log in sorted)
+            {
+                texts.Add(log.ToStringFull());
+            }
+
+            return texts.ToArray();
         }
     }
 }

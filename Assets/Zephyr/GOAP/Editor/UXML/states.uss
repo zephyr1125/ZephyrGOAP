@@ -8,5 +8,5 @@
     align-items: stretch;
     flex-grow: 1;
     flex-shrink: 0;
-    background-color: rgba(231, 198, 156, 255);
+    background-color: rgb(231, 198, 156);
 }

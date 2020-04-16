@@ -107,6 +107,17 @@ namespace Zephyr.GOAP.Editor
                     effectContainer.Add(new Label(effect.ToString()));
                 }
             }
+
+            var agentsContainer = _statesTip.Q("agents");
+            agentsContainer.Clear();
+            var nodeTimeLogs = Node.NodeTimesFull();
+            if (nodeTimeLogs.Length > 0)
+            {
+                foreach (var timeLog in nodeTimeLogs)
+                {
+                    agentsContainer.Add(new Label(timeLog));
+                }
+            }
         }
 
         private void UpdateStatesTipPos(Vector2 mousePos)

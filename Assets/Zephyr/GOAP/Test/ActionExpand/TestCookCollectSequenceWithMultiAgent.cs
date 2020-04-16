@@ -57,6 +57,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
             SetGoal(new State
             {
                 Target = _cookerEntity,
+                Position = new float3(2, 0, 0),
                 Trait = typeof(ItemSourceTrait),
                 ValueString = "roast_apple"
             });
@@ -66,11 +67,13 @@ namespace Zephyr.GOAP.Test.ActionExpand
             buffer.Add(new State
             {
                 Target = _cookerEntity,
+                Position = new float3(2, 0, 0),
                 Trait = typeof(CookerTrait),
             });
             buffer.Add(new State
             {
                 Target = _collectorEntity,
+                Position = new float3(4, 0, 0),
                 Trait = typeof(CollectorTrait),
             });
             buffer.Add(new State
