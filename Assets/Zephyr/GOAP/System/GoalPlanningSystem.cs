@@ -161,6 +161,7 @@ namespace Zephyr.GOAP.System
                 
                 pathResult.Dispose();
                 nodeAgentInfos.Dispose();
+                nodeTotalTimes.Dispose();
 
                 Utils.NextGoalState<IdleGoal, ExecutingGoal>(goal.GoalEntity,
                     EntityManager, Time.ElapsedTime);

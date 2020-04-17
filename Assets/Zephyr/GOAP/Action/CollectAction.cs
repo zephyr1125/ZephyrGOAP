@@ -31,6 +31,17 @@ namespace Zephyr.GOAP.Action
                 if (!targetState.BelongTo(itemSourceState)) continue;
                 //不支持没有value string
                 if (targetState.ValueString.Equals(default)) continue;
+                //如果Target已明确，那么Target必须是Collector
+                if (targetState.Target != Entity.Null)
+                {
+                    var collectorTemplate = new State
+                    {
+                        Target = targetState.Target,
+                        Trait = typeof(CollectorTrait)
+                    };
+                    var foundState = stackData.CurrentStates.GetBelongingState(collectorTemplate);
+                    if (foundState.Equals(State.Null)) continue;
+                }
                 
                 return targetState;
             }
