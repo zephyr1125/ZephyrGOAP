@@ -16,6 +16,7 @@ namespace Zephyr.GOAP.Logger
         public float3 endPosition;
         public float navigateTime;
         public float executeTime;
+        public float availableTime;
         
         [SerializeField]
         private bool isNodeExecutor;
@@ -26,6 +27,7 @@ namespace Zephyr.GOAP.Logger
             endPosition = nodeAgentInfo.EndPosition;
             navigateTime = nodeAgentInfo.NavigateTime;
             executeTime = nodeAgentInfo.ExecuteTime;
+            availableTime = nodeAgentInfo.AvailableTime;
             isNodeExecutor = agentEntity.Equals(executorAgentEntity);
         }
 
@@ -44,7 +46,7 @@ namespace Zephyr.GOAP.Logger
         public override string ToString()
         {
             var position = $"({endPosition.x},{endPosition.y},{endPosition.z})";
-            return $"[{agentEntity}]{navigateTime}+{executeTime}{position}";
+            return $"[{agentEntity}]{navigateTime}+{executeTime}/{availableTime}{position}";
         }
 
         public int CompareTo(NodeAgentInfoLog other)

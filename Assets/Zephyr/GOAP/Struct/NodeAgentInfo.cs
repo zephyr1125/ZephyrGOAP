@@ -12,5 +12,6 @@ namespace Zephyr.GOAP.Struct
         public float3 EndPosition;
         public float NavigateTime;
         public float ExecuteTime;
+        public float AvailableTime;
     }
 }

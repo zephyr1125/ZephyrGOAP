@@ -71,6 +71,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             {
                 currentId = openSet[openSet.Pop()].Content;
                 var currentNode = NodeGraph[currentId];
+                var currentTotalTime = NodeTotalTimes[currentId];
                 
                 //不使用early quit，因为会使用非最优解
                 //early quit
@@ -95,9 +96,9 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     var neighbourExecutor = neighbourNode.AgentExecutorEntity;
                     var neighbourExecutorMoveSpeed = FindAgentSpeed(neighbourExecutor);
                     var neighbourAgentsInfo = UpdateNeighbourAgentsInfo(
-                        ref NodeAgentInfos, currentId, neighbourNode, neighbourExecutorMoveSpeed,
-                        Allocator.Temp, out var neighbourTime);
-                    var newTotalTime = NodeTotalTimes[currentId] + neighbourTime;
+                        ref NodeAgentInfos, currentId, currentTotalTime, neighbourNode, neighbourExecutorMoveSpeed,
+                        Allocator.Temp, out var newTotalTime);
+                    
 
                     //如果记录已存在，新的时间更长则skip，相等则考虑reward更小skip
                     if (rewardSum.ContainsKey(neighbourId))
@@ -184,16 +185,18 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         /// </summary>
         /// <param name="agentsInfoOnNode"></param>
         /// <param name="currentNodeId"></param>
+        /// <param name="currentTotalTime"></param>
         /// <param name="neighbourNode"></param>
         /// <param name="neighbourExecutorMoveSpeed"></param>
         /// <param name="allocator"></param>
-        /// <param name="neighbourTime">neighbour node的导航+执行时间</param>
+        /// <param name="newTotalTime"></param>
         /// <returns>新的agents信息</returns>
         private NativeList<NodeAgentInfo> UpdateNeighbourAgentsInfo(ref NativeMultiHashMap<int, NodeAgentInfo> agentsInfoOnNode,
-            int currentNodeId, Node neighbourNode, float neighbourExecutorMoveSpeed, Allocator allocator, out float neighbourTime)
+            int currentNodeId, float currentTotalTime, Node neighbourNode,
+            float neighbourExecutorMoveSpeed, Allocator allocator, out float newTotalTime)
         {
             var agentsInfo = new NativeList<NodeAgentInfo>(10, allocator);
-            var neighbourTimeCount = 0f;
+            var estimateTotalTime = 0f;
 
             //遍历currentNode的各agent的信息
             var found = agentsInfoOnNode.TryGetFirstValue(currentNodeId, out var currentNodeAgentInfo, out var it);
@@ -206,15 +209,25 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     var distance = math.distance(currentNodeAgentInfo.EndPosition,
                         neighbourNode.NavigatingSubjectPosition);
                     var timeNavigate = distance / neighbourExecutorMoveSpeed;
-                    neighbourTimeCount = timeNavigate + neighbourNode.ExecuteTime;
+
+                    //如果我之前的availableTime累加上我的timeNavigate还小于当前的totalTime的话
+                    //说明我已经闲置蛮久了，直接以当前totalTime为开始execute的时间
+                    //也就是说有足够的时间提前navigate
+                    var estimateExecuteStartTime =
+                        currentNodeAgentInfo.AvailableTime + timeNavigate;
+                    if (estimateExecuteStartTime < currentTotalTime)
+                        estimateExecuteStartTime = currentTotalTime;
+                    
                     var newInfo = new NodeAgentInfo
                     {
                         AgentEntity = neighbourNode.AgentExecutorEntity,
                         EndPosition = neighbourNode.NavigatingSubjectPosition,
                         NavigateTime = timeNavigate,
                         ExecuteTime = neighbourNode.ExecuteTime,
+                        AvailableTime = estimateExecuteStartTime + neighbourNode.ExecuteTime,
                     };
                     agentsInfo.Add(newInfo);
+                    estimateTotalTime = newInfo.AvailableTime;
                 }
                 else
                 {
@@ -226,7 +239,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                 found = agentsInfoOnNode.TryGetNextValue(out currentNodeAgentInfo, ref it);
             }
 
-            neighbourTime = neighbourTimeCount;
+            newTotalTime = estimateTotalTime;
             return agentsInfo;
         }
 
