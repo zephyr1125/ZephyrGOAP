@@ -27,10 +27,15 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
 
         private NativeHashMap<int, Node>.ParallelWriter _nodesWriter;
         private NativeMultiHashMap<int, Edge>.ParallelWriter _nodeToParentWriter;
+        
         private NativeList<int>.ParallelWriter _nodeStateIndicesWriter;
         private NativeList<State>.ParallelWriter _nodeStatesWriter;
-        private NativeMultiHashMap<int, State>.ParallelWriter _preconditionWriter;
-        private NativeMultiHashMap<int, State>.ParallelWriter _effectWriter;
+        
+        private NativeList<int>.ParallelWriter _preconditionIndicesWriter;
+        private NativeList<State>.ParallelWriter _preconditionsWriter;
+        
+        private NativeList<int>.ParallelWriter _effectIndicesWriter;
+        private NativeList<State>.ParallelWriter _effectsWriter;
         
         private NativeHashMap<int, Node>.ParallelWriter _newlyCreatedNodesWriter;
 
@@ -45,8 +50,10 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             NativeMultiHashMap<int, Edge>.ParallelWriter nodeToParentWriter, 
             NativeList<int>.ParallelWriter nodeStateIndicesWriter,
             NativeList<State>.ParallelWriter nodeStatesWriter, 
-            NativeMultiHashMap<int, State>.ParallelWriter preconditionWriter, 
-            NativeMultiHashMap<int, State>.ParallelWriter effectWriter,
+            NativeList<int>.ParallelWriter preconditionIndicesWriter,
+            NativeList<State>.ParallelWriter preconditionsWriter, 
+            NativeList<int>.ParallelWriter effectIndicesWriter,
+            NativeList<State>.ParallelWriter effectsWriter, 
             ref NativeHashMap<int, Node>.ParallelWriter newlyCreatedNodesWriter, int iteration, T action)
         {
             _unexpandedNodes = unexpandedNodes;
@@ -58,8 +65,10 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             _nodeToParentWriter = nodeToParentWriter;
             _nodeStateIndicesWriter = nodeStateIndicesWriter;
             _nodeStatesWriter = nodeStatesWriter;
-            _preconditionWriter = preconditionWriter;
-            _effectWriter = effectWriter;
+            _preconditionIndicesWriter = preconditionIndicesWriter;
+            _preconditionsWriter = preconditionsWriter;
+            _effectIndicesWriter = effectIndicesWriter;
+            _effectsWriter = effectsWriter;
             _newlyCreatedNodesWriter = newlyCreatedNodesWriter;
             _iteration = iteration;
             _action = action;
@@ -118,8 +127,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                         var nodeExisted = _existedNodesHash.Contains(node.HashCode);
 
                         //NodeGraph的几个容器都移去了并行限制，小心出错
-                        AddRouteNode(node, nodeExisted, ref newStates, _nodesWriter, _nodeToParentWriter,
-                            _nodeStateIndicesWriter, _nodeStatesWriter, _preconditionWriter, _effectWriter,
+                        AddRouteNode(node, nodeExisted, ref newStates, 
                             ref preconditions, ref effects, unexpandedNode, _action.GetName());
                         _newlyCreatedNodesWriter.TryAdd(node.HashCode, node);
 
@@ -133,42 +141,32 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             }
             leftStates.Dispose();
         }
-        
+
         /// <summary>
         /// <param name="newNode"></param>
         /// <param name="nodeStates"></param>
-        /// <param name="effectWriter"></param>
         /// <param name="preconditions"></param>
         /// <param name="effects"></param>
         /// <param name="parent"></param>
         /// <param name="actionName"></param>
-        /// <param name="nodeToParentWriter"></param>
-        /// <param name="nodeStateWriter"></param>
-        /// <param name="preconditionWriter"></param>
         /// <returns>此node已存在</returns>
         /// </summary>
         private void AddRouteNode(Node newNode, bool nodeExisted, ref StateGroup nodeStates,
-            NativeHashMap<int, Node>.ParallelWriter nodesWriter,
-            NativeMultiHashMap<int, Edge>.ParallelWriter nodeToParentWriter,
-            NativeList<int>.ParallelWriter nodeStateIndicesWriter,
-            NativeList<State>.ParallelWriter nodeStatesWriter, 
-            NativeMultiHashMap<int, State>.ParallelWriter preconditionWriter, 
-            NativeMultiHashMap<int, State>.ParallelWriter effectWriter,
             ref StateGroup preconditions, ref StateGroup effects,
             Node parent, NativeString64 actionName)
         {
             newNode.Name = actionName;
             
-            nodeToParentWriter.Add(newNode.HashCode, new Edge(parent, newNode));
+            _nodeToParentWriter.Add(newNode.HashCode, new Edge(parent, newNode));
             if(!nodeExisted)
             {
-                nodesWriter.TryAdd(newNode.HashCode, newNode);
+                _nodesWriter.TryAdd(newNode.HashCode, newNode);
                 
                 for(var i=0; i<nodeStates.Length(); i++)
                 {
                     var state = nodeStates[i];
-                    nodeStateIndicesWriter.AddNoResize(newNode.HashCode);
-                    nodeStatesWriter.AddNoResize(state);
+                    _nodeStateIndicesWriter.AddNoResize(newNode.HashCode);
+                    _nodeStatesWriter.AddNoResize(state);
                 }
                 
                 if(!preconditions.Equals(default(StateGroup)))
@@ -176,7 +174,8 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     for(var i=0; i<preconditions.Length(); i++)
                     {
                         var state = preconditions[i];
-                        preconditionWriter.Add(newNode.HashCode, state);
+                        _preconditionIndicesWriter.AddNoResize(newNode.HashCode);
+                        _preconditionsWriter.AddNoResize(state);
                     }
                 }
 
@@ -185,7 +184,8 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     for(var i=0; i<effects.Length(); i++)
                     {
                         var state = effects[i];
-                        effectWriter.Add(newNode.HashCode, state);
+                        _effectIndicesWriter.AddNoResize(newNode.HashCode);
+                        _effectsWriter.AddNoResize(state);
                     }
                 }
             }

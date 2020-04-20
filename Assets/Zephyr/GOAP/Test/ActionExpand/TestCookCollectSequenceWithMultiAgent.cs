@@ -60,7 +60,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
                 Target = _cookerEntity,
                 Position = new float3(2, 0, 0),
                 Trait = typeof(ItemSourceTrait),
-                ValueString = "roast_apple"
+                ValueString = "feast"
             });
             
             //给CurrentStates写入假环境数据：世界里有原料、配方
@@ -80,12 +80,14 @@ namespace Zephyr.GOAP.Test.ActionExpand
             buffer.Add(new State
             {
                 Target = _collectorEntity,
+                Position = new float3(4, 0, 0),
                 Trait = typeof(ItemPotentialSourceTrait),
                 ValueString = "raw_apple"
             });
             buffer.Add(new State
             {
                 Target = _collectorEntity,
+                Position = new float3(4, 0, 0),
                 Trait = typeof(ItemPotentialSourceTrait),
                 ValueString = "raw_peach"
             });
