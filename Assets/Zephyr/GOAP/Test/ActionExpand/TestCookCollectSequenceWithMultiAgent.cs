@@ -35,6 +35,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
             _diningTableEntity = EntityManager.CreateEntity();
             _collectorEntity = EntityManager.CreateEntity();
             _rawAppleEntity = EntityManager.CreateEntity();
+            _rawPeachEntity = EntityManager.CreateEntity();
             
             EntityManager.AddComponentData(_agentEntity, new CookAction{Level = 1});
             EntityManager.AddComponentData(_agentEntity, new PickItemAction());
