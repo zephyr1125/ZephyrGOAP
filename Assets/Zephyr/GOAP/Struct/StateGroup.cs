@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
+using Zephyr.GOAP.Lib;
 
 namespace Zephyr.GOAP.Struct
 {
@@ -26,6 +27,16 @@ namespace Zephyr.GOAP.Struct
                 _states.Add(state);
             }
         }
+        
+        public StateGroup(NativeMinHeap<State> copyFrom, Allocator allocator)
+        {
+            _states = new NativeList<State>(allocator);
+            while (copyFrom.HasNext())
+            {
+                var state = copyFrom[copyFrom.Pop()].Content;
+                _states.Add(state);
+            }
+        }
 
         public StateGroup(int initialCapacity, NativeMultiHashMap<int, State>.Enumerator copyFrom,
             Allocator allocator)
@@ -45,10 +56,21 @@ namespace Zephyr.GOAP.Struct
         /// <param name="allocator"></param>
         public StateGroup(StateGroup copyFrom, int length, Allocator allocator)
         {
-            _states = new NativeList<State>(copyFrom.Length(), allocator);
+            _states = new NativeList<State>(length, allocator);
             for (var i = 0; i < length; i++)
             {
                 var state = copyFrom._states[i];
+                _states.Add(state);
+            }
+        }
+        
+        public StateGroup(NativeMinHeap<State> copyFrom, int length, Allocator allocator)
+        {
+            _states = new NativeList<State>(length, allocator);
+            for (var i = 0; i < length; i++)
+            {
+                var found = copyFrom.Pop();
+                var state = copyFrom[found].Content;
                 _states.Add(state);
             }
         }
@@ -128,22 +150,29 @@ namespace Zephyr.GOAP.Struct
         /// <returns></returns>
         public void SubForEffect(ref StateGroup effectStates)
         {
-            Sub(ref effectStates, (State state, State effect) =>
+            Sub(ref effectStates, out var removedStates, Allocator.Temp, 
+                (State state, State effect) =>
                 {
                     var preconditionHash = state.GetHashCode();
                     return effect;
                 }
             );
+            removedStates.Dispose();
         }
-        
+
         /// <summary>
         /// Equal或双向Belong则移除，不同项则无视
         /// </summary>
         /// <param name="other"></param>
+        /// <param name="removedStates"></param>
+        /// <param name="allocatorForRemovedStates"></param>
         /// <param name="func"></param>
         /// <returns></returns>
-        public void Sub(ref StateGroup other, Func<State, State, State> func = null)
+        public void Sub(ref StateGroup other, out StateGroup removedStates,
+            Allocator allocatorForRemovedStates, Func<State, State, State> func = null)
         {
+            removedStates = new StateGroup(1, allocatorForRemovedStates);
+            
             for (var i = 0; i < other._states.Length; i++)
             {
                 var otherState = other._states[i];
@@ -159,6 +188,7 @@ namespace Zephyr.GOAP.Struct
                             other[i] = otherState;
                         }
                         _states.RemoveAtSwapBack(j);
+                        removedStates.Add(state);
                     }
                 }
             }

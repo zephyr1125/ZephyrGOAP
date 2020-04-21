@@ -279,7 +279,8 @@ namespace Zephyr.GOAP.System
                     var childEffects = nodeGraph.GetNodeEffects(child, Allocator.Temp);
                     var childPreconditions = nodeGraph.GetNodePreconditions(child, Allocator.Temp);
                     
-                    childStates.Sub(ref childPreconditions);
+                    childStates.Sub(ref childPreconditions, out var removedStates, Allocator.Temp);
+                    removedStates.Dispose();
                     childStates.Merge(childEffects);
                     
                     childEffects.Dispose();
@@ -415,7 +416,7 @@ namespace Zephyr.GOAP.System
                 nodeGraph.CleanAllDuplicateStates(uncheckedNode);
                 
                 var uncheckedStates = nodeGraph.GetNodeStates(uncheckedNode, Allocator.Temp);
-                uncheckedStates.Sub(ref currentStates);
+                uncheckedStates.Sub(ref currentStates, out var removedStates, Allocator.Temp);
                 
                 //为了避免没有state的node(例如wander)与startNode有相同的hash，这种node被强制给了一个空state
                 //因此在只有1个state且内容为空时，也应视为找到了plan
@@ -447,9 +448,22 @@ namespace Zephyr.GOAP.System
                     }
                 }
                 children.Dispose();
-                
-                if(!loop)unexpandedNodes.Add(uncheckedNode);
 
+                if (!loop)
+                {
+                    //没有产生循环，则把此node置入待展开列表
+                    //需要把他的state里符合currentState的移除掉，以避免再次被展开
+                    if (!foundPlan)
+                    {
+                        for (var i = 0; i < removedStates.Length(); i++)
+                        {
+                            nodeGraph.RemoveNodeState(uncheckedNode, removedStates[i]);
+                        }
+                    }
+                    unexpandedNodes.Add(uncheckedNode);
+                }
+
+                removedStates.Dispose();
                 uncheckedStates.Dispose();
             }
 

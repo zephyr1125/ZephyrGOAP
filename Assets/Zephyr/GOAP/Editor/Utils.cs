@@ -11,10 +11,11 @@ namespace Zephyr.GOAP.Editor
         {
             if (states == null) return;
             
+            var sorted = new SortedSet<StateLog>(states);
             var stateTexts = new List<string>(states.Length);
-            for (var i = 0; i < states.Length; i++)
+            foreach (var state in sorted)
             {
-                stateTexts.Add(states[i].ToString());
+                stateTexts.Add(state.ToString());
             }
             Func<VisualElement> makeItem = () => new Label();
             Action<VisualElement, int> bindItem = (e, i) => ((Label) e).text = stateTexts[i];

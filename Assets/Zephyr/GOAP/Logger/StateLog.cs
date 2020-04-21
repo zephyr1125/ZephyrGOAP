@@ -8,7 +8,7 @@ using Unity.Mathematics;
 namespace Zephyr.GOAP.Logger
 {
     [Serializable]
-    public class StateLog
+    public class StateLog : IComparable<StateLog>
     {
         public EntityLog Target;
         public float3 Position;
@@ -32,6 +32,11 @@ namespace Zephyr.GOAP.Logger
             var stateLogs = new List<StateLog>(states.Length);
             stateLogs.AddRange(states.Select(t => new StateLog(entityManager, t)));
             return stateLogs.ToArray();
+        }
+
+        public int CompareTo(StateLog other)
+        {
+            return Target.CompareTo(other.Target);
         }
 
         public override string ToString()

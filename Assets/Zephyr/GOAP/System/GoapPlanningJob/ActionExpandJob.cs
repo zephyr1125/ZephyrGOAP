@@ -1,6 +1,7 @@
 using Unity.Collections;
 using Unity.Jobs;
 using Zephyr.GOAP.Action;
+using Zephyr.GOAP.Lib;
 using Zephyr.GOAP.Struct;
 
 namespace Zephyr.GOAP.System.GoapPlanningJob
@@ -78,11 +79,13 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         {
             var unexpandedNode = _unexpandedNodes[jobIndex];
             //只考虑node的首个state
-            var leftStates = new StateGroup(2, Allocator.Temp);
+            var leftStates = new NativeMinHeap<State>(2, Allocator.Temp);
             for (var i = 0; i < _nodeStateIndices.Length; i++)
             {
                 if (!_nodeStateIndices[i].Equals(unexpandedNode.HashCode)) continue;
-                leftStates.Add(_nodeStates[i]);
+                var state = _nodeStates[i];
+                var priority = state.Target.Index;
+                leftStates.Push(new MinHeapNode<State>(_nodeStates[i], priority));
             }
             var targetStates = new StateGroup(leftStates, 1, Allocator.Temp);
             

@@ -4,7 +4,7 @@ using Unity.Entities;
 namespace Zephyr.GOAP.Logger
 {
     [Serializable]
-    public class EntityLog
+    public class EntityLog : IComparable<EntityLog>
     {
         public int index;
         public int version;
@@ -17,6 +17,11 @@ namespace Zephyr.GOAP.Logger
 #if UNITY_EDITOR
             name = entityManager.GetName(entity);
 #endif
+        }
+
+        public int CompareTo(EntityLog other)
+        {
+            return index.CompareTo(other.index);
         }
 
         public override string ToString()
