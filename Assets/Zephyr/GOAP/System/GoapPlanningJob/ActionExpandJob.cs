@@ -79,15 +79,17 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         {
             var unexpandedNode = _unexpandedNodes[jobIndex];
             //只考虑node的首个state
-            var leftStates = new NativeMinHeap<State>(2, Allocator.Temp);
+            var sortedStates = new NativeMinHeap<State>(2, Allocator.Temp);
             for (var i = 0; i < _nodeStateIndices.Length; i++)
             {
                 if (!_nodeStateIndices[i].Equals(unexpandedNode.HashCode)) continue;
                 var state = _nodeStates[i];
                 var priority = state.Target.Index;
-                leftStates.Push(new MinHeapNode<State>(_nodeStates[i], priority));
+                sortedStates.Push(new MinHeapNode<State>(_nodeStates[i], priority));
             }
-            var targetStates = new StateGroup(leftStates, 1, Allocator.Temp);
+            var leftStates = new StateGroup(sortedStates, Allocator.Temp);
+            var targetStates = new StateGroup(sortedStates, 1, Allocator.Temp);
+            sortedStates.Dispose();
             
             var targetState = _action.GetTargetGoalState(ref targetStates, ref _stackData);
             targetStates.Dispose();
@@ -126,6 +128,9 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                         var node = new Node(ref preconditions, ref effects, ref newStates, 
                             _action.GetName(), reward, time, _iteration,
                             _stackData.AgentEntities[_stackData.CurrentAgentId], subjectType, subjectId);
+                        
+                        preconditions.SetOwner(node.HashCode);
+                        newStates.SetOwner(node.HashCode, ref leftStates);
                         
                         var nodeExisted = _existedNodesHash.Contains(node.HashCode);
 

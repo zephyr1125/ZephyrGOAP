@@ -54,8 +54,8 @@ namespace Zephyr.GOAP.Test.ActionExpand
             
             var result = _debugger.PathResult[1];
             Assert.AreEqual(nameof(EatAction), result.name);
-            Assert.IsTrue(result.states[0].Target.Equals(_diningTableEntity));
-            Assert.IsTrue(result.preconditions.Any(state=>state.ValueString.Equals("raw_apple")));
+            Assert.IsTrue(result.states[0].target.Equals(_diningTableEntity));
+            Assert.IsTrue(result.preconditions.Any(state=>state.valueString.Equals("raw_apple")));
         }
 
         [Test]
@@ -73,7 +73,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
             EntityManager.CompleteAllJobs();
             
             var preconditions = _debugger.PathResult[1].preconditions;
-            Assert.IsTrue(preconditions.Any(state=>state.ValueString.Equals("roast_apple")));
+            Assert.IsTrue(preconditions.Any(state=>state.valueString.Equals("roast_apple")));
         }
     }
 }

@@ -110,7 +110,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
             var result = _debugger.PathResult;
             Assert.AreEqual(nameof(CollectAction), result[1].name);
             Assert.AreEqual(nameof(DropRawAction), result[2].name);
-            Assert.IsTrue(result[2].preconditions[0].Target.Equals(newRawEntity));
+            Assert.IsTrue(result[2].preconditions[0].target.Equals(newRawEntity));
         }
     }
 }

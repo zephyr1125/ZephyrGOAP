@@ -39,13 +39,13 @@ namespace Zephyr.GOAP.Test.ActionExpand
             
             Assert.AreEqual(5, children.Length);
             Assert.IsTrue(children.Any(
-                nodeLog => nodeLog.states[0].ValueString.Equals("raw_apple")));
+                nodeLog => nodeLog.states[0].valueString.Equals("raw_apple")));
             Assert.IsTrue(children.Any(
-                nodeLog => nodeLog.states[0].ValueString.Equals("roast_apple")));
+                nodeLog => nodeLog.states[0].valueString.Equals("roast_apple")));
             Assert.IsTrue(children.Any(
-                nodeLog => nodeLog.states[0].ValueString.Equals("raw_peach")));
+                nodeLog => nodeLog.states[0].valueString.Equals("raw_peach")));
             Assert.IsTrue(children.Any(
-                nodeLog => nodeLog.states[0].ValueString.Equals("roast_apple")));
+                nodeLog => nodeLog.states[0].valueString.Equals("roast_apple")));
         }
     }
 }

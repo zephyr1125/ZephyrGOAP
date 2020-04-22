@@ -10,21 +10,25 @@ namespace Zephyr.GOAP.Logger
     [Serializable]
     public class StateLog : IComparable<StateLog>
     {
-        public EntityLog Target;
-        public float3 Position;
-        public string Trait;
-        public string ValueString;
-        public string ValueTrait;
-        public bool IsNegative;
+        public EntityLog target;
+        public float3 position;
+        public string trait;
+        public string valueString;
+        public string valueTrait;
+        public bool isNegative;
+        public int ownerNodeHash;
+        
+        private string _ownerNodeName;
 
         public StateLog(EntityManager entityManager, State state)
         {
-            Target = new EntityLog(entityManager, state.Target);
-            Position = state.Position;
-            if(state.Trait!=default)Trait = state.Trait.ToString();
-            ValueString = state.ValueString.ToString();
-            if(state.ValueTrait!=default)ValueTrait = state.ValueTrait.ToString();
-            IsNegative = state.IsNegative;
+            target = new EntityLog(entityManager, state.Target);
+            position = state.Position;
+            if(state.Trait!=default)trait = state.Trait.ToString();
+            valueString = state.ValueString.ToString();
+            if(state.ValueTrait!=default)valueTrait = state.ValueTrait.ToString();
+            isNegative = state.IsNegative;
+            ownerNodeHash = state.OwnerNodeHash;
         }
 
         public static StateLog[] CreateStateLogs(EntityManager entityManager, State[] states)
@@ -36,22 +40,29 @@ namespace Zephyr.GOAP.Logger
 
         public int CompareTo(StateLog other)
         {
-            return Target.CompareTo(other.Target)
-                + Trait.CompareTo(other.Trait)
-                + ValueString.CompareTo(other.ValueString)
-                + ValueTrait.CompareTo(other.ValueTrait)
-                + IsNegative.CompareTo(other.IsNegative);
+            return target.CompareTo(other.target)
+                + trait.CompareTo(other.trait)
+                + valueString.CompareTo(other.valueString)
+                + valueTrait.CompareTo(other.valueTrait)
+                + isNegative.CompareTo(other.isNegative);
         }
 
         public override string ToString()
         {
-            var negative = IsNegative ? "-" : "+";
-            var trait = string.IsNullOrEmpty(Trait) ? "" : $"({Trait})";
-            var valueTrait = string.IsNullOrEmpty(ValueTrait) ? "" : $"<{ValueTrait}>";
-            var position = Target.Equals(Entity.Null)
+            var negative = isNegative ? "-" : "+";
+            var trait = string.IsNullOrEmpty(this.trait) ? "" : $"({this.trait})";
+            var valueTrait = string.IsNullOrEmpty(this.valueTrait) ? "" : $"<{this.valueTrait}>";
+            var position = target.Equals(Entity.Null)
                 ? ""
-                : $"({Position.x},{Position.y},{Position.z})";
-            return $"{negative}[{Target}]{trait}{valueTrait}{ValueString}{position}";
+                : $"({this.position.x},{this.position.y},{this.position.z})";
+
+            return $"{negative}[{target}]{trait}{valueTrait}{valueString}{position}{_ownerNodeName}";
+        }
+
+        public void SetOwnerName(ref List<NodeLog> nodes)
+        {
+            _ownerNodeName = ownerNodeHash == 0 ? "" : nodes.First(
+                node => node.hashCode == ownerNodeHash).name;
         }
 
         /// <summary>
@@ -61,15 +72,15 @@ namespace Zephyr.GOAP.Logger
         /// <returns></returns>
         public bool Equals(State state)
         {
-            return Target.Equals(state.Target) &&
+            return target.Equals(state.Target) &&
                    (state.Trait == default
-                       ? string.IsNullOrEmpty(Trait)
-                       : Trait.Equals(state.Trait.ToString())) &&
-                   ValueString.Equals(state.ValueString.ToString()) &&
+                       ? string.IsNullOrEmpty(trait)
+                       : trait.Equals(state.Trait.ToString())) &&
+                   valueString.Equals(state.ValueString.ToString()) &&
                    (state.ValueTrait == default
-                       ? string.IsNullOrEmpty(ValueTrait)
-                       : ValueTrait.Equals(state.ValueTrait.ToString())) &&
-                   IsNegative == state.IsNegative;
+                       ? string.IsNullOrEmpty(valueTrait)
+                       : valueTrait.Equals(state.ValueTrait.ToString())) &&
+                   isNegative == state.IsNegative;
         }
     }
 }
