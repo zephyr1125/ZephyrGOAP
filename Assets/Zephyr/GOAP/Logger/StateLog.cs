@@ -36,7 +36,11 @@ namespace Zephyr.GOAP.Logger
 
         public int CompareTo(StateLog other)
         {
-            return Target.CompareTo(other.Target);
+            return Target.CompareTo(other.Target)
+                + Trait.CompareTo(other.Trait)
+                + ValueString.CompareTo(other.ValueString)
+                + ValueTrait.CompareTo(other.ValueTrait)
+                + IsNegative.CompareTo(other.IsNegative);
         }
 
         public override string ToString()
