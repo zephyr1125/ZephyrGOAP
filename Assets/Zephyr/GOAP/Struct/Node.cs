@@ -5,7 +5,7 @@ using Unity.Mathematics;
 
 namespace Zephyr.GOAP.Struct
 {
-    public struct Node : IEquatable<Node>, IPathFindingNode, IBufferElementData
+    public struct Node : IEquatable<Node>, IPathFindingNode, IComponentData
     {
         public NativeString64 Name;
         
@@ -30,7 +30,7 @@ namespace Zephyr.GOAP.Struct
         public Entity AgentExecutorEntity;
 
         /// <summary>
-        /// 当node被当做path存在agent上时，用bitmask指示其preconditions和effects对应的states in buffer
+        /// 当node被当做path存储时，用bitmask指示其preconditions和effects对应的states in buffer
         /// </summary>
         public ulong PreconditionsBitmask;
         public ulong EffectsBitmask;

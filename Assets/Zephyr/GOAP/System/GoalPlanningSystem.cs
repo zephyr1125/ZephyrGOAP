@@ -2,7 +2,6 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Transforms;
-using UnityEngine;
 using Zephyr.GOAP.Action;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.GoalManage;
@@ -37,9 +36,12 @@ namespace Zephyr.GOAP.System
 
         public IGoapDebugger Debugger;
 
+        private EntityCommandBufferSystem _ecbSystem;
+
         protected override void OnCreate()
         {
             base.OnCreate();
+            _ecbSystem = World.GetOrCreateSystem<EndInitializationEntityCommandBufferSystem>();
             _agentQuery = GetEntityQuery(new EntityQueryDesc()
             {
                 All = new []
@@ -155,7 +157,7 @@ namespace Zephyr.GOAP.System
                 var nodeTotalTimes = new NativeHashMap<int, float>(nodeGraph.Length(), Allocator.TempJob);
                 var pathResult = FindPath(ref nodeGraph, ref stackData,
                     ref agentMoveSpeeds, ref agentStartTimes, ref nodeAgentInfos, ref nodeTotalTimes);
-                SavePath(ref pathResult, ref nodeGraph);
+                SavePath(ref pathResult, ref nodeGraph, default).Complete();
                 
                 Debugger?.SetNodeGraph(ref nodeGraph, EntityManager);
                 Debugger?.SetPathResult(ref pathResult);
@@ -365,35 +367,33 @@ namespace Zephyr.GOAP.System
             edges.Dispose();
         }
 
-        private void SavePath(ref NativeList<Node> pathResult, ref NodeGraph nodeGraph)
+        private JobHandle SavePath([ReadOnly]ref NativeList<Node> pathResult, [ReadOnly]ref NodeGraph nodeGraph, JobHandle inputDeps)
         {
-            //保存结果
-            // var nodeBuffer = EntityManager.AddBuffer<Node>(agentEntity);
-            // var stateBuffer =
-            //     EntityManager.GetBuffer<State>(agentEntity); //已经在创建goal的时候创建了state buffer以容纳goal state
-            // for (var i = pathResult.Length-1; i > 0; i--)    //path的0号为goal，不存
-            // {
-            //     var node = pathResult[i];
-            //     var preconditions = nodeGraph.GetNodePreconditions(node, Allocator.Temp);
-            //     var effects = nodeGraph.GetNodeEffects(node, Allocator.Temp);
-            //
-            //     foreach (var precondition in preconditions)
-            //     {
-            //         stateBuffer.Add(precondition);
-            //         node.PreconditionsBitmask |= (ulong) 1 << stateBuffer.Length - 1;
-            //     }
-            //
-            //     foreach (var effect in effects)
-            //     {
-            //         stateBuffer.Add(effect);
-            //         node.EffectsBitmask |= (ulong) 1 << stateBuffer.Length - 1;
-            //     }
-            //
-            //     nodeBuffer.Add(node);
-            //
-            //     preconditions.Dispose();
-            //     effects.Dispose();
-            // }
+            //首先保存path上的所有node和state到新entity
+            var pathNodes = pathResult.AsArray();
+            var pathEntities = new NativeArray<Entity>(pathResult.Length, Allocator.TempJob);
+            var pathSavingJob = new PathSavingJob
+            {
+                PathResult = pathResult.AsArray(),
+                ECBuffer = _ecbSystem.CreateCommandBuffer().ToConcurrent(),
+                NodeGraph = nodeGraph,
+                PathEntities = pathEntities
+            };
+            var pathSavingJobHandle = pathSavingJob.Schedule(pathResult.Length, inputDeps);
+            _ecbSystem.AddJobHandleForProducer(pathSavingJobHandle);
+            
+            //然后建立依赖
+            var bufferStates = GetBufferFromEntity<State>();
+            var pathAddDependencyJob = new PathAddDependencyJob
+            {
+                PathEntities = pathEntities,
+                PathNodes = pathNodes,
+                BufferStates = bufferStates
+            };
+            var pathAddDependencyJobHandle =
+                pathAddDependencyJob.Schedule(this, pathSavingJobHandle);
+            
+            return pathAddDependencyJobHandle;
         }
 
         /// <summary>
