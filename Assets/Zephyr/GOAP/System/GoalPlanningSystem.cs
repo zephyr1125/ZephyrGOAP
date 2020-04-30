@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -36,12 +38,12 @@ namespace Zephyr.GOAP.System
 
         public IGoapDebugger Debugger;
 
-        private EntityCommandBufferSystem _ecbSystem;
+        public EntityCommandBufferSystem ECBSystem;
 
         protected override void OnCreate()
         {
             base.OnCreate();
-            _ecbSystem = World.GetOrCreateSystem<EndInitializationEntityCommandBufferSystem>();
+            ECBSystem = World.GetOrCreateSystem<EndInitializationEntityCommandBufferSystem>();
             _agentQuery = GetEntityQuery(new EntityQueryDesc()
             {
                 All = new []
@@ -155,29 +157,30 @@ namespace Zephyr.GOAP.System
                 //寻路
                 var nodeAgentInfos = new NativeMultiHashMap<int, NodeAgentInfo>(nodeGraph.Length(), Allocator.TempJob);
                 var nodeTotalTimes = new NativeHashMap<int, float>(nodeGraph.Length(), Allocator.TempJob);
-                var pathResult = FindPath(ref nodeGraph, ref stackData,
+                var pathNodes = FindPath(ref nodeGraph, ref stackData,
                     ref agentMoveSpeeds, ref agentStartTimes, ref nodeAgentInfos, ref nodeTotalTimes);
-                SavePath(ref pathResult, ref nodeGraph, default).Complete();
-                
+                SavePath(ref pathNodes, ref nodeGraph, out var pathEntities);
+
                 Debugger?.SetNodeGraph(ref nodeGraph, EntityManager);
-                Debugger?.SetPathResult(ref pathResult);
                 Debugger?.SetNodeAgentInfos(EntityManager, ref nodeAgentInfos);
                 Debugger?.SetNodeTotalTimes(ref nodeTotalTimes);
-                
-                pathResult.Dispose();
+                Debugger?.SetPathResult(EntityManager, ref pathEntities, ref pathNodes);
+
                 nodeAgentInfos.Dispose();
+                pathNodes.Dispose();
+                pathEntities.Dispose();
                 nodeTotalTimes.Dispose();
 
                 Utils.NextGoalState<IdleGoal, ExecutingGoal>(goal.GoalEntity,
                     EntityManager, Time.ElapsedTime);
             }
+            
+            Debugger?.LogDone();
 
             uncheckedNodes.Dispose();
             unexpandedNodes.Dispose();
             expandedNodes.Dispose();
             nodeGraph.Dispose();
-
-            Debugger?.LogDone();
             
             goalStates.Dispose();
             agentMoveSpeeds.Dispose();
@@ -367,33 +370,67 @@ namespace Zephyr.GOAP.System
             edges.Dispose();
         }
 
-        private JobHandle SavePath([ReadOnly]ref NativeList<Node> pathResult, [ReadOnly]ref NodeGraph nodeGraph, JobHandle inputDeps)
+        private void SavePath([ReadOnly]ref NativeList<Node> pathNodes, [ReadOnly]ref NodeGraph nodeGraph,
+            out NativeArray<Entity> pathEntities)
         {
-            //首先保存path上的所有node和state到新entity
-            var pathNodes = pathResult.AsArray();
-            var pathEntities = new NativeArray<Entity>(pathResult.Length, Allocator.TempJob);
-            var pathSavingJob = new PathSavingJob
+            pathEntities = new NativeArray<Entity>(pathNodes.Length, Allocator.Temp);
+            var pathPreconditionHashes = new NativeList<ValueTuple<int, int>>(Allocator.Temp);
+            for (var i = 0; i < pathNodes.Length; i++)
             {
-                PathResult = pathResult.AsArray(),
-                ECBuffer = _ecbSystem.CreateCommandBuffer().ToConcurrent(),
-                NodeGraph = nodeGraph,
-                PathEntities = pathEntities
-            };
-            var pathSavingJobHandle = pathSavingJob.Schedule(pathResult.Length, inputDeps);
-            _ecbSystem.AddJobHandleForProducer(pathSavingJobHandle);
-            
-            //然后建立依赖
-            var bufferStates = GetBufferFromEntity<State>();
-            var pathAddDependencyJob = new PathAddDependencyJob
+                var node = pathNodes[i];
+                var preconditions = nodeGraph.GetNodePreconditions(node, Allocator.Temp);
+                var effects = nodeGraph.GetNodeEffects(node, Allocator.Temp);
+
+                var entity = EntityManager.CreateEntity();
+                pathEntities[i] = entity;
+                // add states & dependencies
+                var stateBuffer = EntityManager.AddBuffer<State>(entity);
+                for (var j = 0; j < preconditions.Length(); j++)
+                {
+                    stateBuffer.Add(preconditions[j]);
+                    node.PreconditionsBitmask |= (ulong) 1 << stateBuffer.Length - 1;
+                    pathPreconditionHashes.Add((node.HashCode, preconditions[j].GetHashCode()));
+                }
+                for (var j = 0; j < effects.Length(); j++)
+                {
+                    stateBuffer.Add(effects[j]);
+                    node.EffectsBitmask |= (ulong) 1 << stateBuffer.Length - 1;
+                }
+                //add node
+                pathNodes[i] = node;
+                EntityManager.AddComponentData(entity, node);
+                
+                preconditions.Dispose();
+                effects.Dispose();
+            }
+
+            //connect dependencies
+            for (var thisNodeId = 0; thisNodeId < pathEntities.Length; thisNodeId++)
             {
-                PathEntities = pathEntities,
-                PathNodes = pathNodes,
-                BufferStates = bufferStates
-            };
-            var pathAddDependencyJobHandle =
-                pathAddDependencyJob.Schedule(this, pathSavingJobHandle);
-            
-            return pathAddDependencyJobHandle;
+                var entity = pathEntities[thisNodeId];
+                var buffer = EntityManager.AddBuffer<NodeDependency>(entity);
+                var node = pathNodes[thisNodeId];
+                var nodeHash = node.HashCode;
+                
+
+                //遍历所有节点，如果某个节点的某个effect与我的某个precondition一致，那么他是我的一个依赖
+                for (var otherNodeId = 0; otherNodeId < pathEntities.Length; otherNodeId++)
+                {
+                    var otherEntity = pathEntities[otherNodeId];
+                    if (otherEntity.Equals(entity)) continue;
+                    var otherNode = pathNodes[otherNodeId];
+                    var otherNodeStates = EntityManager.GetBuffer<State>(otherEntity);
+                    for (var otherStateId = 0; otherStateId < otherNodeStates.Length; otherStateId++)
+                    {
+                        if ((otherNode.EffectsBitmask & (ulong)1<<otherStateId) <= 0) continue;
+                        var otherEffect = otherNodeStates[otherStateId];
+                        if (!pathPreconditionHashes.Contains((nodeHash, otherEffect.GetHashCode())))
+                            continue;
+                        buffer.Add(new NodeDependency {Entity = otherEntity});
+                    }
+                }
+            }
+            pathPreconditionHashes.Dispose();
         }
 
         /// <summary>

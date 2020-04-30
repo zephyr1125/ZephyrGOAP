@@ -16,11 +16,6 @@ namespace Zephyr.GOAP.Struct
         /// true时表示这个state表达反面意义，比如“目标不拥有指定物品”
         /// </summary>
         public bool IsNegative;
-
-        /// <summary>
-        /// owner指以precondition方式创建出来我的那个node
-        /// </summary>
-        public int OwnerNodeHash;
         
         public bool Equals(State other)
         {

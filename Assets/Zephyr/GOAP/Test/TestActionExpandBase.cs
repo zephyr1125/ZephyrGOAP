@@ -24,8 +24,8 @@ namespace Zephyr.GOAP.Test
         {
             base.SetUp();
             
+            _debugger = new TestGoapDebugger(); 
             _system = World.GetOrCreateSystem<GoalPlanningSystem>();
-            _debugger = new TestGoapDebugger();
             _system.Debugger = _debugger;
             
             _agentEntity = EntityManager.CreateEntity();

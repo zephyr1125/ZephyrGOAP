@@ -15,7 +15,8 @@ namespace Zephyr.GOAP.Debugger
         
         void SetNodeGraph(ref NodeGraph nodeGraph, EntityManager entityManager);
 
-        void SetPathResult(ref NativeList<Node> pathResult);
+        void SetPathResult(EntityManager entityManager,
+            ref NativeArray<Entity> pathEntities, ref NativeList<Node> pathResult);
 
         void SetCurrentStates(ref StateGroup currentStates, EntityManager entityManager);
 

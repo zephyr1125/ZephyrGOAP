@@ -151,14 +151,7 @@ namespace Zephyr.GOAP.Struct
         /// <returns></returns>
         public void SubForEffect(ref StateGroup effectStates)
         {
-            Sub(ref effectStates, out var removedStates, Allocator.Temp,
-                (state, effect) =>
-                {
-                    //如果被替换，说明这个effect是对应这个state
-                    //因此复制其ownerNodeHash给effect以标记关联关系
-                    effect.OwnerNodeHash = state.OwnerNodeHash;
-                    return effect;
-                });
+            Sub(ref effectStates, out var removedStates, Allocator.Temp);
             removedStates.Dispose();
         }
 
@@ -231,24 +224,6 @@ namespace Zephyr.GOAP.Struct
             {
                 buffer.Add(state);
             }
-        }
-
-        public void SetOwner(int nodeHash,ref StateGroup excepts)
-        {
-            for (var i = 0; i < _states.Length; i++)
-            {
-                var state = _states[i];
-                if (excepts.Length() > 0 && excepts.Contains(state)) continue;
-                state.OwnerNodeHash = nodeHash;
-                _states[i] = state;
-            }
-        }
-        
-        public void SetOwner(int nodeHash)
-        {
-            var excepts = new StateGroup(1, Allocator.Temp);
-            SetOwner(nodeHash, ref excepts);
-            excepts.Dispose();
         }
 
         public IEnumerator<State> GetEnumerator()

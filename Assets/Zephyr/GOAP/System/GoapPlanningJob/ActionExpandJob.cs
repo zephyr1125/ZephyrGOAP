@@ -128,10 +128,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                         var node = new Node(ref preconditions, ref effects, ref newStates, 
                             _action.GetName(), reward, time, _iteration,
                             _stackData.AgentEntities[_stackData.CurrentAgentId], subjectType, subjectId);
-                        
-                        preconditions.SetOwner(node.HashCode);
-                        newStates.SetOwner(node.HashCode, ref leftStates);
-                        
+
                         var nodeExisted = _existedNodesHash.Contains(node.HashCode);
 
                         //NodeGraph的几个容器都移去了并行限制，小心出错

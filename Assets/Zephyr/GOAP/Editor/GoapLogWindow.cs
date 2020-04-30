@@ -145,7 +145,8 @@ namespace Zephyr.GOAP.Editor
                     if (!_editorLogging) return;
                     _currentResult = 0;
                     Reset();
-                    World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<GoalPlanningSystem>()
+                    World.DefaultGameObjectInjectionWorld
+                        .GetOrCreateSystem<GoalPlanningSystem>()
                         .Debugger = _editorDebugger;
                     break;
             }
@@ -190,7 +191,6 @@ namespace Zephyr.GOAP.Editor
             var nodeCounts = new List<int>();    //记录每一层的Node数量以便向下排列
 
             var nodes = _log.results[_currentResult].nodes;
-            SetNodeStatesOwnerName(ref nodes);
             ConstructNode(_nodeContainer, ref nodes, 0, ref nodeCounts);
             ConstructConnections(_nodeContainer, nodes, _log.results[_currentResult].edges);
         }
@@ -225,27 +225,6 @@ namespace Zephyr.GOAP.Editor
 
             if (id >= nodes.Count - 1) return;
             ConstructNode(parent, ref nodes, id+1, ref nodeCounts);
-        }
-
-        private void SetNodeStatesOwnerName(ref List<NodeLog> nodes)
-        {
-            foreach (var node in nodes)
-            {
-                foreach (var state in node.states)
-                {
-                    state.SetOwnerName(ref nodes);
-                }
-
-                foreach (var precondition in node.preconditions)
-                {
-                    precondition.SetOwnerName(ref nodes);
-                }
-
-                foreach (var effect in node.effects)
-                {
-                    effect.SetOwnerName(ref nodes);
-                }
-            }
         }
         
         private StyleColor GetAgentColor(EntityLog agentEntity)

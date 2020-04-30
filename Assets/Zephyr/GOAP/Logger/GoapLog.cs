@@ -11,7 +11,7 @@ namespace Zephyr.GOAP.Logger
     {
         public List<GoapResult> results;
 
-        private GoapResult _currentLog;
+        private GoapResult _currentResult;
 
         public GoapLog()
         {
@@ -20,9 +20,9 @@ namespace Zephyr.GOAP.Logger
 
         public void StartLog(EntityManager entityManager)
         {
-            _currentLog = new GoapResult();
-            results.Add(_currentLog);
-            _currentLog.StartLog(entityManager);
+            _currentResult = new GoapResult();
+            results.Add(_currentResult);
+            _currentResult.StartLog(entityManager);
         }
 
         public GoapResult GetResult(int id)
@@ -32,43 +32,44 @@ namespace Zephyr.GOAP.Logger
 
         public void SetNodeGraph(ref NodeGraph nodeGraph, EntityManager entityManager)
         {
-            _currentLog.SetNodeGraph(ref nodeGraph, entityManager);
+            _currentResult.SetNodeGraph(ref nodeGraph, entityManager);
         }
 
-        public void SetPathResult(ref NativeList<Node> pathResult)
+        public void SetPathResult(EntityManager entityManager,
+            ref NativeArray<Entity> pathEntities, ref NativeList<Node> pathResult)
         {
-            _currentLog.SetPathResult(ref pathResult);
+            _currentResult.SetPathResult(entityManager, ref pathEntities, ref pathResult);
         }
 
         public void SetNodeAgentInfos(EntityManager entityManager,
             ref NativeMultiHashMap<int, NodeAgentInfo> nodeAgentInfos)
         {
-            _currentLog.SetNodeAgentInfos(entityManager, ref nodeAgentInfos);
+            _currentResult.SetNodeAgentInfos(entityManager, ref nodeAgentInfos);
         }
 
         public void SetNodeTotalTimes(ref NativeHashMap<int, float> nodeTotalTimes)
         {
-            _currentLog.SetNodeTotalTimes(ref nodeTotalTimes);
+            _currentResult.SetNodeTotalTimes(ref nodeTotalTimes);
         }
 
         public void SetCurrentStates(ref StateGroup currentStates, EntityManager entityManager)
         {
-            _currentLog.SetCurrentStates(ref currentStates, entityManager);
+            _currentResult.SetCurrentStates(ref currentStates, entityManager);
         }
 
         public NodeLog GetGoalNodeView()
         {
-            return _currentLog.nodes[0];
+            return _currentResult.nodes[0];
         }
 
         public NodeLog[] GetPathResult()
         {
-            return _currentLog.GetPathResult();
+            return _currentResult.GetPathResult();
         }
 
         public NodeLog[] GetChildren(NodeLog parent)
         {
-            return _currentLog.GetChildren(parent);
+            return _currentResult.GetChildren(parent);
         }
     }
 

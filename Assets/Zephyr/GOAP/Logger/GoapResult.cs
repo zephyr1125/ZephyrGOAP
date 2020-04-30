@@ -5,6 +5,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Unity.Collections;
 using Unity.Entities;
+using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Struct;
 
 namespace Zephyr.GOAP.Logger
@@ -27,6 +28,8 @@ namespace Zephyr.GOAP.Logger
 
         private int[] _pathHash;
 
+        public List<NodeDependencyLog> pathDependencies;
+
         public void StartLog(EntityManager entityManager)
         {
             _timeStart = DateTime.Now;
@@ -35,6 +38,7 @@ namespace Zephyr.GOAP.Logger
             nodes = new List<NodeLog>();
             edges = new List<EdgeLog>();
             currentStates = new List<StateLog>();
+            pathDependencies = new List<NodeDependencyLog>();
         }
         
         public void SetNodeGraph(ref NodeGraph nodeGraph, EntityManager entityManager)
@@ -55,12 +59,13 @@ namespace Zephyr.GOAP.Logger
             nodesData.Dispose();
         }
 
-        public void SetPathResult(ref NativeList<Node> pathResult)
+        public void SetPathResult(EntityManager entityManager,
+            ref NativeArray<Entity> pathEntities, ref NativeList<Node> pathNodes)
         {
-            _pathHash = new int[pathResult.Length];
-            for (var i = 0; i < pathResult.Length; i++)
+            _pathHash = new int[pathNodes.Length];
+            for (var i = 0; i < pathNodes.Length; i++)
             {
-                var node = pathResult[i];
+                var node = pathNodes[i];
                 _pathHash[i] = node.HashCode;
                 
                 foreach (var nodeLog in nodes)
@@ -68,6 +73,15 @@ namespace Zephyr.GOAP.Logger
                     if (nodeLog.hashCode != node.HashCode) continue;
                     nodeLog.isPath = true;
                     break;
+                }
+
+                var bufferDependencies = entityManager.GetBuffer<NodeDependency>(pathEntities[i]);
+                for (var j = 0; j < bufferDependencies.Length; j++)
+                {
+                    var dependencyEntity = bufferDependencies[j].Entity;
+                    var dependencyId = pathEntities.IndexOf<Entity>(dependencyEntity);
+                    pathDependencies.Add(new NodeDependencyLog(
+                        node.HashCode, pathNodes[dependencyId].HashCode));
                 }
             }
 

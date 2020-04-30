@@ -27,9 +27,10 @@ namespace Zephyr.GOAP.Test.Debugger
             _goapLog.SetNodeGraph(ref nodeGraph, entityManager);
         }
 
-        public void SetPathResult(ref NativeList<Node> pathResult)
+        public void SetPathResult(EntityManager entityManager,
+            ref NativeArray<Entity> pathEntities, ref NativeList<Node> pathResult)
         {
-            _goapLog.SetPathResult(ref pathResult);
+            _goapLog.SetPathResult(entityManager, ref pathEntities, ref pathResult);
         }
 
         public void SetNodeAgentInfos(EntityManager entityManager,

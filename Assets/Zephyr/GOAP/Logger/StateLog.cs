@@ -16,9 +16,6 @@ namespace Zephyr.GOAP.Logger
         public string valueString;
         public string valueTrait;
         public bool isNegative;
-        public int ownerNodeHash;
-        
-        private string _ownerNodeName;
 
         public StateLog(EntityManager entityManager, State state)
         {
@@ -28,7 +25,6 @@ namespace Zephyr.GOAP.Logger
             valueString = state.ValueString.ToString();
             if(state.ValueTrait!=default)valueTrait = state.ValueTrait.ToString();
             isNegative = state.IsNegative;
-            ownerNodeHash = state.OwnerNodeHash;
         }
 
         public static StateLog[] CreateStateLogs(EntityManager entityManager, State[] states)
@@ -56,13 +52,7 @@ namespace Zephyr.GOAP.Logger
                 ? ""
                 : $"({this.position.x},{this.position.y},{this.position.z})";
 
-            return $"{negative}[{target}]{trait}{valueTrait}{valueString}{position}{_ownerNodeName}";
-        }
-
-        public void SetOwnerName(ref List<NodeLog> nodes)
-        {
-            _ownerNodeName = ownerNodeHash == 0 ? "" : nodes.First(
-                node => node.hashCode == ownerNodeHash).name;
+            return $"{negative}[{target}]{trait}{valueTrait}{valueString}{position}";
         }
 
         /// <summary>

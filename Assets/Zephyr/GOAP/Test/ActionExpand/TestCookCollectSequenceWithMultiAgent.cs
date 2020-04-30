@@ -21,7 +21,6 @@ namespace Zephyr.GOAP.Test.ActionExpand
     /// </summary>
     public class TestCookCollectSequenceWithMultiAgent : TestActionExpandBase
     {
-
         private Entity _cookerEntity, _diningTableEntity, _collectorEntity, _rawAppleEntity, _rawPeachEntity;
         private Entity _agentBEntity;
 
@@ -119,6 +118,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
             
             Profiler.BeginSample(nameof(TestCookCollectSequenceWithMultiAgent));
             _system.Update();
+            _system.ECBSystem.Update();
             EntityManager.CompleteAllJobs();
             Profiler.EndSample();
 
