@@ -92,7 +92,7 @@ namespace Zephyr.GOAP.Editor
             rootVisualElement.Q<Button>("prev-button").clicked += PrevResult;
             rootVisualElement.Q<Button>("next-button").clicked += NextResult;
             
-            _currentStatesContainer = rootVisualElement.Q("current-states-container");
+            _currentStatesContainer = rootVisualElement.Q("unity-content");
             
             rootVisualElement.AddManipulator(this);
             target.RegisterCallback<MouseDownEvent>(OnMouseDownEvent);
