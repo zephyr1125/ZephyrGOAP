@@ -23,6 +23,8 @@ namespace Zephyr.GOAP.Editor
         private int _resultCount;
         private int _currentResult;
 
+        private TimelineView _timelineView;
+
         private VisualTreeAsset _nodeVisualTree;
         private VisualElement _nodeContainer;
         private VisualElement _statesTip;
@@ -43,9 +45,6 @@ namespace Zephyr.GOAP.Editor
         private bool _autoPage;
 
         private EditorGoapDebugger _editorDebugger;
-        
-        private static Dictionary<Entity, StyleColor> _agentColors;
-        private static readonly Color BaseAgentColor = new Color(0f, 0.29f, 0.12f);
 
         private void OnEnable()
         {
@@ -75,6 +74,7 @@ namespace Zephyr.GOAP.Editor
                     Reset();
                     ConstructInfo();
                     ConstructGraph();
+                    ConstructTimeline();
                 });
             rootVisualElement.Q<Button>("reset-button").RegisterCallback<MouseUpEvent>(
                 evt =>
@@ -95,10 +95,13 @@ namespace Zephyr.GOAP.Editor
             _currentStatesContainer = rootVisualElement.Q("unity-content");
             
             rootVisualElement.AddManipulator(this);
-            target.RegisterCallback<MouseDownEvent>(OnMouseDownEvent);
-            target.RegisterCallback<MouseMoveEvent>(OnMouseMoveEvent);
+            //拖拽node graph
+            var mainFrame = target.Q("main-frame");
+            mainFrame.RegisterCallback<MouseDownEvent>(OnMouseDownEvent);
+            mainFrame.RegisterCallback<MouseMoveEvent>(OnMouseMoveEvent);
+            mainFrame.RegisterCallback<MouseUpEvent>(OnMouseUpEvent);
+            //切换log
             target.RegisterCallback<WheelEvent>(OnMouseWheelEvent);
-            target.RegisterCallback<MouseUpEvent>(OnMouseUpEvent);
             target.RegisterCallback<KeyDownEvent>(OnKeyDownEvent);
             
             _nodeContainer = rootVisualElement.Q("node-container");
@@ -117,6 +120,10 @@ namespace Zephyr.GOAP.Editor
             _statesTip.style.top = -50;
 
             EditorApplication.playModeStateChanged += OnPlayModeChange;
+            
+            //Timeline
+            var timelineElement = rootVisualElement.Q("timeline");
+            _timelineView = new TimelineView(timelineElement);
         }
         
         private void Reset()
@@ -212,13 +219,13 @@ namespace Zephyr.GOAP.Editor
             _nodeVisualTree.CloneTree(frame);
             
             frame.name = node.name;
-            frame.Q<Label>("name").text = $"{node.name}[{node.agentExecutorEntity}]";
+            frame.Q<Label>("name").text = $"{node.name.Replace("Action","")}[{node.agentExecutorEntity}]";
             frame.Q<Label>("time").text = $"{node.totalTime}";
             frame.Q<Label>("reward").text = node.reward.ToString(CultureInfo.InvariantCulture);
             
             if (node.isPath && !node.agentExecutorEntity.Equals(Entity.Null))
             {
-                frame.Q("titlebar").style.backgroundColor = GetAgentColor(node.agentExecutorEntity);
+                frame.Q("titlebar").style.backgroundColor = Utils.GetAgentColor(node.agentExecutorEntity);
             };
 
             Utils.AddStatesToContainer(frame.Q("states"), node.states);
@@ -226,23 +233,10 @@ namespace Zephyr.GOAP.Editor
             if (id >= nodes.Count - 1) return;
             ConstructNode(parent, ref nodes, id+1, ref nodeCounts);
         }
-        
-        private StyleColor GetAgentColor(EntityLog agentEntity)
+
+        private void ConstructTimeline()
         {
-            var agentEntityStruct = new Entity{Index = agentEntity.index, Version = agentEntity.version};
-            if(_agentColors == null)_agentColors = new Dictionary<Entity, StyleColor>();
-
-            if (!_agentColors.ContainsKey(agentEntityStruct))
-            {
-                var agentSum = _agentColors.Count;
-                Color.RGBToHSV(BaseAgentColor, out var h, out var s, out var v);
-                var newH = h + 0.11f * agentSum;
-                var color = Color.HSVToRGB(newH - (int) newH, s, v);
-                
-                _agentColors.Add(agentEntityStruct, color);
-            }
-
-            return _agentColors[agentEntityStruct];
+            _timelineView.ConstructTimeline(_log.results[_currentResult]);
         }
 
         private void ConstructConnections(VisualElement parent, List<NodeLog> nodes, List<EdgeLog> edges)

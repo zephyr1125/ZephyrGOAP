@@ -13,7 +13,6 @@ namespace Zephyr.GOAP.Logger
     [Serializable]
     public class GoapResult
     {
-
         public List<NodeLog> nodes;
 
         public List<EdgeLog> edges;
