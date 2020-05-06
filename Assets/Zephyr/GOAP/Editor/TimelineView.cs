@@ -8,7 +8,8 @@ namespace Zephyr.GOAP.Editor
 {
     public class TimelineView : VisualElement, IManipulator
     {
-        public static int PixelsPerSecond = 32;
+        public static int PixelsPerSecond = 64;
+        public static int TileY = 32;
 
         private VisualElement _container;
 
@@ -42,7 +43,7 @@ namespace Zephyr.GOAP.Editor
                     Handles.DrawLine(new Vector3(x, 0), new Vector3(x, windowSize.height));
                     
                 }
-                for (var y = 0; y < windowSize.height; y+=PixelsPerSecond)
+                for (var y = 0; y < windowSize.height; y+=TileY)
                 {
                     Handles.DrawLine(new Vector3(0, y), new Vector3(windowSize.width, y));
                 }
@@ -60,31 +61,70 @@ namespace Zephyr.GOAP.Editor
 
         public void ConstructTimeline(GoapResult goapResult)
         {
-            //首先寻找起头的所有node
-            var headNodes = new List<NodeLog>();
-            var pathDependencies = goapResult.pathDependencies;
+            //构建nodes
+            var pathNodes = new List<NodeLog>();
             foreach (var node in goapResult.nodes)
             {
                 if (!node.isPath) continue;
                 if (node.name.Equals("goal")) continue;
-                var nodeHash = node.hashCode;
-                if (pathDependencies.Exists(dependency => dependency.baseNodeHash.Equals(nodeHash)))
-                    continue;
-                headNodes.Add(node);
+                pathNodes.Add(node);
             }
             
+            //摆放node
+            var timelineNodeViews = new List<TimelineNodeView>();
             var agentEntities = new List<EntityLog>();
             var startPosition = new Vector2(PixelsPerSecond, PixelsPerSecond);
-            //摆放到窗口中
-            for (var i = 0; i < headNodes.Count; i++)
+            for (var i = 0; i < pathNodes.Count; i++)
             {
-                var node = headNodes[i];
+                var node = pathNodes[i];
                 if (!agentEntities.Exists(agent => agent.Equals(node.agentExecutorEntity)))
                 {
                     agentEntities.Add(node.agentExecutorEntity);
                 }
-                _container.Add(new TimelineNodeView(_nodeVisualTree, startPosition, node, agentEntities));
+
+                var newNodeView =
+                    new TimelineNodeView(_nodeVisualTree, startPosition, node, agentEntities);
+                timelineNodeViews.Add(newNodeView);
+                _container.Add(newNodeView);
             }
+            
+            //根据依赖画线
+            var connectionContainer = new IMGUIContainer(() =>
+            {
+                foreach (var dependency in goapResult.pathDependencies)
+                {
+                    DrawConnection(timelineNodeViews, dependency);
+                }
+                Handles.color = Color.white;
+            });
+            _container.Add(connectionContainer);
+        }
+        
+        private void DrawConnection(List<TimelineNodeView> nodeViews, NodeDependencyLog dependency)
+        {
+            EntityLog startAgent = null;
+            EntityLog endAgent = null;
+            var startPos = Vector2.zero;
+            var endPos = Vector2.zero;
+            foreach (var nodeView in nodeViews)
+            {
+                if (nodeView.NodeHash.Equals(dependency.dependencyNodeHash))
+                {
+                    startAgent = nodeView.Agent;
+                    startPos = nodeView.ExecuteEndPosition;
+                }
+
+                if (nodeView.NodeHash.Equals(dependency.baseNodeHash))
+                {
+                    endAgent = nodeView.Agent;
+                    endPos = nodeView.ExecuteStartPosition;
+                }
+            }
+
+            if (startAgent!=null && startAgent.Equals(endAgent)) return;
+            
+            Handles.color = Color.green;
+            Handles.DrawLine(startPos, endPos);
         }
     }
 }
