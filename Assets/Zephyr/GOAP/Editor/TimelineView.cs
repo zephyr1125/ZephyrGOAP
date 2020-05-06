@@ -15,6 +15,10 @@ namespace Zephyr.GOAP.Editor
 
         private VisualTreeAsset _nodeVisualTree;
         
+        private Vector2 _canvasPos, _canvasDragStartPos;
+        private Vector2 _mouseDragStartPos;
+        private bool _mouseMidButtonDown;
+        
         public VisualElement target { get; set; }
 
         public TimelineView(VisualElement target)
@@ -28,8 +32,13 @@ namespace Zephyr.GOAP.Editor
             //绘制背景
             DrawBackground();
                 
-            //设置点击缩放
+            //设置点击展开/关闭
             target.Q("timeline-title").RegisterCallback<MouseDownEvent>(SetWindowSize);
+            
+            //设置拖拽
+            target.RegisterCallback<MouseDownEvent>(OnMouseDownEvent);
+            target.RegisterCallback<MouseMoveEvent>(OnMouseMoveEvent);
+            target.RegisterCallback<MouseUpEvent>(OnMouseUpEvent);
         }
 
         private void DrawBackground()
@@ -73,7 +82,8 @@ namespace Zephyr.GOAP.Editor
             //摆放node
             var timelineNodeViews = new List<TimelineNodeView>();
             var agentEntities = new List<EntityLog>();
-            var startPosition = new Vector2(PixelsPerSecond, PixelsPerSecond);
+            var startPosition = new Vector2(PixelsPerSecond*2, TileY*1.5f);
+            var totalTime = 0f;
             for (var i = 0; i < pathNodes.Count; i++)
             {
                 var node = pathNodes[i];
@@ -86,20 +96,56 @@ namespace Zephyr.GOAP.Editor
                     new TimelineNodeView(_nodeVisualTree, startPosition, node, agentEntities);
                 timelineNodeViews.Add(newNodeView);
                 _container.Add(newNodeView);
+                if (node.totalTime > totalTime) totalTime = node.totalTime;
             }
             
-            //根据依赖画线
+            
             var connectionContainer = new IMGUIContainer(() =>
             {
+                //绘制执行者
+                DrawExecutor(agentEntities, startPosition);
+                
+                //绘制依赖
                 foreach (var dependency in goapResult.pathDependencies)
                 {
                     DrawConnection(timelineNodeViews, dependency);
                 }
                 Handles.color = Color.white;
+                
+                //绘制时间轴
+                DrawTimeAxis(totalTime, startPosition, agentEntities.Count);
             });
             _container.Add(connectionContainer);
+                        
         }
-        
+
+        private void DrawExecutor(List<EntityLog> agentEntities, Vector2 startPosition)
+        {
+            startPosition.x -= PixelsPerSecond * 1.5f;
+            var labelStyle = new GUIStyle {normal = {textColor = Color.white}, fontSize = 12, fontStyle = FontStyle.Bold};
+            for (var i = 0; i < agentEntities.Count; i++)
+            {
+                var text = $"Agent [{agentEntities[i]}]";
+                Handles.Label(startPosition + new Vector2(0, i*2*TileY-TileY/4), text, labelStyle);
+            }
+        }
+
+        private void DrawTimeAxis(float totalTime, Vector2 startPosition, int agentEntitiesCount)
+        {
+            startPosition.y += (agentEntitiesCount+1.5f) * TileY;
+            //横线
+            Handles.DrawLine(startPosition, startPosition+new Vector2(totalTime*PixelsPerSecond, 0));
+            var labelStyle = new GUIStyle {normal = {textColor = Color.white}, alignment = TextAnchor.UpperCenter};
+            //刻度
+            for (var i = 0; i <= (int)totalTime; i++)
+            {
+                var drawStartPosition = startPosition + new Vector2(i * PixelsPerSecond, 0);
+                Handles.DrawLine(drawStartPosition, startPosition + new Vector2(i * PixelsPerSecond, (float)-TileY/4));
+                
+                Handles.Label(drawStartPosition + new Vector2(0, 2), i.ToString(), labelStyle);
+            }
+        }
+
         private void DrawConnection(List<TimelineNodeView> nodeViews, NodeDependencyLog dependency)
         {
             EntityLog startAgent = null;
@@ -125,6 +171,41 @@ namespace Zephyr.GOAP.Editor
             
             Handles.color = Color.green;
             Handles.DrawLine(startPos, endPos);
+        }
+        
+        private void OnMouseDownEvent(MouseEventBase<MouseDownEvent> evt)
+        {
+            switch (evt.button)
+            {
+                case 2:
+                    //中键
+                    _mouseMidButtonDown = true;
+                    _mouseDragStartPos = evt.mousePosition;
+                    _canvasDragStartPos = _canvasPos;
+                    break;
+            }
+        }
+        
+        private void OnMouseMoveEvent(MouseEventBase<MouseMoveEvent> evt)
+        {
+            if (_mouseMidButtonDown)
+            {
+                var distance = evt.mousePosition - _mouseDragStartPos;
+                _canvasPos = _canvasDragStartPos + distance;
+                _container.style.left = _canvasPos.x;
+                _container.style.top = _canvasPos.y;
+            }
+        }
+        
+        private void OnMouseUpEvent(MouseEventBase<MouseUpEvent> evt)
+        {
+            switch (evt.button)
+            {
+                case 2:
+                    //中键
+                    _mouseMidButtonDown = false;
+                    break;
+            }
         }
     }
 }
