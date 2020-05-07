@@ -130,6 +130,7 @@ namespace Zephyr.GOAP.Editor
         {
             _nodeContainer?.Clear();
             _currentStatesContainer?.Clear();
+            _timelineView?.Clear();
         }
 
         private void SetEditorLogging()
