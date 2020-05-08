@@ -338,6 +338,7 @@ namespace Zephyr.GOAP.Editor
             Reset();
             ConstructInfo();
             ConstructGraph();
+            ConstructTimeline();
             if (_autoPage) _currentResult = _log.results.Count - 1;
         }
 
@@ -349,6 +350,7 @@ namespace Zephyr.GOAP.Editor
             Reset();
             ConstructInfo();
             ConstructGraph();
+            ConstructTimeline();;
         }
 
         private void NextResult()
@@ -359,6 +361,7 @@ namespace Zephyr.GOAP.Editor
             Reset();
             ConstructInfo();
             ConstructGraph();
+            ConstructTimeline();
         }
     }
 }

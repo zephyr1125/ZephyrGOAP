@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Transforms;
 using UnityEngine;
 using Zephyr.GOAP.Component.GoalManage;
 using Zephyr.GOAP.Component.GoalManage.GoalState;
@@ -30,8 +31,9 @@ namespace Zephyr.GOAP.Game
                 var goalState = new State
                 {
                     Target = cookerEntity,
+                    Position = entityManager.GetComponentData<Translation>(cookerEntity).Value,
                     Trait = typeof(ItemSourceTrait),
-                    ValueString = "roast_apple"
+                    ValueString = "feast"
                 };
                 entityManager.AddComponentData(goalEntity, new Goal
                 {
