@@ -36,6 +36,11 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         public NativeList<Node> Result;
 
         /// <summary>
+        /// 各Node的估算起始导航时间
+        /// </summary>
+        public NativeHashMap<int, float>.ParallelWriter NodesEstimateNavigateTimeWriter;
+
+        /// <summary>
         /// 各node的total time
         /// </summary>
         public NativeHashMap<int, float> NodeTotalTimes;
@@ -217,6 +222,8 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                         currentNodeAgentInfo.AvailableTime + timeNavigate;
                     if (estimateExecuteStartTime < currentTotalTime)
                         estimateExecuteStartTime = currentTotalTime;
+                    
+                    NodesEstimateNavigateTimeWriter.TryAdd(neighbourNode.HashCode, estimateExecuteStartTime - timeNavigate);
                     
                     var newInfo = new NodeAgentInfo
                     {

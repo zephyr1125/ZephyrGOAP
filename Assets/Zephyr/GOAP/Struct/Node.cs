@@ -51,6 +51,11 @@ namespace Zephyr.GOAP.Struct
 
         public float3 NavigatingSubjectPosition;
 
+        /// <summary>
+        /// 在path finding时估算的执行开始时间，存下来用于在执行时排序选取最早的node优先执行
+        /// </summary>
+        public float EstimateStartTime;
+
         public Node(ref StateGroup preconditions, ref StateGroup effects, ref StateGroup states, 
             NativeString64 name, float reward, float executeTime, int iteration, Entity agentExecutorEntity,
             NodeNavigatingSubjectType subjectType = NodeNavigatingSubjectType.Null, byte subjectId = 0) : this()

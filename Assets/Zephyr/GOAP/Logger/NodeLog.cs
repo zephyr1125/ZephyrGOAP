@@ -22,7 +22,7 @@ namespace Zephyr.GOAP.Logger
         /// </summary>
         public NodeAgentInfoLog[] nodeAgentInfos;
 
-        public float totalTime;
+        public float totalTime, estimateNavigateStartTime;
 
         public EntityLog agentExecutorEntity, navigationSubject;
 

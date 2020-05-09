@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -157,9 +156,10 @@ namespace Zephyr.GOAP.System
                 //寻路
                 var nodeAgentInfos = new NativeMultiHashMap<int, NodeAgentInfo>(nodeGraph.Length(), Allocator.TempJob);
                 var nodeTotalTimes = new NativeHashMap<int, float>(nodeGraph.Length(), Allocator.TempJob);
+                var pathNodesEstimateNavigateTime = new NativeHashMap<int, float>(nodeGraph.Length(), Allocator.TempJob);
                 var pathNodes = FindPath(ref nodeGraph, ref stackData,
-                    ref agentMoveSpeeds, ref agentStartTimes, ref nodeAgentInfos, ref nodeTotalTimes);
-                SavePath(ref pathNodes, ref nodeGraph, out var pathEntities);
+                    ref agentMoveSpeeds, ref agentStartTimes, ref nodeAgentInfos, ref nodeTotalTimes, ref pathNodesEstimateNavigateTime);
+                SavePath(ref pathNodes, ref nodeGraph, ref pathNodesEstimateNavigateTime, out var pathEntities);
 
                 Debugger?.SetNodeGraph(ref nodeGraph, EntityManager);
                 Debugger?.SetNodeAgentInfos(EntityManager, ref nodeAgentInfos);
@@ -170,6 +170,7 @@ namespace Zephyr.GOAP.System
                 pathNodes.Dispose();
                 pathEntities.Dispose();
                 nodeTotalTimes.Dispose();
+                pathNodesEstimateNavigateTime.Dispose();
 
                 Utils.NextGoalState<IdleGoal, ExecutingGoal>(goal.GoalEntity,
                     EntityManager, Time.ElapsedTime);
@@ -226,7 +227,7 @@ namespace Zephyr.GOAP.System
         private NativeList<Node> FindPath(ref NodeGraph nodeGraph, ref StackData stackData,
             ref NativeArray<MaxMoveSpeed> agentMoveSpeed, ref NativeArray<float> agentStartTime,
             ref NativeMultiHashMap<int, NodeAgentInfo> nodeAgentInfos,
-            ref NativeHashMap<int, float> nodeTotalTimes)
+            ref NativeHashMap<int, float> nodeTotalTimes, ref NativeHashMap<int, float> nodeNavigateStartTimes)
         {
             var pathResult = new NativeList<Node>(Allocator.TempJob);
             var pathFindingJob = new PathFindingJob
@@ -242,7 +243,8 @@ namespace Zephyr.GOAP.System
                 PathNodeLimit = PathNodeLimit,
                 Result = pathResult,
                 NodeAgentInfos = nodeAgentInfos,
-                NodeTotalTimes = nodeTotalTimes
+                NodeTotalTimes = nodeTotalTimes,
+                NodesEstimateNavigateTimeWriter = nodeNavigateStartTimes.AsParallelWriter()
             };
             var handle = pathFindingJob.Schedule();
             handle.Complete();
@@ -371,7 +373,7 @@ namespace Zephyr.GOAP.System
         }
 
         private void SavePath([ReadOnly]ref NativeList<Node> pathNodes, [ReadOnly]ref NodeGraph nodeGraph,
-            out NativeArray<Entity> pathEntities)
+            [ReadOnly]ref NativeHashMap<int, float> pathNodesEstimateNavigateTime, out NativeArray<Entity> pathEntities)
         {
             pathEntities = new NativeArray<Entity>(pathNodes.Length, Allocator.Temp);
             var pathPreconditionHashes = new NativeList<ValueTuple<int, int>>(Allocator.Temp);
@@ -396,6 +398,13 @@ namespace Zephyr.GOAP.System
                     stateBuffer.Add(effects[j]);
                     node.EffectsBitmask |= (ulong) 1 << stateBuffer.Length - 1;
                 }
+                
+                //save estimate start time
+                if (pathNodesEstimateNavigateTime.ContainsKey(node.HashCode))
+                {
+                    node.EstimateStartTime = pathNodesEstimateNavigateTime[node.HashCode];
+                }
+                
                 //add node
                 pathNodes[i] = node;
                 EntityManager.AddComponentData(entity, node);

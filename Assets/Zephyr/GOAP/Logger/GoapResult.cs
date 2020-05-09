@@ -71,6 +71,7 @@ namespace Zephyr.GOAP.Logger
                 {
                     if (nodeLog.hashCode != node.HashCode) continue;
                     nodeLog.isPath = true;
+                    nodeLog.estimateNavigateStartTime = node.EstimateStartTime;
                     break;
                 }
 
