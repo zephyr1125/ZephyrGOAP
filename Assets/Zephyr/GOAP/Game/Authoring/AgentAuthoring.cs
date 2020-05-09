@@ -29,7 +29,6 @@ namespace Zephyr.GOAP.Game.Authoring
                 Value = InitialStamina, ChangeSpeed = StaminaChangeSpeed});
             
             dstManager.AddComponentData(entity, new Agent());
-            dstManager.AddComponentData(entity, new NoGoal());
             dstManager.AddBuffer<State>(entity);
             
             dstManager.AddComponentData(entity, new PickItemAction());

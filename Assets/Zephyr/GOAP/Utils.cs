@@ -25,32 +25,19 @@ namespace Zephyr.GOAP
         /// <typeparam name="T">离开的状态</typeparam>
         /// <typeparam name="U">进入的状态</typeparam>
         public static void NextAgentState<T, U>(Entity agentEntity, int jobIndex,
-            ref EntityCommandBuffer.Concurrent eCBuffer, Agent agent, bool toNextNode) 
+            ref EntityCommandBuffer.Concurrent eCBuffer) 
             where T : struct, IComponentData, IAgentState where U : struct, IComponentData, IAgentState
         {
             eCBuffer.RemoveComponent<T>(jobIndex, agentEntity);
             eCBuffer.AddComponent<U>(jobIndex, agentEntity);
-            if (toNextNode)
-            {
-                eCBuffer.SetComponent(jobIndex, agentEntity, new Agent
-                {
-                    ExecutingNodeId = agent.ExecutingNodeId+1
-                });
-            }
         }
         
         public static void NextAgentState<T, U>(Entity agentEntity,
-            EntityManager entityManager, bool toNextNode) 
+            EntityManager entityManager) 
             where T : struct, IComponentData, IAgentState where U : struct, IComponentData, IAgentState
         {
             entityManager.RemoveComponent<T>(agentEntity);
             entityManager.AddComponent<U>(agentEntity);
-            if (toNextNode)
-            {
-                var agent = entityManager.GetComponentData<Agent>(agentEntity);
-                agent.ExecutingNodeId += 1;
-                entityManager.SetComponentData(agentEntity, agent);
-            }
         }
 
         public static void NextGoalState<T, U>(Entity goalEntity, EntityManager entityManager,

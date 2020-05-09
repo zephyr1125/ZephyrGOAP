@@ -2,7 +2,7 @@ using Unity.Entities;
 
 namespace Zephyr.GOAP.Component.AgentState
 {
-    public struct GoalPlanning : IComponentData, IAgentState
+    public struct Idle : IComponentData, IAgentState
     {
         
     }

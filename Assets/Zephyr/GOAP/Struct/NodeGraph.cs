@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Collections;
+using Unity.Entities;
 using UnityEngine.Assertions;
 
 namespace Zephyr.GOAP.Struct
@@ -10,6 +11,7 @@ namespace Zephyr.GOAP.Struct
     {
         [ReadOnly]
         private NativeHashMap<int, Node> _nodes;
+        
         [ReadOnly]
         private NativeMultiHashMap<int, Edge> _nodeToParent;
         

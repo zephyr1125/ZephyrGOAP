@@ -22,9 +22,7 @@ namespace Zephyr.GOAP.Test
             _agentEntity = EntityManager.CreateEntity();
             
             EntityManager.AddComponentData(_agentEntity, new Agent());
-            EntityManager.AddBuffer<FailedPlanLog>(_agentEntity);
             EntityManager.AddComponentData(_agentEntity, new Translation());
-            EntityManager.AddComponentData(_agentEntity, new GoalPlanning());
             EntityManager.AddComponentData(_agentEntity, new ReadyToAct());
             
             World.GetOrCreateSystem<CurrentStatesHelper>().Update();

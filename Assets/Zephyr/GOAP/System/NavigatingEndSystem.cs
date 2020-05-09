@@ -28,8 +28,7 @@ namespace Zephyr.GOAP.System
             public void Execute(Entity entity, int jobIndex, ref Agent agent)
             {
                 //切换agent状态,可以进行Acting了
-                Utils.NextAgentState<Navigating, ReadyToAct>(entity, jobIndex,
-                    ref ECBuffer, agent, false);
+                Utils.NextAgentState<Navigating, ReadyToAct>(entity, jobIndex, ref ECBuffer);
             }
         }
 
