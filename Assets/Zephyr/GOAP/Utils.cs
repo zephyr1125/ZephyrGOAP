@@ -13,23 +13,22 @@ namespace Zephyr.GOAP
     public static class Utils
     {
         public static float GoalMonitorSystemInterval = 1;
-        
+
         /// <summary>
         /// Agent的状态机使用，进入下一个指定状态
         /// </summary>
         /// <param name="agentEntity"></param>
         /// <param name="jobIndex"></param>
         /// <param name="eCBuffer"></param>
-        /// <param name="agent"></param>
-        /// <param name="toNextNode"></param>
+        /// <param name="nodeEntity"></param>
         /// <typeparam name="T">离开的状态</typeparam>
-        /// <typeparam name="U">进入的状态</typeparam>
-        public static void NextAgentState<T, U>(Entity agentEntity, int jobIndex,
-            ref EntityCommandBuffer.Concurrent eCBuffer) 
-            where T : struct, IComponentData, IAgentState where U : struct, IComponentData, IAgentState
+        /// <typeparam name="TU">进入的状态</typeparam>
+        public static void NextAgentState<T, TU>(Entity agentEntity, int jobIndex,
+            ref EntityCommandBuffer.Concurrent eCBuffer, Entity nodeEntity) 
+            where T : struct, IComponentData, IAgentState where TU : struct, IComponentData, IAgentState
         {
             eCBuffer.RemoveComponent<T>(jobIndex, agentEntity);
-            eCBuffer.AddComponent<U>(jobIndex, agentEntity);
+            eCBuffer.AddComponent(jobIndex, agentEntity, new TU{NodeEntity = nodeEntity});
         }
         
         public static void NextAgentState<T, U>(Entity agentEntity,

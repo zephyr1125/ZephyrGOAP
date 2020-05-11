@@ -59,6 +59,7 @@ namespace Zephyr.GOAP.Test.ActionExecuteManage
             
             Assert.AreEqual(_agentEntity,
                 EntityManager.GetComponentData<ActionNodeActing>(_availableNodeEntityOlder).AgentEntity);
+            Assert.IsFalse(EntityManager.HasComponent<Idle>(_agentEntity));
             
             Assert.AreNotEqual(_agentEntity,
                 EntityManager.GetComponentData<ActionNodeActing>(_executingNodeEntity).AgentEntity);

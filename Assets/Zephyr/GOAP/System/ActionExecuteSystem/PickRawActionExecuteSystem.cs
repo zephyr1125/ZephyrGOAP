@@ -70,7 +70,7 @@ namespace Zephyr.GOAP.System.ActionExecuteSystem
                         containedItemRefs.Add(new ContainedItemRef{ItemName = targetItemName});
                 
                         //通知执行完毕
-                        Utils.NextAgentState<ReadyToAct, ReadyToNavigate>(agentEntity, entityInQueryIndex, ref ecb);
+                        // Utils.NextAgentState<ReadyToAct, ReadyToNavigate>(agentEntity, entityInQueryIndex, ref ecb);
                         
                         //todo node指示执行完毕 
                         return;
