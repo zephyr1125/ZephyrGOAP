@@ -13,11 +13,11 @@
 //     [UpdateInGroup(typeof(SimulationSystemGroup))]
 //     public class NavigatingStartSystem : JobComponentSystem
 //     {
-//         public EntityCommandBufferSystem ECBSystem;
+//         public EntityCommandBufferSystem EcbSystem;
 //
 //         protected override void OnCreate()
 //         {
-//             ECBSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+//             EcbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
 //         }
 //         
 //         // [BurstCompile]
@@ -63,13 +63,16 @@
 //         
 //         protected override JobHandle OnUpdate(JobHandle inputDeps)
 //         {
+//             Entities.WithAll<ReadyToNavigate>()
+//                 .ForEach()
+//             
 //             var job = new NavigatingStartJob
 //             {
-//                 ECBuffer = ECBSystem.CreateCommandBuffer().ToConcurrent(),
+//                 ECBuffer = EcbSystem.CreateCommandBuffer().ToConcurrent(),
 //                 Translations = GetComponentDataFromEntity<Translation>()
 //             };
 //             var handle = job.Schedule(this, inputDeps);
-//             ECBSystem.AddJobHandleForProducer(handle);
+//             EcbSystem.AddJobHandleForProducer(handle);
 //             return handle;
 //         }
 //     }

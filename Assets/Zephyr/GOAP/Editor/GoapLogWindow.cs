@@ -221,7 +221,7 @@ namespace Zephyr.GOAP.Editor
             
             frame.name = node.name;
             frame.Q<Label>("name").text = $"{node.name.Replace("Action","")}[{node.agentExecutorEntity}]";
-            frame.Q<Label>("time").text = $"{node.totalTime}";
+            frame.Q<Label>("time").text = $"{node.estimateNavigateStartTime}>{node.totalTime}";
             frame.Q<Label>("reward").text = node.reward.ToString(CultureInfo.InvariantCulture);
             
             if (node.isPath && !node.agentExecutorEntity.Equals(Entity.Null))

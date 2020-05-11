@@ -5,7 +5,7 @@ using Zephyr.GOAP.Component.AgentState;
 using Zephyr.GOAP.Game.ComponentData;
 using Zephyr.GOAP.Struct;
 
-namespace Zephyr.GOAP.System
+namespace Zephyr.GOAP.System.ActionExecuteManage
 {
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public class NavigatingEndSystem : JobComponentSystem
