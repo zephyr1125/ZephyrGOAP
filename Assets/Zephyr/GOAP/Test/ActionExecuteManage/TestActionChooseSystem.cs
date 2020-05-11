@@ -29,7 +29,7 @@ namespace Zephyr.GOAP.Test.ActionExecuteManage
             _availableNodeEntityNewer = EntityManager.CreateEntity();
 
             EntityManager.AddComponentData(_executingNodeEntity, new Node());
-            EntityManager.AddComponentData(_executingNodeEntity, new ExecutingNode());
+            EntityManager.AddComponentData(_executingNodeEntity, new ActionNodeActing());
             
             EntityManager.AddComponentData(_hasDependencyNodeEntity, new Node());
             EntityManager.AddBuffer<NodeDependency>(_hasDependencyNodeEntity);
@@ -55,15 +55,15 @@ namespace Zephyr.GOAP.Test.ActionExecuteManage
             EntityManager.CompleteAllJobs();
 
             Assert.AreEqual(_availableNodeEntityOlder, 
-                EntityManager.GetComponentData<ExecutingAgent>(_agentEntity).NodeEntity);
+                EntityManager.GetComponentData<ReadyToNavigate>(_agentEntity).NodeEntity);
             
             Assert.AreEqual(_agentEntity,
-                EntityManager.GetComponentData<ExecutingNode>(_availableNodeEntityOlder).AgentEntity);
+                EntityManager.GetComponentData<ActionNodeActing>(_availableNodeEntityOlder).AgentEntity);
             
             Assert.AreNotEqual(_agentEntity,
-                EntityManager.GetComponentData<ExecutingNode>(_executingNodeEntity).AgentEntity);
-            Assert.IsFalse(EntityManager.HasComponent<ExecutingNode>(_hasDependencyNodeEntity));
-            Assert.IsFalse(EntityManager.HasComponent<ExecutingNode>(_availableNodeEntityNewer));
+                EntityManager.GetComponentData<ActionNodeActing>(_executingNodeEntity).AgentEntity);
+            Assert.IsFalse(EntityManager.HasComponent<ActionNodeActing>(_hasDependencyNodeEntity));
+            Assert.IsFalse(EntityManager.HasComponent<ActionNodeActing>(_availableNodeEntityNewer));
         }
     }
 }

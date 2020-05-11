@@ -22,7 +22,7 @@ namespace Zephyr.GOAP.System.ActionExecuteManage
             base.OnCreate();
             _waitingActionNodeQuery = GetEntityQuery(new EntityQueryDesc{
                 All =  new []{ComponentType.ReadOnly<Node>()},
-                None = new []{ComponentType.ReadOnly<NodeDependency>(), ComponentType.ReadOnly<ExecutingNode>(), }});
+                None = new []{ComponentType.ReadOnly<NodeDependency>(), ComponentType.ReadOnly<ActionNodeActing>(), }});
             EcbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
         }
 
@@ -38,7 +38,7 @@ namespace Zephyr.GOAP.System.ActionExecuteManage
 
             var handle = Entities.WithName("ActionChooseJob")
                 .WithAll<Idle, Agent>()
-                .WithNone<ExecutingAgent>()
+                .WithNone<ReadyToNavigate>()
                 .WithDeallocateOnJobCompletion(waitingNodeEntities)
                 .WithDeallocateOnJobCompletion(waitingNodes)
                 .ForEach((Entity agentEntity, int entityInQueryIndex) =>
@@ -53,9 +53,10 @@ namespace Zephyr.GOAP.System.ActionExecuteManage
                     }
                     //寻找最早的一个去执行
                     var oldestNodeEntity = availableNodeEntities[availableNodeEntities.Pop()].Content;
+                    
                     //双向链接保存记录
-                    ecb.AddComponent(entityInQueryIndex, agentEntity, new ExecutingAgent{NodeEntity = oldestNodeEntity});
-                    ecb.AddComponent(entityInQueryIndex, oldestNodeEntity, new ExecutingNode{AgentEntity = agentEntity});
+                    ecb.AddComponent(entityInQueryIndex, agentEntity, new ReadyToNavigate{NodeEntity = oldestNodeEntity});
+                    ecb.AddComponent(entityInQueryIndex, oldestNodeEntity, new ActionNodeActing{AgentEntity = agentEntity});
                     
                     availableNodeEntities.Dispose();
                     
