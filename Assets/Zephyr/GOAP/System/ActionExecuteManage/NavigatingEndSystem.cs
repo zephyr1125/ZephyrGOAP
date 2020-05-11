@@ -1,46 +1,36 @@
-// using Unity.Entities;
-// using Unity.Jobs;
-// using Zephyr.GOAP.Component;
-// using Zephyr.GOAP.Component.AgentState;
-// using Zephyr.GOAP.Game.ComponentData;
-// using Zephyr.GOAP.Struct;
-//
-// namespace Zephyr.GOAP.System.ActionExecuteManage
-// {
-//     [UpdateInGroup(typeof(SimulationSystemGroup))]
-//     public class NavigatingEndSystem : JobComponentSystem
-//     {
-//         public EntityCommandBufferSystem ECBSystem;
-//
-//         protected override void OnCreate()
-//         {
-//             base.OnCreate();
-//             ECBSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
-//         }
-//
-//         // [BurstCompile]
-//         [RequireComponentTag(typeof(Navigating), typeof(Node))]
-//         [ExcludeComponent(typeof(TargetPosition))]
-//         private struct NavigatingEndJob : IJobForEachWithEntity<Agent>
-//         {
-//             public EntityCommandBuffer.Concurrent ECBuffer;
-//             
-//             public void Execute(Entity entity, int jobIndex, ref Agent agent)
-//             {
-//                 //切换agent状态,可以进行Acting了
-//                 Utils.NextAgentState<Navigating, ReadyToAct>(entity, jobIndex, ref ECBuffer);
-//             }
-//         }
-//
-//         protected override JobHandle OnUpdate(JobHandle inputDeps)
-//         {
-//             var job = new NavigatingEndJob
-//             {
-//                 ECBuffer = ECBSystem.CreateCommandBuffer().ToConcurrent()
-//             };
-//             var handle = job.Schedule(this, inputDeps);
-//             ECBSystem.AddJobHandleForProducer(handle);
-//             return handle;
-//         }
-//     }
-// }
+using Unity.Entities;
+using Unity.Jobs;
+using Zephyr.GOAP.Component;
+using Zephyr.GOAP.Component.AgentState;
+using Zephyr.GOAP.Game.ComponentData;
+
+namespace Zephyr.GOAP.System.ActionExecuteManage
+{
+    [UpdateInGroup(typeof(SimulationSystemGroup))]
+    public class NavigatingEndSystem : JobComponentSystem
+    {
+        public EntityCommandBufferSystem EcbSystem;
+
+        protected override void OnCreate()
+        {
+            base.OnCreate();
+            EcbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+        }
+
+        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        {
+            var ecb = EcbSystem.CreateCommandBuffer().ToConcurrent();
+            var handle = Entities.WithName("NavigatingEndJob")
+                .WithAll<Agent>()
+                .WithNone<TargetPosition>()
+                .ForEach((Entity entity, int entityInQueryIndex, in Navigating navigating) =>
+                {
+                    //切换agent状态,可以进行Acting了
+                    Utils.NextAgentState<Navigating, ReadyToAct>(entity, entityInQueryIndex,
+                        ref ecb, navigating.NodeEntity);
+                }).Schedule(inputDeps);
+            EcbSystem.AddJobHandleForProducer(handle);
+            return handle;
+        }
+    }
+}

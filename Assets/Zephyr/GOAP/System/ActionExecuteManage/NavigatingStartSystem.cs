@@ -24,7 +24,7 @@ namespace Zephyr.GOAP.System.ActionExecuteManage
             var nodes = GetComponentDataFromEntity<Node>();
             var translations = GetComponentDataFromEntity<Translation>();
             var ecb = EcbSystem.CreateCommandBuffer().ToConcurrent();
-            var handle = Entities
+            var handle = Entities.WithName("NavigatingStartJob")
                 .WithReadOnly(nodes)
                 .WithReadOnly(translations)
                 .WithAll<Agent>()
