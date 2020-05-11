@@ -1,5 +1,6 @@
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.AgentState;
 using Zephyr.GOAP.Lib;
@@ -11,7 +12,7 @@ namespace Zephyr.GOAP.System.ActionExecuteManage
     /// agent从action nodes里挑选最旧的一个适合自己现在做的
     /// </summary>
     [UpdateInGroup(typeof(SimulationSystemGroup))]
-    public class ActionChooseSystem : SystemBase
+    public class ActionChooseSystem : JobComponentSystem
     {
         private EntityQuery _waitingActionNodeQuery;
 
@@ -26,19 +27,17 @@ namespace Zephyr.GOAP.System.ActionExecuteManage
             EcbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
         }
 
-        protected override void OnUpdate()
+        protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             //找出所有可执行的Node
             var waitingNodeEntities = _waitingActionNodeQuery.ToEntityArray(Allocator.TempJob);
             var waitingNodes =
                 _waitingActionNodeQuery.ToComponentDataArray<Node>(Allocator.TempJob);
-            var waitingStates = GetBufferFromEntity<State>();
 
             var ecb = EcbSystem.CreateCommandBuffer().ToConcurrent();
 
             var handle = Entities.WithName("ActionChooseJob")
                 .WithAll<Idle, Agent>()
-                .WithNone<ReadyToNavigate>()
                 .WithDeallocateOnJobCompletion(waitingNodeEntities)
                 .WithDeallocateOnJobCompletion(waitingNodes)
                 .ForEach((Entity agentEntity, int entityInQueryIndex) =>
@@ -55,14 +54,16 @@ namespace Zephyr.GOAP.System.ActionExecuteManage
                     var oldestNodeEntity = availableNodeEntities[availableNodeEntities.Pop()].Content;
                     
                     //双向链接保存记录
-                    ecb.AddComponent(entityInQueryIndex, agentEntity, new ReadyToNavigate{NodeEntity = oldestNodeEntity});
+                    Utils.NextAgentState<Idle, ReadyToNavigate>(agentEntity, entityInQueryIndex, ref ecb, oldestNodeEntity);
                     ecb.AddComponent(entityInQueryIndex, oldestNodeEntity, new ActionNodeActing{AgentEntity = agentEntity});
                     
                     availableNodeEntities.Dispose();
                     
-                }).Schedule(Dependency);
+                }).Schedule(inputDeps);
              
-                EcbSystem.AddJobHandleForProducer(handle);
+            EcbSystem.AddJobHandleForProducer(handle);
+
+            return handle;
         }
     }
 }
