@@ -23,7 +23,7 @@ namespace Zephyr.GOAP.System.ActionExecuteManage
             base.OnCreate();
             _waitingActionNodeQuery = GetEntityQuery(new EntityQueryDesc{
                 All =  new []{ComponentType.ReadOnly<Node>()},
-                None = new []{ComponentType.ReadOnly<NodeDependency>(), ComponentType.ReadOnly<ActionNodeActing>(), }});
+                None = new []{ComponentType.ReadOnly<ActionNodeActing>(), }});
             EcbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
         }
 
@@ -35,21 +35,34 @@ namespace Zephyr.GOAP.System.ActionExecuteManage
                 _waitingActionNodeQuery.ToComponentDataArray<Node>(Allocator.TempJob);
 
             var ecb = EcbSystem.CreateCommandBuffer().ToConcurrent();
+            var allDependencies = GetBufferFromEntity<NodeDependency>();
 
             var handle = Entities.WithName("ActionChooseJob")
                 .WithAll<Idle, Agent>()
                 .WithDeallocateOnJobCompletion(waitingNodeEntities)
                 .WithDeallocateOnJobCompletion(waitingNodes)
+                .WithReadOnly(allDependencies)
                 .ForEach((Entity agentEntity, int entityInQueryIndex) =>
                 {
+                    if (waitingNodeEntities.Length <= 0) return;
+                    
                     //筛出给我的action
                     var availableNodeEntities = new NativeMinHeap<Entity>(waitingNodeEntities.Length, Allocator.Temp);
                     for (var i = 0; i < waitingNodeEntities.Length; i++)
                     {
+                        var nodeEntity = waitingNodeEntities[i];
                         var node = waitingNodes[i];
+                        
+                        //工作不是我的，不执行
                         if (!node.AgentExecutorEntity.Equals(agentEntity)) continue;
+                        //node仍有依赖则不执行
+                        if (allDependencies.Exists(nodeEntity) &&
+                            allDependencies[nodeEntity].Length > 0) continue;
+                        
                         availableNodeEntities.Push(new MinHeapNode<Entity>(waitingNodeEntities[i], node.EstimateStartTime));
                     }
+
+                    if (!availableNodeEntities.HasNext()) return;
                     //寻找最早的一个去执行
                     var oldestNodeEntity = availableNodeEntities[availableNodeEntities.Pop()].Content;
                     

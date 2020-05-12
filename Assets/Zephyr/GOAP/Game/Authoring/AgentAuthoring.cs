@@ -11,7 +11,7 @@ using Zephyr.GOAP.Struct;
 namespace Zephyr.GOAP.Game.Authoring
 {
     [RequiresEntityConversion]
-    [ConverterVersion("Zephyr", 6)]
+    [ConverterVersion("Zephyr", 7)]
     public class AgentAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     {
         public string Name;
@@ -29,7 +29,7 @@ namespace Zephyr.GOAP.Game.Authoring
                 Value = InitialStamina, ChangeSpeed = StaminaChangeSpeed});
             
             dstManager.AddComponentData(entity, new Agent());
-            dstManager.AddBuffer<State>(entity);
+            dstManager.AddComponentData(entity, new Idle());
             
             dstManager.AddComponentData(entity, new PickItemAction());
             dstManager.AddComponentData(entity, new DropItemAction());
@@ -44,8 +44,6 @@ namespace Zephyr.GOAP.Game.Authoring
             dstManager.AddComponentData(entity, 
                 new ItemContainer{Capacity = 99, IsTransferSource = false});
             var buffer = dstManager.AddBuffer<ContainedItemRef>(entity);
-
-            dstManager.AddBuffer<FailedPlanLog>(entity);
         }
     }
 }
