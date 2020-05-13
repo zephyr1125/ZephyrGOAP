@@ -220,8 +220,9 @@ namespace Zephyr.GOAP.Editor
             _nodeVisualTree.CloneTree(frame);
             
             frame.name = node.name;
-            frame.Q<Label>("name").text = $"{node.name.Replace("Action","")}[{node.agentExecutorEntity}]";
-            frame.Q<Label>("time").text = $"{node.estimateNavigateStartTime}>{node.totalTime}";
+            frame.Q<Label>("name").text = 
+                $"{node.name.Replace("Action","")}[{node.agentExecutorEntity}]=>[{node.navigationSubject}]";
+            frame.Q<Label>("time").text = $"{node.estimateNavigateStartTime:F1}>{node.totalTime:F1}";
             frame.Q<Label>("reward").text = node.reward.ToString(CultureInfo.InvariantCulture);
             
             if (node.isPath && !node.agentExecutorEntity.Equals(Entity.Null))
