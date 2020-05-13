@@ -25,6 +25,10 @@ namespace Zephyr.GOAP.Debugger
 
         void SetNodeTotalTimes(ref NativeHashMap<int, float> nodeTimes);
 
+        void SetSpecifiedPreconditions(EntityManager entityManager,
+            ref NativeList<int> pathNodeSpecifiedPreconditionIndices,
+            ref NativeList<State> pathNodeSpecifiedPreconditions);
+
         void LogDone();
 
         void Log(string log);

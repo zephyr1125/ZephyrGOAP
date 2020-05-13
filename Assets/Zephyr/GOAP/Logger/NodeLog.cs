@@ -61,6 +61,23 @@ namespace Zephyr.GOAP.Logger
             totalTime = time;
         }
 
+        public void SetSpecifiedPreconditions(EntityManager entityManager,
+            ref NativeList<int> pathNodeSpecifiedPreconditionIndices,
+            ref NativeList<State> pathNodeSpecifiedPreconditions)
+        {
+            if (!isPath) return;
+            
+            var newPreconditions = new List<StateLog>();
+            for (var i = 0; i < pathNodeSpecifiedPreconditionIndices.Length; i++)
+            {
+                if (!hashCode.Equals(pathNodeSpecifiedPreconditionIndices[i])) continue;
+                newPreconditions.Add(new StateLog(
+                    entityManager, pathNodeSpecifiedPreconditions[i]));
+            }
+
+            preconditions = newPreconditions.ToArray();
+        }
+
         /// <summary>
         /// 各agent信息
         /// </summary>

@@ -87,7 +87,18 @@ namespace Zephyr.GOAP.Logger
 
             timeCost = (DateTime.Now - _timeStart).TotalMilliseconds.ToString(CultureInfo.InvariantCulture);
         }
-        
+
+        public void SetSpecifiedPreconditions(EntityManager entityManager,
+            ref NativeList<int> pathNodeSpecifiedPreconditionIndices,
+            ref NativeList<State> pathNodeSpecifiedPreconditions)
+        {
+            foreach (var nodeLog in nodes)
+            {
+                nodeLog.SetSpecifiedPreconditions(entityManager,
+                    ref pathNodeSpecifiedPreconditionIndices, ref pathNodeSpecifiedPreconditions);
+            }
+        }
+
         public void SetNodeAgentInfos(EntityManager entityManager, ref NativeMultiHashMap<int, NodeAgentInfo> nodeTimes)
         {
             for (var i = 0; i < nodes.Count; i++)

@@ -21,7 +21,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
     /// </summary>
     public class TestCookCollectSequenceWithMultiAgent : TestActionExpandBase
     {
-        private Entity _cookerEntity, _diningTableEntity, _collectorEntity, _rawAppleEntity, _rawPeachEntity;
+        private Entity _cookerEntity, _diningTableEntity, _collector0Entity, _collector1Entity, _rawAppleEntity, _rawPeachEntity;
         private Entity _agentBEntity;
 
         [SetUp]
@@ -32,7 +32,8 @@ namespace Zephyr.GOAP.Test.ActionExpand
             _agentBEntity = EntityManager.CreateEntity();
             _cookerEntity = EntityManager.CreateEntity();
             _diningTableEntity = EntityManager.CreateEntity();
-            _collectorEntity = EntityManager.CreateEntity();
+            _collector0Entity = EntityManager.CreateEntity();
+            _collector1Entity = EntityManager.CreateEntity();
             _rawAppleEntity = EntityManager.CreateEntity();
             _rawPeachEntity = EntityManager.CreateEntity();
             
@@ -70,26 +71,49 @@ namespace Zephyr.GOAP.Test.ActionExpand
                 Position = new float3(2, 0, 0),
                 Trait = typeof(CookerTrait),
             });
+            
             buffer.Add(new State
             {
-                Target = _collectorEntity,
+                Target = _collector0Entity,
                 Position = new float3(4, 0, 0),
                 Trait = typeof(CollectorTrait),
             });
             buffer.Add(new State
             {
-                Target = _collectorEntity,
+                Target = _collector0Entity,
                 Position = new float3(4, 0, 0),
                 Trait = typeof(ItemPotentialSourceTrait),
                 ValueString = "raw_apple"
             });
             buffer.Add(new State
             {
-                Target = _collectorEntity,
+                Target = _collector0Entity,
                 Position = new float3(4, 0, 0),
                 Trait = typeof(ItemPotentialSourceTrait),
                 ValueString = "raw_peach"
             });
+            
+            buffer.Add(new State
+            {
+                Target = _collector1Entity,
+                Position = new float3(3, 0, 0),
+                Trait = typeof(CollectorTrait),
+            });
+            buffer.Add(new State
+            {
+                Target = _collector1Entity,
+                Position = new float3(3, 0, 0),
+                Trait = typeof(ItemPotentialSourceTrait),
+                ValueString = "raw_apple"
+            });
+            buffer.Add(new State
+            {
+                Target = _collector1Entity,
+                Position = new float3(3, 0, 0),
+                Trait = typeof(ItemPotentialSourceTrait),
+                ValueString = "raw_peach"
+            });
+            
             buffer.Add(new State
             {
                 Target = _rawAppleEntity,
@@ -104,7 +128,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
                 Trait = typeof(RawSourceTrait),
                 ValueString = "raw_peach"
             });
-            
+
             var recipeSensorSystem = World.GetOrCreateSystem<RecipeSensorSystem>();
             recipeSensorSystem.Update();
         }

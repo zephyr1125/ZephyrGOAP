@@ -51,6 +51,14 @@ namespace Zephyr.GOAP.Editor
             _goapLog.SetCurrentStates(ref currentStates, entityManager);
         }
 
+        public void SetSpecifiedPreconditions(EntityManager entityManager,
+            ref NativeList<int> pathNodeSpecifiedPreconditionIndices,
+            ref NativeList<State> pathNodeSpecifiedPreconditions)
+        {
+            _goapLog.SetSpecifiedPreconditions(entityManager,
+                ref pathNodeSpecifiedPreconditionIndices, ref pathNodeSpecifiedPreconditions);
+        }
+
         public void Log(string log)
         {
             // Debug.Log(log);

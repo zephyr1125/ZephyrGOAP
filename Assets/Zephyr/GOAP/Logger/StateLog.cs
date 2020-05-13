@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Collections;
 using Unity.Entities;
 using Zephyr.GOAP.Struct;
 using Unity.Mathematics;
@@ -31,6 +32,20 @@ namespace Zephyr.GOAP.Logger
         {
             var stateLogs = new List<StateLog>(states.Length);
             stateLogs.AddRange(states.Select(t => new StateLog(entityManager, t)));
+            return stateLogs.ToArray();
+        }
+
+        public static StateLog[] CreateStateLogs(EntityManager entityManager, 
+            int nodeHash, ref NativeList<int> stateIndices,
+            ref NativeList<State> states)
+        {
+            var stateLogs = new List<StateLog>();
+            for (var i = 0; i < stateIndices.Length; i++)
+            {
+                if (!stateIndices[i].Equals(nodeHash)) continue;
+                stateLogs.Add(new StateLog(entityManager, states[i]));
+            }
+
             return stateLogs.ToArray();
         }
 

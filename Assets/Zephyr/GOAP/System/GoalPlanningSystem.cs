@@ -97,7 +97,7 @@ namespace Zephyr.GOAP.System
             var unexpandedNodes = new NativeList<Node>(Allocator.TempJob);
             var expandedNodes = new NativeList<Node>(Allocator.TempJob);
 
-            var nodeGraph = new NodeGraph(512, Allocator.TempJob);
+            var nodeGraph = new NodeGraph(512, ref currentStateBuffer, Allocator.TempJob);
 
             var goalPrecondition = new StateGroup();
             var goalEffects = new StateGroup();
@@ -151,26 +151,35 @@ namespace Zephyr.GOAP.System
             }
             else
             {
-                UnifyNodeStates(ref stackData.CurrentStates, ref nodeGraph);
-                ApplyNodeNavigatingSubjects(ref nodeGraph);
                 //寻路
                 var nodeAgentInfos = new NativeMultiHashMap<int, NodeAgentInfo>(nodeGraph.Length(), Allocator.TempJob);
                 var nodeTotalTimes = new NativeHashMap<int, float>(nodeGraph.Length(), Allocator.TempJob);
                 var pathNodesEstimateNavigateTime = new NativeHashMap<int, float>(nodeGraph.Length(), Allocator.TempJob);
+                var pathNodeNavigateSubjects = new NativeHashMap<int, Entity>(nodeGraph.Length(), Allocator.TempJob);
+                var pathNodeSpecifiedPreconditionIndices = new NativeList<int>(Allocator.TempJob);
+                var pathNodeSpecifiedPreconditions = new NativeList<State>(Allocator.TempJob);
                 var pathNodes = FindPath(ref nodeGraph, ref stackData,
-                    ref agentMoveSpeeds, ref agentStartTimes, ref nodeAgentInfos, ref nodeTotalTimes, ref pathNodesEstimateNavigateTime);
-                SavePath(ref pathNodes, ref nodeGraph, ref pathNodesEstimateNavigateTime, out var pathEntities);
+                    ref agentMoveSpeeds, ref agentStartTimes, ref nodeAgentInfos, ref nodeTotalTimes, ref pathNodesEstimateNavigateTime,
+                    ref pathNodeNavigateSubjects, ref pathNodeSpecifiedPreconditionIndices, ref pathNodeSpecifiedPreconditions);
+                SavePath(ref pathNodes, ref nodeGraph, ref pathNodesEstimateNavigateTime, 
+                    ref pathNodeNavigateSubjects, ref pathNodeSpecifiedPreconditionIndices, ref pathNodeSpecifiedPreconditions,
+                    out var pathEntities);
 
                 Debugger?.SetNodeGraph(ref nodeGraph, EntityManager);
                 Debugger?.SetNodeAgentInfos(EntityManager, ref nodeAgentInfos);
                 Debugger?.SetNodeTotalTimes(ref nodeTotalTimes);
                 Debugger?.SetPathResult(EntityManager, ref pathEntities, ref pathNodes);
+                Debugger?.SetSpecifiedPreconditions(EntityManager,
+                    ref pathNodeSpecifiedPreconditionIndices, ref pathNodeSpecifiedPreconditions);
 
                 nodeAgentInfos.Dispose();
                 pathNodes.Dispose();
                 pathEntities.Dispose();
                 nodeTotalTimes.Dispose();
                 pathNodesEstimateNavigateTime.Dispose();
+                pathNodeNavigateSubjects.Dispose();
+                pathNodeSpecifiedPreconditionIndices.Dispose();
+                pathNodeSpecifiedPreconditions.Dispose();
 
                 Utils.NextGoalState<IdleGoal, ExecutingGoal>(goal.GoalEntity,
                     EntityManager, Time.ElapsedTime);
@@ -220,14 +229,17 @@ namespace Zephyr.GOAP.System
         /// <returns></returns>
         /// </summary>
         private float CalcGoalPriority(Priority priority, double createTime)
-        {
+        { 
             return (float) (Priority.Max - priority + createTime / 60);
         }
         
         private NativeList<Node> FindPath(ref NodeGraph nodeGraph, ref StackData stackData,
             ref NativeArray<MaxMoveSpeed> agentMoveSpeed, ref NativeArray<float> agentStartTime,
             ref NativeMultiHashMap<int, NodeAgentInfo> nodeAgentInfos,
-            ref NativeHashMap<int, float> nodeTotalTimes, ref NativeHashMap<int, float> nodeNavigateStartTimes)
+            ref NativeHashMap<int, float> nodeTotalTimes, ref NativeHashMap<int, float> nodeNavigateStartTimes,
+            ref NativeHashMap<int, Entity> nodeNavigateSubjects,
+            ref NativeList<int> pathNodeSpecifiedPreconditionIndices,
+            ref NativeList<State> pathNodeSpecifiedPreconditions)
         {
             var pathResult = new NativeList<Node>(Allocator.TempJob);
             var pathFindingJob = new PathFindingJob
@@ -244,7 +256,10 @@ namespace Zephyr.GOAP.System
                 Result = pathResult,
                 NodeAgentInfos = nodeAgentInfos,
                 NodeTotalTimes = nodeTotalTimes,
-                NodesEstimateNavigateTimeWriter = nodeNavigateStartTimes.AsParallelWriter()
+                NodesEstimateNavigateTimeWriter = nodeNavigateStartTimes.AsParallelWriter(),
+                NodeNavigateSubjects = nodeNavigateSubjects,
+                SpecifiedPreconditionIndices = pathNodeSpecifiedPreconditionIndices,
+                SpecifiedPreconditions = pathNodeSpecifiedPreconditions
             };
             var handle = pathFindingJob.Schedule();
             handle.Complete();
@@ -252,146 +267,32 @@ namespace Zephyr.GOAP.System
             return pathResult;
         }
 
-        /// <summary>
-        /// 把NodeGraph里所有宽泛的state和precondition，用其child的具体effect替代
-        /// </summary>
-        /// <param name="currentStates"></param>
-        /// <param name="nodeGraph"></param>
-        private void UnifyNodeStates(ref StateGroup currentStates, ref NodeGraph nodeGraph)
-        {
-            //start -> goal, 不包含start
-            var startNode = nodeGraph.GetStartNode();
-            var node = startNode;
-            var edges = new NativeQueue<Edge>(Allocator.Temp);
-            nodeGraph.GetEdges(node, ref edges);
-            
-            while (edges.Count > 0)
-            {
-                var edge = edges.Dequeue();
-                node = nodeGraph[edge.ParentHash];
-                var child = nodeGraph[edge.ChildHash];
-               
-                var nodeStates = nodeGraph.GetNodeStates(node, Allocator.Temp);
-                var nodePreconditions = nodeGraph.GetNodePreconditions(node, Allocator.Temp);
-                StateGroup childStates;
-                var isLastNode = child.Equals(startNode);
-                if (isLastNode)
-                {
-                    //对于start之前最后一个node，需要与世界状态作比对
-                    childStates = currentStates;
-                }
-                else
-                {
-                    childStates = nodeGraph.GetNodeStates(child, Allocator.Temp);
-                    var childEffects = nodeGraph.GetNodeEffects(child, Allocator.Temp);
-                    var childPreconditions = nodeGraph.GetNodePreconditions(child, Allocator.Temp);
-                    
-                    childStates.Sub(ref childPreconditions, out var removedStates, Allocator.Temp);
-                    removedStates.Dispose();
-                    childStates.Merge(childEffects);
-                    
-                    childEffects.Dispose();
-                    childPreconditions.Dispose();
-                }
-                
-                foreach (var state in nodeStates)
-                {
-                    if (!state.IsScopeState()) continue;
-                    //在子节点中寻找对应的具体effect
-                    var childSpecificEffect = default(State);
-                    foreach (var childEffect in childStates)
-                    {
-                        if (!childEffect.BelongTo(state)) continue;
-                        childSpecificEffect = childEffect;
-                        break;
-                    }
-                    if (childSpecificEffect.Equals(default)) continue;
-                    //以子节点的具体effect替换自己的宽泛state
-                    nodeGraph.ReplaceNodeState(node, state, childSpecificEffect);
-                    //precondition里一样的state也如此替换
-                    foreach (var nodePrecondition in nodePreconditions)
-                    {
-                        if (!nodePrecondition.Equals(state)) continue;
-                        nodeGraph.ReplaceNodePrecondition(node, nodePrecondition, childSpecificEffect);
-                    }
-                }
-                
-                nodeStates.Dispose();
-                nodePreconditions.Dispose();
-                if(!isLastNode)childStates.Dispose();
-                
-                nodeGraph.GetEdges(node, ref edges);
-            } 
-
-            edges.Dispose();
-        }
-
-        /// <summary>
-        /// 在明确了所有节点的具体state之后，赋予各自导航目标
-        /// </summary>
-        /// <param name="nodeGraph"></param>
-        private void ApplyNodeNavigatingSubjects(ref NodeGraph nodeGraph)
-        {
-            //start -> goal, 不包含start
-            var startNode = nodeGraph.GetStartNode();
-            var node = startNode;
-            var edges = new NativeQueue<Edge>(Allocator.Temp);
-            nodeGraph.GetEdges(node, ref edges);
-
-            while (edges.Count > 0)
-            {
-                var edge = edges.Dequeue();
-                var nodeHash = edge.ParentHash;
-                node = nodeGraph[nodeHash];
-                
-                switch (node.NavigatingSubjectType)
-                {
-                    case NodeNavigatingSubjectType.Null:
-                        continue;
-                    case NodeNavigatingSubjectType.PreconditionTarget:
-                        var preconditions = nodeGraph.GetNodePreconditions(node, Allocator.Temp);
-                        var subjectPrecondition = preconditions[node.NavigatingSubjectId];
-                        node.NavigatingSubject = subjectPrecondition.Target;
-                        node.NavigatingSubjectPosition = subjectPrecondition.Position;
-                        preconditions.Dispose();
-                        break;
-                    case NodeNavigatingSubjectType.EffectTarget:
-                        var effects = nodeGraph.GetNodeEffects(node, Allocator.Temp);
-                        var subjectEffect = effects[node.NavigatingSubjectId];
-                        node.NavigatingSubject = subjectEffect.Target;
-                        node.NavigatingSubjectPosition = subjectEffect.Position;
-                        effects.Dispose();
-                        break;
-                }
-
-                nodeGraph[nodeHash] = node;
-                
-                nodeGraph.GetEdges(node, ref edges);
-            }
-            
-            edges.Dispose();
-        }
-
         private void SavePath([ReadOnly]ref NativeList<Node> pathNodes, [ReadOnly]ref NodeGraph nodeGraph,
-            [ReadOnly]ref NativeHashMap<int, float> pathNodesEstimateNavigateTime, out NativeArray<Entity> pathEntities)
+            [ReadOnly]ref NativeHashMap<int, float> pathNodesEstimateNavigateTime,
+            [ReadOnly]ref NativeHashMap<int, Entity> pathNodeNavigateSubjects,
+            [ReadOnly]ref NativeList<int> pathNodeSpecifiedPreconditionIndices,
+            [ReadOnly]ref NativeList<State> pathNodeSpecifiedPreconditions,
+            out NativeArray<Entity> pathEntities)
         {
             pathEntities = new NativeArray<Entity>(pathNodes.Length, Allocator.Temp);
             var pathPreconditionHashes = new NativeList<ValueTuple<int, int>>(Allocator.Temp);
             for (var i = 0; i < pathNodes.Length; i++)
             {
                 var node = pathNodes[i];
-                var preconditions = nodeGraph.GetNodePreconditions(node, Allocator.Temp);
                 var effects = nodeGraph.GetNodeEffects(node, Allocator.Temp);
 
                 var entity = EntityManager.CreateEntity();
                 pathEntities[i] = entity;
                 // add states & dependencies
                 var stateBuffer = EntityManager.AddBuffer<State>(entity);
-                for (var j = 0; j < preconditions.Length(); j++)
+                //precondition不从NodeGraph来，而是用寻路时得到的明确版本
+                for (var j = 0; j < pathNodeSpecifiedPreconditionIndices.Length; j++)
                 {
-                    stateBuffer.Add(preconditions[j]);
+                    var specifiedPrecondition = pathNodeSpecifiedPreconditions[j];
+                    if (!pathNodeSpecifiedPreconditionIndices[j].Equals(node.HashCode)) continue;
+                    stateBuffer.Add(specifiedPrecondition);
                     node.PreconditionsBitmask |= (ulong) 1 << stateBuffer.Length - 1;
-                    pathPreconditionHashes.Add((node.HashCode, preconditions[j].GetHashCode()));
+                    pathPreconditionHashes.Add((node.HashCode, specifiedPrecondition.GetHashCode()));
                 }
                 for (var j = 0; j < effects.Length(); j++)
                 {
@@ -404,12 +305,16 @@ namespace Zephyr.GOAP.System
                 {
                     node.EstimateStartTime = pathNodesEstimateNavigateTime[node.HashCode];
                 }
+
+                if (pathNodeNavigateSubjects.ContainsKey(node.HashCode))
+                {
+                    node.NavigatingSubject = pathNodeNavigateSubjects[node.HashCode];
+                }
                 
                 //add node
                 pathNodes[i] = node;
                 EntityManager.AddComponentData(entity, node);
                 
-                preconditions.Dispose();
                 effects.Dispose();
             }
 

@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using UnityEngine.Assertions;
 using Zephyr.GOAP.Game.ComponentData;
 using Zephyr.GOAP.Lib;
 using Zephyr.GOAP.Struct;
@@ -48,6 +49,15 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         /// 各node上的各agent的信息
         /// </summary>
         public NativeMultiHashMap<int, NodeAgentInfo> NodeAgentInfos;
+
+        [NativeDisableParallelForRestriction]
+        public NativeHashMap<int, Entity> NodeNavigateSubjects;
+
+        [NativeDisableParallelForRestriction]
+        public NativeList<int> SpecifiedPreconditionIndices;
+
+        [NativeDisableParallelForRestriction]
+        public NativeList<State> SpecifiedPreconditions;
             
         public void Execute()
         {
@@ -71,12 +81,12 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             InitNodeAgentInfos(ref NodeAgentInfos, startId);
             InitNodeTotalTimes(ref NodeTotalTimes, startId);
 
-            var currentId = -1;
+            var currentHash = -1;
             while (_iterations<IterationLimit && openSet.HasNext())
             {
-                currentId = openSet[openSet.Pop()].Content;
-                var currentNode = NodeGraph[currentId];
-                var currentTotalTime = NodeTotalTimes[currentId];
+                currentHash = openSet[openSet.Pop()].Content;
+                var currentNode = NodeGraph[currentHash];
+                var currentTotalTime = NodeTotalTimes[currentHash];
                 
                 //不使用early quit，因为会使用非最优解
                 //early quit
@@ -85,53 +95,71 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                 //     break;
                 // }
                     
-                var neighboursId = new NativeList<int>(4, Allocator.Temp);
-                currentNode.GetNeighbours(ref NodeGraph, ref neighboursId);
+                var neighboursHash = new NativeList<int>(4, Allocator.Temp);
+                currentNode.GetNeighbours(ref NodeGraph, ref neighboursHash);
 
-                for (var i = 0; i < neighboursId.Length; i++)
+                for (var i = 0; i < neighboursHash.Length; i++)
                 {
-                    var neighbourId = neighboursId[i];
-                    var neighbourNode = NodeGraph[neighbourId];
+                    var neighbourHash = neighboursHash[i];
+                    var neighbourNode = NodeGraph[neighbourHash];
                     //if reward == -infinity means obstacle, skip
                     if (float.IsNegativeInfinity(neighbourNode.GetReward(ref NodeGraph))) continue;
 
                     var newRewardSum =
-                        rewardSum[currentId] + neighbourNode.GetReward(ref NodeGraph);
+                        rewardSum[currentHash] + neighbourNode.GetReward(ref NodeGraph);
 
                     var neighbourExecutor = neighbourNode.AgentExecutorEntity;
                     var neighbourExecutorMoveSpeed = FindAgentSpeed(neighbourExecutor);
-                    var neighbourAgentsInfo = UpdateNeighbourAgentsInfo(
-                        ref NodeAgentInfos, currentId, currentTotalTime, neighbourNode, neighbourExecutorMoveSpeed,
-                        Allocator.Temp, out var newTotalTime);
+
+                    //如果neighbour的precondition是泛指，而且其导航依赖precondition的话，
+                    //需要寻找路径上已有的state做替代，这样才能计算导航耗时
+                    //顺便保存依赖关系
+                    var tempPreconditionIndices = new NativeList<int>(Allocator.Temp);
+                    var tempPreconditions = new NativeList<State>(Allocator.Temp);
+                    GetAllSpecificPreconditions(neighbourNode, currentHash, cameFrom,
+                        ref tempPreconditionIndices, ref tempPreconditions);
+                    var neighbourNavigatingPosition = NeighbourNavigatingPosition(neighbourNode,
+                        ref tempPreconditionIndices, ref tempPreconditions,
+                        out var isNeedNavigate, out var neighbourNavigateSubject);
                     
+                    var neighbourAgentsInfo = UpdateNeighbourAgentsInfo(
+                        ref NodeAgentInfos, currentHash, currentTotalTime, neighbourNode,
+                        neighbourNavigatingPosition, isNeedNavigate,
+                        neighbourExecutorMoveSpeed, Allocator.Temp, out var newTotalTime);
 
                     //如果记录已存在，新的时间更长则skip，相等则考虑reward更小skip
-                    if (rewardSum.ContainsKey(neighbourId))
+                    if (rewardSum.ContainsKey(neighbourHash))
                     {
-                        var oldTotalTime = NodeTotalTimes[neighbourId];
+                        var oldTotalTime = NodeTotalTimes[neighbourHash];
                         if (newTotalTime > oldTotalTime) continue;
 
-                        var fewerReward = newRewardSum <= rewardSum[neighbourId];
+                        var fewerReward = newRewardSum <= rewardSum[neighbourHash];
                         if (Math.Abs(newTotalTime - oldTotalTime) < 0.1f && fewerReward)
                             continue;
                     }
 
                     //新记录更好，覆盖旧记录
-                    SaveNeighbourAgentsInfo(ref NodeAgentInfos, neighbourId, ref neighbourAgentsInfo);
+                    SaveNeighbourAgentsInfo(ref NodeAgentInfos, neighbourHash, ref neighbourAgentsInfo);
                     //覆盖总时长
-                    NodeTotalTimes[neighbourId] = newTotalTime;
+                    NodeTotalTimes[neighbourHash] = newTotalTime;
+                    //覆盖精确preconditions
+                    ReplaceSpecifiedPreconditions(neighbourHash, ref tempPreconditionIndices,
+                        ref tempPreconditions);
                     
                     var priority = newTotalTime -
                                    (newRewardSum + neighbourNode.Heuristic(ref NodeGraph));
-                    openSet.Push(new MinHeapNode<int>(neighbourId, priority));
-                    cameFrom[neighbourId] = currentId;
-                    rewardSum[neighbourId] = newRewardSum;
+                    openSet.Push(new MinHeapNode<int>(neighbourHash, priority));
+                    cameFrom[neighbourHash] = currentHash;
+                    rewardSum[neighbourHash] = newRewardSum;
+                    NodeNavigateSubjects[neighbourHash] = neighbourNavigateSubject;
 
                     neighbourAgentsInfo.Dispose();
+                    tempPreconditionIndices.Dispose();
+                    tempPreconditions.Dispose();
                 }
 
                 _iterations++;
-                neighboursId.Dispose();
+                neighboursHash.Dispose();
             }
                 
             //Construct path
@@ -146,12 +174,12 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             //Log Result
             var success = true;
             var log = new NativeString64("Path finding success");
-            if (!openSet.HasNext() && currentId != goalId)
+            if (!openSet.HasNext() && currentHash != goalId)
             {
                 success = false;
                 log = new NativeString64("Out of openset");
             }
-            if (_iterations >= IterationLimit && currentId != goalId)
+            if (_iterations >= IterationLimit && currentHash != goalId)
             {
                 success = false;
                 log = new NativeString64("Iteration limit reached");
@@ -165,6 +193,124 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             openSet.Dispose();
             cameFrom.Dispose();
             rewardSum.Dispose();
+        }
+        
+        private void GetAllSpecificPreconditions(Node neighbourNode, int currentHash,
+            NativeHashMap<int, int> cameFrom,
+            ref NativeList<int> tempSpecifiedPreconditionIndices,
+            ref NativeList<State> tempSpecifiedPreconditions)
+        {
+            var preconditions =
+                NodeGraph.GetNodePreconditions(neighbourNode, Allocator.Temp);
+            for(var preconditionId = 0; preconditionId < preconditions.Length(); preconditionId++)
+            {
+                var precondition = preconditions[preconditionId];
+                tempSpecifiedPreconditionIndices.Add(neighbourNode.HashCode);
+                
+                if (!precondition.IsScopeState())
+                {
+                    tempSpecifiedPreconditions.Add(precondition);
+                }
+                else
+                {
+                    //往子追溯寻找对应的具体effect以替代宽泛precondition
+                    //构建子节点列表
+                    var childrenHash = new NativeList<int>(Allocator.Temp);
+                    var nodeHash = currentHash;
+                    childrenHash.Add(nodeHash);
+                    while (cameFrom.ContainsKey(nodeHash))
+                    {
+                        nodeHash = cameFrom[nodeHash];
+                        childrenHash.Add(nodeHash);
+                    }
+
+                    var childSpecificEffect = default(State);
+                    for (var childId = 0; childId < childrenHash.Length; childId++)
+                    {
+                        var childHash = childrenHash[childId];
+                        var childEffects = NodeGraph.GetNodeEffects(NodeGraph[childHash],
+                            Allocator.Temp);
+                        foreach (var childEffect in childEffects)
+                        {
+                            if (!childEffect.BelongTo(precondition)) continue;
+                            childSpecificEffect = childEffect;
+                            break;
+                        }
+
+                        childEffects.Dispose();
+                        if (!childSpecificEffect.Equals(default(State))) break;
+                    }
+
+                    //应该肯定能够找到对应state
+                    Assert.IsFalse(childSpecificEffect.Equals(default));
+                    
+                    tempSpecifiedPreconditions.Add(childSpecificEffect);
+                    childrenHash.Dispose();
+                }
+            }
+            preconditions.Dispose();
+        }
+
+        private void ReplaceSpecifiedPreconditions(int nodeHash,
+            ref NativeList<int> newPreconditionIndices, ref NativeList<State> newPreconditions)
+        {
+            for (var i = 0; i < SpecifiedPreconditionIndices.Length; i++)
+            {
+                if (!SpecifiedPreconditionIndices[i].Equals(nodeHash)) continue;
+                SpecifiedPreconditionIndices.RemoveAtSwapBack(i);
+                SpecifiedPreconditions.RemoveAtSwapBack(i);
+            }
+            SpecifiedPreconditionIndices.AddRange(newPreconditionIndices);
+            SpecifiedPreconditions.AddRange(newPreconditions);
+        }
+
+        private float3 NeighbourNavigatingPosition(Node neighbourNode,
+            ref NativeList<int> preconditionIndices, ref NativeList<State> preconditions,
+            out bool isNeedNavigate, out Entity navigateSubject)
+        {
+            float3 neighbourNavigatingPosition;
+            switch (neighbourNode.NavigatingSubjectType)
+            {
+                case NodeNavigatingSubjectType.PreconditionTarget:
+                {
+                    //找到关键precondition
+                    var navigateSubjectId = neighbourNode.NavigatingSubjectId;
+                    var precondition = State.Null;
+                    //subjectId标识的是第几个precondition的target为导航目标，因此需要计数直到找到
+                    var preconditionCount = -1;
+                    for (var i = 0; i < preconditionIndices.Length; i++)
+                    {
+                        if (!preconditionIndices[i].Equals(neighbourNode.HashCode)) continue;
+                        preconditionCount++;
+                        if (preconditionCount != navigateSubjectId) continue;
+                        precondition = preconditions[i];
+                    }
+                    Assert.AreNotEqual(State.Null, precondition);
+                
+                    neighbourNavigatingPosition = precondition.Position;
+                    navigateSubject = precondition.Target;
+                    isNeedNavigate = true;
+                    break;
+                }
+                case NodeNavigatingSubjectType.EffectTarget:
+                {
+                    var neighbourEffects =
+                        NodeGraph.GetNodeEffects(neighbourNode, Allocator.Temp);
+                    var effect = neighbourEffects[neighbourNode.NavigatingSubjectId];
+                    neighbourNavigatingPosition = effect.Position;
+                    navigateSubject = effect.Target;
+                    isNeedNavigate = true;
+                    neighbourEffects.Dispose();
+                    break;
+                }
+                default:
+                    neighbourNavigatingPosition = float3.zero;
+                    navigateSubject = Entity.Null;
+                    isNeedNavigate = false;
+                    break;
+            }
+
+            return neighbourNavigatingPosition;
         }
 
         private void InitNodeAgentInfos(ref NativeMultiHashMap<int, NodeAgentInfo> nodeAgentInfos, int startId)
@@ -192,12 +338,14 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         /// <param name="currentNodeId"></param>
         /// <param name="currentTotalTime"></param>
         /// <param name="neighbourNode"></param>
+        /// <param name="neighbourNavigatingPosition"></param>
+        /// <param name="isNeedNavigate"></param>
         /// <param name="neighbourExecutorMoveSpeed"></param>
         /// <param name="allocator"></param>
         /// <param name="newTotalTime"></param>
         /// <returns>新的agents信息</returns>
         private NativeList<NodeAgentInfo> UpdateNeighbourAgentsInfo(ref NativeMultiHashMap<int, NodeAgentInfo> agentsInfoOnNode,
-            int currentNodeId, float currentTotalTime, Node neighbourNode,
+            int currentNodeId, float currentTotalTime, Node neighbourNode, float3 neighbourNavigatingPosition, bool isNeedNavigate,
             float neighbourExecutorMoveSpeed, Allocator allocator, out float newTotalTime)
         {
             var agentsInfo = new NativeList<NodeAgentInfo>(10, allocator);
@@ -211,8 +359,11 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                 //其他agent的时间信息则直接拷贝给neighbour
                 if (currentNodeAgentInfo.AgentEntity.Equals(neighbourNode.AgentExecutorEntity))
                 {
-                    var distance = math.distance(currentNodeAgentInfo.EndPosition,
-                        neighbourNode.NavigatingSubjectPosition);
+                    var distance = 0f;
+                    if(isNeedNavigate){
+                        distance = math.distance(currentNodeAgentInfo.EndPosition,
+                        neighbourNavigatingPosition);
+                    }
                     var timeNavigate = distance / neighbourExecutorMoveSpeed;
 
                     //如果我之前的availableTime累加上我的timeNavigate还小于当前的totalTime的话
@@ -228,7 +379,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     var newInfo = new NodeAgentInfo
                     {
                         AgentEntity = neighbourNode.AgentExecutorEntity,
-                        EndPosition = neighbourNode.NavigatingSubjectPosition,
+                        EndPosition = neighbourNavigatingPosition,
                         NavigateTime = timeNavigate,
                         ExecuteTime = neighbourNode.ExecuteTime,
                         AvailableTime = estimateExecuteStartTime + neighbourNode.ExecuteTime,

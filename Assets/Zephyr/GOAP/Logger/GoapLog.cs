@@ -57,6 +57,14 @@ namespace Zephyr.GOAP.Logger
             _currentResult.SetCurrentStates(ref currentStates, entityManager);
         }
 
+        public void SetSpecifiedPreconditions(EntityManager entityManager,
+            ref NativeList<int> pathNodeSpecifiedPreconditionIndices,
+            ref NativeList<State> pathNodeSpecifiedPreconditions)
+        {
+            _currentResult.SetSpecifiedPreconditions(entityManager,
+                ref pathNodeSpecifiedPreconditionIndices, ref pathNodeSpecifiedPreconditions);
+        }
+
         public NodeLog GetGoalNodeView()
         {
             return _currentResult.nodes[0];
