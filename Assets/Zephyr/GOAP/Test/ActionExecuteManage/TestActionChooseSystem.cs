@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using Unity.Entities;
 using Zephyr.GOAP.Component;
+using Zephyr.GOAP.Component.ActionNodeState;
 using Zephyr.GOAP.Component.AgentState;
 using Zephyr.GOAP.Struct;
 using Zephyr.GOAP.System.ActionExecuteManage;

@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
 using Zephyr.GOAP.Component;
+using Zephyr.GOAP.Component.ActionNodeState;
 using Zephyr.GOAP.Component.AgentState;
 using Zephyr.GOAP.Component.GoalManage.GoalState;
 using Zephyr.GOAP.Component.Trait;
@@ -44,7 +45,15 @@ namespace Zephyr.GOAP
         {
             entityManager.RemoveComponent<T>(goalEntity);
             entityManager.AddComponentData(goalEntity, new U{Time = (float)time});
-            }
+        }
+        
+        public static void NextActionNodeState<T, TU>(Entity actionNodeEntity, int jobIndex,
+            ref EntityCommandBuffer.Concurrent eCBuffer, Entity agentEntity) 
+            where T : struct, IComponentData, IActionNodeState where TU : struct, IComponentData, IActionNodeState
+        {
+            eCBuffer.RemoveComponent<T>(jobIndex, actionNodeEntity);
+            eCBuffer.AddComponent(jobIndex, actionNodeEntity, new TU{AgentEntity = agentEntity});
+        }
 
         /// <summary>
         /// 根据传入的配方输出筛选，传出其对应的输入State组

@@ -4,6 +4,7 @@ using Unity.Jobs;
 using UnityEngine.Assertions;
 using Zephyr.GOAP.Action;
 using Zephyr.GOAP.Component;
+using Zephyr.GOAP.Component.ActionNodeState;
 using Zephyr.GOAP.Component.AgentState;
 using Zephyr.GOAP.Game.ComponentData;
 using Zephyr.GOAP.Struct;
@@ -17,11 +18,14 @@ namespace Zephyr.GOAP.System.ActionExecuteSystem
 
         public EntityCommandBufferSystem EcbSystem;
 
+        private static NativeString64 _nameOfAction;
+
         protected override void OnCreate()
         {
             base.OnCreate();
+            _nameOfAction = nameof(PickRawAction);
             _waitingActionNodeQuery = GetEntityQuery(new EntityQueryDesc{
-                All =  new []{ComponentType.ReadOnly<Node>()},
+                All =  new []{ComponentType.ReadOnly<Node>(), ComponentType.ReadOnly<ActionNodeActing>(), },
                 None = new []{ComponentType.ReadOnly<NodeDependency>()}});
             EcbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
         }
@@ -47,11 +51,13 @@ namespace Zephyr.GOAP.System.ActionExecuteSystem
                 {
                     for (var i = 0; i < waitingNodeEntities.Length; i++)
                     {
+                        var nodeEntity = waitingNodeEntities[i];
                         var node = waitingNodes[i];
+                        
                         if (!node.AgentExecutorEntity.Equals(agentEntity)) continue;
-                        if (!node.Name.Equals(nameof(PickRawAction))) continue;
+                        if (!node.Name.Equals(_nameOfAction)) continue;
 
-                        var states = waitingStates[waitingNodeEntities[i]];
+                        var states = waitingStates[nodeEntity];
                         //从precondition里找物品名.
                         var targetItemName = new NativeString64();
                         for (var stateId = 0; stateId < states.Length; stateId++)
@@ -70,9 +76,12 @@ namespace Zephyr.GOAP.System.ActionExecuteSystem
                         containedItemRefs.Add(new ContainedItemRef{ItemName = targetItemName});
                 
                         //通知执行完毕
-                        // Utils.NextAgentState<ReadyToAct, ReadyToNavigate>(agentEntity, entityInQueryIndex, ref ecb);
+                        Utils.NextAgentState<ReadyToAct, ActDone>(agentEntity, entityInQueryIndex,
+                            ref ecb, nodeEntity);
                         
-                        //todo node指示执行完毕 
+                        //node指示执行完毕 
+                        Utils.NextActionNodeState<ActionNodeActing, ActionNodeDone>(nodeEntity, entityInQueryIndex,
+                            ref ecb, agentEntity);
                         return;
                     }
                 }).Schedule(inputDeps);

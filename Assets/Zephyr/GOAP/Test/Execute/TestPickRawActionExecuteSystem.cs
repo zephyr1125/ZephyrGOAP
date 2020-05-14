@@ -2,6 +2,8 @@ using NUnit.Framework;
 using Unity.Collections;
 using Unity.Entities;
 using Zephyr.GOAP.Action;
+using Zephyr.GOAP.Component;
+using Zephyr.GOAP.Component.ActionNodeState;
 using Zephyr.GOAP.Component.AgentState;
 using Zephyr.GOAP.Component.Trait;
 using Zephyr.GOAP.Game.ComponentData;
@@ -14,7 +16,7 @@ namespace Zephyr.GOAP.Test.Execute
     {
         private PickRawActionExecuteSystem _system;
 
-        private Entity _rawEntity; 
+        private Entity _actionNodeEntity, _rawEntity; 
 
         [SetUp]
         public override void SetUp()
@@ -27,15 +29,16 @@ namespace Zephyr.GOAP.Test.Execute
             EntityManager.AddComponentData(_agentEntity, new PickRawAction());
             EntityManager.AddBuffer<ContainedItemRef>(_agentEntity);
 
-            var actionEntity = EntityManager.CreateEntity();
-            EntityManager.AddComponentData(actionEntity, new Node
+            _actionNodeEntity = EntityManager.CreateEntity();
+            EntityManager.AddComponentData(_actionNodeEntity, new Node
             {
                 AgentExecutorEntity = _agentEntity,
                 Name = nameof(PickRawAction),
                 PreconditionsBitmask = 1,
                 EffectsBitmask = 1 << 1
             });
-            var bufferStates = EntityManager.AddBuffer<State>(actionEntity);
+            EntityManager.AddComponentData(_actionNodeEntity, new ActionNodeActing());
+            var bufferStates = EntityManager.AddBuffer<State>(_actionNodeEntity);
             bufferStates.Add(new State
             {
                 Target = _rawEntity,
@@ -71,7 +74,10 @@ namespace Zephyr.GOAP.Test.Execute
             EntityManager.CompleteAllJobs();
             
             Assert.False(EntityManager.HasComponent<ReadyToAct>(_agentEntity));
-            Assert.True(EntityManager.HasComponent<ReadyToNavigate>(_agentEntity));
+            Assert.True(EntityManager.HasComponent<ActDone>(_agentEntity));
+            
+            Assert.False(EntityManager.HasComponent<ActionNodeActing>(_actionNodeEntity));
+            Assert.True(EntityManager.HasComponent<ActionNodeDone>(_actionNodeEntity));
         }
     }
 }
