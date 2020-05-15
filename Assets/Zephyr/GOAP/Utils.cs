@@ -39,6 +39,14 @@ namespace Zephyr.GOAP
             entityManager.RemoveComponent<T>(agentEntity);
             entityManager.AddComponent<U>(agentEntity);
         }
+        
+        public static void NextAgentState<T, TU>(Entity agentEntity,
+            ref EntityCommandBuffer eCBuffer, Entity nodeEntity) 
+            where T : struct, IComponentData, IAgentState where TU : struct, IComponentData, IAgentState
+        {
+            eCBuffer.RemoveComponent<T>(agentEntity);
+            eCBuffer.AddComponent(agentEntity, new TU{NodeEntity = nodeEntity});
+        }
 
         public static void NextGoalState<T, U>(Entity goalEntity, EntityManager entityManager,
             double time) where T : struct, IComponentData, IGoalState where U : struct, IComponentData, IGoalState
