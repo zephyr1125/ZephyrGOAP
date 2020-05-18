@@ -11,28 +11,40 @@ using Zephyr.GOAP.System.ActionExecuteSystem;
 
 namespace Zephyr.GOAP.Test.Execute
 {
-    public class TestPickRawActionExecuteSystem : TestActionExecuteBase
+    public class TestDropRawActionExecuteSystem : TestActionExecuteBase
     {
-        private PickRawActionExecuteSystem _system;
+        private DropRawActionExecuteSystem _system;
 
-        private Entity _actionNodeEntity, _rawEntity; 
+        private Entity _actionNodeEntity, _containerEntity; 
 
         [SetUp]
         public override void SetUp()
         {
             base.SetUp();
 
-            _system = World.GetOrCreateSystem<PickRawActionExecuteSystem>();
-            _rawEntity = EntityManager.CreateEntity();
+            _system = World.GetOrCreateSystem<DropRawActionExecuteSystem>();
+            _containerEntity = EntityManager.CreateEntity();
             
-            EntityManager.AddComponentData(_agentEntity, new PickRawAction());
-            EntityManager.AddBuffer<ContainedItemRef>(_agentEntity);
+            EntityManager.AddComponentData(_agentEntity, new DropRawAction());
+            var buffer = EntityManager.AddBuffer<ContainedItemRef>(_agentEntity);
+            buffer.Add(new ContainedItemRef
+            {
+                ItemEntity = new Entity {Index = 9, Version = 9},
+                ItemName = "item"
+            });
+            
+            buffer = EntityManager.AddBuffer<ContainedItemRef>(_containerEntity);
+            buffer.Add(new ContainedItemRef
+            {
+                ItemEntity = new Entity {Index = 8, Version = 9},
+                ItemName = "origin"
+            });
 
             _actionNodeEntity = EntityManager.CreateEntity();
             EntityManager.AddComponentData(_actionNodeEntity, new Node
             {
                 AgentExecutorEntity = _agentEntity,
-                Name = nameof(PickRawAction),
+                Name = nameof(DropRawAction),
                 PreconditionsBitmask = 1,
                 EffectsBitmask = 1 << 1
             });
@@ -40,29 +52,37 @@ namespace Zephyr.GOAP.Test.Execute
             var bufferStates = EntityManager.AddBuffer<State>(_actionNodeEntity);
             bufferStates.Add(new State
             {
-                Target = _rawEntity,
-                Trait = typeof(RawSourceTrait),
+                Target = _agentEntity,
+                Trait = typeof(RawTransferTrait),
                 ValueString = new NativeString64("item"),
             });
             bufferStates.Add(new State
             {
-                Target = _agentEntity,
-                Trait = typeof(RawTransferTrait),
+                Target = _containerEntity,
+                Trait = typeof(RawDestinationTrait),
                 ValueString = new NativeString64("item"),
             });
         }
 
         [Test]
-        public void AgentGotItem()
+        public void TargetGotItem()
         {
             _system.Update();
             _system.EcbSystem.Update();
             EntityManager.CompleteAllJobs();
             
-            var itemBuffer = EntityManager.GetBuffer<ContainedItemRef>(_agentEntity);
-            Assert.AreEqual(1, itemBuffer.Length);
+            var itemBuffer = EntityManager.GetBuffer<ContainedItemRef>(_containerEntity);
+            Assert.AreEqual(2, itemBuffer.Length);
             Assert.AreEqual(new ContainedItemRef
-                {ItemName = new NativeString64("item")}, itemBuffer[0]);
+            {
+                ItemEntity = new Entity {Index = 8, Version = 9},
+                ItemName = new NativeString64("origin")
+            }, itemBuffer[0]);
+            Assert.AreEqual(new ContainedItemRef
+            {
+                ItemEntity = new Entity {Index = 9, Version = 9},
+                ItemName = new NativeString64("item")
+            }, itemBuffer[1]);
         }
 
         [Test]

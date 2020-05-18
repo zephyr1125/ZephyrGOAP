@@ -1,7 +1,7 @@
+using Unity.Assertions;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-using UnityEngine.Assertions;
 using Zephyr.GOAP.Action;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.ActionNodeState;
@@ -11,51 +11,34 @@ using Zephyr.GOAP.Struct;
 
 namespace Zephyr.GOAP.System.ActionExecuteSystem
 {
-    [UpdateInGroup(typeof(SimulationSystemGroup))]
-    public class PickRawActionExecuteSystem : JobComponentSystem
+    public class PickRawActionExecuteSystem : ActionExecuteSystemBase
     {
-        private EntityQuery _waitingActionNodeQuery;
-
-        public EntityCommandBufferSystem EcbSystem;
-
-        private static NativeString64 _nameOfAction;
-
-        protected override void OnCreate()
+        protected override NativeString64 GetNameOfAction()
         {
-            base.OnCreate();
-            _nameOfAction = nameof(PickRawAction);
-            _waitingActionNodeQuery = GetEntityQuery(new EntityQueryDesc{
-                All =  new []{ComponentType.ReadOnly<Node>(), ComponentType.ReadOnly<ActionNodeActing>(), },
-                None = new []{ComponentType.ReadOnly<NodeDependency>()}});
-            EcbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+            return nameof(PickRawAction);
         }
 
-        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        protected override JobHandle ExecuteActionJob(NativeString64 nameOfAction,
+            NativeArray<Entity> waitingNodeEntities,
+            NativeArray<Node> waitingNodes, BufferFromEntity<State> waitingStates,
+            EntityCommandBuffer.Concurrent ecb, JobHandle inputDeps)
         {
-            //找出所有可执行的PickRawAction
-            var waitingNodeEntities = _waitingActionNodeQuery.ToEntityArray(Allocator.TempJob);
-            var waitingNodes =
-                _waitingActionNodeQuery.ToComponentDataArray<Node>(Allocator.TempJob);
-            var waitingStates = GetBufferFromEntity<State>();
-
-            var ecb = EcbSystem.CreateCommandBuffer().ToConcurrent();
-
-            var handle = Entities.WithName("PickRawActionExecuteJob")
+            return Entities.WithName("PickRawActionExecuteJob")
                 .WithAll<ReadyToAct>()
                 .WithDeallocateOnJobCompletion(waitingNodeEntities)
                 .WithDeallocateOnJobCompletion(waitingNodes)
                 .WithReadOnly(waitingStates)
                 .ForEach((Entity agentEntity, int entityInQueryIndex,
                     DynamicBuffer<ContainedItemRef> containedItemRefs,
-                    in Agent agent, in PickRawAction pickRawAction) =>
+                    in Agent agent, in PickRawAction action) =>
                 {
                     for (var i = 0; i < waitingNodeEntities.Length; i++)
                     {
                         var nodeEntity = waitingNodeEntities[i];
                         var node = waitingNodes[i];
-                        
+
                         if (!node.AgentExecutorEntity.Equals(agentEntity)) continue;
-                        if (!node.Name.Equals(_nameOfAction)) continue;
+                        if (!node.Name.Equals(nameOfAction)) continue;
 
                         var states = waitingStates[nodeEntity];
                         //从precondition里找物品名.
@@ -63,32 +46,29 @@ namespace Zephyr.GOAP.System.ActionExecuteSystem
                         for (var stateId = 0; stateId < states.Length; stateId++)
                         {
                             if ((node.PreconditionsBitmask & (ulong) 1 << stateId) <= 0) continue;
-                            
+
                             var precondition = states[i];
-                            Assert.IsTrue(precondition.Target!=null);
-                        
+                            Assert.IsTrue(precondition.Target != Entity.Null);
+
                             targetItemName = precondition.ValueString;
                             break;
                         }
                         //todo 目前原料源不使用物品容器，直接提供无限的原料物品
 
                         //自己获得物品
-                        containedItemRefs.Add(new ContainedItemRef{ItemName = targetItemName});
-                
+                        containedItemRefs.Add(new ContainedItemRef {ItemName = targetItemName});
+
                         //通知执行完毕
                         Utils.NextAgentState<ReadyToAct, ActDone>(agentEntity, entityInQueryIndex,
                             ref ecb, nodeEntity);
-                        
+
                         //node指示执行完毕 
-                        Utils.NextActionNodeState<ActionNodeActing, ActionNodeDone>(nodeEntity, entityInQueryIndex,
+                        Utils.NextActionNodeState<ActionNodeActing, ActionNodeDone>(nodeEntity,
+                            entityInQueryIndex,
                             ref ecb, agentEntity);
-                        return;
+                        break;
                     }
                 }).Schedule(inputDeps);
-             
-                EcbSystem.AddJobHandleForProducer(handle);
-
-                return handle;
         }
     }
 }
