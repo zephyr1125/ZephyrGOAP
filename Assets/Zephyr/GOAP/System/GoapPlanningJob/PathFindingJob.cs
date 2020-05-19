@@ -67,7 +67,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             var graphSize = NodeGraph.Length();
                 
             //Generate Working Containers
-            var openSet = new NativeMinHeap<int>(graphSize, Allocator.Temp);
+            var openSet = new ZephyrNativeMinHeap<int>(Allocator.Temp);
             var cameFrom = new NativeHashMap<int, int>(graphSize, Allocator.Temp);
             var rewardSum = new NativeHashMap<int, float>(graphSize, Allocator.Temp);
 
@@ -75,7 +75,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             var startId = StartNodeId;
             var goalId = GoalNodeId;
 
-            openSet.Push(new MinHeapNode<int>(startId, 0));
+            openSet.Add(new MinHashNode<int>(startId, 0));
             
             rewardSum[startId] = 0;
             InitNodeAgentInfos(ref NodeAgentInfos, startId);
@@ -84,7 +84,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             var currentHash = -1;
             while (_iterations<IterationLimit && openSet.HasNext())
             {
-                currentHash = openSet[openSet.Pop()].Content;
+                currentHash = openSet.PopMin().Content;
                 var currentNode = NodeGraph[currentHash];
                 var currentTotalTime = NodeTotalTimes[currentHash];
                 
@@ -148,9 +148,10 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     
                     var priority = newTotalTime -
                                    (newRewardSum + neighbourNode.Heuristic(ref NodeGraph));
-                    openSet.Push(new MinHeapNode<int>(neighbourHash, priority));
+                    openSet.Add(new MinHashNode<int>(neighbourHash, priority));
                     cameFrom[neighbourHash] = currentHash;
                     rewardSum[neighbourHash] = newRewardSum;
+                    
                     NodeNavigateSubjects[neighbourHash] = neighbourNavigateSubject;
 
                     neighbourAgentsInfo.Dispose();

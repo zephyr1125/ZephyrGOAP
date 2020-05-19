@@ -37,6 +37,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
             _rawAppleEntity = EntityManager.CreateEntity();
             _rawPeachEntity = EntityManager.CreateEntity();
             
+            EntityManager.AddComponentData(_agentEntity, new EatAction());
             EntityManager.AddComponentData(_agentEntity, new CookAction{Level = 1});
             EntityManager.AddComponentData(_agentEntity, new PickItemAction());
             EntityManager.AddComponentData(_agentEntity, new DropItemAction());
@@ -47,6 +48,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
             
             EntityManager.AddComponentData(_agentBEntity, new Agent());
             EntityManager.AddComponentData(_agentBEntity, new Translation());
+            EntityManager.AddComponentData(_agentBEntity, new EatAction());
             EntityManager.AddComponentData(_agentBEntity, new CookAction{Level = 0});
             EntityManager.AddComponentData(_agentBEntity, new PickItemAction());
             EntityManager.AddComponentData(_agentBEntity, new DropItemAction());
@@ -63,8 +65,20 @@ namespace Zephyr.GOAP.Test.ActionExpand
                 ValueString = "feast"
             });
             
+            // SetGoal(new State
+            // {
+            //     Target = _agentEntity,
+            //     Trait = typeof(StaminaTrait),
+            // });
+            
             //给CurrentStates写入假环境数据：世界里有原料、配方
             var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
+            buffer.Add(new State
+            {
+                Target = _diningTableEntity,
+                Position = new float3(1,0,0),
+                Trait = typeof(DiningTableTrait),
+            });
             buffer.Add(new State
             {
                 Target = _cookerEntity,
