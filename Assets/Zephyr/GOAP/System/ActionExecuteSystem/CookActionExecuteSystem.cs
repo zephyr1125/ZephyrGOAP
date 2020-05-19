@@ -1,110 +1,108 @@
-// using Unity.Collections;
-// using Unity.Entities;
-// using Unity.Jobs;
-// using UnityEngine.Assertions;
-// using Zephyr.GOAP.Action;
-// using Zephyr.GOAP.Component;
-// using Zephyr.GOAP.Component.AgentState;
-// using Zephyr.GOAP.Component.Trait;
-// using Zephyr.GOAP.Game.ComponentData;
-// using Zephyr.GOAP.Struct;
-//
-// namespace Zephyr.GOAP.System.ActionExecuteSystem
-// {
-//     /// <summary>
-//     /// 在实际游戏中，应该是调用设施的制作方法并等待结果，示例从简，就直接进行物品处理了
-//     /// </summary>
-//     [UpdateInGroup(typeof(SimulationSystemGroup))]
-//     public class CookActionExecuteSystem : JobComponentSystem
-//     {
-//         public EntityCommandBufferSystem ECBSystem;
-//
-//         protected override void OnCreate()
-//         {
-//             base.OnCreate();
-//             ECBSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
-//         }
-//
-//         // [BurstCompile]
-//         [RequireComponentTag(typeof(CookAction), typeof(ReadyToAct))]
-//         public struct ActionExecuteJob : IJobForEachWithEntity_EBBC<Node, State, Agent>
-//         {
-//             [NativeDisableParallelForRestriction]
-//             public BufferFromEntity<ContainedItemRef> ContainedItemRefs;
-//             
-//             public EntityCommandBuffer.Concurrent ECBuffer;
-//             
-//             public void Execute(Entity entity, int jobIndex, DynamicBuffer<Node> nodes,
-//                 DynamicBuffer<State> states, ref Agent agent)
-//             {
-//                 //执行进度要处于正确的id上
-//                 var currentNode = nodes[agent.ExecutingNodeId];
-//                 if (!currentNode.Name.Equals(new NativeString64(nameof(CookAction))))
-//                     return;
-//
-//                 //从precondition里找CookerEntity以及原料
-//                 var cookerEntity = Entity.Null;
-//                 var inputItemNames = new NativeHashMap<NativeString64, int>(2, Allocator.Temp);
-//                 for (var i = 0; i < states.Length; i++)
-//                 {
-//                     if ((currentNode.PreconditionsBitmask & (ulong) 1 << i) <= 0) continue;
-//                     var precondition = states[i];
-//                     if (precondition.Trait != typeof(ItemDestinationTrait)) continue;
-//                     cookerEntity = precondition.Target;
-//                     var itemName = precondition.ValueString;
-//                     Assert.IsFalse(itemName.Equals(new NativeString64()));
-//                     if (!inputItemNames.ContainsKey(itemName))
-//                     {
-//                         inputItemNames.TryAdd(itemName, 1);
-//                     }
-//                     else
-//                     {
-//                         inputItemNames[precondition.ValueString] ++;
-//                     }
-//                 }
-//                 //从effect获取产物
-//                 var outputItemName = new NativeString64();
-//                 for (var i = 0; i < states.Length; i++)
-//                 {
-//                     if ((currentNode.EffectsBitmask & (ulong) 1 << i) <= 0) continue;
-//                     var itemName = states[i].ValueString;
-//                     Assert.IsFalse(itemName.Equals(new NativeString64()));
-//                     outputItemName = itemName;
-//                     break;
-//                 }
-//                 
-//                 //从cooker容器找到原料物品引用，并移除
-//                 var itemsInCooker = ContainedItemRefs[cookerEntity];
-//                 //简便考虑，示例项目就不真的移除物品entity了
-//                 for (var i = itemsInCooker.Length - 1; i >= 0; i--)
-//                 {
-//                     var containedItemRef = itemsInCooker[i];
-//                     if (!inputItemNames.ContainsKey(containedItemRef.ItemName)) continue;
-//                     if (inputItemNames[containedItemRef.ItemName] == 0) continue;
-//                     itemsInCooker.RemoveAt(i);
-//                 }
-//                 inputItemNames.Dispose();
-//
-//                 //cooker容器获得产物
-//                 //简便考虑，示例项目就不真的创建物品entity了
-//                 itemsInCooker.Add(new ContainedItemRef {ItemName = outputItemName});
-//                 
-//                 //通知执行完毕
-//                 Utils.NextAgentState<ReadyToAct, ReadyToNavigate>(
-//                     entity, jobIndex, ref ECBuffer, agent, true);
-//             }
-//         }
-//         
-//         protected override JobHandle OnUpdate(JobHandle inputDeps)
-//         {
-//             var job = new ActionExecuteJob
-//             {
-//                 ContainedItemRefs = GetBufferFromEntity<ContainedItemRef>(),
-//                 ECBuffer = ECBSystem.CreateCommandBuffer().ToConcurrent()
-//             };
-//             var handle = job.Schedule(this, inputDeps);
-//             ECBSystem.AddJobHandleForProducer(handle);
-//             return handle;
-//         }
-//     }
-// }
+using Unity.Collections;
+using Unity.Entities;
+using Unity.Jobs;
+using UnityEngine.Assertions;
+using Zephyr.GOAP.Action;
+using Zephyr.GOAP.Component;
+using Zephyr.GOAP.Component.ActionNodeState;
+using Zephyr.GOAP.Component.AgentState;
+using Zephyr.GOAP.Component.Trait;
+using Zephyr.GOAP.Game.ComponentData;
+using Zephyr.GOAP.Struct;
+
+namespace Zephyr.GOAP.System.ActionExecuteSystem
+{
+    /// <summary>
+    /// 在实际游戏中，应该是调用设施的制作方法并等待结果，示例从简，就直接进行物品处理了
+    /// </summary>
+    [UpdateInGroup(typeof(SimulationSystemGroup))]
+    public class CookActionExecuteSystem : ActionExecuteSystemBase
+    {
+        protected override JobHandle ExecuteActionJob(NativeString64 nameOfAction, NativeArray<Entity> waitingNodeEntities,
+            NativeArray<Node> waitingNodes, BufferFromEntity<State> waitingStates, EntityCommandBuffer.Concurrent ecb, JobHandle inputDeps)
+        {
+            var allItems = GetBufferFromEntity<ContainedItemRef>();
+            return Entities.WithName("PickRawActionExecuteJob")
+                .WithAll<ReadyToAct>()
+                .WithNativeDisableParallelForRestriction(allItems)
+                .WithDeallocateOnJobCompletion(waitingNodeEntities)
+                .WithDeallocateOnJobCompletion(waitingNodes)
+                .WithReadOnly(waitingStates)
+                .ForEach((Entity agentEntity, int entityInQueryIndex,
+                    in Agent agent, in CookAction action) =>
+                {
+                    for (var i = 0; i < waitingNodeEntities.Length; i++)
+                    {
+                        var nodeEntity = waitingNodeEntities[i];
+                        var node = waitingNodes[i];
+
+                        if (!node.AgentExecutorEntity.Equals(agentEntity)) continue;
+                        if (!node.Name.Equals(nameOfAction)) continue;
+
+                        var states = waitingStates[nodeEntity];
+                        //从precondition里找CookerEntity以及原料
+                        var cookerEntity = Entity.Null;
+                        var inputItemNames = new NativeHashMap<NativeString64, int>(2, Allocator.Temp);
+                        for (var stateId = 0; stateId < states.Length; stateId++)
+                        {
+                            if ((node.PreconditionsBitmask & (ulong) 1 << stateId) <= 0) continue;
+                            var precondition = states[stateId];
+                            if (precondition.Trait != typeof(ItemDestinationTrait)) continue;
+                            cookerEntity = precondition.Target;
+                            var itemName = precondition.ValueString;
+                            Assert.IsFalse(itemName.Equals(new NativeString64()));
+                            if (!inputItemNames.ContainsKey(itemName))
+                            {
+                                inputItemNames.TryAdd(itemName, 1);
+                            }
+                            else
+                            {
+                                inputItemNames[precondition.ValueString] ++;
+                            }
+                        }
+                        //从effect获取产物
+                        var outputItemName = new NativeString64();
+                        for (var stateId = 0; stateId < states.Length; stateId++)
+                        {
+                            if ((node.EffectsBitmask & (ulong) 1 << stateId) <= 0) continue;
+                            var itemName = states[stateId].ValueString;
+                            Assert.IsFalse(itemName.Equals(new NativeString64()));
+                            outputItemName = itemName;
+                            break;
+                        }
+                        
+                        //从cooker容器找到原料物品引用，并移除
+                        var itemsInCooker = allItems[cookerEntity];
+                        //简便考虑，示例项目就不真的移除物品entity了
+                        for (var itemId = itemsInCooker.Length - 1; itemId >= 0; itemId--)
+                        {
+                            var containedItemRef = itemsInCooker[itemId];
+                            if (!inputItemNames.ContainsKey(containedItemRef.ItemName)) continue;
+                            if (inputItemNames[containedItemRef.ItemName] == 0) continue;
+                            itemsInCooker.RemoveAt(itemId);
+                        }
+                        inputItemNames.Dispose();
+
+                        //cooker容器获得产物
+                        //简便考虑，示例项目就不真的创建物品entity了
+                        itemsInCooker.Add(new ContainedItemRef {ItemName = outputItemName});
+                        
+                        //通知执行完毕
+                        Utils.NextAgentState<ReadyToAct, ActDone>(agentEntity, entityInQueryIndex,
+                            ref ecb, nodeEntity);
+
+                        //node指示执行完毕 
+                        Utils.NextActionNodeState<ActionNodeActing, ActionNodeDone>(nodeEntity,
+                            entityInQueryIndex,
+                            ref ecb, agentEntity);
+                        break;
+                    }
+                }).Schedule(inputDeps);
+        }
+
+        protected override NativeString64 GetNameOfAction()
+        {
+            return nameof(CookAction);
+        }
+    }
+}

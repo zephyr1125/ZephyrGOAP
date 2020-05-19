@@ -9,9 +9,9 @@ using Zephyr.GOAP.System.ActionExecuteSystem;
 
 namespace Zephyr.GOAP.Test.Execute
 {
-    public class TestDropRawActionExecuteSystem : TestActionExecuteBase
+    public class TestDropItemActionExecuteSystem : TestActionExecuteBase
     {
-        private DropRawActionExecuteSystem _system;
+        private DropItemActionExecuteSystem _system;
 
         private Entity _containerEntity; 
 
@@ -20,10 +20,10 @@ namespace Zephyr.GOAP.Test.Execute
         {
             base.SetUp();
 
-            _system = World.GetOrCreateSystem<DropRawActionExecuteSystem>();
+            _system = World.GetOrCreateSystem<DropItemActionExecuteSystem>();
             _containerEntity = EntityManager.CreateEntity();
-            
-            EntityManager.AddComponentData(_agentEntity, new DropRawAction());
+
+            EntityManager.AddComponentData(_agentEntity, new DropItemAction());
             var buffer = EntityManager.AddBuffer<ContainedItemRef>(_agentEntity);
             buffer.Add(new ContainedItemRef
             {
@@ -41,7 +41,7 @@ namespace Zephyr.GOAP.Test.Execute
             EntityManager.AddComponentData(_actionNodeEntity, new Node
             {
                 AgentExecutorEntity = _agentEntity,
-                Name = nameof(DropRawAction),
+                Name = nameof(DropItemAction),
                 PreconditionsBitmask = 1,
                 EffectsBitmask = 1 << 1
             });
@@ -49,13 +49,13 @@ namespace Zephyr.GOAP.Test.Execute
             bufferStates.Add(new State
             {
                 Target = _agentEntity,
-                Trait = typeof(RawTransferTrait),
+                Trait = typeof(ItemTransferTrait),
                 ValueString = new NativeString64("item"),
             });
             bufferStates.Add(new State
             {
                 Target = _containerEntity,
-                Trait = typeof(RawDestinationTrait),
+                Trait = typeof(ItemDestinationTrait),
                 ValueString = new NativeString64("item"),
             });
         }
