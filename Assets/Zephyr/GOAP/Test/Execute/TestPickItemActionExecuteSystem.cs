@@ -14,7 +14,7 @@ namespace Zephyr.GOAP.Test.Execute
     public class TestPickItemActionExecuteSystem : TestActionExecuteBase
     {
         private PickItemActionExecuteSystem _system;
-        private Entity _containerEntity, _actionNodeEntity;
+        private Entity _containerEntity;
 
         [SetUp]
         public override void SetUp()
@@ -37,7 +37,6 @@ namespace Zephyr.GOAP.Test.Execute
             EntityManager.AddBuffer<ContainedItemRef>(_agentEntity);
             
             //任务
-            _actionNodeEntity = EntityManager.CreateEntity();
             EntityManager.AddComponentData(_actionNodeEntity, new Node
             {
                 AgentExecutorEntity = _agentEntity,
@@ -45,7 +44,6 @@ namespace Zephyr.GOAP.Test.Execute
                 PreconditionsBitmask = 1,
                 EffectsBitmask = 1 << 1,
             });
-            EntityManager.AddComponentData(_actionNodeEntity, new ActionNodeActing());
             var bufferStates = EntityManager.AddBuffer<State>(_actionNodeEntity);
             bufferStates.Add(new State
             {
@@ -85,20 +83,6 @@ namespace Zephyr.GOAP.Test.Execute
             {
                 ItemName = new NativeString64("item"), ItemEntity = new Entity{Index = 99, Version = 9}
             }, itemBuffer[0]);
-        }
-
-        [Test]
-        public void ProgressGoOn()
-        {
-            _system.Update();
-            _system.EcbSystem.Update();
-            EntityManager.CompleteAllJobs();
-
-            Assert.False(EntityManager.HasComponent<ReadyToAct>(_agentEntity));
-            Assert.True(EntityManager.HasComponent<ActDone>(_agentEntity));
-            
-            Assert.False(EntityManager.HasComponent<ActionNodeActing>(_actionNodeEntity));
-            Assert.True(EntityManager.HasComponent<ActionNodeDone>(_actionNodeEntity));
         }
     }
 }

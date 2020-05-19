@@ -2,17 +2,15 @@ using NUnit.Framework;
 using Unity.Entities;
 using Unity.Transforms;
 using Zephyr.GOAP.Component;
+using Zephyr.GOAP.Component.ActionNodeState;
 using Zephyr.GOAP.Component.AgentState;
-using Zephyr.GOAP.Component.GoalManage;
-using Zephyr.GOAP.Struct;
 using Zephyr.GOAP.System;
-using Zephyr.GOAP.Test.Debugger;
 
 namespace Zephyr.GOAP.Test
 {
     public class TestActionExecuteBase : TestBase
     {
-        protected Entity _agentEntity;
+        protected Entity _agentEntity, _actionNodeEntity;
         
         [SetUp]
         public override void SetUp()
@@ -20,10 +18,13 @@ namespace Zephyr.GOAP.Test
             base.SetUp();
             
             _agentEntity = EntityManager.CreateEntity();
+            _actionNodeEntity = EntityManager.CreateEntity();
             
             EntityManager.AddComponentData(_agentEntity, new Agent());
             EntityManager.AddComponentData(_agentEntity, new Translation());
             EntityManager.AddComponentData(_agentEntity, new ReadyToAct());
+            
+            EntityManager.AddComponentData(_actionNodeEntity, new ActionNodeActing());
             
             World.GetOrCreateSystem<CurrentStatesHelper>().Update();
         }
