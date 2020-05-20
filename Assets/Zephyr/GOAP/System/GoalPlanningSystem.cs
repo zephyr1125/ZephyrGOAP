@@ -163,7 +163,7 @@ namespace Zephyr.GOAP.System
                     ref pathNodeNavigateSubjects, ref pathNodeSpecifiedPreconditionIndices, ref pathNodeSpecifiedPreconditions);
                 SavePath(ref pathNodes, ref nodeGraph, ref pathNodesEstimateNavigateTime, 
                     ref pathNodeNavigateSubjects, ref pathNodeSpecifiedPreconditionIndices, ref pathNodeSpecifiedPreconditions,
-                    out var pathEntities);
+                    goal.GoalEntity, out var pathEntities);
 
                 Debugger?.SetNodeGraph(ref nodeGraph, EntityManager);
                 Debugger?.SetNodeAgentInfos(EntityManager, ref nodeAgentInfos);
@@ -271,7 +271,7 @@ namespace Zephyr.GOAP.System
             [ReadOnly]ref NativeHashMap<int, float> pathNodesEstimateNavigateTime,
             [ReadOnly]ref NativeHashMap<int, Entity> pathNodeNavigateSubjects,
             [ReadOnly]ref NativeList<int> pathNodeSpecifiedPreconditionIndices,
-            [ReadOnly]ref NativeList<State> pathNodeSpecifiedPreconditions,
+            [ReadOnly]ref NativeList<State> pathNodeSpecifiedPreconditions, Entity goalEntity,
             out NativeArray<Entity> pathEntities)
         {
             pathEntities = new NativeArray<Entity>(pathNodes.Length, Allocator.Temp);
@@ -344,6 +344,14 @@ namespace Zephyr.GOAP.System
                     }
                 }
             }
+            
+            //链接到goal
+            var goalBuffer = EntityManager.AddBuffer<ActionNodeOfGoal>(goalEntity);
+            for (var i = 0; i < pathEntities.Length; i++)
+            {
+                goalBuffer.Add(new ActionNodeOfGoal {ActionNodeEntity = pathEntities[i]});
+            }
+
             pathPreconditionHashes.Dispose();
         }
 

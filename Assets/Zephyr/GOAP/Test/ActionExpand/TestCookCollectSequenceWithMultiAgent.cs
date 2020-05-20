@@ -57,19 +57,19 @@ namespace Zephyr.GOAP.Test.ActionExpand
             EntityManager.AddComponentData(_agentBEntity, new DropRawAction());
             EntityManager.AddComponentData(_agentBEntity, new MaxMoveSpeed{value = 2});
             
-            SetGoal(new State
-            {
-                Target = _cookerEntity,
-                Position = new float3(2, 0, 0),
-                Trait = typeof(ItemSourceTrait),
-                ValueString = "feast"
-            });
-            
             // SetGoal(new State
             // {
-            //     Target = _agentEntity,
-            //     Trait = typeof(StaminaTrait),
+            //     Target = _cookerEntity,
+            //     Position = new float3(2, 0, 0),
+            //     Trait = typeof(ItemSourceTrait),
+            //     ValueString = "feast"
             // });
+            
+            SetGoal(new State
+            {
+                Target = _agentEntity,
+                Trait = typeof(StaminaTrait),
+            });
             
             //给CurrentStates写入假环境数据：世界里有原料、配方
             var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
