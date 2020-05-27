@@ -79,16 +79,16 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         {
             var unexpandedNode = _unexpandedNodes[jobIndex];
             //只考虑node的首个state
-            var sortedStates = new NativeMinHeap<State>(2, Allocator.Temp);
+            var sortedStates = new ZephyrNativeMinHeap<State>(Allocator.Temp);
             for (var i = 0; i < _nodeStateIndices.Length; i++)
             {
                 if (!_nodeStateIndices[i].Equals(unexpandedNode.HashCode)) continue;
                 var state = _nodeStates[i];
                 var priority = state.Target.Index;
-                sortedStates.Push(new MinHeapNode<State>(_nodeStates[i], priority));
+                sortedStates.Add(new MinHashNode<State>(_nodeStates[i], priority));
             }
             var leftStates = new StateGroup(sortedStates, Allocator.Temp);
-            var targetStates = new StateGroup(sortedStates, 1, Allocator.Temp);
+            var targetStates = new StateGroup(leftStates, 1, Allocator.Temp);
             sortedStates.Dispose();
             
             var targetState = _action.GetTargetGoalState(ref targetStates, ref _stackData);

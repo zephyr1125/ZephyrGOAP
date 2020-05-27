@@ -148,20 +148,21 @@ namespace Zephyr.GOAP.Test.ActionExpand
         }
 
         [Test]
+        [Repeat(100)]
         public void PlanCookCollect()
         {
-            Profiler.logFile = nameof(TestCookCollectSequenceWithMultiAgent);
-            Profiler.enableBinaryLog = true;
-            Profiler.enabled = true;
+            // Profiler.logFile = nameof(TestCookCollectSequenceWithMultiAgent);
+            // Profiler.enableBinaryLog = true;
+            // Profiler.enabled = true;
             
-            Profiler.BeginSample(nameof(TestCookCollectSequenceWithMultiAgent));
+            // Profiler.BeginSample(nameof(TestCookCollectSequenceWithMultiAgent));
             _system.Update();
             _system.ECBSystem.Update();
             EntityManager.CompleteAllJobs();
-            Profiler.EndSample();
-
-            Profiler.enabled = false;
-            Profiler.logFile = "";
+            // Profiler.EndSample();
+            //
+            // Profiler.enabled = false;
+            // Profiler.logFile = "";
             
             Debug.Log(_debugger.GoalNodeLog);
             // var pathResult = _debugger.PathResult;

@@ -30,6 +30,8 @@ namespace Zephyr.GOAP.Struct
         [ReadOnly]
         private NativeList<State> _effects;
 
+        public NativeList<int> _deadEndNodeHashes;
+
         private int _goalNodeHash;
 
         /// <summary>
@@ -40,7 +42,7 @@ namespace Zephyr.GOAP.Struct
         public NodeGraph(int initialCapacity, ref DynamicBuffer<State> startNodeStates, Allocator allocator)
         {
             _nodes = new NativeHashMap<int, Node>(initialCapacity, allocator);
-            _nodeToParent = new NativeMultiHashMap<int, Edge>(initialCapacity, allocator);
+            _nodeToParent = new NativeMultiHashMap<int, Edge>(initialCapacity*4, allocator);
             
             _nodeStateIndices = new NativeList<int>(initialCapacity*4, allocator);
             _nodeStates = new NativeList<State>(initialCapacity*4, allocator);
@@ -50,6 +52,8 @@ namespace Zephyr.GOAP.Struct
             
             _effectIndices = new NativeList<int>(initialCapacity*4, allocator);
             _effects = new NativeList<State>(initialCapacity*4, allocator);
+            
+            _deadEndNodeHashes = new NativeList<int>(allocator);
             
             var startNode = new Node(){Name = new NativeString64("start")};
             _startNodeHash = startNode.HashCode;
@@ -408,6 +412,11 @@ namespace Zephyr.GOAP.Struct
             }
         }
 
+        public void AddDeadEndNode(int nodeHash)
+        {
+            _deadEndNodeHashes.Add(nodeHash);
+        }
+
 
         public void Dispose()
         {
@@ -422,6 +431,8 @@ namespace Zephyr.GOAP.Struct
             
             _effectIndices.Dispose();
             _effects.Dispose();
+
+            _deadEndNodeHashes.Dispose();
         }
     }
 }

@@ -99,9 +99,9 @@ namespace Zephyr.GOAP
             
             if (trait.Equals(typeof(FoodTrait)))
             {
-                result.Add(new NativeString64("raw_peach"));
+                // result.Add(new NativeString64("raw_peach"));
                 result.Add(new NativeString64("roast_peach"));
-                result.Add(new NativeString64("raw_apple"));
+                // result.Add(new NativeString64("raw_apple"));
                 result.Add(new NativeString64("roast_apple"));
                 result.Add(new NativeString64("feast"));
             }

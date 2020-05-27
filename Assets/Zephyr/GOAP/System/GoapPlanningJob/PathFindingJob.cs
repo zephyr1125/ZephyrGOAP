@@ -116,8 +116,15 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     //顺便保存依赖关系
                     var tempPreconditionIndices = new NativeList<int>(Allocator.Temp);
                     var tempPreconditions = new NativeList<State>(Allocator.Temp);
-                    GetAllSpecificPreconditions(neighbourNode, currentHash, cameFrom,
-                        ref tempPreconditionIndices, ref tempPreconditions);
+                    var allSpecificPreconditionsFound = GetAllSpecificPreconditions(neighbourNode,
+                        currentHash, cameFrom, ref tempPreconditionIndices, ref tempPreconditions);
+                    if (!allSpecificPreconditionsFound)
+                    {
+                        tempPreconditionIndices.Dispose();
+                        tempPreconditions.Dispose();
+                        continue;
+                    }
+                    
                     var neighbourNavigatingPosition = NeighbourNavigatingPosition(neighbourNode,
                         ref tempPreconditionIndices, ref tempPreconditions,
                         out var isNeedNavigate, out var neighbourNavigateSubject);
@@ -131,11 +138,18 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     if (rewardSum.ContainsKey(neighbourHash))
                     {
                         var oldTotalTime = NodeTotalTimes[neighbourHash];
-                        if (newTotalTime > oldTotalTime) continue;
+                        if (newTotalTime > oldTotalTime)
+                        {
+                            Clear(neighbourAgentsInfo, tempPreconditionIndices, tempPreconditions);
+                            continue;
+                        }
 
                         var fewerReward = newRewardSum <= rewardSum[neighbourHash];
                         if (Math.Abs(newTotalTime - oldTotalTime) < 0.1f && fewerReward)
+                        {
+                            Clear(neighbourAgentsInfo, tempPreconditionIndices, tempPreconditions);
                             continue;
+                        }
                     }
 
                     //新记录更好，覆盖旧记录
@@ -154,9 +168,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     
                     NodeNavigateSubjects[neighbourHash] = neighbourNavigateSubject;
 
-                    neighbourAgentsInfo.Dispose();
-                    tempPreconditionIndices.Dispose();
-                    tempPreconditions.Dispose();
+                    Clear(neighbourAgentsInfo, tempPreconditionIndices, tempPreconditions);
                 }
 
                 _iterations++;
@@ -194,13 +206,22 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             openSet.Dispose();
             cameFrom.Dispose();
             rewardSum.Dispose();
+
+            void Clear(NativeList<NodeAgentInfo> neighbourAgentsInfo, NativeList<int> tempPreconditionIndices,
+                NativeList<State> tempPreconditions)
+            {
+                neighbourAgentsInfo.Dispose();
+                tempPreconditionIndices.Dispose();
+                tempPreconditions.Dispose();
+            }
         }
         
-        private void GetAllSpecificPreconditions(Node neighbourNode, int currentHash,
+        private bool GetAllSpecificPreconditions(Node neighbourNode, int currentHash,
             NativeHashMap<int, int> cameFrom,
             ref NativeList<int> tempSpecifiedPreconditionIndices,
             ref NativeList<State> tempSpecifiedPreconditions)
         {
+            var allSpecificFound = true;
             var preconditions =
                 NodeGraph.GetNodePreconditions(neighbourNode, Allocator.Temp);
             for(var preconditionId = 0; preconditionId < preconditions.Length(); preconditionId++)
@@ -242,14 +263,16 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                         if (!childSpecificEffect.Equals(default(State))) break;
                     }
 
-                    //应该肯定能够找到对应state
-                    Assert.IsFalse(childSpecificEffect.Equals(default));
+                    //如果没有找到明确的state，这是一条死路
+                    var notFound = childSpecificEffect.Equals(default);
+                    if (notFound) allSpecificFound = false;
                     
                     tempSpecifiedPreconditions.Add(childSpecificEffect);
                     childrenHash.Dispose();
                 }
             }
             preconditions.Dispose();
+            return allSpecificFound;
         }
 
         private void ReplaceSpecifiedPreconditions(int nodeHash,

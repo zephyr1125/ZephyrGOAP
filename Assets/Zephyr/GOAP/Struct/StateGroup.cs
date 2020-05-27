@@ -29,12 +29,12 @@ namespace Zephyr.GOAP.Struct
             }
         }
         
-        public StateGroup(NativeMinHeap<State> copyFrom, Allocator allocator)
+        public StateGroup(ZephyrNativeMinHeap<State> copyFrom, Allocator allocator)
         {
             _states = new NativeList<State>(allocator);
             while (copyFrom.HasNext())
             {
-                var state = copyFrom[copyFrom.Pop()].Content;
+                var state = copyFrom.PopMin().Content;
                 _states.Add(state);
             }
         }
@@ -238,17 +238,15 @@ namespace Zephyr.GOAP.Struct
 
         public override int GetHashCode()
         {
-            var sum = 0;
-            if (_states.IsCreated)
+            var hashCode = 17;
+            if (!_states.IsCreated) return hashCode;
+            for (var i = 0; i < _states.Length; i++)
             {
-                for (var i = 0; i < _states.Length; i++)
-                {
-                    var state = _states[i];
-                    sum += state.GetHashCode();
-                }
+                var state = _states[i];
+                hashCode = hashCode *31 + state.GetHashCode();
             }
 
-            return sum;
+            return hashCode;
         }
     }
 }

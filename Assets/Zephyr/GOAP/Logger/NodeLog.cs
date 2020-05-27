@@ -38,6 +38,8 @@ namespace Zephyr.GOAP.Logger
         [NonSerialized]
         public Vector2 DrawPos;
 
+        public bool isDeadEnd;
+
         public NodeLog(ref NodeGraph nodeGraph, EntityManager entityManager, Node node)
         {
             name = node.Name.ToString();
@@ -48,6 +50,7 @@ namespace Zephyr.GOAP.Logger
             states = StateLog.CreateStateLogs(entityManager, nodeGraph.GetNodeStates(node));
             preconditions = StateLog.CreateStateLogs(entityManager, nodeGraph.GetNodePreconditions(node));
             effects = StateLog.CreateStateLogs(entityManager, nodeGraph.GetNodeEffects(node));
+            isDeadEnd = nodeGraph._deadEndNodeHashes.Contains(node.HashCode);
             hashCode = node.HashCode;
         }
 

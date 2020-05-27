@@ -72,6 +72,7 @@ namespace Zephyr.GOAP.Editor
                 {
                     if (!LoadLogFile()) return;
                     Reset();
+                    Init();
                     ConstructInfo();
                     ConstructGraph();
                     ConstructTimeline();
@@ -228,7 +229,10 @@ namespace Zephyr.GOAP.Editor
             if (node.isPath && !node.agentExecutorEntity.Equals(Entity.Null))
             {
                 frame.Q("titlebar").style.backgroundColor = Utils.GetAgentColor(node.agentExecutorEntity);
-            };
+            }else if (node.isDeadEnd)
+            {
+                frame.Q("titlebar").style.backgroundColor = new Color(0.5f, 0f, 0f);
+            }
 
             Utils.AddStatesToContainer(frame.Q("states"), node.states);
 

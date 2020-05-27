@@ -421,6 +421,11 @@ namespace Zephyr.GOAP.System
                     }
                     unexpandedNodes.Add(uncheckedNode);
                 }
+                else
+                {
+                    //否则的话此node进入dead end 列表，以供debug查看
+                    nodeGraph.AddDeadEndNode(uncheckedNode.HashCode);
+                }
 
                 removedStates.Dispose();
                 uncheckedStates.Dispose();
