@@ -88,6 +88,8 @@ namespace Zephyr.GOAP.Editor
 
         private void SetStatesTip()
         {
+            var title = _statesTip.Q<Label>("title-preconditions");
+            title.text = $"Precondition  [{Node.hashCode}]";
             var preconditionContainer = _statesTip.Q("preconditions");
             preconditionContainer.Clear();
             if (Node.preconditions != null)

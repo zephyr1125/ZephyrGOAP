@@ -316,18 +316,6 @@ namespace Zephyr.GOAP.Struct
             }
         }
 
-        public void ReplaceNodeState(Node node, State before, State after)
-        {
-            var nodeHash = node.HashCode;
-            for (var i = 0; i < _nodeStateIndices.Length; i++)
-            {
-                if (!_nodeStateIndices[i].Equals(nodeHash)) continue;
-                if (!_nodeStates[i].Equals(before)) continue;
-                _nodeStates[i] = after;
-                break;
-            }
-        }
-
         public void RemoveNodeState(Node node, State state)
         {
             var nodeHash = node.HashCode;
@@ -337,31 +325,6 @@ namespace Zephyr.GOAP.Struct
                 if (!_nodeStates[i].Equals(state)) continue;
                 _nodeStateIndices.RemoveAtSwapBack(i);
                 _nodeStates.RemoveAtSwapBack(i);
-                break;
-            }
-        }
-        
-        public void RemovePrecondition(Node node, State state)
-        {
-            var nodeHash = node.HashCode;
-            for (var i = 0; i < _preconditionIndices.Length; i++)
-            {
-                if (!_preconditionIndices[i].Equals(nodeHash)) continue;
-                if (!_preconditions[i].Equals(state)) continue;
-                _preconditionIndices.RemoveAtSwapBack(i);
-                _preconditions.RemoveAtSwapBack(i);
-                break;
-            }
-        }
-        
-        public void ReplaceNodePrecondition(Node node, State before, State after)
-        {
-            var nodeHash = node.HashCode;
-            for (var i = 0; i < _preconditionIndices.Length; i++)
-            {
-                if (!_preconditionIndices[i].Equals(nodeHash)) continue;
-                if (!_preconditions[i].Equals(before)) continue;
-                _preconditions[i] = after;
                 break;
             }
         }
