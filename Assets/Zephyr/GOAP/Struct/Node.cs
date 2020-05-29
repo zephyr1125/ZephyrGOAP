@@ -91,14 +91,10 @@ namespace Zephyr.GOAP.Struct
             return -Iteration;
         }
 
-        public void GetNeighbours([ReadOnly]ref NodeGraph nodeGraph, ref NativeList<int> neighboursHash)
+        public NativeList<int> GetNeighbours([ReadOnly]ref NodeGraph nodeGraph, Allocator allocator)
         {
             //所有的parent即为neighbour
-            var edges = nodeGraph.GetEdgeToParents(this);
-            foreach (var edge in edges)
-            {
-                neighboursHash.Add(edge.ParentHash);
-            }
+            return nodeGraph.GetNodeParents(HashCode, allocator);
         }
 
         public override int GetHashCode()

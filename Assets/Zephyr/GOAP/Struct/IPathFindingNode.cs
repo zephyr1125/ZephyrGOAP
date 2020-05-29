@@ -8,6 +8,6 @@ namespace Zephyr.GOAP.Struct
         
         float Heuristic([ReadOnly]ref NodeGraph nodeGraph);
         
-        void GetNeighbours([ReadOnly]ref NodeGraph nodeGraph, ref NativeList<int> neighboursHash);
+        NativeList<int> GetNeighbours([ReadOnly]ref NodeGraph nodeGraph, Allocator allocator);
     }
 }

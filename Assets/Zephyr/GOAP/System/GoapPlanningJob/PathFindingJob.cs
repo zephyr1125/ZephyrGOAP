@@ -95,8 +95,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                 //     break;
                 // }
                     
-                var neighboursHash = new NativeList<int>(4, Allocator.Temp);
-                currentNode.GetNeighbours(ref NodeGraph, ref neighboursHash);
+                var neighboursHash = currentNode.GetNeighbours(ref NodeGraph, Allocator.Temp);
 
                 for (var i = 0; i < neighboursHash.Length; i++)
                 {

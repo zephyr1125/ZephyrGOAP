@@ -27,7 +27,9 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         private NativeArray<int> _existedNodesHash;
 
         private NativeHashMap<int, Node>.ParallelWriter _nodesWriter;
-        private NativeMultiHashMap<int, Edge>.ParallelWriter _nodeToParentWriter;
+        
+        private NativeList<int>.ParallelWriter _nodeToParentIndicesWriter;
+        private NativeList<int>.ParallelWriter _nodeToParentsWriter;
         
         private NativeList<int>.ParallelWriter _nodeStateIndicesWriter;
         private NativeList<State>.ParallelWriter _nodeStatesWriter;
@@ -48,7 +50,8 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             ref NativeArray<int> existedNodesHash, ref StackData stackData,
             ref NativeList<int> nodeStateIndices, ref NativeList<State> nodeStates,
             NativeHashMap<int, Node>.ParallelWriter nodesWriter,
-            NativeMultiHashMap<int, Edge>.ParallelWriter nodeToParentWriter, 
+            NativeList<int>.ParallelWriter nodeToParentIndicesWriter,
+            NativeList<int>.ParallelWriter nodeToParentsWriter,
             NativeList<int>.ParallelWriter nodeStateIndicesWriter,
             NativeList<State>.ParallelWriter nodeStatesWriter, 
             NativeList<int>.ParallelWriter preconditionIndicesWriter,
@@ -63,7 +66,8 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             _nodeStateIndices = nodeStateIndices;
             _nodeStates = nodeStates;
             _nodesWriter = nodesWriter;
-            _nodeToParentWriter = nodeToParentWriter;
+            _nodeToParentIndicesWriter = nodeToParentIndicesWriter;
+            _nodeToParentsWriter = nodeToParentsWriter;
             _nodeStateIndicesWriter = nodeStateIndicesWriter;
             _nodeStatesWriter = nodeStatesWriter;
             _preconditionIndicesWriter = preconditionIndicesWriter;
@@ -162,7 +166,9 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         {
             newNode.Name = actionName;
             
-            _nodeToParentWriter.Add(newNode.HashCode, new Edge(parent, newNode));
+            _nodeToParentIndicesWriter.AddNoResize(newNode.HashCode);
+            _nodeToParentsWriter.AddNoResize(parent.HashCode);
+            
             if(!nodeExisted)
             {
                 _nodesWriter.TryAdd(newNode.HashCode, newNode);
