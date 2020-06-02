@@ -9,6 +9,8 @@ namespace Zephyr.GOAP.Editor
 {
     public class Utils
     {
+        public const float DoubleClickThreshold = 0.2f;
+        
         private static Dictionary<Entity, StyleColor> _agentColors;
         private static readonly Color BaseAgentColor = new Color(0f, 0.29f, 0.12f);
         

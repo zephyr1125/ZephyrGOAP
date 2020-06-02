@@ -216,7 +216,7 @@ namespace Zephyr.GOAP.Editor
 
             var drawPos = new Vector2(NodeDistance + iteration * (NodeWidth+NodeDistance),
                 NodeDistance + nodeCounts[iteration] * (NodeHeight+NodeDistance));
-            var frame = new NodeView(node, drawPos, NodeSize, _statesTip);
+            var frame = new NodeView(this, node, drawPos, NodeSize, _statesTip);
             parent.Add(frame);
             _nodeVisualTree.CloneTree(frame);
             
@@ -367,6 +367,32 @@ namespace Zephyr.GOAP.Editor
             ConstructInfo();
             ConstructGraph();
             ConstructTimeline();
+        }
+
+        public void MoveCloseParentNodes(NodeView childNodeView)
+        {
+            var goapResult = _log.results[_currentResult];
+            var child = childNodeView.Node;
+            var parentId = 0;
+            foreach (var ve in _nodeContainer.Children())
+            {
+                if (!(ve is NodeView)) continue;
+                var nodeView = (NodeView) ve;
+                var isParent = false;
+                foreach (var edgeLog in goapResult.edges)
+                {
+                    if (!edgeLog.childHash.Equals(child.hashCode)) continue;
+                    if (!edgeLog.parentHash.Equals(nodeView.Node.hashCode)) continue;
+                    isParent = true;
+                    break;
+                }
+
+                if (!isParent) continue;
+                
+                nodeView.MoveTo(child.DrawPos
+                                + new Vector2(-(NodeWidth+32), parentId*(NodeHeight + 32)));
+                parentId++;
+            }
         }
     }
 }

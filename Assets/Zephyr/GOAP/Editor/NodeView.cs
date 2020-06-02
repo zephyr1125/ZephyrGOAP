@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Zephyr.GOAP.Logger;
@@ -13,10 +14,15 @@ namespace Zephyr.GOAP.Editor
 
         private bool _mouse0Down;
 
+        private double _mouse0UpTime;
+
         private Vector2 _mouseDragStartPos, _frameDragStartPos;
 
-        public NodeView(NodeLog node, Vector2 drawPos, Vector2 size, VisualElement statesTip)
+        private GoapLogWindow _window;
+
+        public NodeView(GoapLogWindow window, NodeLog node, Vector2 drawPos, Vector2 size, VisualElement statesTip)
         {
+            _window = window;
             Node = node;
             Node.DrawPos = drawPos;
             
@@ -33,7 +39,6 @@ namespace Zephyr.GOAP.Editor
             //拖拽
             target.RegisterCallback<MouseDownEvent>(OnMouseDown);
             target.RegisterCallback<MouseUpEvent>(OnMouseUp);
-
             _statesTip = statesTip;
         }
 
@@ -51,10 +56,15 @@ namespace Zephyr.GOAP.Editor
             if (_mouse0Down)
             {
                 var distance = evt.mousePosition - _mouseDragStartPos;
-                Node.DrawPos = _frameDragStartPos + distance;
-                style.left = Node.DrawPos.x;
-                style.top = Node.DrawPos.y;
+                MoveTo(_frameDragStartPos + distance);
             }
+        }
+
+        public void MoveTo(Vector2 newPos)
+        {
+            Node.DrawPos = newPos;
+            style.left = newPos.x;
+            style.top = newPos.y;
         }
         
         private void OnMouseLeave(MouseEventBase<MouseLeaveEvent> evt)
@@ -82,8 +92,26 @@ namespace Zephyr.GOAP.Editor
                 case 0:
                     //左键
                     _mouse0Down = false;
+                    var time = EditorApplication.timeSinceStartup;
+                    if (time - _mouse0UpTime <= Utils.DoubleClickThreshold)
+                    {
+                        //双击阈值内二次按下
+                        MoveCloseParentNodes();
+                    }
+                    else
+                    {
+                        _mouse0UpTime = time;
+                    }
                     break;
             }
+        }
+
+        /// <summary>
+        /// 通知上级把我的Parents都移动到我左侧近处
+        /// </summary>
+        private void MoveCloseParentNodes()
+        {
+            _window.MoveCloseParentNodes(this);
         }
 
         private void SetStatesTip()
