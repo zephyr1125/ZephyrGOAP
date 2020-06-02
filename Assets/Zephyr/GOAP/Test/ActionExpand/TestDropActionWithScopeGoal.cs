@@ -43,7 +43,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
             Assert.IsTrue(children.Any(
                 nodeLog => nodeLog.states[0].valueString.Equals("roast_apple")));
             Assert.IsTrue(children.Any(
-                nodeLog => nodeLog.states[0].valueString.Equals("raw_peach")));
+                nodeLog => nodeLog.states[0].valueString.Equals(Utils.RawPeachName)));
             Assert.IsTrue(children.Any(
                 nodeLog => nodeLog.states[0].valueString.Equals("roast_apple")));
         }

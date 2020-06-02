@@ -371,7 +371,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             int currentNodeId, float currentTotalTime, Node neighbourNode, float3 neighbourNavigatingPosition, bool isNeedNavigate,
             float neighbourExecutorMoveSpeed, Allocator allocator, out float newTotalTime)
         {
-            var agentsInfo = new NativeList<NodeAgentInfo>(10, allocator);
+            var agentsInfo = new NativeList<NodeAgentInfo>(allocator);
             var estimateTotalTime = 0f;
 
             //遍历currentNode的各agent的信息

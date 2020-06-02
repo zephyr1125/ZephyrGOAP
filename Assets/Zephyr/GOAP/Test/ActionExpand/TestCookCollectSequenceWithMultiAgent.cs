@@ -104,29 +104,29 @@ namespace Zephyr.GOAP.Test.ActionExpand
                 Target = _collector0Entity,
                 Position = new float3(4, 0, 0),
                 Trait = typeof(ItemPotentialSourceTrait),
-                ValueString = "raw_peach"
+                ValueString = Utils.RawPeachName
             });
             
-            buffer.Add(new State
-            {
-                Target = _collector1Entity,
-                Position = new float3(3, 0, 0),
-                Trait = typeof(CollectorTrait),
-            });
-            buffer.Add(new State
-            {
-                Target = _collector1Entity,
-                Position = new float3(3, 0, 0),
-                Trait = typeof(ItemPotentialSourceTrait),
-                ValueString = "raw_apple"
-            });
-            buffer.Add(new State
-            {
-                Target = _collector1Entity,
-                Position = new float3(3, 0, 0),
-                Trait = typeof(ItemPotentialSourceTrait),
-                ValueString = "raw_peach"
-            });
+            // buffer.Add(new State
+            // {
+            //     Target = _collector1Entity,
+            //     Position = new float3(3, 0, 0),
+            //     Trait = typeof(CollectorTrait),
+            // });
+            // buffer.Add(new State
+            // {
+            //     Target = _collector1Entity,
+            //     Position = new float3(3, 0, 0),
+            //     Trait = typeof(ItemPotentialSourceTrait),
+            //     ValueString = "raw_apple"
+            // });
+            // buffer.Add(new State
+            // {
+            //     Target = _collector1Entity,
+            //     Position = new float3(3, 0, 0),
+            //     Trait = typeof(ItemPotentialSourceTrait),
+            //     ValueString = Utils.RawPeachName
+            // });
             
             buffer.Add(new State
             {
@@ -140,7 +140,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
                 Target = _rawPeachEntity,
                 Position = new float3(6,0,0),
                 Trait = typeof(RawSourceTrait),
-                ValueString = "raw_peach"
+                ValueString = Utils.RawPeachName
             });
 
             var recipeSensorSystem = World.GetOrCreateSystem<RecipeSensorSystem>();

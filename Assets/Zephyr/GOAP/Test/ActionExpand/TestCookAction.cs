@@ -37,7 +37,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
             {
                 Target = _cookerEntity,
                 Trait = typeof(ItemSourceTrait),
-                ValueString = "roast_peach"
+                ValueString = Utils.RoastPeachName
             });
             
             //给CurrentStates写入假环境数据：世界里有cooker和recipe,cooker有原料
@@ -52,7 +52,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
             {
                 Target = _cookerEntity,
                 Trait = typeof(ItemDestinationTrait),
-                ValueString = new NativeString64("raw_peach"),
+                ValueString = new NativeString64(Utils.RawPeachName),
             });
             var recipeSensorSystem = World.GetOrCreateSystem<RecipeSensorSystem>();
             recipeSensorSystem.Update();
@@ -139,7 +139,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
             Assert.IsTrue(children.Any(nodeLog => nodeLog.states.Any(
                 state => state.valueString.Equals("raw_apple"))));
             Assert.IsTrue(children.Any(nodeLog => nodeLog.states.Any(
-                state => state.valueString.Equals("raw_peach"))));
+                state => state.valueString.Equals(Utils.RawPeachName))));
         }
 
         [Test]
@@ -158,7 +158,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
             {
                 Target = newCookerEntity,
                 Trait = typeof(ItemDestinationTrait),
-                ValueString = new NativeString64("raw_peach"),
+                ValueString = new NativeString64(Utils.RawPeachName),
             });
             
             var goal = GetGoal();
@@ -191,7 +191,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
             {
                 Target = itemDestinationEntity,
                 Trait = typeof(ItemDestinationTrait),
-                ValueString = "roast_peach"
+                ValueString = Utils.RoastPeachName
             };
             SetGoal(goal.State);
             
@@ -201,7 +201,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
                 Target = itemSourceEntity,
                 Position = new float3(2,0,0),
                 Trait = typeof(ItemSourceTrait),
-                ValueString = "roast_peach"
+                ValueString = Utils.RoastPeachName
             });
             
             _system.Update();

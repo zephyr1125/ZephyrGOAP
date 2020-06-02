@@ -49,11 +49,11 @@ namespace Zephyr.GOAP.Struct
 
         public override int GetHashCode()
         {
-            int hash = 17;
-            hash = hash * 31 + Target.GetHashCode();
-            hash = hash * 31 + Trait.GetHashCode();
-            hash = hash * 31 + ValueString.GetHashCode();
-            hash = hash * 31 + IsNegative.GetHashCode();
+            var hash = Utils.BasicHash;
+            hash = Utils.CombineHash(hash, Utils.GetEntityHash(Target));
+            hash = Utils.CombineHash(hash, Trait.GetHashCode());
+            hash = Utils.CombineHash(hash, ValueString.GetHashCode());
+            hash = Utils.CombineHash(hash, IsNegative.GetHashCode());
             return hash;
         }
 

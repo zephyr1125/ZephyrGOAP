@@ -68,11 +68,11 @@ namespace Zephyr.GOAP.Struct
             NavigatingSubjectId = subjectId;
             AgentExecutorEntity = agentExecutorEntity;
             
-            HashCode = 17;
-            HashCode = HashCode * 31 + preconditions.GetHashCode();
-            HashCode = HashCode * 31 + effects.GetHashCode();
-            HashCode = HashCode * 31 + states.GetHashCode();
-            HashCode = HashCode * 31 + agentExecutorEntity.GetHashCode();
+            HashCode = Utils.BasicHash;
+            HashCode = Utils.CombineHash(HashCode, preconditions.GetHashCode());
+            HashCode = Utils.CombineHash(HashCode, effects.GetHashCode());
+            HashCode = Utils.CombineHash(HashCode, states.GetHashCode());
+            HashCode = Utils.CombineHash(HashCode, Utils.GetEntityHash(AgentExecutorEntity));
         }
 
         public bool Equals(Node other)

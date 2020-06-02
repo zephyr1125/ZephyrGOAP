@@ -1,8 +1,6 @@
 using System;
 using Unity.Collections;
 using Unity.Entities;
-using UnityEngine;
-using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.ActionNodeState;
 using Zephyr.GOAP.Component.AgentState;
 using Zephyr.GOAP.Component.GoalManage.GoalState;
@@ -13,6 +11,8 @@ namespace Zephyr.GOAP
 {
     public static class Utils
     {
+        public const string RoastPeachName = "roast_peacy";
+        public const string RawPeachName = "raw_peacy";
         public static float GoalMonitorSystemInterval = 1;
 
         /// <summary>
@@ -99,9 +99,9 @@ namespace Zephyr.GOAP
             
             if (trait.Equals(typeof(FoodTrait)))
             {
-                // result.Add(new NativeString64("raw_peach"));
-                result.Add(new NativeString64("roast_peach"));
-                // result.Add(new NativeString64("raw_apple"));
+                result.Add(new NativeString64(Utils.RawPeachName));
+                result.Add(new NativeString64(RoastPeachName));
+                result.Add(new NativeString64("raw_apple"));
                 result.Add(new NativeString64("roast_apple"));
                 result.Add(new NativeString64("feast"));
             }
@@ -125,8 +125,8 @@ namespace Zephyr.GOAP
             var plus = 10;
             switch (foodName.ToString())
             {
-                case "raw_peach" : return RawPeachStamina*plus;
-                case "roast_peach" : return RoastPeachStamina*plus;
+                case Utils.RawPeachName : return RawPeachStamina*plus;
+                case Utils.RoastPeachName : return RoastPeachStamina*plus;
                 case "raw_apple" : return RawAppleStamina*plus;
                 case "roast_apple" : return RoastAppleStamina*plus;
                 case "feast" : return FeastStamina * plus;
@@ -138,8 +138,8 @@ namespace Zephyr.GOAP
         {
             switch (foodName.ToString())
             {
-                case "raw_peach" : return RawPeachStamina;
-                case "roast_peach" : return RoastPeachStamina;
+                case Utils.RawPeachName : return RawPeachStamina;
+                case Utils.RoastPeachName : return RoastPeachStamina;
                 case "raw_apple" : return RawAppleStamina;
                 case "roast_apple" : return RoastAppleStamina;
                 case "feast" : return FeastStamina;
@@ -160,6 +160,23 @@ namespace Zephyr.GOAP
             }
 
             return any;
+        }
+
+        public const int BasicHash = 5381;
+        // public const int BasicHash = 17;
+
+        public static int CombineHash(int a, int b)
+        {
+            return (a << 5) + a + b;
+            // return a * 31 + b;
+        }
+
+        public static int GetEntityHash(Entity entity)
+        {
+            var hash = BasicHash;
+            hash = CombineHash(hash, entity.Index);
+            hash = CombineHash(hash, entity.Version);
+            return hash;
         }
     }
 }
