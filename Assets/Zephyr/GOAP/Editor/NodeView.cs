@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -12,9 +11,9 @@ namespace Zephyr.GOAP.Editor
 
         private VisualElement _statesTip;
 
-        private bool _mouse0Down;
+        private bool _mouse0Down, _mouse1Down;
 
-        private double _mouse0UpTime;
+        private double _mouse0UpTime, _mouse1UpTime;
 
         private Vector2 _mouseDragStartPos, _frameDragStartPos;
 
@@ -82,17 +81,20 @@ namespace Zephyr.GOAP.Editor
                     _mouseDragStartPos = evt.mousePosition;
                     _frameDragStartPos = Node.DrawPos;
                     break;
+                case 1:
+                    _mouse1Down = true;
+                    break;
             }
         }
         
         private void OnMouseUp(MouseEventBase<MouseUpEvent> evt)
         {
+            double time = EditorApplication.timeSinceStartup;;
             switch (evt.button)
             {
                 case 0:
                     //左键
                     _mouse0Down = false;
-                    var time = EditorApplication.timeSinceStartup;
                     if (time - _mouse0UpTime <= Utils.DoubleClickThreshold)
                     {
                         //双击阈值内二次按下
@@ -103,6 +105,18 @@ namespace Zephyr.GOAP.Editor
                         _mouse0UpTime = time;
                     }
                     break;
+                case 1:
+                    _mouse1Down = false;
+                    if (time - _mouse1UpTime <= Utils.DoubleClickThreshold)
+                    {
+                        //双击阈值内二次按下
+                        MoveCloseChildNodes();
+                    }
+                    else
+                    {
+                        _mouse1UpTime = time;
+                    }
+                    break;
             }
         }
 
@@ -111,7 +125,12 @@ namespace Zephyr.GOAP.Editor
         /// </summary>
         private void MoveCloseParentNodes()
         {
-            _window.MoveCloseParentNodes(this);
+            _window.MoveCloseRelativeNodes(this, true);
+        }
+
+        private void MoveCloseChildNodes()
+        {
+            _window.MoveCloseRelativeNodes(this, false);
         }
 
         private void SetStatesTip()

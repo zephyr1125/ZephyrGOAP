@@ -3,7 +3,6 @@ using System.Globalization;
 using System.IO;
 using Unity.Entities;
 using UnityEditor;
-using UnityEditor.Graphs;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Zephyr.GOAP.Logger;
@@ -369,29 +368,31 @@ namespace Zephyr.GOAP.Editor
             ConstructTimeline();
         }
 
-        public void MoveCloseParentNodes(NodeView childNodeView)
+        public void MoveCloseRelativeNodes(NodeView baseNodeView, bool isMoveParent)
         {
             var goapResult = _log.results[_currentResult];
-            var child = childNodeView.Node;
-            var parentId = 0;
+            var baseNode = baseNodeView.Node;
+            var relativeId = 0;
             foreach (var ve in _nodeContainer.Children())
             {
                 if (!(ve is NodeView)) continue;
                 var nodeView = (NodeView) ve;
-                var isParent = false;
+                var nodeHash = nodeView.Node.hashCode;
+                var isRelative = false;
                 foreach (var edgeLog in goapResult.edges)
                 {
-                    if (!edgeLog.childHash.Equals(child.hashCode)) continue;
-                    if (!edgeLog.parentHash.Equals(nodeView.Node.hashCode)) continue;
-                    isParent = true;
+                    if (!edgeLog.childHash.Equals(isMoveParent?baseNode.hashCode:nodeHash)) continue;
+                    if (!edgeLog.parentHash.Equals(isMoveParent?nodeHash:baseNode.hashCode)) continue;
+                    isRelative = true;
                     break;
                 }
 
-                if (!isParent) continue;
-                
-                nodeView.MoveTo(child.DrawPos
-                                + new Vector2(-(NodeWidth+32), parentId*(NodeHeight + 32)));
-                parentId++;
+                if (!isRelative) continue;
+
+                var deltaX = NodeWidth + 32;
+                nodeView.MoveTo(baseNode.DrawPos
+                                + new Vector2( isMoveParent?-deltaX:deltaX, relativeId*(NodeHeight + 32)));
+                relativeId++;
             }
         }
     }
