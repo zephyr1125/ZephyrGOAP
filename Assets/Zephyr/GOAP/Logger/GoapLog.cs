@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Unity.Assertions;
 using Unity.Collections;
 using Unity.Entities;
+using UnityEngine;
 using Zephyr.GOAP.Struct;
 
 namespace Zephyr.GOAP.Logger
@@ -16,6 +18,24 @@ namespace Zephyr.GOAP.Logger
         public GoapLog()
         {
             results = new List<GoapResult>();
+        }
+
+        public void CheckForSameHash()
+        {
+            Debug.Log("Check Log Hashes...");
+            foreach (var result in results)
+            {
+                for (var nodeId = 0; nodeId < result.nodes.Count; nodeId++)
+                {
+                    var node = result.nodes[nodeId];
+                    for (var otherId = nodeId+1; otherId < result.nodes.Count; otherId++)
+                    {
+                        var other = result.nodes[otherId];
+                        Assert.IsFalse(node.hashCode.Equals(other.hashCode), "Same hash in nodes!");
+                    }
+                }
+            }
+            Debug.Log("All node hashes not same");
         }
 
         public void StartLog(EntityManager entityManager)

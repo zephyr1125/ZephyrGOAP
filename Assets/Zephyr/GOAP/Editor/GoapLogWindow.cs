@@ -169,6 +169,7 @@ namespace Zephyr.GOAP.Editor
                 var textReader = new StreamReader(path);
                 var json = textReader.ReadToEnd();
                 _log = JsonUtility.FromJson<GoapLog>(json);
+                _log.CheckForSameHash();
                 return true;
             }
 
