@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using Unity.Collections;
 using Unity.Entities;
+using UnityEngine;
+using UnityEngine.Assertions;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Struct;
 
@@ -103,7 +105,11 @@ namespace Zephyr.GOAP.Logger
             for (var i = 0; i < nodes.Count; i++)
             {
                 var node = nodes[i];
-                if (!nodeTimes.ContainsKey(node.hashCode)) continue;
+                // Assert.IsTrue(nodeTimes.ContainsKey(node.hashCode));
+                if (!nodeTimes.ContainsKey(node.hashCode))
+                {
+                    Debug.Log("No agent info in node");
+                }
                 node.SetAgentInfo(entityManager, nodeTimes.GetValuesForKey(node.hashCode));
             }
         }

@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
+using UnityEngine;
 using UnityEngine.Assertions;
+using Zephyr.GOAP.Component.Trait;
 
 namespace Zephyr.GOAP.Struct
 {
@@ -344,6 +346,66 @@ namespace Zephyr.GOAP.Struct
         }
 
         /// <summary>
+        /// 检查特定iteration之前不应出现
+        /// </summary>
+        public void DebugCheckNoCookStateBeforeIteration4(int iteration)
+        {
+            if (iteration > 4) return;
+            
+            for (var effectId = 0; effectId < _effectIndices.Length; effectId++)
+            {
+                var nodeHash = _effectIndices[effectId];
+                var nodeEffect = _effects[effectId];
+                if (!nodeEffect.Trait.Equals(typeof(ItemSourceTrait))) continue;
+
+                if (nodeEffect.ValueString.Equals("roast_apple"))
+                {
+                    Debug.LogError($"({nodeHash})\"roast_apple\" before iteration 4!");
+                }else if (nodeEffect.ValueString.Equals("feast"))
+                {
+                    Debug.LogError($"({nodeHash})\"feast\" before iteration 4!");
+                }
+            }
+        }
+
+        /// <summary>
+        /// 出现了CookAction的node之后，检查是否出现了同时2个effect的Cook，即为错误特征
+        /// </summary>
+        /// <param name="uncheckedNodes"></param>
+        public void DebugCheckNodeEffects(ref NativeHashMap<int, Node> uncheckedNodes)
+        {
+            var nodeHashes = _nodes.GetKeyArray(Allocator.Temp);
+            for (var nodeId = 0; nodeId < nodeHashes.Length; nodeId++)
+            {
+                var nodeHash = nodeHashes[nodeId];
+                if (!uncheckedNodes.ContainsKey(nodeHash)) continue;
+                if (!uncheckedNodes[nodeHash].Name.Equals("CookAction")) continue;
+                
+                var hasRoastApple = false;
+                var hasFeast = false;
+            
+                for (var effectId = 0; effectId < _effectIndices.Length; effectId++)
+                {
+                    if (!_effectIndices[effectId].Equals(nodeHash)) continue;
+                    var nodeEffect = _effects[effectId];
+
+                    if (nodeEffect.ValueString.Equals("roast_apple"))
+                    {
+                        hasRoastApple = true;
+                    }else if (nodeEffect.ValueString.Equals("feast"))
+                    {
+                        hasFeast = true;
+                    }
+                }
+
+                if (hasRoastApple && hasFeast)
+                {
+                    Debug.LogError($"({nodeHash}) 2 Effects For Cook!");
+                }
+            }
+        }
+
+        /// <summary>
         /// 由于ActionExpand的并行会导致产生重复state
         /// 因此在CheckNodes中进行清理
         /// </summary>
@@ -359,15 +421,16 @@ namespace Zephyr.GOAP.Struct
             NativeList<State> container, Node node)
         {
             var nodeHash = node.HashCode;
-            for (var i = 0; i < containerIndices.Length; i++)
+            for (var baseId = 0; baseId < containerIndices.Length; baseId++)
             {
-                if (!containerIndices[i].Equals(nodeHash)) continue;
-                for (var j = i+1; j < containerIndices.Length; j++)
+                if (!containerIndices[baseId].Equals(nodeHash)) continue;
+                for (var checkId = baseId+1; checkId < containerIndices.Length; checkId++)
                 {
-                    if (!containerIndices[i].Equals(containerIndices[j])) continue;
-                    if (!container[i].Equals(container[j])) continue;
-                    containerIndices.RemoveAtSwapBack(j);
-                    container.RemoveAtSwapBack(j);
+                    if (!containerIndices[baseId].Equals(containerIndices[checkId])) continue;
+                    if (!container[baseId].Equals(container[checkId])) continue;
+                    containerIndices.RemoveAtSwapBack(checkId);
+                    container.RemoveAtSwapBack(checkId);
+                    checkId--;
                 }
             }
         }

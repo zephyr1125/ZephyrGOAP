@@ -1,5 +1,7 @@
+using Unity.Assertions;
 using Unity.Collections;
 using Unity.Jobs;
+using UnityEngine;
 using Zephyr.GOAP.Action;
 using Zephyr.GOAP.Lib;
 using Zephyr.GOAP.Struct;
@@ -159,7 +161,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         /// <param name="actionName"></param>
         /// <returns>此node已存在</returns>
         /// </summary>
-        private void AddRouteNode(Node newNode, bool nodeExisted, ref StateGroup nodeStates,
+        private void AddRouteNode(Node baseNode, Node newNode, bool nodeExisted, ref StateGroup nodeStates,
             ref StateGroup preconditions, ref StateGroup effects,
             Node parent, NativeString64 actionName)
         {
@@ -191,11 +193,16 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
 
                 if (!effects.Equals(default(StateGroup)))
                 {
+                    //目前effect不可能超过1个
+                    Assert.IsTrue(effects.Length()<2, "[AddRouteNode] Too much effects!");
                     for(var i=0; i<effects.Length(); i++)
                     {
                         var state = effects[i];
                         _effectIndicesWriter.AddNoResize(newNode.HashCode);
                         _effectsWriter.AddNoResize(state);
+
+                        if (!newNode.Name.Equals("CookAction")) continue;
+                        Debug.Log($"{_iteration}({baseNode.HashCode}->{newNode.HashCode}){newNode.AgentExecutorEntity}|{state.ValueString}");
                     }
                 }
             }

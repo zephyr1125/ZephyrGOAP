@@ -164,8 +164,10 @@ namespace Zephyr.GOAP.Test.ActionExpand
             // Profiler.enabled = false;
             // Profiler.logFile = "";
             
-            Debug.Log(_debugger.GoalNodeLog);
+            // Debug.Log(_debugger.GoalNodeLog);
             // var pathResult = _debugger.PathResult;
+            
+            Debug.Log("Done");
         }
     }
 }

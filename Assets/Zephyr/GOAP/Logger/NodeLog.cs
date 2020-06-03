@@ -4,6 +4,7 @@ using System.Text;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
+using UnityEngine.Assertions;
 using Zephyr.GOAP.Struct;
 
 namespace Zephyr.GOAP.Logger
@@ -52,6 +53,12 @@ namespace Zephyr.GOAP.Logger
             states = StateLog.CreateStateLogs(entityManager, nodeGraph.GetNodeStates(node));
             preconditions = StateLog.CreateStateLogs(entityManager, nodeGraph.GetNodePreconditions(node));
             effects = StateLog.CreateStateLogs(entityManager, nodeGraph.GetNodeEffects(node));
+            if (
+                name.Equals("CookAction") &&
+                effects.Length == 2)
+            {
+                Debug.LogError("[GoapLog] Too much effects!");
+            }
             isDeadEnd = nodeGraph._deadEndNodeHashes.Contains(node.HashCode);
             hashCode = node.HashCode;
         }

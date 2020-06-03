@@ -206,7 +206,6 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             //Clear
             openSet.Dispose();
             cameFrom.Dispose();
-            rewardSum.Dispose();
 
             void Clear(NativeList<NodeAgentInfo> neighbourAgentsInfo, NativeList<int> tempPreconditionIndices,
                 NativeList<State> tempPreconditions)
@@ -310,7 +309,8 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                         if (preconditionCount != navigateSubjectId) continue;
                         precondition = preconditions[i];
                     }
-                    Assert.AreNotEqual(State.Null, precondition);
+                    //todo
+                    // Assert.AreNotEqual(State.Null, precondition);
                 
                     neighbourNavigatingPosition = precondition.Position;
                     navigateSubject = precondition.Target;
@@ -429,6 +429,8 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         private void SaveNeighbourAgentsInfo(ref NativeMultiHashMap<int, NodeAgentInfo> agentsInfo, int neighbourId,
             ref NativeList<NodeAgentInfo> newInfos)
         {
+            Assert.IsTrue(newInfos.Length > 0);
+            
             if (agentsInfo.ContainsKey(neighbourId))
             {
                 agentsInfo.Remove(neighbourId);
