@@ -40,6 +40,8 @@ namespace Zephyr.GOAP.Logger
 
         public bool isDeadEnd;
 
+        public float rewardSum;
+
         public NodeLog(ref NodeGraph nodeGraph, EntityManager entityManager, Node node)
         {
             name = node.Name.ToString();

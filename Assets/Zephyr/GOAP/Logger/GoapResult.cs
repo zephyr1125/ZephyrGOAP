@@ -126,6 +126,16 @@ namespace Zephyr.GOAP.Logger
             }
         }
 
+        public void SetRewardSum(ref NativeHashMap<int, float> rewardSum)
+        {
+            for (var i = 0; i < nodes.Count; i++)
+            {
+                var node = nodes[i];
+                if (!rewardSum.ContainsKey(node.hashCode)) continue;
+                node.rewardSum = rewardSum[node.hashCode];
+            }
+        }
+
         public NodeLog[] GetPathResult()
         {
             var pathResult = new NodeLog[_pathHash.Length];

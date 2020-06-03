@@ -158,9 +158,11 @@ namespace Zephyr.GOAP.System
                 var pathNodeNavigateSubjects = new NativeHashMap<int, Entity>(nodeGraph.Length(), Allocator.TempJob);
                 var pathNodeSpecifiedPreconditionIndices = new NativeList<int>(Allocator.TempJob);
                 var pathNodeSpecifiedPreconditions = new NativeList<State>(Allocator.TempJob);
+                var rewardSum = new NativeHashMap<int, float>(nodeGraph.Length(), Allocator.TempJob);
                 var pathNodes = FindPath(ref nodeGraph, ref stackData,
                     ref agentMoveSpeeds, ref agentStartTimes, ref nodeAgentInfos, ref nodeTotalTimes, ref pathNodesEstimateNavigateTime,
-                    ref pathNodeNavigateSubjects, ref pathNodeSpecifiedPreconditionIndices, ref pathNodeSpecifiedPreconditions);
+                    ref pathNodeNavigateSubjects, ref pathNodeSpecifiedPreconditionIndices, ref pathNodeSpecifiedPreconditions,
+                    ref rewardSum);
                 SavePath(ref pathNodes, ref nodeGraph, ref pathNodesEstimateNavigateTime, 
                     ref pathNodeNavigateSubjects, ref pathNodeSpecifiedPreconditionIndices, ref pathNodeSpecifiedPreconditions,
                     goal.GoalEntity, out var pathEntities);
@@ -171,6 +173,7 @@ namespace Zephyr.GOAP.System
                 Debugger?.SetPathResult(EntityManager, ref pathEntities, ref pathNodes);
                 Debugger?.SetSpecifiedPreconditions(EntityManager,
                     ref pathNodeSpecifiedPreconditionIndices, ref pathNodeSpecifiedPreconditions);
+                Debugger?.SetRewardSum(ref rewardSum);
 
                 nodeAgentInfos.Dispose();
                 pathNodes.Dispose();
@@ -180,6 +183,7 @@ namespace Zephyr.GOAP.System
                 pathNodeNavigateSubjects.Dispose();
                 pathNodeSpecifiedPreconditionIndices.Dispose();
                 pathNodeSpecifiedPreconditions.Dispose();
+                rewardSum.Dispose();
 
                 Utils.NextGoalState<IdleGoal, ExecutingGoal>(goal.GoalEntity,
                     EntityManager, Time.ElapsedTime);
@@ -239,7 +243,8 @@ namespace Zephyr.GOAP.System
             ref NativeHashMap<int, float> nodeTotalTimes, ref NativeHashMap<int, float> nodeNavigateStartTimes,
             ref NativeHashMap<int, Entity> nodeNavigateSubjects,
             ref NativeList<int> pathNodeSpecifiedPreconditionIndices,
-            ref NativeList<State> pathNodeSpecifiedPreconditions)
+            ref NativeList<State> pathNodeSpecifiedPreconditions,
+            ref NativeHashMap<int, float> rewardSum)
         {
             var pathResult = new NativeList<Node>(Allocator.TempJob);
             var pathFindingJob = new PathFindingJob
@@ -259,7 +264,8 @@ namespace Zephyr.GOAP.System
                 NodesEstimateNavigateTimeWriter = nodeNavigateStartTimes.AsParallelWriter(),
                 NodeNavigateSubjects = nodeNavigateSubjects,
                 SpecifiedPreconditionIndices = pathNodeSpecifiedPreconditionIndices,
-                SpecifiedPreconditions = pathNodeSpecifiedPreconditions
+                SpecifiedPreconditions = pathNodeSpecifiedPreconditions,
+                RewardSum = rewardSum
             };
             var handle = pathFindingJob.Schedule();
             handle.Complete();

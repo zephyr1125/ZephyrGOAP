@@ -49,6 +49,11 @@ namespace Zephyr.GOAP.Test.Debugger
             _goapLog.SetCurrentStates(ref currentStates, entityManager);
         }
 
+        public void SetRewardSum(ref NativeHashMap<int, float> rewardSum)
+        {
+            _goapLog.SetRewardSum(ref rewardSum);
+        }
+
         public void SetSpecifiedPreconditions(EntityManager entityManager,
             ref NativeList<int> pathNodeSpecifiedPreconditionIndices,
             ref NativeList<State> pathNodeSpecifiedPreconditions)

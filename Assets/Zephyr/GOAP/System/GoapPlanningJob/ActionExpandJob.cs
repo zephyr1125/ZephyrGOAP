@@ -134,9 +134,8 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                             _stackData.AgentEntities[_stackData.CurrentAgentId], subjectType, subjectId);
 
                         var nodeExisted = _existedNodesHash.Contains(node.HashCode);
-
-                        //NodeGraph的几个容器都移去了并行限制，小心出错
-                        AddRouteNode(node, nodeExisted, ref newStates, 
+                        
+                        AddRouteNode(unexpandedNode, node, nodeExisted, ref newStates, 
                             ref preconditions, ref effects, unexpandedNode, _action.GetName());
                         _newlyCreatedNodesWriter.TryAdd(node.HashCode, node);
 

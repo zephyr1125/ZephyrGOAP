@@ -29,6 +29,8 @@ namespace Zephyr.GOAP.Debugger
             ref NativeList<int> pathNodeSpecifiedPreconditionIndices,
             ref NativeList<State> pathNodeSpecifiedPreconditions);
 
+        void SetRewardSum(ref NativeHashMap<int, float> rewardSum);
+
         void LogDone();
 
         void Log(string log);

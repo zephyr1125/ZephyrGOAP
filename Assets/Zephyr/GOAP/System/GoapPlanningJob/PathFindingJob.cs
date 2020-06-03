@@ -58,6 +58,9 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
 
         [NativeDisableParallelForRestriction]
         public NativeList<State> SpecifiedPreconditions;
+        
+        [NativeDisableParallelForRestriction]
+        public NativeHashMap<int, float> RewardSum;
             
         public void Execute()
         {
@@ -69,7 +72,6 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             //Generate Working Containers
             var openSet = new ZephyrNativeMinHeap<int>(Allocator.Temp);
             var cameFrom = new NativeHashMap<int, int>(graphSize, Allocator.Temp);
-            var rewardSum = new NativeHashMap<int, float>(graphSize, Allocator.Temp);
 
             // Path finding
             var startId = StartNodeId;
@@ -77,7 +79,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
 
             openSet.Add(new MinHashNode<int>(startId, 0));
             
-            rewardSum[startId] = 0;
+            RewardSum[startId] = 0;
             InitNodeAgentInfos(ref NodeAgentInfos, startId);
             InitNodeTotalTimes(ref NodeTotalTimes, startId);
 
@@ -105,7 +107,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     if (float.IsNegativeInfinity(neighbourNode.GetReward(ref NodeGraph))) continue;
 
                     var newRewardSum =
-                        rewardSum[currentHash] + neighbourNode.GetReward(ref NodeGraph);
+                        RewardSum[currentHash] + neighbourNode.GetReward(ref NodeGraph);
 
                     var neighbourExecutor = neighbourNode.AgentExecutorEntity;
                     var neighbourExecutorMoveSpeed = FindAgentSpeed(neighbourExecutor);
@@ -134,7 +136,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                         neighbourExecutorMoveSpeed, Allocator.Temp, out var newTotalTime);
 
                     //如果记录已存在，新的时间更长则skip，相等则考虑reward更小skip
-                    if (rewardSum.ContainsKey(neighbourHash))
+                    if (RewardSum.ContainsKey(neighbourHash))
                     {
                         var oldTotalTime = NodeTotalTimes[neighbourHash];
                         if (newTotalTime > oldTotalTime)
@@ -143,7 +145,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                             continue;
                         }
 
-                        var fewerReward = newRewardSum <= rewardSum[neighbourHash];
+                        var fewerReward = newRewardSum <= RewardSum[neighbourHash];
                         if (Math.Abs(newTotalTime - oldTotalTime) < 0.1f && fewerReward)
                         {
                             Clear(neighbourAgentsInfo, tempPreconditionIndices, tempPreconditions);
@@ -163,7 +165,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                                    (newRewardSum + neighbourNode.Heuristic(ref NodeGraph));
                     openSet.Add(new MinHashNode<int>(neighbourHash, priority));
                     cameFrom[neighbourHash] = currentHash;
-                    rewardSum[neighbourHash] = newRewardSum;
+                    RewardSum[neighbourHash] = newRewardSum;
                     
                     NodeNavigateSubjects[neighbourHash] = neighbourNavigateSubject;
 

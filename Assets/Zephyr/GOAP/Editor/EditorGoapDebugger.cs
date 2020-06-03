@@ -59,6 +59,11 @@ namespace Zephyr.GOAP.Editor
                 ref pathNodeSpecifiedPreconditionIndices, ref pathNodeSpecifiedPreconditions);
         }
 
+        public void SetRewardSum(ref NativeHashMap<int, float> rewardSum)
+        {
+            _goapLog.SetRewardSum(ref rewardSum);
+        }
+
         public void Log(string log)
         {
             // Debug.Log(log);

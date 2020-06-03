@@ -99,6 +99,11 @@ namespace Zephyr.GOAP.Logger
         {
             return _currentResult.GetChildren(parent);
         }
+
+        public void SetRewardSum(ref NativeHashMap<int, float> rewardSum)
+        {
+            _currentResult.SetRewardSum(ref rewardSum);
+        }
     }
 
 }
