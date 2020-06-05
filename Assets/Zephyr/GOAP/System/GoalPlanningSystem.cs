@@ -119,10 +119,14 @@ namespace Zephyr.GOAP.System
                 //对待检查列表进行检查（与CurrentStates比对）
                 if (CheckNodes(ref uncheckedNodes, ref nodeGraph, ref stackData.CurrentStates,
                     ref unexpandedNodes, iteration)) foundPlan = true;
+                
+                nodeGraph.DebugCheckNoCookStateBeforeIteration4(iteration);
 
                 //对待展开列表进行展开，并挑选进入待检查和展开后列表
                 ExpandNodes(ref unexpandedNodes, ref stackData, ref nodeGraph,
                     ref uncheckedNodesWriter, ref expandedNodes, iteration);
+                
+                nodeGraph.DebugCheckNodeEffects(ref uncheckedNodes);
 
                 //直至待展开列表为空或Early Exit
                 iteration++;
@@ -373,9 +377,6 @@ namespace Zephyr.GOAP.System
         public bool CheckNodes(ref NativeHashMap<int, Node> uncheckedNodes, ref NodeGraph nodeGraph,
             ref StateGroup currentStates, ref NativeList<Node> unexpandedNodes, int iteration)
         {
-            nodeGraph.DebugCheckNoCookStateBeforeIteration4(iteration);
-            nodeGraph.DebugCheckNodeEffects(ref uncheckedNodes);
-            
             bool foundPlan = false;
             var nodes = uncheckedNodes.GetValueArray(Allocator.Temp);
             foreach (var uncheckedNode in nodes)

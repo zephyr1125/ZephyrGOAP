@@ -100,7 +100,7 @@ namespace Zephyr.GOAP
             if (trait.Equals(typeof(FoodTrait)))
             {
                 result.Add(new NativeString64(Utils.RawPeachName));
-                result.Add(new NativeString64(RoastPeachName));
+                // result.Add(new NativeString64(RoastPeachName));
                 result.Add(new NativeString64("raw_apple"));
                 result.Add(new NativeString64("roast_apple"));
                 result.Add(new NativeString64("feast"));

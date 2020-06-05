@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
 using Zephyr.GOAP.Action;
+using Zephyr.GOAP.Component.Trait;
 using Zephyr.GOAP.Lib;
 using Zephyr.GOAP.Struct;
 
@@ -201,7 +202,10 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                         _effectIndicesWriter.AddNoResize(newNode.HashCode);
                         _effectsWriter.AddNoResize(state);
 
-                        if (!newNode.Name.Equals("CookAction")) continue;
+                        // if (!newNode.Name.Equals("CookAction")) continue;
+                        if (!state.Trait.Equals(typeof(ItemSourceTrait))) continue;
+                        if (!state.ValueString.Equals("feast") &&
+                            !state.ValueString.Equals("roast_apple")) continue;
                         Debug.Log($"{_iteration}({baseNode.HashCode}->{newNode.HashCode}){newNode.AgentExecutorEntity}|{state.ValueString}");
                     }
                 }

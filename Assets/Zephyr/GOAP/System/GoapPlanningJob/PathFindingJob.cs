@@ -117,15 +117,9 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     //顺便保存依赖关系
                     var tempPreconditionIndices = new NativeList<int>(Allocator.Temp);
                     var tempPreconditions = new NativeList<State>(Allocator.Temp);
-                    var allSpecificPreconditionsFound = GetAllSpecificPreconditions(neighbourNode,
+                    GetAllSpecificPreconditions(neighbourNode,
                         currentHash, cameFrom, ref tempPreconditionIndices, ref tempPreconditions);
-                    if (!allSpecificPreconditionsFound)
-                    {
-                        tempPreconditionIndices.Dispose();
-                        tempPreconditions.Dispose();
-                        continue;
-                    }
-                    
+
                     var neighbourNavigatingPosition = NeighbourNavigatingPosition(neighbourNode,
                         ref tempPreconditionIndices, ref tempPreconditions,
                         out var isNeedNavigate, out var neighbourNavigateSubject);
@@ -216,12 +210,11 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             }
         }
         
-        private bool GetAllSpecificPreconditions(Node neighbourNode, int currentHash,
+        private void GetAllSpecificPreconditions(Node neighbourNode, int currentHash,
             NativeHashMap<int, int> cameFrom,
             ref NativeList<int> tempSpecifiedPreconditionIndices,
             ref NativeList<State> tempSpecifiedPreconditions)
         {
-            var allSpecificFound = true;
             var preconditions =
                 NodeGraph.GetNodePreconditions(neighbourNode, Allocator.Temp);
             for(var preconditionId = 0; preconditionId < preconditions.Length(); preconditionId++)
@@ -263,9 +256,8 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                         if (!childSpecificEffect.Equals(default(State))) break;
                     }
 
-                    //如果没有找到明确的state，这是一条死路
-                    var notFound = childSpecificEffect.Equals(default);
-                    if (notFound) allSpecificFound = false;
+                    //不可能找不到明确的state，否则是不会从start一路连上来的
+                    Assert.IsFalse(childSpecificEffect.Equals(default));
                     
                     tempSpecifiedPreconditions.Add(childSpecificEffect);
                     childrenHash.Dispose();

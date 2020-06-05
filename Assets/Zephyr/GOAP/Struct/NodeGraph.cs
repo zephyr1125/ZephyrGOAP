@@ -400,7 +400,7 @@ namespace Zephyr.GOAP.Struct
 
                 if (hasRoastApple && hasFeast)
                 {
-                    Debug.LogError($"({nodeHash}) 2 Effects For Cook!");
+                    Debug.LogError($"({nodeHash}) 2 effects for Cook at end of iteration!");
                 }
             }
         }
