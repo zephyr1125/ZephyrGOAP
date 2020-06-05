@@ -1,3 +1,4 @@
+using System;
 using Unity.Assertions;
 using Unity.Collections;
 using Unity.Jobs;
@@ -40,8 +41,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         private NativeList<int>.ParallelWriter _preconditionIndicesWriter;
         private NativeList<State>.ParallelWriter _preconditionsWriter;
         
-        private NativeList<int>.ParallelWriter _effectIndicesWriter;
-        private NativeList<State>.ParallelWriter _effectsWriter;
+        private NativeList<ValueTuple<int, State>>.ParallelWriter _effectsWriter;
         
         private NativeHashMap<int, Node>.ParallelWriter _newlyCreatedNodesWriter;
 
@@ -59,8 +59,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             NativeList<State>.ParallelWriter nodeStatesWriter, 
             NativeList<int>.ParallelWriter preconditionIndicesWriter,
             NativeList<State>.ParallelWriter preconditionsWriter, 
-            NativeList<int>.ParallelWriter effectIndicesWriter,
-            NativeList<State>.ParallelWriter effectsWriter, 
+            NativeList<ValueTuple<int, State>>.ParallelWriter effectsWriter, 
             ref NativeHashMap<int, Node>.ParallelWriter newlyCreatedNodesWriter, int iteration, T action)
         {
             _unexpandedNodes = unexpandedNodes;
@@ -75,7 +74,6 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             _nodeStatesWriter = nodeStatesWriter;
             _preconditionIndicesWriter = preconditionIndicesWriter;
             _preconditionsWriter = preconditionsWriter;
-            _effectIndicesWriter = effectIndicesWriter;
             _effectsWriter = effectsWriter;
             _newlyCreatedNodesWriter = newlyCreatedNodesWriter;
             _iteration = iteration;
@@ -199,8 +197,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     for(var i=0; i<effects.Length(); i++)
                     {
                         var state = effects[i];
-                        _effectIndicesWriter.AddNoResize(newNode.HashCode);
-                        _effectsWriter.AddNoResize(state);
+                        _effectsWriter.AddNoResize((newNode.HashCode, state));
 
                         // if (!newNode.Name.Equals("CookAction")) continue;
                         if (!state.Trait.Equals(typeof(ItemSourceTrait))) continue;

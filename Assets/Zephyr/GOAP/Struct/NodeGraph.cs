@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
@@ -30,9 +29,7 @@ namespace Zephyr.GOAP.Struct
         private NativeList<State> _preconditions;
         
         [ReadOnly]
-        private NativeList<int> _effectIndices;
-        [ReadOnly]
-        private NativeList<State> _effects;
+        private NativeList<ValueTuple<int,State>> _effects;
 
         public NativeList<int> _deadEndNodeHashes;
 
@@ -56,8 +53,7 @@ namespace Zephyr.GOAP.Struct
             _preconditionIndices = new NativeList<int>(initialCapacity*4, allocator);
             _preconditions = new NativeList<State>(initialCapacity*4, allocator);
             
-            _effectIndices = new NativeList<int>(initialCapacity*4, allocator);
-            _effects = new NativeList<State>(initialCapacity*4, allocator);
+            _effects = new NativeList<ValueTuple<int, State>>(initialCapacity*4, allocator);
             
             _deadEndNodeHashes = new NativeList<int>(allocator);
             
@@ -66,8 +62,7 @@ namespace Zephyr.GOAP.Struct
             _nodes.Add(_startNodeHash, startNode);
             for (var i = 0; i < startNodeStates.Length; i++)
             {
-                _effectIndices.Add(_startNodeHash);
-                _effects.Add(startNodeStates[i]);
+                _effects.Add((_startNodeHash, startNodeStates[i]));
             }
             
             _goalNodeHash = 0;
@@ -106,8 +101,7 @@ namespace Zephyr.GOAP.Struct
         public NativeList<int>.ParallelWriter PreconditionIndicesWriter => _preconditionIndices.AsParallelWriter();
         public NativeList<State>.ParallelWriter PreconditionsWriter => _preconditions.AsParallelWriter();
         
-        public NativeList<int>.ParallelWriter EffectIndicesWriter => _effectIndices.AsParallelWriter();
-        public NativeList<State>.ParallelWriter EffectsWriter => _effects.AsParallelWriter();
+        public NativeList<ValueTuple<int, State>>.ParallelWriter EffectsWriter => _effects.AsParallelWriter();
 
         /// <summary>
         /// 追加对起点的链接
@@ -275,10 +269,11 @@ namespace Zephyr.GOAP.Struct
         {
             var group = new StateGroup(1, allocator);
             var nodeHash = node.HashCode;
-            for (var i = 0; i < _effectIndices.Length; i++)
+            for (var i = 0; i < _effects.Length; i++)
             {
-                if (!_effectIndices[i].Equals(nodeHash)) continue;
-                group.Add(_effects[i]);
+                var (hash, state) = _effects[i];
+                if (!hash.Equals(nodeHash)) continue;
+                group.Add(state);
             }
 
             return group;
@@ -288,10 +283,11 @@ namespace Zephyr.GOAP.Struct
         {
             var result = new List<State>();
             var nodeHash = node.HashCode;
-            for (var i = 0; i < _effectIndices.Length; i++)
+            for (var i = 0; i < _effects.Length; i++)
             {
-                if (!_effectIndices[i].Equals(nodeHash)) continue;
-                result.Add(_effects[i]);
+                var (hash, effect) = _effects[i];
+                if (!hash.Equals(nodeHash)) continue;
+                result.Add(effect);
             }
 
             return result.ToArray();
@@ -352,10 +348,9 @@ namespace Zephyr.GOAP.Struct
         {
             if (iteration > 4) return;
             
-            for (var effectId = 0; effectId < _effectIndices.Length; effectId++)
+            for (var effectId = 0; effectId < _effects.Length; effectId++)
             {
-                var nodeHash = _effectIndices[effectId];
-                var nodeEffect = _effects[effectId];
+                var (nodeHash, nodeEffect) = _effects[effectId];
                 if (!nodeEffect.Trait.Equals(typeof(ItemSourceTrait))) continue;
 
                 if (nodeEffect.ValueString.Equals("roast_apple"))
@@ -384,10 +379,10 @@ namespace Zephyr.GOAP.Struct
                 var hasRoastApple = false;
                 var hasFeast = false;
             
-                for (var effectId = 0; effectId < _effectIndices.Length; effectId++)
+                for (var effectId = 0; effectId < _effects.Length; effectId++)
                 {
-                    if (!_effectIndices[effectId].Equals(nodeHash)) continue;
-                    var nodeEffect = _effects[effectId];
+                    var (hash, nodeEffect) = _effects[effectId];
+                    if (!hash.Equals(nodeHash)) continue;
 
                     if (nodeEffect.ValueString.Equals("roast_apple"))
                     {
@@ -413,7 +408,7 @@ namespace Zephyr.GOAP.Struct
         public void CleanAllDuplicateStates(Node node)
         {
             CleanDuplicateStates(_preconditionIndices, _preconditions, node);
-            CleanDuplicateStates(_effectIndices, _effects, node);
+            CleanDuplicateStates(_effects, node);
             CleanDuplicateStates(_nodeStateIndices, _nodeStates, node);
         }
 
@@ -431,6 +426,24 @@ namespace Zephyr.GOAP.Struct
                     containerIndices.RemoveAtSwapBack(checkId);
                     container.RemoveAtSwapBack(checkId);
                     checkId--;
+                }
+            }
+        }
+        
+        private void CleanDuplicateStates(NativeList<ValueTuple<int, State>> container, Node node)
+        {
+            var nodeHash = node.HashCode;
+            for (var baseId = 0; baseId < container.Length; baseId++)
+            {
+                var (hash, state) = container[baseId];
+                if (!hash.Equals(nodeHash)) continue;
+                for (var otherId = baseId+1; otherId < container.Length; otherId++)
+                {
+                    var (otherHash, otherState) = container[otherId];
+                    if (!hash.Equals(otherHash)) continue;
+                    if (!state.Equals(otherState)) continue;
+                    container.RemoveAtSwapBack(otherId);
+                    otherId--;
                 }
             }
         }
@@ -454,7 +467,6 @@ namespace Zephyr.GOAP.Struct
             _preconditionIndices.Dispose();
             _preconditions.Dispose();
             
-            _effectIndices.Dispose();
             _effects.Dispose();
 
             _deadEndNodeHashes.Dispose();
