@@ -264,7 +264,6 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                 }
             }
             preconditions.Dispose();
-            return allSpecificFound;
         }
 
         private void ReplaceSpecifiedPreconditions(int nodeHash,
