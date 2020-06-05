@@ -20,9 +20,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         private StackData _stackData;
 
         [ReadOnly]
-        private NativeList<int> _nodeStateIndices;
-        [ReadOnly]
-        private NativeList<State> _nodeStates;
+        private NativeList<ValueTuple<int, State>> _nodeStates;
         
         /// <summary>
         /// NodeGraph中现存所有Node的hash
@@ -32,14 +30,11 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
 
         private NativeHashMap<int, Node>.ParallelWriter _nodesWriter;
         
-        private NativeList<int>.ParallelWriter _nodeToParentIndicesWriter;
-        private NativeList<int>.ParallelWriter _nodeToParentsWriter;
+        private NativeList<ValueTuple<int, int>>.ParallelWriter _nodeToParentsWriter;
         
-        private NativeList<int>.ParallelWriter _nodeStateIndicesWriter;
-        private NativeList<State>.ParallelWriter _nodeStatesWriter;
+        private NativeList<ValueTuple<int, State>>.ParallelWriter _nodeStatesWriter;
         
-        private NativeList<int>.ParallelWriter _preconditionIndicesWriter;
-        private NativeList<State>.ParallelWriter _preconditionsWriter;
+        private NativeList<ValueTuple<int, State>>.ParallelWriter _preconditionsWriter;
         
         private NativeList<ValueTuple<int, State>>.ParallelWriter _effectsWriter;
         
@@ -51,28 +46,21 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
 
         public ActionExpandJob(ref NativeList<Node> unexpandedNodes, 
             ref NativeArray<int> existedNodesHash, ref StackData stackData,
-            ref NativeList<int> nodeStateIndices, ref NativeList<State> nodeStates,
+            ref NativeList<ValueTuple<int, State>> nodeStates,
             NativeHashMap<int, Node>.ParallelWriter nodesWriter,
-            NativeList<int>.ParallelWriter nodeToParentIndicesWriter,
-            NativeList<int>.ParallelWriter nodeToParentsWriter,
-            NativeList<int>.ParallelWriter nodeStateIndicesWriter,
-            NativeList<State>.ParallelWriter nodeStatesWriter, 
-            NativeList<int>.ParallelWriter preconditionIndicesWriter,
-            NativeList<State>.ParallelWriter preconditionsWriter, 
+            NativeList<ValueTuple<int, int>>.ParallelWriter nodeToParentsWriter,
+            NativeList<ValueTuple<int, State>>.ParallelWriter nodeStatesWriter, 
+            NativeList<ValueTuple<int, State>>.ParallelWriter preconditionsWriter, 
             NativeList<ValueTuple<int, State>>.ParallelWriter effectsWriter, 
             ref NativeHashMap<int, Node>.ParallelWriter newlyCreatedNodesWriter, int iteration, T action)
         {
             _unexpandedNodes = unexpandedNodes;
             _existedNodesHash = existedNodesHash;
             _stackData = stackData;
-            _nodeStateIndices = nodeStateIndices;
             _nodeStates = nodeStates;
             _nodesWriter = nodesWriter;
-            _nodeToParentIndicesWriter = nodeToParentIndicesWriter;
             _nodeToParentsWriter = nodeToParentsWriter;
-            _nodeStateIndicesWriter = nodeStateIndicesWriter;
             _nodeStatesWriter = nodeStatesWriter;
-            _preconditionIndicesWriter = preconditionIndicesWriter;
             _preconditionsWriter = preconditionsWriter;
             _effectsWriter = effectsWriter;
             _newlyCreatedNodesWriter = newlyCreatedNodesWriter;
@@ -85,12 +73,12 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             var unexpandedNode = _unexpandedNodes[jobIndex];
             //只考虑node的首个state
             var sortedStates = new ZephyrNativeMinHeap<State>(Allocator.Temp);
-            for (var i = 0; i < _nodeStateIndices.Length; i++)
+            for (var i = 0; i < _nodeStates.Length; i++)
             {
-                if (!_nodeStateIndices[i].Equals(unexpandedNode.HashCode)) continue;
-                var state = _nodeStates[i];
+                var (hash, state) = _nodeStates[i];
+                if (!hash.Equals(unexpandedNode.HashCode)) continue;
                 var priority = state.Target.Index;
-                sortedStates.Add(new MinHashNode<State>(_nodeStates[i], priority));
+                sortedStates.Add(new MinHashNode<State>(state, priority));
             }
             var leftStates = new StateGroup(sortedStates, Allocator.Temp);
             var targetStates = new StateGroup(leftStates, 1, Allocator.Temp);
@@ -166,8 +154,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         {
             newNode.Name = actionName;
             
-            _nodeToParentIndicesWriter.AddNoResize(newNode.HashCode);
-            _nodeToParentsWriter.AddNoResize(parent.HashCode);
+            _nodeToParentsWriter.AddNoResize((newNode.HashCode, parent.HashCode));
             
             if(!nodeExisted)
             {
@@ -176,8 +163,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                 for(var i=0; i<nodeStates.Length(); i++)
                 {
                     var state = nodeStates[i];
-                    _nodeStateIndicesWriter.AddNoResize(newNode.HashCode);
-                    _nodeStatesWriter.AddNoResize(state);
+                    _nodeStatesWriter.AddNoResize((newNode.HashCode, state));
                 }
                 
                 if(!preconditions.Equals(default(StateGroup)))
@@ -185,8 +171,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     for(var i=0; i<preconditions.Length(); i++)
                     {
                         var state = preconditions[i];
-                        _preconditionIndicesWriter.AddNoResize(newNode.HashCode);
-                        _preconditionsWriter.AddNoResize(state);
+                        _preconditionsWriter.AddNoResize((newNode.HashCode, state));
                     }
                 }
 
@@ -200,10 +185,10 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                         _effectsWriter.AddNoResize((newNode.HashCode, state));
 
                         // if (!newNode.Name.Equals("CookAction")) continue;
-                        if (!state.Trait.Equals(typeof(ItemSourceTrait))) continue;
-                        if (!state.ValueString.Equals("feast") &&
-                            !state.ValueString.Equals("roast_apple")) continue;
-                        Debug.Log($"{_iteration}({baseNode.HashCode}->{newNode.HashCode}){newNode.AgentExecutorEntity}|{state.ValueString}");
+                        // if (!state.Trait.Equals(typeof(ItemSourceTrait))) continue;
+                        // if (!state.ValueString.Equals("feast") &&
+                        //     !state.ValueString.Equals("roast_apple")) continue;
+                        // Debug.Log($"{_iteration}({baseNode.HashCode}->{newNode.HashCode}){newNode.AgentExecutorEntity}|{state.ValueString}");
                     }
                 }
             }

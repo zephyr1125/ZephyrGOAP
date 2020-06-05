@@ -473,62 +473,50 @@ namespace Zephyr.GOAP.System
             }
 
             var existedNodesHash = nodeGraph.GetAllNodesHash(Allocator.TempJob);
-            nodeGraph.GetNodeStates(ref unexpandedNodes, out var nodeStateIndices,
+            nodeGraph.GetNodeStates(ref unexpandedNodes,
                 out var nodeStates, Allocator.TempJob);
             var nodesWriter = nodeGraph.NodesWriter;
-            var nodeToParentIndicesWriter = nodeGraph.NodeToParentIndicesWriter;
             var nodeToParentsWriter = nodeGraph.NodeToParentsWriter;
-            var nodeStateIndicesWriter = nodeGraph.NodeStateIndicesWriter;
             var nodeStatesWriter = nodeGraph.NodeStatesWriter;
-            var preconditionIndicesWriter = nodeGraph.PreconditionIndicesWriter;
             var preconditionsWriter = nodeGraph.PreconditionsWriter;
             var effectsWriter = nodeGraph.EffectsWriter;
             
             var handle = default(JobHandle);
             handle = ScheduleActionExpand<DropItemAction>(handle, ref stackData,
-                ref unexpandedNodes, ref existedNodesHash, ref nodeStateIndices, ref nodeStates, nodesWriter,
-                nodeToParentIndicesWriter, nodeToParentsWriter, nodeStateIndicesWriter, nodeStatesWriter,
-                preconditionIndicesWriter, preconditionsWriter, effectsWriter,
+                ref unexpandedNodes, ref existedNodesHash, ref nodeStates, nodesWriter,
+                nodeToParentsWriter, nodeStatesWriter, preconditionsWriter, effectsWriter,
                 ref uncheckedNodes, iteration);
             handle = ScheduleActionExpand<PickItemAction>(handle, ref stackData,
-                ref unexpandedNodes, ref existedNodesHash, ref nodeStateIndices, ref nodeStates, nodesWriter,
-                nodeToParentIndicesWriter, nodeToParentsWriter, nodeStateIndicesWriter, nodeStatesWriter,
-                preconditionIndicesWriter, preconditionsWriter, effectsWriter,
+                ref unexpandedNodes, ref existedNodesHash, ref nodeStates, nodesWriter,
+                nodeToParentsWriter, nodeStatesWriter, preconditionsWriter, effectsWriter,
                 ref uncheckedNodes, iteration);
             handle = ScheduleActionExpand<EatAction>(handle, ref stackData,
-                ref unexpandedNodes, ref existedNodesHash, ref nodeStateIndices, ref nodeStates, nodesWriter,
-                nodeToParentIndicesWriter, nodeToParentsWriter, nodeStateIndicesWriter, nodeStatesWriter,
-                preconditionIndicesWriter, preconditionsWriter, effectsWriter,
+                ref unexpandedNodes, ref existedNodesHash, ref nodeStates, nodesWriter,
+                nodeToParentsWriter, nodeStatesWriter, preconditionsWriter, effectsWriter,
                 ref uncheckedNodes, iteration);
             handle = ScheduleActionExpand<CookAction>(handle, ref stackData,
-                ref unexpandedNodes, ref existedNodesHash, ref nodeStateIndices, ref nodeStates, nodesWriter,
-                nodeToParentIndicesWriter, nodeToParentsWriter, nodeStateIndicesWriter, nodeStatesWriter,
-                preconditionIndicesWriter, preconditionsWriter, effectsWriter,
+                ref unexpandedNodes, ref existedNodesHash,  ref nodeStates, nodesWriter,
+                nodeToParentsWriter, nodeStatesWriter, preconditionsWriter, effectsWriter,
                 ref uncheckedNodes, iteration);
             handle = ScheduleActionExpand<WanderAction>(handle, ref stackData,
-                ref unexpandedNodes, ref existedNodesHash,  ref nodeStateIndices, ref nodeStates, nodesWriter,
-                nodeToParentIndicesWriter, nodeToParentsWriter, nodeStateIndicesWriter, nodeStatesWriter,
-                preconditionIndicesWriter, preconditionsWriter, effectsWriter,
+                ref unexpandedNodes, ref existedNodesHash,  ref nodeStates, nodesWriter,
+                nodeToParentsWriter, nodeStatesWriter, preconditionsWriter, effectsWriter,
                 ref uncheckedNodes, iteration);
             handle = ScheduleActionExpand<CollectAction>(handle, ref stackData,
-                ref unexpandedNodes, ref existedNodesHash,  ref nodeStateIndices, ref nodeStates, nodesWriter,
-                nodeToParentIndicesWriter, nodeToParentsWriter, nodeStateIndicesWriter, nodeStatesWriter,
-                preconditionIndicesWriter, preconditionsWriter, effectsWriter,
+                ref unexpandedNodes, ref existedNodesHash,  ref nodeStates, nodesWriter,
+                nodeToParentsWriter, nodeStatesWriter, preconditionsWriter, effectsWriter,
                 ref uncheckedNodes, iteration);
             handle = ScheduleActionExpand<PickRawAction>(handle,ref stackData,
-                ref unexpandedNodes, ref existedNodesHash,  ref nodeStateIndices, ref nodeStates, nodesWriter,
-                nodeToParentIndicesWriter, nodeToParentsWriter, nodeStateIndicesWriter, nodeStatesWriter,
-                preconditionIndicesWriter, preconditionsWriter, effectsWriter,
+                ref unexpandedNodes, ref existedNodesHash,  ref nodeStates, nodesWriter,
+                nodeToParentsWriter, nodeStatesWriter, preconditionsWriter, effectsWriter,
                 ref uncheckedNodes, iteration);
             handle = ScheduleActionExpand<DropRawAction>(handle, ref stackData,
-                ref unexpandedNodes, ref existedNodesHash,  ref nodeStateIndices, ref nodeStates, nodesWriter,
-                nodeToParentIndicesWriter, nodeToParentsWriter, nodeStateIndicesWriter, nodeStatesWriter,
-                preconditionIndicesWriter, preconditionsWriter, effectsWriter,
+                ref unexpandedNodes, ref existedNodesHash,  ref nodeStates, nodesWriter,
+                nodeToParentsWriter, nodeStatesWriter, preconditionsWriter, effectsWriter,
                 ref uncheckedNodes, iteration);
 
             handle.Complete();
             existedNodesHash.Dispose();
-            nodeStateIndices.Dispose();
             nodeStates.Dispose();
             
             expandedNodes.AddRange(unexpandedNodes);
@@ -538,14 +526,11 @@ namespace Zephyr.GOAP.System
         private JobHandle ScheduleActionExpand<T>(JobHandle handle,
             ref StackData stackData, ref NativeList<Node> unexpandedNodes,
             ref NativeArray<int> existedNodesHash,
-            ref NativeList<int> nodeStateIndices, ref NativeList<State>  nodeStates,
+            ref NativeList<ValueTuple<int, State>> nodeStates,
             NativeHashMap<int, Node>.ParallelWriter nodesWriter,
-            NativeList<int>.ParallelWriter nodeToParentIndicesWriter,
-            NativeList<int>.ParallelWriter nodeToParentsWriter,
-            NativeList<int>.ParallelWriter nodeStateIndicesWriter,
-            NativeList<State>.ParallelWriter nodeStatesWriter, 
-            NativeList<int>.ParallelWriter preconditionIndicesWriter,
-            NativeList<State>.ParallelWriter preconditionsWriter, 
+            NativeList<ValueTuple<int, int>>.ParallelWriter nodeToParentsWriter,
+            NativeList<ValueTuple<int, State>>.ParallelWriter nodeStatesWriter, 
+            NativeList<ValueTuple<int, State>>.ParallelWriter preconditionsWriter, 
             NativeList<ValueTuple<int, State>>.ParallelWriter effectsWriter, 
             ref NativeHashMap<int, Node>.ParallelWriter newlyCreatedNodesWriter, int iteration) where T : struct, IAction, IComponentData
         {
@@ -557,9 +542,8 @@ namespace Zephyr.GOAP.System
                 {
                     var action = EntityManager.GetComponentData<T>(agentEntity);
                     handle = new ActionExpandJob<T>(ref unexpandedNodes, ref existedNodesHash,
-                        ref stackData, ref nodeStateIndices, ref nodeStates, nodesWriter,
-                        nodeToParentIndicesWriter, nodeToParentsWriter, nodeStateIndicesWriter, nodeStatesWriter,
-                        preconditionIndicesWriter, preconditionsWriter, effectsWriter,
+                        ref stackData, ref nodeStates, nodesWriter,
+                        nodeToParentsWriter, nodeStatesWriter, preconditionsWriter, effectsWriter,
                         ref newlyCreatedNodesWriter, iteration, action).Schedule(
                         unexpandedNodes, 6, handle);
                 }

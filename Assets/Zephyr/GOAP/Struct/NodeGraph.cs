@@ -14,19 +14,13 @@ namespace Zephyr.GOAP.Struct
         private NativeHashMap<int, Node> _nodes;
         
         [ReadOnly]
-        private NativeList<int> _nodeToParentIndices;
-        [ReadOnly]
-        private NativeList<int> _nodeToParents;
+        private NativeList<ValueTuple<int,int>> _nodeToParents;
         
         [ReadOnly]
-        private NativeList<int> _nodeStateIndices;
-        [ReadOnly]
-        private NativeList<State> _nodeStates;
+        private NativeList<ValueTuple<int,State>> _nodeStates;
         
         [ReadOnly]
-        private NativeList<int> _preconditionIndices;
-        [ReadOnly]
-        private NativeList<State> _preconditions;
+        private NativeList<ValueTuple<int,State>> _preconditions;
         
         [ReadOnly]
         private NativeList<ValueTuple<int,State>> _effects;
@@ -44,20 +38,14 @@ namespace Zephyr.GOAP.Struct
         {
             _nodes = new NativeHashMap<int, Node>(initialCapacity, allocator);
             
-            _nodeToParentIndices = new NativeList<int>(initialCapacity*4, allocator);
-            _nodeToParents = new NativeList<int>(initialCapacity*4, allocator);
-            
-            _nodeStateIndices = new NativeList<int>(initialCapacity*4, allocator);
-            _nodeStates = new NativeList<State>(initialCapacity*4, allocator);
-            
-            _preconditionIndices = new NativeList<int>(initialCapacity*4, allocator);
-            _preconditions = new NativeList<State>(initialCapacity*4, allocator);
-            
+            _nodeToParents = new NativeList<ValueTuple<int, int>>(initialCapacity*4, allocator);
+            _nodeStates = new NativeList<ValueTuple<int, State>>(initialCapacity*4, allocator);
+            _preconditions = new NativeList<ValueTuple<int, State>>(initialCapacity*4, allocator);
             _effects = new NativeList<ValueTuple<int, State>>(initialCapacity*4, allocator);
             
             _deadEndNodeHashes = new NativeList<int>(allocator);
             
-            var startNode = new Node(){Name = new NativeString64("start")};
+            var startNode = new Node {Name = new NativeString64("start")};
             _startNodeHash = startNode.HashCode;
             _nodes.Add(_startNodeHash, startNode);
             for (var i = 0; i < startNodeStates.Length; i++)
@@ -73,10 +61,10 @@ namespace Zephyr.GOAP.Struct
             if (_goalNodeHash != 0)
             {
                 _nodes.Remove(_goalNodeHash);
-                for (var i = _nodeStateIndices.Length - 1; i >= 0; i--)
+                for (var i = _nodeStates.Length - 1; i >= 0; i--)
                 {
-                    if (!_nodeStateIndices[i].Equals(_goalNodeHash)) continue;
-                    _nodeStateIndices.RemoveAtSwapBack(i);
+                    var (hash, _) = _nodeStates[i];
+                    if (!hash.Equals(_goalNodeHash)) continue;
                     _nodeStates.RemoveAtSwapBack(i);
                 }
             }
@@ -85,21 +73,17 @@ namespace Zephyr.GOAP.Struct
             _nodes.Add(_goalNodeHash, goal);
             foreach (var state in stateGroup)
             {
-                _nodeStateIndices.Add(_goalNodeHash);
-                _nodeStates.Add(state);
+                _nodeStates.Add((_goalNodeHash, state));
             }
         }
 
         public NativeHashMap<int, Node>.ParallelWriter NodesWriter => _nodes.AsParallelWriter();
         
-        public NativeList<int>.ParallelWriter NodeToParentIndicesWriter => _nodeToParentIndices.AsParallelWriter();
-        public NativeList<int>.ParallelWriter NodeToParentsWriter => _nodeToParents.AsParallelWriter();
+        public NativeList<ValueTuple<int, int>>.ParallelWriter NodeToParentsWriter => _nodeToParents.AsParallelWriter();
         
-        public NativeList<int>.ParallelWriter NodeStateIndicesWriter => _nodeStateIndices.AsParallelWriter();
-        public NativeList<State>.ParallelWriter NodeStatesWriter => _nodeStates.AsParallelWriter();
+        public NativeList<ValueTuple<int, State>>.ParallelWriter NodeStatesWriter => _nodeStates.AsParallelWriter();
         
-        public NativeList<int>.ParallelWriter PreconditionIndicesWriter => _preconditionIndices.AsParallelWriter();
-        public NativeList<State>.ParallelWriter PreconditionsWriter => _preconditions.AsParallelWriter();
+        public NativeList<ValueTuple<int, State>>.ParallelWriter PreconditionsWriter => _preconditions.AsParallelWriter();
         
         public NativeList<ValueTuple<int, State>>.ParallelWriter EffectsWriter => _effects.AsParallelWriter();
 
@@ -107,7 +91,6 @@ namespace Zephyr.GOAP.Struct
         /// 追加对起点的链接
         /// </summary>
         /// <param name="parent"></param>
-        /// <param name="actionName"></param>
         public void LinkStartNode(Node parent)
         {
             //start node的iteration设置为此Node+1
@@ -118,8 +101,7 @@ namespace Zephyr.GOAP.Struct
                 startNode.Iteration = iteration + 1;
                 _nodes[_startNodeHash] = startNode;
             }
-            _nodeToParentIndices.Add(_startNodeHash);
-            _nodeToParents.Add(parent.HashCode);
+            _nodeToParents.Add((_startNodeHash, parent.HashCode));
         }
 
         public Node this[int hashCode]
@@ -147,13 +129,14 @@ namespace Zephyr.GOAP.Struct
             return _nodes.Count();
         }
 
-        public NativeList<int> GetNodeParents(int childHash, Allocator allocator)
+        public NativeList<int> GetNodeParents(int hash, Allocator allocator)
         {
             var result = new NativeList<int>(allocator);
-            for (var i = 0; i < _nodeToParentIndices.Length; i++)
+            for (var i = 0; i < _nodeToParents.Length; i++)
             {
-                if (!_nodeToParentIndices[i].Equals(childHash)) continue;
-                result.Add(_nodeToParents[i]);
+                var (childHash, parentHash) = _nodeToParents[i];
+                if (!childHash.Equals(hash)) continue;
+                result.Add(parentHash);
             }
 
             return result;
@@ -167,12 +150,13 @@ namespace Zephyr.GOAP.Struct
         public NativeList<Edge> GetEdges(Allocator allocator)
         {
             var result = new NativeList<Edge>(allocator);
-            for (var i = 0; i < _nodeToParentIndices.Length; i++)
+            for (var i = 0; i < _nodeToParents.Length; i++)
             {
+                var (childHash, parentHash) = _nodeToParents[i];
                 result.Add(new Edge
                 {
-                    ChildHash = _nodeToParentIndices[i],
-                    ParentHash = _nodeToParents[i]
+                    ChildHash = childHash,
+                    ParentHash = parentHash
                 });
             }
             return result;
@@ -187,22 +171,20 @@ namespace Zephyr.GOAP.Struct
         /// 读取指定node组的所有state
         /// </summary>
         /// <param name="nodes"></param>
-        /// <param name="outIndices"></param>
         /// <param name="outStates"></param>
         /// <param name="allocator"></param>
-        public void GetNodeStates(ref NativeList<Node> nodes, out NativeList<int> outIndices,
-            out NativeList<State> outStates, Allocator allocator)
+        public void GetNodeStates(ref NativeList<Node> nodes,
+            out NativeList<ValueTuple<int, State>> outStates, Allocator allocator)
         {
-            outIndices = new NativeList<int>(allocator);
-            outStates = new NativeList<State>(allocator);
+            outStates = new NativeList<ValueTuple<int, State>>(allocator);
             
             for (var i = 0; i < nodes.Length; i++)
             {
                 var nodeHash = nodes[i].HashCode;
-                for (var j = 0; j < _nodeStateIndices.Length; j++)
+                for (var j = 0; j < _nodeStates.Length; j++)
                 {
-                    if (!_nodeStateIndices[j].Equals(nodeHash)) continue;
-                    outIndices.Add(_nodeStateIndices[j]);
+                    var (hash, _) = _nodeStates[j];
+                    if (!hash.Equals(nodeHash)) continue;
                     outStates.Add(_nodeStates[j]);
                 }
             }
@@ -217,10 +199,11 @@ namespace Zephyr.GOAP.Struct
         {
             var group = new StateGroup(1, allocator);
             var nodeHash = node.HashCode;
-            for (var i = 0; i < _nodeStateIndices.Length; i++)
+            for (var i = 0; i < _nodeStates.Length; i++)
             {
-                if (!_nodeStateIndices[i].Equals(nodeHash)) continue;
-                group.Add(_nodeStates[i]);
+                var (hash, state) = _nodeStates[i];
+                if (!hash.Equals(nodeHash)) continue;
+                group.Add(state);
             }
 
             return group;
@@ -230,10 +213,11 @@ namespace Zephyr.GOAP.Struct
         {
             var result = new List<State>();
             var nodeHash = node.HashCode;
-            for (var i = 0; i < _nodeStateIndices.Length; i++)
+            for (var i = 0; i < _nodeStates.Length; i++)
             {
-                if (!_nodeStateIndices[i].Equals(nodeHash)) continue;
-                result.Add(_nodeStates[i]);
+                var (hash, state) = _nodeStates[i];
+                if (!hash.Equals(nodeHash)) continue;
+                result.Add(state);
             }
 
             return result.ToArray();
@@ -243,10 +227,11 @@ namespace Zephyr.GOAP.Struct
         {
             var group = new StateGroup(1, allocator);
             var nodeHash = node.HashCode;
-            for (var i = 0; i < _preconditionIndices.Length; i++)
+            for (var i = 0; i < _preconditions.Length; i++)
             {
-                if (!_preconditionIndices[i].Equals(nodeHash)) continue;
-                group.Add(_preconditions[i]);
+                var (hash, precondition) = _preconditions[i];
+                if (!hash.Equals(nodeHash)) continue;
+                group.Add(precondition);
             }
 
             return group;
@@ -256,10 +241,11 @@ namespace Zephyr.GOAP.Struct
         {
             var result = new List<State>();
             var nodeHash = node.HashCode;
-            for (var i = 0; i < _preconditionIndices.Length; i++)
+            for (var i = 0; i < _preconditions.Length; i++)
             {
-                if (!_preconditionIndices[i].Equals(nodeHash)) continue;
-                result.Add(_preconditions[i]);
+                var (hash, precondition) = _preconditions[i];
+                if (!hash.Equals(nodeHash)) continue;
+                result.Add(precondition);
             }
 
             return result.ToArray();
@@ -293,14 +279,15 @@ namespace Zephyr.GOAP.Struct
             return result.ToArray();
         }
 
-        public NativeList<int> GetChildren(int parentHash, Allocator allocator)
+        public NativeList<int> GetChildren(int hash, Allocator allocator)
         {
             var result = new NativeList<int>(allocator);
 
             for (var i = 0; i < _nodeToParents.Length; i++)
             {
-                if (!_nodeToParents[i].Equals(parentHash)) continue;
-                result.Add(_nodeToParentIndices[i]);
+                var (childHash, parentHash) = _nodeToParents[i];
+                if (!parentHash.Equals(hash)) continue;
+                result.Add(childHash);
             }
 
             return result;
@@ -318,11 +305,11 @@ namespace Zephyr.GOAP.Struct
 
         public void RemoveConnection(int childHash, int parentHash)
         {
-            for (var i = 0; i < _nodeToParentIndices.Length; i++)
+            for (var i = 0; i < _nodeToParents.Length; i++)
             {
-                if (!_nodeToParentIndices[i].Equals(childHash)) continue;
-                if (!_nodeToParents[i].Equals(parentHash)) continue;
-                _nodeToParentIndices.RemoveAtSwapBack(i);
+                var (cHash, pHash) = _nodeToParents[i];
+                if (!cHash.Equals(childHash)) continue;
+                if (!pHash.Equals(parentHash)) continue;
                 _nodeToParents.RemoveAtSwapBack(i);
                 return;
             }
@@ -331,11 +318,11 @@ namespace Zephyr.GOAP.Struct
         public void RemoveNodeState(Node node, State state)
         {
             var nodeHash = node.HashCode;
-            for (var i = 0; i < _nodeStateIndices.Length; i++)
+            for (var i = 0; i < _nodeStates.Length; i++)
             {
-                if (!_nodeStateIndices[i].Equals(nodeHash)) continue;
-                if (!_nodeStates[i].Equals(state)) continue;
-                _nodeStateIndices.RemoveAtSwapBack(i);
+                var (hash, aState) = _nodeStates[i];
+                if (!hash.Equals(nodeHash)) continue;
+                if (!aState.Equals(state)) continue;
                 _nodeStates.RemoveAtSwapBack(i);
                 break;
             }
@@ -407,27 +394,9 @@ namespace Zephyr.GOAP.Struct
         /// <param name="node"></param>
         public void CleanAllDuplicateStates(Node node)
         {
-            CleanDuplicateStates(_preconditionIndices, _preconditions, node);
+            CleanDuplicateStates(_preconditions, node);
             CleanDuplicateStates(_effects, node);
-            CleanDuplicateStates(_nodeStateIndices, _nodeStates, node);
-        }
-
-        private void CleanDuplicateStates(NativeList<int> containerIndices,
-            NativeList<State> container, Node node)
-        {
-            var nodeHash = node.HashCode;
-            for (var baseId = 0; baseId < containerIndices.Length; baseId++)
-            {
-                if (!containerIndices[baseId].Equals(nodeHash)) continue;
-                for (var checkId = baseId+1; checkId < containerIndices.Length; checkId++)
-                {
-                    if (!containerIndices[baseId].Equals(containerIndices[checkId])) continue;
-                    if (!container[baseId].Equals(container[checkId])) continue;
-                    containerIndices.RemoveAtSwapBack(checkId);
-                    container.RemoveAtSwapBack(checkId);
-                    checkId--;
-                }
-            }
+            CleanDuplicateStates(_nodeStates, node);
         }
         
         private void CleanDuplicateStates(NativeList<ValueTuple<int, State>> container, Node node)
@@ -458,15 +427,9 @@ namespace Zephyr.GOAP.Struct
         {
             _nodes.Dispose();
 
-            _nodeToParentIndices.Dispose();
             _nodeToParents.Dispose();
-            
-            _nodeStateIndices.Dispose();
             _nodeStates.Dispose();
-            
-            _preconditionIndices.Dispose();
             _preconditions.Dispose();
-            
             _effects.Dispose();
 
             _deadEndNodeHashes.Dispose();
