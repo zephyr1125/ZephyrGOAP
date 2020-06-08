@@ -11,8 +11,8 @@ namespace Zephyr.GOAP
 {
     public static class Utils
     {
-        public const string RoastPeachName = "roast_peacy";
-        public const string RawPeachName = "raw_peacy";
+        public const string RoastPeachName = "roast_peach";
+        public const string RawPeachName = "raw_peach";
         public static float GoalMonitorSystemInterval = 1;
 
         /// <summary>

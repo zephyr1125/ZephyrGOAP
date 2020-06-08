@@ -120,13 +120,13 @@ namespace Zephyr.GOAP.System
                 if (CheckNodes(ref uncheckedNodes, ref nodeGraph, ref stackData.CurrentStates,
                     ref unexpandedNodes, iteration)) foundPlan = true;
                 
-                nodeGraph.DebugCheckNoCookStateBeforeIteration4(iteration);
+                // nodeGraph.DebugCheckNoCookStateBeforeIteration4(iteration);
 
                 //对待展开列表进行展开，并挑选进入待检查和展开后列表
                 ExpandNodes(ref unexpandedNodes, ref stackData, ref nodeGraph,
                     ref uncheckedNodesWriter, ref expandedNodes, iteration);
                 
-                nodeGraph.DebugCheckNodeEffects(ref uncheckedNodes);
+                // nodeGraph.DebugCheckNodeEffects(ref uncheckedNodes);
 
                 //直至待展开列表为空或Early Exit
                 iteration++;
