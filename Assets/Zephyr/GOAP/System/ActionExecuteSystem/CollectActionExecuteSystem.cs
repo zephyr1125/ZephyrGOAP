@@ -12,7 +12,7 @@ namespace Zephyr.GOAP.System.ActionExecuteSystem
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public class CollectActionExecuteSystem : ActionExecuteSystemBase
     {
-        protected override JobHandle ExecuteActionJob(NativeString64 nameOfAction, NativeArray<Entity> waitingNodeEntities,
+        protected override JobHandle ExecuteActionJob(NativeString32 nameOfAction, NativeArray<Entity> waitingNodeEntities,
             NativeArray<Node> waitingNodes, BufferFromEntity<State> waitingStates, EntityCommandBuffer.Concurrent ecb, JobHandle inputDeps)
         {
             return Entities.WithName("PickRawActionExecuteJob")
@@ -46,7 +46,7 @@ namespace Zephyr.GOAP.System.ActionExecuteSystem
                 }).Schedule(inputDeps);
         }
 
-        protected override NativeString64 GetNameOfAction()
+        protected override NativeString32 GetNameOfAction()
         {
             return nameof(CollectAction);
         }

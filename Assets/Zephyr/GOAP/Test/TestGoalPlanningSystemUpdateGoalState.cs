@@ -53,7 +53,7 @@ namespace Zephyr.GOAP.Test
             {
                 Target = _agentEntity,
                 Trait = typeof(ItemContainerTrait),
-                ValueString = new NativeString64(Utils.RawPeachName),
+                ValueString = Utils.RawPeachName,
             });
             buffer.Add(new State
             {

@@ -6,7 +6,7 @@ namespace Zephyr.GOAP.Action
 {
     public interface IAction
     {
-        NativeString64 GetName();
+        NativeString32 GetName();
         
         State GetTargetGoalState(ref StateGroup targetStates, ref StackData stackData);
 

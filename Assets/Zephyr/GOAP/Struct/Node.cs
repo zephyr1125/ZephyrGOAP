@@ -7,7 +7,7 @@ namespace Zephyr.GOAP.Struct
 {
     public struct Node : IEquatable<Node>, IPathFindingNode, IComponentData
     {
-        public NativeString64 Name;
+        public NativeString32 Name;
         
         /// <summary>
         /// 第一次展开到这个Node时的层数, goal=0
@@ -57,7 +57,7 @@ namespace Zephyr.GOAP.Struct
         public float EstimateStartTime;
 
         public Node(ref StateGroup preconditions, ref StateGroup effects, ref StateGroup states, 
-            NativeString64 name, float reward, float executeTime, int iteration, Entity agentExecutorEntity,
+            NativeString32 name, float reward, float executeTime, int iteration, Entity agentExecutorEntity,
             NodeNavigatingSubjectType subjectType = NodeNavigatingSubjectType.Null, byte subjectId = 0) : this()
         {
             Name = name;

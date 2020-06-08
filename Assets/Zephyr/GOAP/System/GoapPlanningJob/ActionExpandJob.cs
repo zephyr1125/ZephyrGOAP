@@ -150,7 +150,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         /// </summary>
         private void AddRouteNode(Node baseNode, Node newNode, bool nodeExisted, ref StateGroup nodeStates,
             ref StateGroup preconditions, ref StateGroup effects,
-            Node parent, NativeString64 actionName)
+            Node parent, NativeString32 actionName)
         {
             newNode.Name = actionName;
             

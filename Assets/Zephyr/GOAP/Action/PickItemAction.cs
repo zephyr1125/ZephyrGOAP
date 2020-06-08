@@ -12,9 +12,9 @@ namespace Zephyr.GOAP.Action
     {
         public int Level;
         
-        public NativeString64 GetName()
+        public NativeString32 GetName()
         {
-            return new NativeString64(nameof(PickItemAction));
+            return nameof(PickItemAction);
         }
         
         public State GetTargetGoalState([ReadOnly]ref StateGroup targetStates,
@@ -33,11 +33,11 @@ namespace Zephyr.GOAP.Action
         {
             var settings = new StateGroup(1, allocator);
             
-            if (!targetState.ValueString.Equals(new NativeString64()))
+            if (!targetState.ValueString.Equals(default))
             {
                 //如果指定了物品名，那么只有一种setting，也就是targetState本身
                 settings.Add(targetState);
-            }else if (targetState.ValueString.Equals(new NativeString64()) &&
+            }else if (targetState.ValueString.Equals(default) &&
                       targetState.ValueTrait != null)
             {
                 //如果targetState是类别范围，需要对每种符合范围的物品做setting

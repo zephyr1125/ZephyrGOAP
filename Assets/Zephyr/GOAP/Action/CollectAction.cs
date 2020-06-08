@@ -14,9 +14,9 @@ namespace Zephyr.GOAP.Action
     {
         public int Level;
         
-        public NativeString64 GetName()
+        public NativeString32 GetName()
         {
-            return new NativeString64(nameof(CollectAction));
+            return nameof(CollectAction);
         }
 
         public State GetTargetGoalState(ref StateGroup targetStates, ref StackData stackData)

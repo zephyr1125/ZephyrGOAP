@@ -52,7 +52,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
             {
                 Target = _cookerEntity,
                 Trait = typeof(ItemDestinationTrait),
-                ValueString = new NativeString64(Utils.RawPeachName),
+                ValueString = Utils.RawPeachName,
             });
             var recipeSensorSystem = World.GetOrCreateSystem<RecipeSensorSystem>();
             recipeSensorSystem.Update();
@@ -109,7 +109,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
         public void PlanCookForValueTrait()
         {
             var goal = GetGoal();
-            goal.State.ValueString = new NativeString64();
+            goal.State.ValueString = default;
             goal.State.ValueTrait = typeof(FoodTrait);
             SetGoal(goal.State);
 
@@ -126,7 +126,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
         public void MultiSettingToMultiNodes()
         {
             var goal = GetGoal();
-            goal.State.ValueString = new NativeString64();
+            goal.State.ValueString = default;
             goal.State.ValueTrait = typeof(FoodTrait);
             SetGoal(goal.State);
             
@@ -158,7 +158,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
             {
                 Target = newCookerEntity,
                 Trait = typeof(ItemDestinationTrait),
-                ValueString = new NativeString64(Utils.RawPeachName),
+                ValueString = Utils.RawPeachName,
             });
             
             var goal = GetGoal();

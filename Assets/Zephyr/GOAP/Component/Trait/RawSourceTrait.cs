@@ -8,6 +8,6 @@ namespace Zephyr.GOAP.Component.Trait
     /// </summary>
     public struct RawSourceTrait : IComponentData, ITrait
     {
-        public NativeString64 RawName;
+        public NativeString32 RawName;
     }
 }

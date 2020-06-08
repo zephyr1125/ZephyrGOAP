@@ -181,20 +181,20 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                 
             //Log Result
             var success = true;
-            var log = new NativeString64("Path finding success");
+            var log = new NativeString32("Path finding success");
             if (!openSet.HasNext() && currentHash != goalId)
             {
                 success = false;
-                log = new NativeString64("Out of openset");
+                log = "Out of openset";
             }
             if (_iterations >= IterationLimit && currentHash != goalId)
             {
                 success = false;
-                log = new NativeString64("Iteration limit reached");
+                log = "Iteration limit reached";
             }else if (_pathNodeCount >= PathNodeLimit && !nodeId.Equals(startId))
             {
                 success = false;
-                log = new NativeString64("Step limit reached");
+                log = "Step limit reached";
             }
                 
             //Clear

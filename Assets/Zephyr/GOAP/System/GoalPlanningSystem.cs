@@ -102,7 +102,7 @@ namespace Zephyr.GOAP.System
             var goalPrecondition = new StateGroup();
             var goalEffects = new StateGroup();
             var goalNode = new Node(ref goalPrecondition, ref goalEffects, ref goalStates,
-                new NativeString64("goal"), 0, 0, 0, Entity.Null);
+                "goal", 0, 0, 0, Entity.Null);
             
             //goalNode进入graph
             nodeGraph.SetGoalNode(goalNode, ref goalStates);

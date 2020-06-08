@@ -92,18 +92,18 @@ namespace Zephyr.GOAP
         /// <param name="trait"></param>
         /// <param name="allocator"></param>
         /// <returns></returns>
-        public static NativeList<NativeString64> GetItemNamesOfSpecificTrait(ComponentType trait,
+        public static NativeList<NativeString32> GetItemNamesOfSpecificTrait(ComponentType trait,
             Allocator allocator)
         {
-            var result = new NativeList<NativeString64>(allocator);
+            var result = new NativeList<NativeString32>(allocator);
             
             if (trait.Equals(typeof(FoodTrait)))
             {
-                result.Add(new NativeString64(Utils.RawPeachName));
-                result.Add(new NativeString64(RoastPeachName));
-                result.Add(new NativeString64("raw_apple"));
-                result.Add(new NativeString64("roast_apple"));
-                result.Add(new NativeString64("feast"));
+                result.Add(RawPeachName);
+                result.Add(RoastPeachName);
+                result.Add("raw_apple");
+                result.Add("roast_apple");
+                result.Add("feast");
             }
 
             return result;
@@ -120,7 +120,7 @@ namespace Zephyr.GOAP
         /// </summary>
         /// <param name="foodName"></param>
         /// <returns></returns>
-        public static float GetFoodReward(NativeString64 foodName)
+        public static float GetFoodReward(NativeString32 foodName)
         {
             var plus = 10;
             switch (foodName.ToString())
@@ -134,7 +134,7 @@ namespace Zephyr.GOAP
             }
         }
         
-        public static float GetFoodStamina(NativeString64 foodName)
+        public static float GetFoodStamina(NativeString32 foodName)
         {
             switch (foodName.ToString())
             {

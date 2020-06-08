@@ -50,13 +50,13 @@ namespace Zephyr.GOAP.Test.Execute
             {
                 Target = _agentEntity,
                 Trait = typeof(RawTransferTrait),
-                ValueString = new NativeString64("item"),
+                ValueString = "item",
             });
             bufferStates.Add(new State
             {
                 Target = _containerEntity,
                 Trait = typeof(RawDestinationTrait),
-                ValueString = new NativeString64("item"),
+                ValueString = "item",
             });
         }
 
@@ -72,12 +72,12 @@ namespace Zephyr.GOAP.Test.Execute
             Assert.AreEqual(new ContainedItemRef
             {
                 ItemEntity = new Entity {Index = 8, Version = 9},
-                ItemName = new NativeString64("origin")
+                ItemName = "origin"
             }, itemBuffer[0]);
             Assert.AreEqual(new ContainedItemRef
             {
                 ItemEntity = new Entity {Index = 9, Version = 9},
-                ItemName = new NativeString64("item")
+                ItemName = "item"
             }, itemBuffer[1]);
         }
     }

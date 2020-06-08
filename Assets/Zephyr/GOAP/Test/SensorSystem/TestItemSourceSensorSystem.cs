@@ -38,7 +38,7 @@ namespace Zephyr.GOAP.Test.SensorSystem
             var buffer = EntityManager.AddBuffer<ContainedItemRef>(_containerEntity);
             buffer.Add(new ContainedItemRef
             {
-                ItemEntity = Entity.Null, ItemName = new NativeString64("test")
+                ItemEntity = Entity.Null, ItemName = "test"
             });
         }
 
@@ -55,7 +55,7 @@ namespace Zephyr.GOAP.Test.SensorSystem
             {
                 Target = _containerEntity,
                 Trait = typeof(ItemContainerTrait),
-                ValueString = new NativeString64("test")
+                ValueString = "test"
             }, buffer[0]);
         }
     }

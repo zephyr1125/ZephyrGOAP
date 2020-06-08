@@ -28,12 +28,12 @@ namespace Zephyr.GOAP.Test.Execute
             var itemBuffer = EntityManager.AddBuffer<ContainedItemRef>(_cookerEntity);
             itemBuffer.Add(new ContainedItemRef
             {
-                ItemName = new NativeString64("input0"),
+                ItemName = "input0",
                 ItemEntity = new Entity {Index = 99, Version = 9}
             });
             itemBuffer.Add(new ContainedItemRef
             {
-                ItemName = new NativeString64("input1"),
+                ItemName = "input1",
                 ItemEntity = new Entity {Index = 98, Version = 9}
             });
             

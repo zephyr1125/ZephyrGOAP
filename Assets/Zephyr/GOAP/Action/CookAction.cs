@@ -14,9 +14,9 @@ namespace Zephyr.GOAP.Action
     {
         public int Level;
         
-        public NativeString64 GetName()
+        public NativeString32 GetName()
         {
-            return new NativeString64(nameof(CookAction));
+            return nameof(CookAction);
         }
 
         public State GetTargetGoalState(ref StateGroup targetStates, ref StackData stackData)
@@ -52,7 +52,7 @@ namespace Zephyr.GOAP.Action
         /// <param name="name"></param>
         /// <param name="stackData"></param>
         /// <returns></returns>
-        private bool IsItemInRecipes(NativeString64 name, ref StackData stackData)
+        private bool IsItemInRecipes(NativeString32 name, ref StackData stackData)
         {
             var foodRecipeState = new State
             {
@@ -97,11 +97,11 @@ namespace Zephyr.GOAP.Action
             }
            
             
-            if (!targetState.ValueString.Equals(new NativeString64()))
+            if (!targetState.ValueString.Equals(default))
             {
                 //如果指定了物品名，那么只有一种setting，也就是targetState本身
                 settings.Add(targetState);
-            }else if (targetState.ValueString.Equals(new NativeString64()) &&
+            }else if (targetState.ValueString.Equals(default) &&
                       targetState.ValueTrait == typeof(FoodTrait))
             {
                 //如果targetState是类别范围，需要对每种符合范围的物品做setting

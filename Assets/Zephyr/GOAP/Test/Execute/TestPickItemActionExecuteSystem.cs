@@ -29,7 +29,7 @@ namespace Zephyr.GOAP.Test.Execute
             var itemBuffer = EntityManager.AddBuffer<ContainedItemRef>(_containerEntity);
             itemBuffer.Add(new ContainedItemRef
             {
-                ItemName = new NativeString64("item"),
+                ItemName = "item",
                 ItemEntity = new Entity {Index = 99, Version = 9}
             });
             
@@ -40,7 +40,7 @@ namespace Zephyr.GOAP.Test.Execute
             EntityManager.AddComponentData(_actionNodeEntity, new Node
             {
                 AgentExecutorEntity = _agentEntity,
-                Name = new NativeString64(nameof(PickItemAction)),
+                Name = nameof(PickItemAction),
                 PreconditionsBitmask = 1,
                 EffectsBitmask = 1 << 1,
             });
@@ -49,13 +49,13 @@ namespace Zephyr.GOAP.Test.Execute
             {
                 Target = _containerEntity,
                 Trait = typeof(ItemSourceTrait),
-                ValueString = new NativeString64("item"),
+                ValueString = "item",
             });
             bufferStates.Add(new State
             {
                 Target = _agentEntity,
                 Trait = typeof(ItemTransferTrait),
-                ValueString = new NativeString64("item"),
+                ValueString = "item",
             });
         }
 
@@ -81,7 +81,7 @@ namespace Zephyr.GOAP.Test.Execute
             Assert.AreEqual(1, itemBuffer.Length);
             Assert.AreEqual(new ContainedItemRef
             {
-                ItemName = new NativeString64("item"), ItemEntity = new Entity{Index = 99, Version = 9}
+                ItemName = "item", ItemEntity = new Entity{Index = 99, Version = 9}
             }, itemBuffer[0]);
         }
     }

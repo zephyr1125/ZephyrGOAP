@@ -13,12 +13,12 @@ namespace Zephyr.GOAP.System.ActionExecuteSystem
 {
     public class PickRawActionExecuteSystem : ActionExecuteSystemBase
     {
-        protected override NativeString64 GetNameOfAction()
+        protected override NativeString32 GetNameOfAction()
         {
             return nameof(PickRawAction);
         }
 
-        protected override JobHandle ExecuteActionJob(NativeString64 nameOfAction,
+        protected override JobHandle ExecuteActionJob(NativeString32 nameOfAction,
             NativeArray<Entity> waitingNodeEntities,
             NativeArray<Node> waitingNodes, BufferFromEntity<State> waitingStates,
             EntityCommandBuffer.Concurrent ecb, JobHandle inputDeps)
@@ -42,7 +42,7 @@ namespace Zephyr.GOAP.System.ActionExecuteSystem
 
                         var states = waitingStates[nodeEntity];
                         //从precondition里找物品名.
-                        var targetItemName = new NativeString64();
+                        var targetItemName = new NativeString32();
                         for (var stateId = 0; stateId < states.Length; stateId++)
                         {
                             if ((node.PreconditionsBitmask & (ulong) 1 << stateId) <= 0) continue;

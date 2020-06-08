@@ -7,7 +7,7 @@ namespace Zephyr.GOAP.Test.Mock
 {
     public struct MockAction : IComponentData, IAction
     {
-        public NativeString64 GetName()
+        public NativeString32 GetName()
         {
             return "MockAction";
         }

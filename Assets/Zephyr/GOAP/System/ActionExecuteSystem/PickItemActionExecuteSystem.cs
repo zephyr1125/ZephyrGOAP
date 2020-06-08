@@ -14,7 +14,7 @@ namespace Zephyr.GOAP.System.ActionExecuteSystem
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public class PickItemActionExecuteSystem : ActionExecuteSystemBase
     {
-        protected override JobHandle ExecuteActionJob(NativeString64 nameOfAction, NativeArray<Entity> waitingNodeEntities,
+        protected override JobHandle ExecuteActionJob(NativeString32 nameOfAction, NativeArray<Entity> waitingNodeEntities,
             NativeArray<Node> waitingNodes, BufferFromEntity<State> waitingStates, EntityCommandBuffer.Concurrent ecb, JobHandle inputDeps)
         {
             var allBufferItems = GetBufferFromEntity<ContainedItemRef>();
@@ -38,7 +38,7 @@ namespace Zephyr.GOAP.System.ActionExecuteSystem
                         var states = waitingStates[nodeEntity];
                         //从precondition里找目标.
                         var targetEntity = Entity.Null;
-                        var targetItemName = new NativeString64();
+                        var targetItemName = new NativeString32();
                         for (var stateId = 0; stateId < states.Length; stateId++)
                         {
                             if ((node.PreconditionsBitmask & (ulong) 1 << stateId) <= 0) continue;
@@ -82,7 +82,7 @@ namespace Zephyr.GOAP.System.ActionExecuteSystem
             ;
         }
 
-        protected override NativeString64 GetNameOfAction()
+        protected override NativeString32 GetNameOfAction()
         {
             return nameof(PickItemAction);
         }

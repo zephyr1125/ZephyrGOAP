@@ -45,7 +45,7 @@ namespace Zephyr.GOAP.Struct
             
             _deadEndNodeHashes = new NativeList<int>(allocator);
             
-            var startNode = new Node {Name = new NativeString64("start")};
+            var startNode = new Node {Name = "start"};
             _startNodeHash = startNode.HashCode;
             _nodes.Add(_startNodeHash, startNode);
             for (var i = 0; i < startNodeStates.Length; i++)

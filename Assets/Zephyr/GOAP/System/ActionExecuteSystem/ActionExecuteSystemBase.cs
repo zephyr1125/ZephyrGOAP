@@ -15,7 +15,7 @@ namespace Zephyr.GOAP.System.ActionExecuteSystem
 
         public EntityCommandBufferSystem EcbSystem;
 
-        private NativeString64 _nameOfAction;
+        private NativeString32 _nameOfAction;
 
         protected override void OnCreate()
         {
@@ -43,11 +43,11 @@ namespace Zephyr.GOAP.System.ActionExecuteSystem
             return handle;
         }
 
-        protected abstract JobHandle ExecuteActionJob(NativeString64 nameOfAction,
+        protected abstract JobHandle ExecuteActionJob(NativeString32 nameOfAction,
             NativeArray<Entity> waitingNodeEntities,
             NativeArray<Node> waitingNodes, BufferFromEntity<State> waitingStates,
             EntityCommandBuffer.Concurrent ecb, JobHandle inputDeps);
 
-        protected abstract NativeString64 GetNameOfAction();
+        protected abstract NativeString32 GetNameOfAction();
     }
 }

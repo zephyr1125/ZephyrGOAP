@@ -10,7 +10,7 @@ namespace Zephyr.GOAP.Struct
         public Entity Target;
         public float3 Position;
         public ComponentType Trait;
-        public NativeString64 ValueString;
+        public NativeString32 ValueString;
         public ComponentType ValueTrait;
         /// <summary>
         /// true时表示这个state表达反面意义，比如“目标不拥有指定物品”
@@ -40,7 +40,7 @@ namespace Zephyr.GOAP.Struct
             if (other.Target!=Entity.Null && Target != other.Target) return false;
             if (other.Trait!=null && Trait != other.Trait) return false;
             if (ValueTrait!=null && other.ValueTrait!=null && ValueTrait != other.ValueTrait) return false;
-            if (!other.ValueString.Equals(new NativeString64()) && !ValueString.Equals(other.ValueString)) return false;
+            if (!other.ValueString.Equals(default) && !ValueString.Equals(other.ValueString)) return false;
             
             if (IsNegative != other.IsNegative) return false;
 
@@ -63,7 +63,7 @@ namespace Zephyr.GOAP.Struct
         /// <returns></returns>
         public bool IsScopeState()
         {
-            return ValueString.Equals(new NativeString64()) || Target.Equals(Entity.Null);
+            return ValueString.Equals(default) || Target.Equals(Entity.Null);
         }
     }
 }

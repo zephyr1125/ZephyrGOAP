@@ -13,9 +13,9 @@ namespace Zephyr.GOAP.Action
     {
         public int Level;
         
-        public NativeString64 GetName()
+        public NativeString32 GetName()
         {
-            return new NativeString64(nameof(DropRawAction));
+            return nameof(DropRawAction);
         }
 
         public State GetTargetGoalState(ref StateGroup targetStates, ref StackData stackData)
@@ -35,7 +35,7 @@ namespace Zephyr.GOAP.Action
             //目前不考虑无Target或宽泛类别的goal
             var settings = new StateGroup(1, allocator);
             
-            Assert.IsFalse(targetState.ValueString.Equals(new NativeString64()));
+            Assert.IsFalse(targetState.ValueString.Equals(default));
             settings.Add(targetState);
             
             return settings;

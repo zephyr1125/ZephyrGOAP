@@ -12,9 +12,9 @@ namespace Zephyr.GOAP.Action
     {
         public int Level;
         
-        public NativeString64 GetName()
+        public NativeString32 GetName()
         {
-            return new NativeString64(nameof(EatAction));
+            return nameof(EatAction);
         }
 
         public State GetTargetGoalState(ref StateGroup targetStates, ref StackData stackData)
