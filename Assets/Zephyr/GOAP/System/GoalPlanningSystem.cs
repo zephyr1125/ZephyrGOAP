@@ -163,10 +163,12 @@ namespace Zephyr.GOAP.System
                 var pathNodeSpecifiedPreconditionIndices = new NativeList<int>(Allocator.TempJob);
                 var pathNodeSpecifiedPreconditions = new NativeList<State>(Allocator.TempJob);
                 var rewardSum = new NativeHashMap<int, float>(nodeGraph.Length(), Allocator.TempJob);
+                
                 var pathNodes = FindPath(ref nodeGraph, ref stackData,
                     ref agentMoveSpeeds, ref agentStartTimes, ref nodeAgentInfos, ref nodeTotalTimes, ref pathNodesEstimateNavigateTime,
                     ref pathNodeNavigateSubjects, ref pathNodeSpecifiedPreconditionIndices, ref pathNodeSpecifiedPreconditions,
                     ref rewardSum);
+                
                 SavePath(ref pathNodes, ref nodeGraph, ref pathNodesEstimateNavigateTime, 
                     ref pathNodeNavigateSubjects, ref pathNodeSpecifiedPreconditionIndices, ref pathNodeSpecifiedPreconditions,
                     goal.GoalEntity, out var pathEntities);

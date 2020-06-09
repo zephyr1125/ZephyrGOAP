@@ -148,7 +148,7 @@ namespace Zephyr.GOAP.Test.ActionExpand
         }
 
         [Test]
-        [Repeat(500)]
+        [Repeat(1)]
         public void PlanCookCollect()
         {
             // Profiler.logFile = nameof(TestCookCollectSequenceWithMultiAgent);

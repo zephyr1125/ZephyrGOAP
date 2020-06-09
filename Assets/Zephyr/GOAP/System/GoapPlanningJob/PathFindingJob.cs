@@ -171,7 +171,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             }
                 
             //Construct path
-            var nodeId = goalId;
+            var nodeId = cameFrom[goalId];    //goalId不记录
             while (_pathNodeCount < PathNodeLimit && !nodeId.Equals(startId))
             {
                 Result.Add(NodeGraph[nodeId]);
