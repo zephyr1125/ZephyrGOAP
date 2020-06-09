@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Unity.Entities;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Zephyr.GOAP.Logger;
@@ -15,13 +16,22 @@ namespace Zephyr.GOAP.Editor
 
         public EntityLog Agent;
         
+        public Entity NodeEntity;
+        
         public Vector2 ExecuteStartPosition, ExecuteEndPosition;
+
+        public TimeLineNodeStatus Status;
+        
+        private Label _nameLabel;
+        private float _nameSize = 11;
 
         public TimelineNodeView(VisualTreeAsset nodeVisualTree, Vector2 startPosition, NodeLog nodeLog,
             List<EntityLog> agentEntities)
         {
             NodeHash = nodeLog.hashCode;
             Agent = nodeLog.agentExecutorEntity;
+            NodeEntity = nodeLog.pathNodeEntity;
+            Status = TimeLineNodeStatus.Idle;
             
             var agentId = agentEntities.FindIndex(agent => agent.Equals(nodeLog.agentExecutorEntity));
             var executorLog = nodeLog.nodeAgentInfos
@@ -45,20 +55,20 @@ namespace Zephyr.GOAP.Editor
             frame.style.height = tileY;
             frame.style.backgroundColor = Utils.GetAgentColor(nodeLog.agentExecutorEntity);
 
-            var name = nodeLog.name.Replace("Action", "");
-            var nameLabel = this.Q<Label>("name");
+            var actionName = nodeLog.name.Replace("Action", "");
+            _nameLabel = this.Q<Label>("name");
             //如果宽度太窄，则使用大写简称，如果还不够，名字写在下方
             if (width < tileX)
             {
                 var rx = new Regex(@"[a-z]");
-                name = rx.Replace(name, "");
+                actionName = rx.Replace(actionName, "");
                 
                 if (width <= tileX/4)
                 {
-                    nameLabel.style.top = tileY / 2 + 6;
+                    _nameLabel.style.top = tileY / 2 + 6;
                 }
             }
-            nameLabel.text = name;
+            _nameLabel.text = actionName;
             
             //导航耗时
             var navigating = this.Q("navigating");
@@ -75,5 +85,28 @@ namespace Zephyr.GOAP.Editor
             
             this.AddManipulator(this);
         }
+
+        public void SetStatus(TimeLineNodeStatus status)
+        {
+            if (Status == status) return;
+
+            Status = status;
+            switch (status)
+            {
+                case TimeLineNodeStatus.Done:
+                    _nameLabel.style.color = Color.gray;
+                    _nameLabel.style.fontSize = _nameSize;
+                break;
+                case TimeLineNodeStatus.Acting:
+                    _nameLabel.style.color = Color.green;
+                    _nameLabel.style.fontSize = _nameSize+4;
+                break;
+            }
+        }
+    }
+    
+    public enum TimeLineNodeStatus
+    {
+        Idle, Acting, Done
     }
 }

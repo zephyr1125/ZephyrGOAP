@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using Unity.Entities;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Zephyr.GOAP.Component.ActionNodeState;
 using Zephyr.GOAP.Logger;
 
 namespace Zephyr.GOAP.Editor
@@ -18,11 +20,22 @@ namespace Zephyr.GOAP.Editor
         private Vector2 _canvasPos, _canvasDragStartPos;
         private Vector2 _mouseDragStartPos;
         private bool _mouseMidButtonDown;
+
+        private List<TimelineNodeView> _timelineNodeViews;
+
+        private EntityManager _entityManager;
+
+        /// <summary>
+        /// 刷新频率，避免太影响性能
+        /// </summary>
+        private float _updateTimeInterval = 0.2f;
+        private float _lastUpdateTime;
         
         public VisualElement target { get; set; }
 
         public TimelineView(VisualElement target)
         {
+            _timelineNodeViews = new List<TimelineNodeView>();
             this.target = target;
             _container = target.Q("timeline-container");
             
@@ -75,12 +88,10 @@ namespace Zephyr.GOAP.Editor
             foreach (var node in goapResult.nodes)
             {
                 if (!node.isPath) continue;
-                if (node.name.Equals("goal")) continue;
                 pathNodes.Add(node);
             }
             
             //摆放node
-            var timelineNodeViews = new List<TimelineNodeView>();
             var agentEntities = new List<EntityLog>();
             var startPosition = new Vector2(PixelsPerSecond*2, TileY*1.5f);
             var totalTime = 0f;
@@ -94,7 +105,7 @@ namespace Zephyr.GOAP.Editor
 
                 var newNodeView =
                     new TimelineNodeView(_nodeVisualTree, startPosition, node, agentEntities);
-                timelineNodeViews.Add(newNodeView);
+                _timelineNodeViews.Add(newNodeView);
                 _container.Add(newNodeView);
                 if (node.totalTime > totalTime) totalTime = node.totalTime;
             }
@@ -108,7 +119,7 @@ namespace Zephyr.GOAP.Editor
                 //绘制依赖
                 foreach (var dependency in goapResult.pathDependencies)
                 {
-                    DrawConnection(timelineNodeViews, dependency);
+                    DrawConnection(_timelineNodeViews, dependency);
                 }
                 Handles.color = Color.white;
                 
@@ -205,6 +216,36 @@ namespace Zephyr.GOAP.Editor
                     //中键
                     _mouseMidButtonDown = false;
                     break;
+            }
+        }
+
+        public void OnUpdate()
+        {
+            var time = Time.time;
+            if (time - _lastUpdateTime < _updateTimeInterval)
+            {
+                return;
+            }
+            _lastUpdateTime = time;
+            
+            if (_entityManager == null)
+            {
+                _entityManager = World.All[0].EntityManager;
+            }
+
+            //展示进行中与已完成的node
+            foreach (var nodeView in _timelineNodeViews)
+            {
+                if (nodeView.Status == TimeLineNodeStatus.Done) continue;
+                
+                var nodeEntity = nodeView.NodeEntity;
+                if (!_entityManager.Exists(nodeEntity))
+                {
+                    nodeView.SetStatus(TimeLineNodeStatus.Done);
+                }else if (_entityManager.HasComponent<ActionNodeActing>(nodeEntity))
+                {
+                    nodeView.SetStatus(TimeLineNodeStatus.Acting);
+                }
             }
         }
     }

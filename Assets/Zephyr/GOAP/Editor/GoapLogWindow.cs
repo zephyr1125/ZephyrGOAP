@@ -396,5 +396,13 @@ namespace Zephyr.GOAP.Editor
                 relativeId++;
             }
         }
+
+        private void Update()
+        {
+            if (_editorLogging && EditorApplication.isPlaying && _timelineView!=null)
+            {
+                _timelineView.OnUpdate();
+            }
+        }
     }
 }

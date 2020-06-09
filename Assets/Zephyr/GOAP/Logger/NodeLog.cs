@@ -43,6 +43,8 @@ namespace Zephyr.GOAP.Logger
 
         public float rewardSum;
 
+        public Entity pathNodeEntity;
+
         public NodeLog(ref NodeGraph nodeGraph, EntityManager entityManager, Node node)
         {
             name = node.Name.ToString();

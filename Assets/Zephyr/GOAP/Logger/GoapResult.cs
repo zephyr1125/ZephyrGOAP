@@ -65,14 +65,18 @@ namespace Zephyr.GOAP.Logger
             for (var i = 0; i < pathNodes.Length; i++)
             {
                 var node = pathNodes[i];
+                var nodeEntity = pathEntities[i];//node与entity数组并列
                 _pathHash[i] = node.HashCode;
-                
-                foreach (var nodeLog in nodes)
+
+                for (var nodeId = 0; nodeId < nodes.Count; nodeId++)
                 {
+                    var nodeLog = nodes[nodeId];
                     if (nodeLog.hashCode != node.HashCode) continue;
                     nodeLog.isPath = true;
+                    nodeLog.pathNodeEntity = nodeEntity;    
                     nodeLog.estimateNavigateStartTime = node.EstimateStartTime;
-                    nodeLog.navigationSubject = new EntityLog(entityManager, node.NavigatingSubject);
+                    nodeLog.navigationSubject =
+                        new EntityLog(entityManager, node.NavigatingSubject);
                     break;
                 }
 
