@@ -11,7 +11,6 @@
 //
 // namespace Zephyr.GOAP.System.ActionExecuteSystem
 // {
-//     [UpdateInGroup(typeof(SimulationSystemGroup))]
 //     public class EatActionExecuteSystem : JobComponentSystem
 //     {
 //         public EntityCommandBufferSystem ECBSystem;

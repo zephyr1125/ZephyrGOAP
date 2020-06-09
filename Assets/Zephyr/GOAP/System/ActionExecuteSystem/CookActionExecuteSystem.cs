@@ -15,12 +15,12 @@ namespace Zephyr.GOAP.System.ActionExecuteSystem
     /// <summary>
     /// 在实际游戏中，应该是调用设施的制作方法并等待结果，示例从简，就直接进行物品处理了
     /// </summary>
-    [UpdateInGroup(typeof(SimulationSystemGroup))]
     public class CookActionExecuteSystem : ActionExecuteSystemBase
     {
         protected override JobHandle ExecuteActionJob(NativeString32 nameOfAction, NativeArray<Entity> waitingNodeEntities,
             NativeArray<Node> waitingNodes, BufferFromEntity<State> waitingStates, EntityCommandBuffer.Concurrent ecb, JobHandle inputDeps)
         {
+            ComponentType actionType = typeof(ItemDestinationTrait);
             var allItems = GetBufferFromEntity<ContainedItemRef>();
             return Entities.WithName("PickRawActionExecuteJob")
                 .WithAll<ReadyToAct>()
@@ -47,7 +47,7 @@ namespace Zephyr.GOAP.System.ActionExecuteSystem
                         {
                             if ((node.PreconditionsBitmask & (ulong) 1 << stateId) <= 0) continue;
                             var precondition = states[stateId];
-                            if (precondition.Trait != typeof(ItemDestinationTrait)) continue;
+                            if (precondition.Trait != actionType) continue;
                             cookerEntity = precondition.Target;
                             var itemName = precondition.ValueString;
                             Assert.IsFalse(itemName.Equals(new NativeString32()));

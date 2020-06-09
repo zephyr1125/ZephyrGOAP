@@ -9,7 +9,6 @@ using Zephyr.GOAP.Struct;
 
 namespace Zephyr.GOAP.System.ActionExecuteSystem
 {
-    [UpdateInGroup(typeof(SimulationSystemGroup))]
     public class CollectActionExecuteSystem : ActionExecuteSystemBase
     {
         protected override JobHandle ExecuteActionJob(NativeString32 nameOfAction, NativeArray<Entity> waitingNodeEntities,

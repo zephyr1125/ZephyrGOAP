@@ -13,7 +13,6 @@
 //     /// ReadyToActing时请求Wander
 //     /// Acting时等待Wander结束
 //     /// </summary>
-//     [UpdateInGroup(typeof(SimulationSystemGroup))]
 //     public class WanderActionExecuteSystem : JobComponentSystem
 //     {
 //         public EntityCommandBufferSystem ECBSystem;

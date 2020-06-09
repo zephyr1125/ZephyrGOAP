@@ -5,9 +5,9 @@ using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.ActionNodeState;
 using Zephyr.GOAP.Struct;
 
-namespace Zephyr.GOAP.System.ActionExecuteSystem
+namespace Zephyr.GOAP.System
 {
-    [UpdateInGroup(typeof(SimulationSystemGroup))]
+    [UpdateInGroup(typeof(ActionExecuteSystemGroup))]
     public abstract class ActionExecuteSystemBase : JobComponentSystem
     {
         
