@@ -178,7 +178,7 @@ namespace Zephyr.GOAP.Editor
                 }
             }
 
-            if (startAgent!=null && startAgent.Equals(endAgent)) return;
+            // if (startAgent!=null && startAgent.Equals(endAgent)) return;
             
             Handles.color = Color.green;
             Handles.DrawLine(startPos, endPos);
