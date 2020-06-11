@@ -17,7 +17,7 @@ namespace Zephyr.GOAP.System.ActionExecuteSystem
             NativeArray<Node> waitingNodes, BufferFromEntity<State> waitingStates, EntityCommandBuffer.Concurrent ecb, JobHandle inputDeps)
         {
             var allItems = GetBufferFromEntity<ContainedItemRef>();
-            return Entities.WithName("PickRawActionExecuteJob")
+            return Entities.WithName("DropItemActionExecuteJob")
                 .WithAll<ReadyToAct>()
                 .WithNativeDisableParallelForRestriction(allItems)
                 .WithDeallocateOnJobCompletion(waitingNodeEntities)

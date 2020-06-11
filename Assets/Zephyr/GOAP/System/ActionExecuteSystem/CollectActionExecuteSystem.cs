@@ -14,7 +14,7 @@ namespace Zephyr.GOAP.System.ActionExecuteSystem
         protected override JobHandle ExecuteActionJob(NativeString32 nameOfAction, NativeArray<Entity> waitingNodeEntities,
             NativeArray<Node> waitingNodes, BufferFromEntity<State> waitingStates, EntityCommandBuffer.Concurrent ecb, JobHandle inputDeps)
         {
-            return Entities.WithName("PickRawActionExecuteJob")
+            return Entities.WithName("CollectActionExecuteJob")
                 .WithAll<ReadyToAct>()
                 .WithDeallocateOnJobCompletion(waitingNodeEntities)
                 .WithDeallocateOnJobCompletion(waitingNodes)

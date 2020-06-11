@@ -15,7 +15,7 @@ namespace Zephyr.GOAP.Game.Authoring
         [ValueDropdown("FruitNames")]
         public string FruitName;
 
-        private static string[] FruitNames = { "raw_apple", Utils.RawPeachName };
+        private static string[] FruitNames = { "raw_apple", Utils.RawPeachName.ToString() };
         
         public void Convert(Entity entity, EntityManager dstManager,
             GameObjectConversionSystem conversionSystem)

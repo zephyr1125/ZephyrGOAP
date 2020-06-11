@@ -22,7 +22,7 @@ namespace Zephyr.GOAP.System.ActionExecuteSystem
         {
             ComponentType actionType = typeof(ItemDestinationTrait);
             var allItems = GetBufferFromEntity<ContainedItemRef>();
-            return Entities.WithName("PickRawActionExecuteJob")
+            return Entities.WithName("CookActionExecuteJob")
                 .WithAll<ReadyToAct>()
                 .WithNativeDisableParallelForRestriction(allItems)
                 .WithDeallocateOnJobCompletion(waitingNodeEntities)

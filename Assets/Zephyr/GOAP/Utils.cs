@@ -11,8 +11,11 @@ namespace Zephyr.GOAP
 {
     public static class Utils
     {
-        public const string RoastPeachName = "roast_peach";
-        public const string RawPeachName = "raw_peach";
+        public static readonly NativeString32 RawPeachName = "raw_peach";
+        public static readonly NativeString32 RoastPeachName = "roast_peach";
+        public static readonly NativeString32 RawAppleName = "raw_apple";
+        public static readonly NativeString32 RoastAppleName = "roast_apple";
+        public static readonly NativeString32 FeastName = "feast";
         public static float GoalMonitorSystemInterval = 1;
 
         /// <summary>
@@ -101,19 +104,19 @@ namespace Zephyr.GOAP
             {
                 result.Add(RawPeachName);
                 result.Add(RoastPeachName);
-                result.Add("raw_apple");
-                result.Add("roast_apple");
-                result.Add("feast");
+                result.Add(RawAppleName);
+                result.Add(RoastAppleName);
+                result.Add(FeastName);
             }
 
             return result;
         }
 
-        public static float RawPeachStamina = 0.2f;
-        public static float RawAppleStamina = 0.3f;
-        public static float RoastPeachStamina = 0.4f;
-        public static float RoastAppleStamina = 0.5f;
-        public static float FeastStamina = 2;
+        public const float RawPeachStamina = 0.2f;
+        public const float RawAppleStamina = 0.3f;
+        public const float RoastPeachStamina = 0.4f;
+        public const float RoastAppleStamina = 0.5f;
+        public const float FeastStamina = 2;
         
         /// <summary>
         /// 示例用的方法，获取不同食物的食用reward
@@ -123,28 +126,53 @@ namespace Zephyr.GOAP
         public static float GetFoodReward(NativeString32 foodName)
         {
             var plus = 10;
-            switch (foodName.ToString())
+            if (foodName.Equals(RawPeachName))
             {
-                case Utils.RawPeachName : return RawPeachStamina*plus;
-                case Utils.RoastPeachName : return RoastPeachStamina*plus;
-                case "raw_apple" : return RawAppleStamina*plus;
-                case "roast_apple" : return RoastAppleStamina*plus;
-                case "feast" : return FeastStamina * plus;
-                default: return 0;
+                return RawPeachStamina*plus;
             }
+            if (foodName.Equals(RoastPeachName))
+            {
+                return RoastPeachStamina*plus;
+            }
+            if (foodName.Equals(RawAppleName))
+            {
+                return RawAppleStamina*plus;
+            }
+            if (foodName.Equals(RoastAppleName))
+            {
+                return RoastAppleStamina*plus;
+            }
+            if (foodName.Equals(FeastName))
+            {
+                return FeastStamina*plus;
+            }
+            return 0;
         }
         
         public static float GetFoodStamina(NativeString32 foodName)
         {
-            switch (foodName.ToString())
+            if (foodName.Equals(RawPeachName))
             {
-                case Utils.RawPeachName : return RawPeachStamina;
-                case Utils.RoastPeachName : return RoastPeachStamina;
-                case "raw_apple" : return RawAppleStamina;
-                case "roast_apple" : return RoastAppleStamina;
-                case "feast" : return FeastStamina;
-                default: return 0;
+                return RawPeachStamina;
             }
+            if (foodName.Equals(RoastPeachName))
+            {
+                return RoastPeachStamina;
+            }
+            if (foodName.Equals(RawAppleName))
+            {
+                return RawAppleStamina;
+            }
+            if (foodName.Equals(RoastAppleName))
+            {
+                return RoastAppleStamina;
+            }
+            if (foodName.Equals(FeastName))
+            {
+                return FeastStamina;
+            }
+
+            return 0;
         }
 
         public static bool Any<T>(this DynamicBuffer<T> buffer, Func<T, bool> prediction)

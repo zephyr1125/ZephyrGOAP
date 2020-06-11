@@ -78,25 +78,5 @@ namespace Zephyr.GOAP.Test.ActionExpand
             Assert.AreEqual(nameof(DropItemAction), pathResult[5].name);
             Assert.AreEqual(nameof(PickItemAction), pathResult[6].name);
         }
-        
-        //改变reward设置，规划随之改变
-        [Test]
-        public void RewardChange_PlanChange()
-        {
-            var origin = Utils.RoastAppleStamina;
-            Utils.RoastAppleStamina = 0.2f;
-
-            _system.Update();
-            EntityManager.CompleteAllJobs();
-            
-            Debug.Log(_debugger.GoalNodeLog);
-            var pathResult = _debugger.PathResult;
-            Assert.AreEqual(4, pathResult.Length);
-            Assert.AreEqual(nameof(EatAction), pathResult[1].name);
-            Assert.AreEqual(nameof(DropItemAction), pathResult[2].name);
-            Assert.AreEqual(nameof(PickItemAction), pathResult[3].name);
-
-            Utils.RoastAppleStamina = origin;
-        }
     }
 }

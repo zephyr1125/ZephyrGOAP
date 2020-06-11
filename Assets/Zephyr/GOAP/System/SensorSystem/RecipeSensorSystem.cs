@@ -35,7 +35,8 @@ namespace Zephyr.GOAP.System.SensorSystem
         /// <param name="output"></param>
         /// <param name="input1"></param>
         /// <param name="input2"></param>
-        private void AddRecipeState(DynamicBuffer<State> buffer, string output, string input1, string input2 = null)
+        private void AddRecipeState(DynamicBuffer<State> buffer, NativeString32 output,
+            NativeString32 input1, NativeString32 input2 = default)
         {
             buffer.Add(new State
             {
@@ -49,7 +50,7 @@ namespace Zephyr.GOAP.System.SensorSystem
                 ValueTrait = typeof(CookerTrait),
                 ValueString = input1,
             });
-            if(string.IsNullOrEmpty(input2))
+            if(input2.Equals(default))
             {
                 buffer.Add(State.Null);
             }else
