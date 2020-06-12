@@ -68,6 +68,7 @@ namespace Zephyr.GOAP.Test.Execute
         public void TableRemoveFood()
         {
             _system.Update();
+            _system.EcbSystem.Update();
             EntityManager.CompleteAllJobs();
 
             var itemBuffer = EntityManager.GetBuffer<ContainedItemRef>(_diningTableEntity);
@@ -78,6 +79,7 @@ namespace Zephyr.GOAP.Test.Execute
         public void AgentGotStamina()
         {
             _system.Update();
+            _system.EcbSystem.Update();
             EntityManager.CompleteAllJobs();
             
             Assert.AreEqual(Utils.GetFoodStamina("roast_apple"), EntityManager.GetComponentData<Stamina>(_agentEntity).Value);

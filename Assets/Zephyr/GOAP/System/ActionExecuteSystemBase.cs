@@ -39,14 +39,38 @@ namespace Zephyr.GOAP.System
 
             var handle = ExecuteActionJob(_nameOfAction, waitingNodeEntities, waitingNodes,
                 waitingStates, ecb, inputDeps);
+            var handle2 = ExecuteActionJob2(_nameOfAction, waitingNodeEntities, waitingNodes,
+                waitingStates, ecb, handle);
             EcbSystem.AddJobHandleForProducer(handle);
-            return handle;
+            if (!handle.Equals(handle2))
+            {
+                EcbSystem.AddJobHandleForProducer(handle2);
+            }
+            return handle2;
         }
 
         protected abstract JobHandle ExecuteActionJob(NativeString32 nameOfAction,
             NativeArray<Entity> waitingNodeEntities,
             NativeArray<Node> waitingNodes, BufferFromEntity<State> waitingStates,
             EntityCommandBuffer.Concurrent ecb, JobHandle inputDeps);
+
+        /// <summary>
+        /// 额外一个job，有的会需要
+        /// </summary>
+        /// <param name="nameOfAction"></param>
+        /// <param name="waitingNodeEntities"></param>
+        /// <param name="waitingNodes"></param>
+        /// <param name="waitingStates"></param>
+        /// <param name="ecb"></param>
+        /// <param name="inputDeps"></param>
+        /// <returns></returns>
+        protected virtual JobHandle ExecuteActionJob2(NativeString32 nameOfAction,
+            NativeArray<Entity> waitingNodeEntities,
+            NativeArray<Node> waitingNodes, BufferFromEntity<State> waitingStates,
+            EntityCommandBuffer.Concurrent ecb, JobHandle inputDeps)
+        {
+            return inputDeps;
+        }
 
         protected abstract NativeString32 GetNameOfAction();
     }

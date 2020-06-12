@@ -6,6 +6,9 @@ using Zephyr.GOAP.Test.Mock;
 
 namespace Zephyr.GOAP.Test.Execute
 {
+    /// <summary>
+    /// 对各个ActionExecuteSystem共通的一些测试
+    /// </summary>
     public class TestActionExecuteSystemBase : TestActionExecuteBase
     {
         private MockActionExecuteSystem _system;
