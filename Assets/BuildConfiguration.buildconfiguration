@@ -1,0 +1,32 @@
+{
+    "Dependencies": [],
+    "Components": [{
+        "$type": "Unity.Build.Classic.ClassicBuildProfile, Unity.Build.Classic",
+        "Target": 19,
+        "Configuration": 2,
+        "Pipeline": "GlobalObjectId_V1-1-b380eb982383ac147bcf53de33f4a836-93214019566545601-0",
+        "ExcludedAssemblies": []
+    }, {
+        "$type": "Unity.Build.Common.SceneList, Unity.Build.Common",
+        "BuildCurrentScene": false,
+        "SceneInfos": [{
+            "$type": "Unity.Build.Common.SceneList+SceneInfo, Unity.Build.Common",
+            "Scene": "GlobalObjectId_V1-1-de4b94903e30d5043a6b8ca24da53c1a-102900000-0",
+            "AutoLoad": true
+        }, {
+            "$type": "Unity.Build.Common.SceneList+SceneInfo, Unity.Build.Common",
+            "Scene": "GlobalObjectId_V1-1-6809f87625da33340baddf8353eff55c-102900000-0",
+            "AutoLoad": false
+        }],
+        "Scenes": []
+    }, {
+        "$type": "Unity.Build.Common.GeneralSettings, Unity.Build.Common",
+        "ProductName": "Zephyr GOAP",
+        "CompanyName": "Lab 42"
+    }, {
+        "$type": "Unity.Build.Classic.ClassicScriptingSettings, Unity.Build.Classic",
+        "ScriptingBackend": 1,
+        "Il2CppCompilerConfiguration": 1,
+        "UseIncrementalGC": false
+    }]
+}

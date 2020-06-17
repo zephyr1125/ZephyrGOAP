@@ -172,6 +172,11 @@ namespace Zephyr.GOAP.System
                 SavePath(ref pathNodes, ref nodeGraph, ref pathNodesEstimateNavigateTime, 
                     ref pathNodeNavigateSubjects, ref pathNodeSpecifiedPreconditionIndices, ref pathNodeSpecifiedPreconditions,
                     goal.GoalEntity, out var pathEntities);
+                
+                //保存总预测时间
+                var totalTime = nodeTotalTimes[pathNodes[0].HashCode];
+                goal.EstimateTimeLength = totalTime;
+                EntityManager.SetComponentData(goal.GoalEntity, goal);
 
                 Debugger?.SetNodeGraph(ref nodeGraph, EntityManager);
                 Debugger?.SetNodeAgentInfos(EntityManager, ref nodeAgentInfos);
@@ -357,12 +362,14 @@ namespace Zephyr.GOAP.System
                 }
             }
             
-            //链接到goal
+            //双向链接
             var goalBuffer = EntityManager.AddBuffer<ActionNodeOfGoal>(goalEntity);
             for (var i = 0; i < pathEntities.Length; i++)
             {
                 goalBuffer.Add(new ActionNodeOfGoal {ActionNodeEntity = pathEntities[i]});
             }
+            //从node到goal的链接只存于起始node，用于通知path开始执行时间
+            EntityManager.AddComponentData(pathEntities[pathEntities.Length-1], new GoalRefForNode{GoalEntity = goalEntity});
 
             pathPreconditionHashes.Dispose();
         }

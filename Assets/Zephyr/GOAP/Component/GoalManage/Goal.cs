@@ -10,6 +10,14 @@ namespace Zephyr.GOAP.Component.GoalManage
         public State State;
         public Priority Priority;
         public double CreateTime;
+        /// <summary>
+        /// 执行起始时间
+        /// </summary>
+        public double ExecuteStartTime;
+        /// <summary>
+        /// 预计执行时长
+        /// </summary>
+        public float EstimateTimeLength;
 
         public int CompareTo(Goal other)
         {
