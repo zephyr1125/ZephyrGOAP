@@ -16,7 +16,7 @@ namespace Zephyr.GOAP.Game
         {
             if (Input.GetKeyUp(KeyCode.N))
             {
-                var world = World.AllWorlds[0];
+                var world = World.All[0];
                 var entityManager = world.EntityManager;
                 var goalEntity = entityManager.CreateEntity();
                 var entities = entityManager.GetAllEntities();
