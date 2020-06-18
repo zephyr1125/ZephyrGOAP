@@ -3,11 +3,10 @@ using Unity.Entities;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.ActionNodeState;
 using Zephyr.GOAP.Component.AgentState;
-using Zephyr.GOAP.Struct;
 using Zephyr.GOAP.System.ActionExecuteManage;
 using Assert = Unity.Assertions.Assert;
 
-namespace Zephyr.GOAP.Test.ActionExecuteManage
+namespace Zephyr.GOAP.Tests.ActionExecuteManage
 {
     public class TestActionExecuteDoneSystem : TestBase
     {

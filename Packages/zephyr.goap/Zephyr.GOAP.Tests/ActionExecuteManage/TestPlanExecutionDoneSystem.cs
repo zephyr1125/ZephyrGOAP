@@ -5,7 +5,7 @@ using Zephyr.GOAP.Component.GoalManage;
 using Zephyr.GOAP.Component.GoalManage.GoalState;
 using Zephyr.GOAP.System.ActionExecuteManage;
 
-namespace Zephyr.GOAP.Test.ActionExecuteManage
+namespace Zephyr.GOAP.Tests.ActionExecuteManage
 {
     public class TestPlanExecutionDoneSystem : TestBase
     {

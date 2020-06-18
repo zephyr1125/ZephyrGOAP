@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using Unity.Entities;
 using UnityEditor;
@@ -154,7 +153,7 @@ namespace Zephyr.GOAP.Editor
                     _currentResult = 0;
                     Reset();
                     World.DefaultGameObjectInjectionWorld
-                        .GetOrCreateSystem<GoalPlanningSystem>()
+                        .GetOrCreateSystem<GoalPlanningSystemBase>()
                         .Debugger = _editorDebugger;
                     break;
             }

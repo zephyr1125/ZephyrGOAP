@@ -1,7 +1,7 @@
 using NUnit.Framework;
 using Unity.Entities;
 
-namespace Zephyr.GOAP.Test
+namespace Zephyr.GOAP.Tests
 {
     public class TestBase
     {

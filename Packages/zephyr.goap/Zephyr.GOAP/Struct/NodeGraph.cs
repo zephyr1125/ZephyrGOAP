@@ -4,7 +4,7 @@ using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
 using UnityEngine.Assertions;
-using Zephyr.GOAP.Component.Trait;
+using Zephyr.GOAP.Component;
 
 namespace Zephyr.GOAP.Struct
 {
@@ -325,65 +325,6 @@ namespace Zephyr.GOAP.Struct
                 if (!aState.Equals(state)) continue;
                 _nodeStates.RemoveAtSwapBack(i);
                 break;
-            }
-        }
-
-        /// <summary>
-        /// 检查特定iteration之前不应出现
-        /// </summary>
-        public void DebugCheckNoCookStateBeforeIteration4(int iteration)
-        {
-            if (iteration > 4) return;
-            
-            for (var effectId = 0; effectId < _effects.Length; effectId++)
-            {
-                var (nodeHash, nodeEffect) = _effects[effectId];
-                if (!nodeEffect.Trait.Equals(typeof(ItemSourceTrait))) continue;
-
-                if (nodeEffect.ValueString.Equals("roast_apple"))
-                {
-                    Debug.LogError($"({nodeHash})\"roast_apple\" before iteration 4!");
-                }else if (nodeEffect.ValueString.Equals("feast"))
-                {
-                    Debug.LogError($"({nodeHash})\"feast\" before iteration 4!");
-                }
-            }
-        }
-
-        /// <summary>
-        /// 出现了CookAction的node之后，检查是否出现了同时2个effect的Cook，即为错误特征
-        /// </summary>
-        /// <param name="uncheckedNodes"></param>
-        public void DebugCheckNodeEffects(ref NativeHashMap<int, Node> uncheckedNodes)
-        {
-            var nodeHashes = _nodes.GetKeyArray(Allocator.Temp);
-            for (var nodeId = 0; nodeId < nodeHashes.Length; nodeId++)
-            {
-                var nodeHash = nodeHashes[nodeId];
-                if (!uncheckedNodes.ContainsKey(nodeHash)) continue;
-                if (!uncheckedNodes[nodeHash].Name.Equals("CookAction")) continue;
-                
-                var hasRoastApple = false;
-                var hasFeast = false;
-            
-                for (var effectId = 0; effectId < _effects.Length; effectId++)
-                {
-                    var (hash, nodeEffect) = _effects[effectId];
-                    if (!hash.Equals(nodeHash)) continue;
-
-                    if (nodeEffect.ValueString.Equals("roast_apple"))
-                    {
-                        hasRoastApple = true;
-                    }else if (nodeEffect.ValueString.Equals("feast"))
-                    {
-                        hasFeast = true;
-                    }
-                }
-
-                if (hasRoastApple && hasFeast)
-                {
-                    Debug.LogError($"({nodeHash}) 2 effects for Cook at end of iteration!");
-                }
             }
         }
 

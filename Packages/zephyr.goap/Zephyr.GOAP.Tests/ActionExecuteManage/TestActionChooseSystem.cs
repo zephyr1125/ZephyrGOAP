@@ -3,10 +3,9 @@ using Unity.Entities;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.ActionNodeState;
 using Zephyr.GOAP.Component.AgentState;
-using Zephyr.GOAP.Struct;
 using Zephyr.GOAP.System.ActionExecuteManage;
 
-namespace Zephyr.GOAP.Test.ActionExecuteManage
+namespace Zephyr.GOAP.Tests.ActionExecuteManage
 {
     public class TestActionChooseSystem : TestActionExecuteBase
     {

@@ -1,6 +1,6 @@
 using Unity.Collections;
 using Unity.Entities;
-using UnityEngine;
+using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Debugger;
 using Zephyr.GOAP.Logger;
 using Zephyr.GOAP.Struct;

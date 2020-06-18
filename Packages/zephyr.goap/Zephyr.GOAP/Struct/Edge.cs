@@ -1,4 +1,4 @@
-using Unity.Collections;
+using Zephyr.GOAP.Component;
 
 namespace Zephyr.GOAP.Struct
 {

@@ -1,5 +1,6 @@
 using Unity.Collections;
 using Unity.Entities;
+using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.GoalManage;
 using Zephyr.GOAP.Component.GoalManage.GoalState;
 using Zephyr.GOAP.Struct;

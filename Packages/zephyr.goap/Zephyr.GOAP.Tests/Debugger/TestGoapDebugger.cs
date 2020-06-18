@@ -3,11 +3,12 @@ using System.IO;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
+using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Debugger;
 using Zephyr.GOAP.Logger;
 using Zephyr.GOAP.Struct;
 
-namespace Zephyr.GOAP.Test.Debugger
+namespace Zephyr.GOAP.Tests.Debugger
 {
     public class TestGoapDebugger : IGoapDebugger, IDisposable
     {

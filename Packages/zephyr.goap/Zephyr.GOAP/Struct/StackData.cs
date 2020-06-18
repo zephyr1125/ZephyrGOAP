@@ -1,10 +1,8 @@
 using System;
-using System.Collections;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using Zephyr.GOAP.Component;
 
 namespace Zephyr.GOAP.Struct
 {

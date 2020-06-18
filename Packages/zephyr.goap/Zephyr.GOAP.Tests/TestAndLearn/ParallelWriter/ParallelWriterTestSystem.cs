@@ -2,7 +2,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 
-namespace Zephyr.GOAP.Test.TestAndLearn.ParallelWriter
+namespace Zephyr.GOAP.Tests.TestAndLearn.ParallelWriter
 {
     [DisableAutoCreation]
     public class ParallelWriterTestSystem : JobComponentSystem
