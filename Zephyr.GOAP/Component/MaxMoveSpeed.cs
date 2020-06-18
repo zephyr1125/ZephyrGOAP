@@ -1,7 +1,7 @@
 using System;
 using Unity.Entities;
 
-namespace Zephyr.GOAP.Game.ComponentData
+namespace Zephyr.GOAP.Component
 {
     /// <summary>
     /// 最大移动速度
