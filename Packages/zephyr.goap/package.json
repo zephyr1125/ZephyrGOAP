@@ -1,0 +1,16 @@
+{
+  "name": "zephyr.goap",
+  "version": "0.2.0",
+  "displayName": "Zephyr GOAP",
+  "description": "A library of GOAP AI Planner written in DOTS",
+  "unity": "2019.3",
+  "dependencies": {
+    "com.unity.entities": "0.11.1-preview.4"
+  },
+  "author": {
+    "name": "Zephyr Zhang",
+    "email": "zephyr1125@gmail.com",
+    "url": "https://cowlevel.net/people/zephyr1125"
+  },
+  "type": "library"
+}

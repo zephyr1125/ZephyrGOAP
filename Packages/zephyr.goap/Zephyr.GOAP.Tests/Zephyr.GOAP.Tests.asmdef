@@ -1,5 +1,5 @@
 {
-    "name": "Zephyr.GOAP.Test",
+    "name": "Zephyr.GOAP.Tests",
     "references": [
         "Unity.Burst",
         "Unity.Entities",
