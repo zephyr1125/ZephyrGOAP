@@ -1,10 +1,9 @@
 using NUnit.Framework;
 using Unity.Collections;
 using Zephyr.GOAP.Component;
-using Zephyr.GOAP.Struct;
 using Zephyr.GOAP.System;
 
-namespace Zephyr.GOAP.Test
+namespace Zephyr.GOAP.Tests
 {
     public class TestCurrentStatesHelper : TestBase
     {

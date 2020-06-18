@@ -1,9 +1,9 @@
 using Unity.Collections;
 using Unity.Entities;
-using Zephyr.GOAP.Action;
+using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Struct;
 
-namespace Zephyr.GOAP.Test.Mock
+namespace Zephyr.GOAP.Tests.Mock
 {
     public struct MockAction : IComponentData, IAction
     {

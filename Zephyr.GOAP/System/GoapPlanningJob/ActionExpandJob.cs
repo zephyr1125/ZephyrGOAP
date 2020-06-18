@@ -2,9 +2,7 @@ using System;
 using Unity.Assertions;
 using Unity.Collections;
 using Unity.Jobs;
-using UnityEngine;
-using Zephyr.GOAP.Action;
-using Zephyr.GOAP.Component.Trait;
+using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Lib;
 using Zephyr.GOAP.Struct;
 

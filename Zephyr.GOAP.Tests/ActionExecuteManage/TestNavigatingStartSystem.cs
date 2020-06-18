@@ -3,12 +3,10 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.AgentState;
-using Zephyr.GOAP.Game.ComponentData;
-using Zephyr.GOAP.Struct;
 using Zephyr.GOAP.System.ActionExecuteManage;
 using Entity = Unity.Entities.Entity;
 
-namespace Zephyr.GOAP.Test.ActionExecuteManage
+namespace Zephyr.GOAP.Tests.ActionExecuteManage
 {
     public class TestNavigatingStartSystem : TestBase
     {

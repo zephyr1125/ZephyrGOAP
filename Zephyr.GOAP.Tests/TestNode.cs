@@ -1,10 +1,11 @@
 using NUnit.Framework;
 using Unity.Collections;
 using Unity.Entities;
-using Zephyr.GOAP.Component.Trait;
+using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Struct;
+using Zephyr.GOAP.Tests.Mock;
 
-namespace Zephyr.GOAP.Test
+namespace Zephyr.GOAP.Tests
 {
     public class TestNode : TestBase
     {
@@ -17,13 +18,13 @@ namespace Zephyr.GOAP.Test
             _states0 = new StateGroup(1, Allocator.Temp){new State
             {
                 Target = Entity.Null,
-                Trait = typeof(ItemContainerTrait),
+                Trait = typeof(MockTraitA),
                 ValueString = "test",
             }};
             _states1 = new StateGroup(1, Allocator.Temp){new State
             {
                 Target = Entity.Null,
-                Trait = typeof(ItemContainerTrait),
+                Trait = typeof(MockTraitA),
                 ValueString = "test",
             }};
         }
@@ -56,7 +57,7 @@ namespace Zephyr.GOAP.Test
         {
             _states1.Add(new State{
                 Target = Entity.Null,
-                Trait = typeof(GatherStationTrait),
+                Trait = typeof(MockTraitB),
                 ValueString = "test",
             });
             

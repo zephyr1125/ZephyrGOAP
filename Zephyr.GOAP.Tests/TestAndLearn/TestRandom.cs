@@ -3,7 +3,7 @@ using NUnit.Framework;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
-namespace Zephyr.GOAP.Test
+namespace Zephyr.GOAP.Tests.TestAndLearn
 {
     public class TestRandom
     {

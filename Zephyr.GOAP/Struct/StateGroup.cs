@@ -1,9 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
+using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Lib;
 
 namespace Zephyr.GOAP.Struct

@@ -4,7 +4,6 @@ using Unity.Transforms;
 using UnityEngine.Assertions;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.AgentState;
-using Zephyr.GOAP.Game.ComponentData;
 using Zephyr.GOAP.Struct;
 
 namespace Zephyr.GOAP.System.ActionExecuteManage

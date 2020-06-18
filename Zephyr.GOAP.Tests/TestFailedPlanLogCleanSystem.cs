@@ -4,7 +4,7 @@ using Unity.Entities;
 using Zephyr.GOAP.Component.GoalManage;
 using Zephyr.GOAP.System;
 
-namespace Zephyr.GOAP.Test
+namespace Zephyr.GOAP.Tests
 {
     public class TestFailedPlanLogCleanSystem : TestBase
     {

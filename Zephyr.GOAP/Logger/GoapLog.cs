@@ -4,6 +4,7 @@ using Unity.Assertions;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
+using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Struct;
 
 namespace Zephyr.GOAP.Logger

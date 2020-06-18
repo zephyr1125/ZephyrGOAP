@@ -2,7 +2,6 @@ using Unity.Entities;
 using Unity.Jobs;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.AgentState;
-using Zephyr.GOAP.Game.ComponentData;
 
 namespace Zephyr.GOAP.System.ActionExecuteManage
 {

@@ -6,7 +6,7 @@ using Zephyr.GOAP.Component.ActionNodeState;
 using Zephyr.GOAP.Component.AgentState;
 using Zephyr.GOAP.System;
 
-namespace Zephyr.GOAP.Test
+namespace Zephyr.GOAP.Tests
 {
     public class TestActionExecuteBase : TestBase
     {

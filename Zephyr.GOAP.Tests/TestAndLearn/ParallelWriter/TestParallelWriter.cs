@@ -1,7 +1,7 @@
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Zephyr.GOAP.Test.TestAndLearn.ParallelWriter
+namespace Zephyr.GOAP.Tests.TestAndLearn.ParallelWriter
 {
     public class TestParallelWriter : TestBase
     {

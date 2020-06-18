@@ -5,6 +5,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Zephyr.GOAP.Struct;
 using Unity.Mathematics;
+using Zephyr.GOAP.Component;
 
 namespace Zephyr.GOAP.Logger
 {

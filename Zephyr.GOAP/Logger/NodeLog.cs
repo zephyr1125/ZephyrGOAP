@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
-using UnityEngine.Assertions;
+using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Struct;
 
 namespace Zephyr.GOAP.Logger

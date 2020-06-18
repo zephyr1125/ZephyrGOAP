@@ -4,7 +4,7 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine.Assertions;
-using Zephyr.GOAP.Game.ComponentData;
+using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Lib;
 using Zephyr.GOAP.Struct;
 

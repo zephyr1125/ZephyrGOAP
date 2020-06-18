@@ -4,11 +4,9 @@ using Unity.Jobs;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.ActionNodeState;
 using Zephyr.GOAP.Component.AgentState;
-using Zephyr.GOAP.Struct;
 using Zephyr.GOAP.System;
-using Zephyr.GOAP.System.ActionExecuteSystem;
 
-namespace Zephyr.GOAP.Test.Mock
+namespace Zephyr.GOAP.Tests.Mock
 {
     [DisableAutoCreation]
     public class MockActionExecuteSystem : ActionExecuteSystemBase

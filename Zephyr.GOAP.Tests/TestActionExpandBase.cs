@@ -1,20 +1,17 @@
-using System;
 using NUnit.Framework;
 using Unity.Entities;
 using Unity.Transforms;
 using Zephyr.GOAP.Component;
-using Zephyr.GOAP.Component.AgentState;
 using Zephyr.GOAP.Component.GoalManage;
 using Zephyr.GOAP.Component.GoalManage.GoalState;
-using Zephyr.GOAP.Struct;
 using Zephyr.GOAP.System;
-using Zephyr.GOAP.Test.Debugger;
+using Zephyr.GOAP.Tests.Debugger;
 
-namespace Zephyr.GOAP.Test
+namespace Zephyr.GOAP.Tests
 {
     public class TestActionExpandBase : TestBase
     {
-        protected GoalPlanningSystem _system;
+        protected GoalPlanningSystemBase _system;
         protected Entity _agentEntity, _goalEntity;
 
         protected TestGoapDebugger _debugger;
@@ -25,7 +22,7 @@ namespace Zephyr.GOAP.Test
             base.SetUp();
             
             _debugger = new TestGoapDebugger(); 
-            _system = World.GetOrCreateSystem<GoalPlanningSystem>();
+            _system = World.GetOrCreateSystem<GoalPlanningSystemBase>();
             _system.Debugger = _debugger;
             
             _agentEntity = EntityManager.CreateEntity();
