@@ -1,0 +1,12 @@
+.title {
+    -unity-font-style: bold;
+    color: rgb(217, 217, 217);
+    background-color: rgb(132, 77, 0);
+}
+
+.state-container {
+    align-items: stretch;
+    flex-grow: 1;
+    flex-shrink: 0;
+    background-color: rgb(231, 198, 156);
+}
