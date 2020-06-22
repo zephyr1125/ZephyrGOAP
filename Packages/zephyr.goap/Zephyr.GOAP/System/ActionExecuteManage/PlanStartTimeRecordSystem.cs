@@ -37,6 +37,7 @@ namespace Zephyr.GOAP.System.ActionExecuteManage
                     ecb.AddComponent(entityInQueryIndex, nodeEntity, new NodeStartTimeRecorded());
                 }).ScheduleParallel(Dependency);
             _ecbSystem.AddJobHandleForProducer(handle);
+            Dependency = handle;
         }
     }
 }
