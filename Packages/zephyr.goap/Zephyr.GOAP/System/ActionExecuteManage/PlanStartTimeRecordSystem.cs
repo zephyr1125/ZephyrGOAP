@@ -2,7 +2,6 @@ using Unity.Entities;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.ActionNodeState;
 using Zephyr.GOAP.Component.GoalManage;
-using Zephyr.GOAP.Struct;
 
 namespace Zephyr.GOAP.System.ActionExecuteManage
 {

@@ -5,7 +5,7 @@ using Unity.Jobs;
 namespace Zephyr.GOAP.Tests.TestAndLearn.ParallelWriter
 {
     [DisableAutoCreation]
-    public class ParallelWriterTestSystem : JobComponentSystem
+    public class ParallelWriterTestSystem : SystemBase
     {
         public NativeQueue<int> Container;
 
@@ -35,25 +35,30 @@ namespace Zephyr.GOAP.Tests.TestAndLearn.ParallelWriter
             }
         }
 
-        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        protected override void OnUpdate()
         {
+            var dependency = Dependency;
+            var writer = Container.AsParallelWriter();
             var job = new ParallelWriteJob
             {
-                Writer = Container.AsParallelWriter()
+                Writer = writer
             };
-            var jobB = new ParallelWriteJob
+            var jobB = new ParallelWriteJobB
             {
                 Writer = Container.AsParallelWriter()
             };
-            var handle = job.Schedule(16, 4, inputDeps);
-            var handleB = jobB.Schedule(16, 4, inputDeps);
-            return JobHandle.CombineDependencies(handle, handleB);
+            
+            var handle = job.Schedule(16, 4, dependency);
+            Dependency = handle;
+            
+            var handleB = jobB.Schedule(16, 4, dependency);
+            Dependency = JobHandle.CombineDependencies(handle, handleB);
         }
 
         protected override void OnDestroy()
         {
             base.OnDestroy();
-            Container.Dispose();
+            Container.Dispose(Dependency);
         }
     }
 }
