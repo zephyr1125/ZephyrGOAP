@@ -1,5 +1,7 @@
+using System;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 
 namespace Zephyr.GOAP.Tests.TestAndLearn.ParallelWriter
 {
@@ -17,14 +19,15 @@ namespace Zephyr.GOAP.Tests.TestAndLearn.ParallelWriter
         [Test]
         public void TestRun()
         {
-            _system.Update();
-            EntityManager.CompleteAllJobs();
-
-            while (_system.Container.Count>0)
-            {
-                Debug.Log(_system.Container.Dequeue());
-            }
-           
+            // _system.Update();
+            // EntityManager.CompleteAllJobs();
+            
+            Assert.Throws<InvalidOperationException>(
+                () =>
+                {
+                    _system.Update();
+                    EntityManager.CompleteAllJobs();
+                }, "不可以两个Job同时操作一个ParallelWriter");
         }
     }
 }
