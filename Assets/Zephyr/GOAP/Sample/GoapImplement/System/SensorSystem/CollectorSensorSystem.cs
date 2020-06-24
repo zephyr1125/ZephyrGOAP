@@ -20,7 +20,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
     public class CollectorSensorSystem : JobComponentSystem
     {
         //todo 示例固定数值
-        private const float CollectorRange = 100;
+        public const float CollectorRange = 100;
         
         [RequireComponentTag(typeof(CollectorTrait))]
         private struct SenseJob : IJobForEachWithEntity_EC<Translation>

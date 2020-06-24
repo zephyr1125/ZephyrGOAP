@@ -72,7 +72,7 @@ namespace Zephyr.GOAP.Sample.Tests.SensorSystem
         {
             var currentStateBuffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
             var rawState = currentStateBuffer[0];
-            rawState.Position = new float3(99, 0 ,0);
+            rawState.Position = new float3(CollectorSensorSystem.CollectorRange+1, 0 ,0);
             currentStateBuffer[0] = rawState;
             
             _system.Update();
