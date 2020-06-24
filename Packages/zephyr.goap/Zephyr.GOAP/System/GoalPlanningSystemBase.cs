@@ -48,11 +48,6 @@ namespace Zephyr.GOAP.System
                     ComponentType.ReadOnly<Agent>(),
                     ComponentType.ReadOnly<Translation>(), 
                     ComponentType.ReadOnly<MaxMoveSpeed>(), 
-                },
-                None = new []
-                {
-                    ComponentType.ReadOnly<Node>(),
-                    ComponentType.ReadOnly<CurrentGoal>(), 
                 }
             });
             _goalQuery = GetEntityQuery(new EntityQueryDesc
@@ -434,7 +429,12 @@ namespace Zephyr.GOAP.System
                             nodeGraph.RemoveNodeState(uncheckedNode, removedStates[i]);
                         }
                     }
-                    unexpandedNodes.Add(uncheckedNode);
+                    //如果这个node没有state，例如WanderAction
+                    //则不需要继续展开了
+                    if (uncheckedStates.Length() > 0)
+                    {
+                        unexpandedNodes.Add(uncheckedNode);
+                    }
                 }
                 else
                 {

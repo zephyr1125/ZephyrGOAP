@@ -4,10 +4,12 @@ using Unity.Transforms;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.GoalManage;
 using Zephyr.GOAP.Component.GoalManage.GoalState;
+using Zephyr.GOAP.Sample.GoapImplement.System;
 using Zephyr.GOAP.System;
+using Zephyr.GOAP.Tests;
 using Zephyr.GOAP.Tests.Debugger;
 
-namespace Zephyr.GOAP.Tests
+namespace Zephyr.GOAP.Sample.Tests
 {
     public class TestActionExpandBase : TestBase
     {
@@ -22,7 +24,7 @@ namespace Zephyr.GOAP.Tests
             base.SetUp();
             
             _debugger = new TestGoapDebugger(); 
-            _system = World.GetOrCreateSystem<GoalPlanningSystemBase>();
+            _system = World.GetOrCreateSystem<GoalPlanningSystem>();
             _system.Debugger = _debugger;
             
             _agentEntity = EntityManager.CreateEntity();
@@ -30,6 +32,7 @@ namespace Zephyr.GOAP.Tests
             
             EntityManager.AddComponentData(_agentEntity, new Agent());
             EntityManager.AddComponentData(_agentEntity, new Translation());
+            EntityManager.AddComponentData(_agentEntity, new MaxMoveSpeed{value = 1});
 
             World.GetOrCreateSystem<CurrentStatesHelper>().Update();
         }

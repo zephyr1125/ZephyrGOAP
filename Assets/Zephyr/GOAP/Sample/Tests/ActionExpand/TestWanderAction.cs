@@ -30,7 +30,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
                 Trait = typeof(WanderTrait),
             });
 
-            //给CurrentStates写入假环境数据：自己有原料、世界里有cooker和recipe
+            //给CurrentStates写入假环境数据
             var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
             buffer.Add(new State
             {
@@ -53,10 +53,8 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             _system.Update();
             EntityManager.CompleteAllJobs();
 
-            Debug.Log(_debugger.GoalNodeLog);
-            Assert.AreEqual(1, _debugger.GetChildren(_debugger.GoalNodeLog)[0].states.Length);
             var pathResult = _debugger.PathResult;
-            Assert.AreEqual(nameof(WanderAction), _debugger.PathResult[1].name);
+            Assert.AreEqual(nameof(WanderAction), _debugger.PathResult[0].name);
             Debug.Log(pathResult);
         }
     }

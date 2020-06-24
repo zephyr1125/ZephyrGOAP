@@ -67,9 +67,9 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             EntityManager.CompleteAllJobs();
             
             var result = _debugger.PathResult;
-            Assert.AreEqual(nameof(DropItemAction), result[1].name);
-            Assert.AreEqual(nameof(PickItemAction), result[2].name);
-            Assert.AreEqual(nameof(CollectAction), result[3].name);
+            Assert.AreEqual(nameof(DropItemAction), result[0].name);
+            Assert.AreEqual(nameof(PickItemAction), result[1].name);
+            Assert.AreEqual(nameof(CollectAction), result[2].name);
         }
 
         /// <summary>
@@ -131,10 +131,10 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             EntityManager.CompleteAllJobs();
             
             var result = _debugger.PathResult;
-            Assert.AreEqual(nameof(DropItemAction), result[1].name);
-            Assert.AreEqual(nameof(PickItemAction), result[2].name);
-            Assert.AreEqual(nameof(CollectAction), result[3].name);
-            Assert.IsTrue(result[3].effects[0].target.Equals(newCollectorEntity));
+            Assert.AreEqual(nameof(DropItemAction), result[0].name);
+            Assert.AreEqual(nameof(PickItemAction), result[1].name);
+            Assert.AreEqual(nameof(CollectAction), result[2].name);
+            Assert.IsTrue(result[2].effects[0].target.Equals(newCollectorEntity));
         }
 
         //世界里同时有collector和直接物品源时，选择cost最小的方案
@@ -152,17 +152,17 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
                 Target = itemSourceEntity,
                 Position = new float3(2,0,0),
                 Trait = typeof(ItemSourceTrait),
-                ValueString = Sample.Utils.RawPeachName
+                ValueString = Utils.RawPeachName
             });
             
             _system.Update();
             EntityManager.CompleteAllJobs();
             
-            Assert.AreEqual(3, _debugger.PathResult.Length);
+            Assert.AreEqual(2, _debugger.PathResult.Length);
             var result = _debugger.PathResult;
-            Assert.AreEqual(nameof(DropItemAction), result[1].name);
-            Assert.AreEqual(nameof(PickItemAction), result[2].name);
-            Assert.IsTrue(result[2].states[0].target.Equals(itemSourceEntity));
+            Assert.AreEqual(nameof(DropItemAction), result[0].name);
+            Assert.AreEqual(nameof(PickItemAction), result[1].name);
+            Assert.IsTrue(result[1].preconditions[0].target.Equals(itemSourceEntity));
         }
     }
 }

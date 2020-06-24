@@ -71,13 +71,13 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             
             Debug.Log(_debugger.GoalNodeLog);
             var pathResult = _debugger.PathResult;
-            Assert.AreEqual(7, pathResult.Length);
-            Assert.AreEqual(nameof(EatAction), pathResult[1].name);
-            Assert.AreEqual(nameof(DropItemAction), pathResult[2].name);
-            Assert.AreEqual(nameof(PickItemAction), pathResult[3].name);
-            Assert.AreEqual(nameof(CookAction), pathResult[4].name);
-            Assert.AreEqual(nameof(DropItemAction), pathResult[5].name);
-            Assert.AreEqual(nameof(PickItemAction), pathResult[6].name);
+            Assert.AreEqual(6, pathResult.Length);
+            Assert.AreEqual(nameof(EatAction), pathResult[0].name);
+            Assert.AreEqual(nameof(DropItemAction), pathResult[1].name);
+            Assert.AreEqual(nameof(PickItemAction), pathResult[2].name);
+            Assert.AreEqual(nameof(CookAction), pathResult[3].name);
+            Assert.AreEqual(nameof(DropItemAction), pathResult[4].name);
+            Assert.AreEqual(nameof(PickItemAction), pathResult[5].name);
         }
     }
 }

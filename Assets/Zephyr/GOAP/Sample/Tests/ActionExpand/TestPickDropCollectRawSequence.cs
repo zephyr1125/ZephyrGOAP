@@ -70,9 +70,9 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             EntityManager.CompleteAllJobs();
             
             var result = _debugger.PathResult;
-            Assert.AreEqual(nameof(CollectAction), result[1].name);
-            Assert.AreEqual(nameof(DropRawAction), result[2].name);
-            Assert.AreEqual(nameof(PickRawAction), result[3].name);
+            Assert.AreEqual(nameof(CollectAction), result[0].name);
+            Assert.AreEqual(nameof(DropRawAction), result[1].name);
+            Assert.AreEqual(nameof(PickRawAction), result[2].name);
         }
 
         /// <summary>
@@ -109,9 +109,9 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             EntityManager.CompleteAllJobs();
             
             var result = _debugger.PathResult;
-            Assert.AreEqual(nameof(CollectAction), result[1].name);
-            Assert.AreEqual(nameof(DropRawAction), result[2].name);
-            Assert.IsTrue(result[2].preconditions[0].target.Equals(newRawEntity));
+            Assert.AreEqual(nameof(CollectAction), result[0].name);
+            Assert.AreEqual(nameof(DropRawAction), result[1].name);
+            Assert.IsTrue(result[1].preconditions[0].target.Equals(newRawEntity));
         }
     }
 }

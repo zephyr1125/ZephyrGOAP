@@ -39,8 +39,7 @@ namespace Zephyr.GOAP.Editor
             this.target = target;
             _container = target.Q("timeline-container");
             
-            _nodeVisualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
-                "Assets/Zephyr/GOAP/Editor/UXML/timeline_node.uxml");
+            _nodeVisualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(Utils.TimeLineNodeFilePath);
             
             //绘制背景
             DrawBackground();

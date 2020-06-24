@@ -61,7 +61,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             _system.Update();
             EntityManager.CompleteAllJobs();
             
-            var result = _debugger.PathResult[1];
+            var result = _debugger.PathResult[0];
             Assert.AreEqual(nameof(CookAction), result.name);
             Assert.IsTrue(result.states[0].target.Equals(_cookerEntity));
         }
@@ -77,7 +77,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             _system.Update();
             EntityManager.CompleteAllJobs();
             
-            var result = _debugger.PathResult[1];
+            var result = _debugger.PathResult[0];
             Assert.AreEqual(nameof(CookAction), result.name);
             Assert.IsTrue(result.states[0].target.Equals(_cookerEntity));
         }
@@ -113,7 +113,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             _system.Update();
             EntityManager.CompleteAllJobs();
             
-            var result = _debugger.PathResult[1];
+            var result = _debugger.PathResult[0];
             Assert.AreEqual(nameof(CookAction), result.name);
             Assert.IsTrue(result.states[0].target.Equals(_cookerEntity));
         }
@@ -134,9 +134,9 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             var children = _debugger.GetChildren(_debugger.GoalNodeLog);
             Assert.AreEqual(3, children.Length);
             Assert.IsTrue(children.Any(nodeLog => nodeLog.states.Any(
-                state => state.valueString.Equals("raw_apple"))));
+                state => state.valueString.Equals(Utils.RawPeachName.ToString()))));
             Assert.IsTrue(children.Any(nodeLog => nodeLog.states.Any(
-                state => state.valueString.Equals(Sample.Utils.RawPeachName))));
+                state => state.valueString.Equals(Utils.RawAppleName.ToString()))));
         }
 
         [Test]
@@ -165,7 +165,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             _system.Update();
             EntityManager.CompleteAllJobs();
             
-            var result = _debugger.PathResult[1];
+            var result = _debugger.PathResult[0];
             Assert.AreEqual(nameof(CookAction), result.name);
             Assert.IsTrue(result.states[0].target.Equals(newCookerEntity));
         }
@@ -204,9 +204,9 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             _system.Update();
             EntityManager.CompleteAllJobs();
             
-            var result = _debugger.PathResult[2];
+            var result = _debugger.PathResult[1];
             Assert.AreEqual(nameof(PickItemAction), result.name);
-            Assert.IsTrue(result.states[0].target.Equals(itemSourceEntity));
+            Assert.IsTrue(result.preconditions[0].target.Equals(itemSourceEntity));
         }
     }
 }
