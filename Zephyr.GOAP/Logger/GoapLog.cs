@@ -88,7 +88,7 @@ namespace Zephyr.GOAP.Logger
 
         public NodeLog GetGoalNodeView()
         {
-            return _currentResult.nodes[0];
+            return _currentResult.GetGoalNodeLog();
         }
 
         public NodeLog[] GetPathResult()

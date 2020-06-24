@@ -58,12 +58,10 @@ namespace Zephyr.GOAP.Editor
             _currentResult = 0;
             
             var windowVisualTree =
-                AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
-                    "Assets/Zephyr/GOAP/Editor/UXML/window.uxml");
+                AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(Utils.WindowFilePath);
             windowVisualTree.CloneTree(rootVisualElement);
             
-            _nodeVisualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
-                "Assets/Zephyr/GOAP/Editor/UXML/node.uxml");
+            _nodeVisualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(Utils.NodeFilePath);
             
             rootVisualElement.Q<Button>("load-button").RegisterCallback<MouseUpEvent>(
                 evt =>
@@ -112,8 +110,7 @@ namespace Zephyr.GOAP.Editor
             
             //鼠标提示
             var statesVT =
-                AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
-                    "Assets/Zephyr/GOAP/Editor/UXML/states.uxml");
+                AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(Utils.StateFilePath);
             statesVT.CloneTree(rootVisualElement.Q("main-frame"));
             _statesTip = rootVisualElement.Q("states");
             _statesTip.style.top = -50;

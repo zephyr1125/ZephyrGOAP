@@ -26,6 +26,8 @@ namespace Zephyr.GOAP.Logger
 
         private int[] _pathHash;
 
+        private int _goalNodeHash;
+
         public List<NodeDependencyLog> pathDependencies;
 
         public void StartLog(EntityManager entityManager)
@@ -54,6 +56,8 @@ namespace Zephyr.GOAP.Logger
                 edges.Add(new EdgeLog(edge));
             }
 
+            _goalNodeHash = nodeGraph.GetGoalNode().HashCode;
+            
             nodesData.Dispose();
         }
 
@@ -174,6 +178,11 @@ namespace Zephyr.GOAP.Logger
             }
             
             return result.ToArray();
+        }
+
+        public NodeLog GetGoalNodeLog()
+        {
+            return nodes.Find(log => log.hashCode == _goalNodeHash);
         }
     }
 }

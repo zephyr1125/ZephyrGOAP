@@ -97,7 +97,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
 
                     _action.GetPreconditions(ref targetState, ref setting, ref _stackData, ref preconditions);
                     //为了避免没有state的node(例如wander)与startNode有相同的hash，这种node被强制给了一个空state
-                    if(preconditions.Length()==0)preconditions.Add(new State());
+                    // if(preconditions.Length()==0)preconditions.Add(new State());
 
                     _action.GetEffects(ref targetState, ref setting, ref _stackData, ref effects);
 
