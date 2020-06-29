@@ -1,7 +1,7 @@
 using Unity.Entities;
 using UnityEngine;
-using Zephyr.GOAP.Component.Trait;
 using Zephyr.GOAP.Sample.Game.Component;
+using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
 
 namespace Zephyr.GOAP.Sample.Game.Authoring
 {

@@ -1,7 +1,7 @@
 using Unity.Collections;
 using Unity.Entities;
 using Zephyr.GOAP.Component;
-using Zephyr.GOAP.Component.Trait;
+using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
 using Zephyr.GOAP.Struct;
 
 // using Zephyr.GOAP.System.ActionExecuteSystem;

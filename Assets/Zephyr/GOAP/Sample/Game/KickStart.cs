@@ -3,7 +3,7 @@ using UnityEngine;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.GoalManage;
 using Zephyr.GOAP.Component.GoalManage.GoalState;
-using Zephyr.GOAP.Component.Trait;
+using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
 using Zephyr.GOAP.Struct;
 
 namespace Zephyr.GOAP.Sample.Game

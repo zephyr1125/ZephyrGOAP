@@ -2,7 +2,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Zephyr.GOAP.Component;
-using Zephyr.GOAP.Component.Trait;
+using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
 using Zephyr.GOAP.Struct;
 
 namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
