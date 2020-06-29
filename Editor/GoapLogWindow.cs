@@ -51,9 +51,10 @@ namespace Zephyr.GOAP.Editor
 
         private void Init()
         {
-            titleContent.text = "Goap Logs";
             rootVisualElement.Clear();
             
+            titleContent.text = "Goap Logs";
+
             _editorDebugger = new EditorGoapDebugger(OnEditorLogDone);
             _currentResult = 0;
             
@@ -62,23 +63,21 @@ namespace Zephyr.GOAP.Editor
             windowVisualTree.CloneTree(rootVisualElement);
             
             _nodeVisualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(Utils.NodeFilePath);
-            
-            rootVisualElement.Q<Button>("load-button").RegisterCallback<MouseUpEvent>(
-                evt =>
-                {
-                    if (!LoadLogFile()) return;
-                    Reset();
-                    Init();
-                    ConstructInfo();
-                    ConstructGraph();
-                    ConstructTimeline();
-                });
-            rootVisualElement.Q<Button>("reset-button").RegisterCallback<MouseUpEvent>(
-                evt =>
-                {
-                    Reset();
-                    Init();
-                });
+
+            rootVisualElement.Q<Button>("load-button").clicked += () =>
+            {
+                if (!LoadLogFile()) return;
+                Reset();
+                Init();
+                ConstructInfo();
+                ConstructGraph();
+                ConstructTimeline();
+            };
+            rootVisualElement.Q<Button>("reset-button").clicked += () =>
+            {
+                Reset();
+                Init();
+            };
             
             _editorLoggingButton = rootVisualElement.Q<Button>("editor-button");
             _editorLoggingButton.clicked += SetEditorLogging;
@@ -177,7 +176,8 @@ namespace Zephyr.GOAP.Editor
             if (_log == null) return;
 
             _resultCount = _log.results.Count;
-            rootVisualElement.Q<Label>("page").text = $"{_currentResult+1}/{_resultCount}";
+            var labelPage = rootVisualElement.Q<Label>("page");
+            labelPage.text = $"{_currentResult+1}/{_resultCount}";
 
             var result = _log.results[_currentResult];
             rootVisualElement.Q<Label>("agent-name").text = 
