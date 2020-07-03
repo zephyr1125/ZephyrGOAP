@@ -30,6 +30,11 @@ namespace Zephyr.GOAP.System
         /// 生成路径的步数上限
         /// </summary>
         public int PathNodeLimit = 1000;
+
+        /// <summary>
+        /// 对于一种action进行展开的agent的上限，以避免node graph过度膨胀
+        /// </summary>
+        public int MaxAgentForAction = 3;
         
         private EntityQuery _agentQuery, _goalQuery;
 
@@ -136,7 +141,7 @@ namespace Zephyr.GOAP.System
                 var reason = "";
                 if (uncheckedNodes.Count() <= 0) reason = "No more nodes";
                 else if (iteration >= ExpandIterations) reason = "Max iteration reached";
-                Debugger?.Log($"goal plan failed : {reason}");
+                Debugger?.LogWarning($"goal plan failed : {reason}");
                 
                 Utils.NextGoalState<IdleGoal, PlanFailedGoal>(goal.GoalEntity,
                     EntityManager, Time.ElapsedTime);
@@ -525,11 +530,33 @@ namespace Zephyr.GOAP.System
             NativeList<ValueTuple<int, State>>.ParallelWriter effectsWriter, 
             ref NativeHashMap<int, Node>.ParallelWriter newlyCreatedNodesWriter, int iteration) where T : struct, IAction, IComponentData
         {
+            var agentCount = 0;
             for (var i = 0; i < stackData.AgentEntities.Length; i++)
             {
                 stackData.CurrentAgentId = i;
                 var agentEntity = stackData.AgentEntities[i];
                 if (!EntityManager.HasComponent<T>(agentEntity)) continue;
+
+                var sameAgent = false;
+                for (var nodeId = 0; nodeId < unexpandedNodes.Length; nodeId++)
+                {
+                    if (sameAgent) break;
+                    var unexpandedNode = unexpandedNodes[nodeId];
+                    for (var stateId = 0; stateId < nodeStates.Length; stateId++)
+                    {
+                        var (hash, state) = nodeStates[stateId];
+                        if (!hash.Equals(unexpandedNode.HashCode)) continue;
+                        if (!state.Target.Equals(agentEntity)) continue;
+                        sameAgent = true;
+                        break;
+                    }
+                }
+                
+                //即使超过了agent计数，但是这个agent是goal的target的话也要尝试展开
+                if (agentCount >= MaxAgentForAction && !sameAgent)
+                {
+                    continue;
+                }
                 
                 var action = EntityManager.GetComponentData<T>(agentEntity);
                 handle = new ActionExpandJob<T>(ref unexpandedNodes, ref existedNodesHash,
@@ -537,6 +564,9 @@ namespace Zephyr.GOAP.System
                     nodeToParentsWriter, nodeStatesWriter, preconditionsWriter, effectsWriter,
                     ref newlyCreatedNodesWriter, iteration, action).Schedule(
                     unexpandedNodes, 6, handle);
+                
+                //优化点：如果能够执行的agent较多，只展开其中前几个
+                agentCount++;
             }
             return handle;
         }
