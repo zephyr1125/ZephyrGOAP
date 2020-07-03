@@ -33,10 +33,10 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                     DynamicBuffer<ContainedItemRef> containedItemRefs,
                     in Agent agent, in PickRawAction action) =>
                 {
-                    for (var i = 0; i < waitingNodeEntities.Length; i++)
+                    for (var nodeId = 0; nodeId < waitingNodeEntities.Length; nodeId++)
                     {
-                        var nodeEntity = waitingNodeEntities[i];
-                        var node = waitingNodes[i];
+                        var nodeEntity = waitingNodeEntities[nodeId];
+                        var node = waitingNodes[nodeId];
 
                         if (!node.AgentExecutorEntity.Equals(agentEntity)) continue;
                         if (!node.Name.Equals(nameOfAction)) continue;
@@ -48,7 +48,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                         {
                             if ((node.PreconditionsBitmask & (ulong) 1 << stateId) <= 0) continue;
 
-                            var precondition = states[i];
+                            var precondition = states[stateId];
                             Assert.IsTrue(precondition.Target != Entity.Null);
 
                             targetItemName = precondition.ValueString;

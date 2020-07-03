@@ -94,6 +94,11 @@ namespace Zephyr.GOAP.Tests.Debugger
             // Debug.Log(log);
         }
 
+        public void LogWarning(string log)
+        {
+            Debug.LogWarning(log);
+        }
+
         public void Dispose()
         {
             

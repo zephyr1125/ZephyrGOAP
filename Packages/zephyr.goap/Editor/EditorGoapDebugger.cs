@@ -1,5 +1,6 @@
 using Unity.Collections;
 using Unity.Entities;
+using UnityEngine;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Debugger;
 using Zephyr.GOAP.Logger;
@@ -67,6 +68,11 @@ namespace Zephyr.GOAP.Editor
         public void Log(string log)
         {
             // Debug.Log(log);
+        }
+        
+        public void LogWarning(string log)
+        {
+            Debug.LogWarning(log);
         }
 
         public void LogDone()

@@ -181,12 +181,6 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     {
                         var state = effects[i];
                         _effectsWriter.AddNoResize((newNode.HashCode, state));
-
-                        // if (!newNode.Name.Equals("CookAction")) continue;
-                        // if (!state.Trait.Equals(typeof(ItemSourceTrait))) continue;
-                        // if (!state.ValueString.Equals("feast") &&
-                        //     !state.ValueString.Equals("roast_apple")) continue;
-                        // Debug.Log($"{_iteration}({baseNode.HashCode}->{newNode.HashCode}){newNode.AgentExecutorEntity}|{state.ValueString}");
                     }
                 }
             }

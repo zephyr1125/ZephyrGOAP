@@ -27,10 +27,10 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                 .ForEach((Entity agentEntity, int entityInQueryIndex,
                     in Agent agent, in PickItemAction action) =>
                 {
-                    for (var i = 0; i < waitingNodeEntities.Length; i++)
+                    for (var nodeId = 0; nodeId < waitingNodeEntities.Length; nodeId++)
                     {
-                        var nodeEntity = waitingNodeEntities[i];
-                        var node = waitingNodes[i];
+                        var nodeEntity = waitingNodeEntities[nodeId];
+                        var node = waitingNodes[nodeId];
 
                         if (!node.AgentExecutorEntity.Equals(agentEntity)) continue;
                         if (!node.Name.Equals(nameOfAction)) continue;

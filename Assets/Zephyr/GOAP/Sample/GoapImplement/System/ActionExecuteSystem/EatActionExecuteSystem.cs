@@ -30,10 +30,10 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                 .ForEach((Entity agentEntity, int entityInQueryIndex, ref Stamina stamina,
                     in Agent agent, in EatAction action) =>
                 {
-                    for (var i = 0; i < waitingNodeEntities.Length; i++)
+                    for (var nodeId = 0; nodeId < waitingNodeEntities.Length; nodeId++)
                     {
-                        var nodeEntity = waitingNodeEntities[i];
-                        var node = waitingNodes[i];
+                        var nodeEntity = waitingNodeEntities[nodeId];
+                        var node = waitingNodes[nodeId];
 
                         if (!node.AgentExecutorEntity.Equals(agentEntity)) continue;
                         if (!node.Name.Equals(nameOfAction)) continue;
@@ -59,9 +59,9 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                         var buffer = allBufferItems[tableEntity];
                         for (var itemId = 0; itemId < buffer.Length; itemId++)
                         {
-                            var containedItemRef = buffer[i];
+                            var containedItemRef = buffer[itemId];
                             if (!containedItemRef.ItemName.Equals(targetItemName)) continue;
-                            buffer.RemoveAt(i);
+                            buffer.RemoveAt(itemId);
                             break;
                         }
                 
