@@ -12,6 +12,7 @@ namespace Zephyr.GOAP.Component
         public ComponentType Trait;
         public NativeString32 ValueString;
         public ComponentType ValueTrait;
+        public byte Amount;
         /// <summary>
         /// true时表示这个state表达反面意义，比如“目标不拥有指定物品”
         /// </summary>
@@ -19,9 +20,27 @@ namespace Zephyr.GOAP.Component
         
         public bool Equals(State other)
         {
-            return Trait.Equals(other.Trait) &&
+            return SameTo(other) && Amount.Equals(other.Amount);
+        }
+
+        /// <summary>
+        /// 除了数量，其他都equal,算SameTo
+        /// 但是一个不可数(Amount==0)和一个可数(Amount>0)是不能Same的
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public bool SameTo(State other)
+        {
+            if (!IsCountable().Equals(other.IsCountable())) return false;
+            
+            return Trait.Equals(other.Trait) && ValueTrait.Equals(other.ValueTrait) &&
                    ValueString.Equals(other.ValueString) && IsNegative.Equals(other.IsNegative) &&
                    Target.Equals(other.Target);
+        }
+
+        public bool IsCountable()
+        {
+            return Amount > 0;
         }
         
         public static State Null = new State();
@@ -29,12 +48,15 @@ namespace Zephyr.GOAP.Component
         /// <summary>
         /// 范围的从属关系，意指other是一个包含自己的大范围state，类型筛选上比Equals宽松
         /// 但要注意从属关系是有方向的，只支持other包含this
+        /// equal也算belong to
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
         public bool BelongTo(State other)
         {
             if (Equals(Null) || other.Equals(Null)) return false;
+
+            if (Equals(other)) return true;
             
             //凡是other不明指的项目，都可以包含this
             if (other.Target!=Entity.Null && Target != other.Target) return false;

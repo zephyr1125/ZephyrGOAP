@@ -8,7 +8,7 @@ using Zephyr.GOAP.Lib;
 
 namespace Zephyr.GOAP.Struct
 {
-    public struct StateGroup : IDisposable, IEnumerable<State>
+    public struct StateGroup : IDisposable, IEnumerable<State>, IEquatable<StateGroup>
     {
         [NativeDisableParallelForRestriction]
         private NativeList<State> _states;
@@ -117,29 +117,104 @@ namespace Zephyr.GOAP.Struct
         }
 
         /// <summary>
-        /// Equal或双向Belong则无视，不同项则增加
+        /// 表示对左侧期望的满足计算，因此结构只有1种可能：
+        /// 期望And实现
+        /// 会移除掉左侧满足的State，可数的减数量，不可数的移除
         /// </summary>
         /// <param name="other"></param>
-        /// <returns></returns>
-        public void Merge(StateGroup other)
+        /// <param name="removeOther">是否移除右侧满足的State，不可数不会被移除</param>
+        public void AND(StateGroup other, bool removeOther = false)
         {
-            //todo 还需要考虑冲突可能，即针对同一个目标的两个state不相容
-            for (var i = 0; i < other._states.Length; i++)
+            for (var thisId = Length() - 1; thisId >= 0; thisId--)
             {
-                var otherState = other._states[i];
-                var contained = false;
-                for (var j = 0; j < _states.Length; j++)
+                var thisState = this[thisId];
+
+                for (var otherId = other.Length() - 1; otherId >= 0; otherId--)
                 {
-                    var state = _states[j];
-                    if (state.Equals(otherState)
-                        || state.BelongTo(otherState) || otherState.BelongTo(state))
+                    var otherState = other[otherId];
+
+                    if (thisState.IsCountable())
                     {
+                        var thisStateRemoved = false;
+                        if (!thisState.SameTo(otherState) && !otherState.BelongTo(thisState))
+                            continue;
+                        var costAmount = thisState.Amount;
+                        if (otherState.Amount>=thisState.Amount)
+                        {
+                            _states.RemoveAtSwapBack(thisId);
+                            thisStateRemoved = true;
+                        }
+                        else
+                        {
+                            thisState.Amount -= otherState.Amount;
+                            _states[thisId] = thisState;
+                        }
+                        if (removeOther)
+                        {
+                            if (costAmount >= otherState.Amount)
+                            {
+                                other._states.RemoveAtSwapBack(otherId);
+                            }
+                            else
+                            {
+                                otherState.Amount -= costAmount;
+                                other[otherId] = otherState;
+                            }
+                        }
+
+                        if (thisStateRemoved) break;
+                    }
+                    else
+                    {
+                        //不可数
+                        if (!thisState.Equals(otherState) && !otherState.BelongTo(thisState))
+                            continue;
+                        _states.RemoveAtSwapBack(thisId);
+                        break;
+                    }
+                }
+            }
+            
+        }
+        
+        /// <summary>
+        /// 2种可能：
+        /// 期望Or期望，实现Or实现
+        /// </summary>
+        /// <param name="other"></param>
+        public void OR(StateGroup other)
+        {
+            for (var otherId = 0; otherId < other.Length(); otherId++)
+            {
+                var otherState = other[otherId];
+                var contained = false;
+
+                for (var thisId = 0; thisId < Length(); thisId++)
+                {
+                    var thisState = this[thisId];
+
+                    if (otherState.IsCountable())
+                    {
+                        //可数
+                        if (!thisState.SameTo(otherState)) continue;
+                        
+                        //找到了则直接增加数量
+                        contained = true;
+                        thisState.Amount += otherState.Amount;
+                        this[thisId] = thisState;
+                        break;
+                    }
+                    else
+                    {
+                        //不可数
+                        if (!thisState.Equals(otherState)) continue;
+                        
                         contained = true;
                         break;
                     }
                 }
-
-                if (!contained) _states.Add(otherState);
+                //左侧找不到相同项时需要追加
+                if(!contained)Add(otherState);
             }
         }
 
@@ -238,15 +313,29 @@ namespace Zephyr.GOAP.Struct
 
         public override int GetHashCode()
         {
-            var hashCode = 17;
-            if (!_states.IsCreated) return hashCode;
+            return _states.GetHashCode();
+        }
+
+        /// <summary>
+        /// 目前即使内容一样，但顺序不一样也不认为equal
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public bool Equals(StateGroup other)
+        {
+            if (Length() != other.Length()) return false;
+            
             for (var i = 0; i < _states.Length; i++)
             {
-                var state = _states[i];
-                hashCode = hashCode *31 + state.GetHashCode();
+                if (!_states[i].Equals(other._states[i])) return false;
             }
 
-            return hashCode;
+            return true;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is StateGroup other && Equals(other);
         }
     }
 }
