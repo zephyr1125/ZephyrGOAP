@@ -105,7 +105,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     {
                         var newStates = new StateGroup(leftStates, Allocator.Temp);
                         newStates.SubForEffect(ref effects);
-                        newStates.Merge(preconditions);
+                        newStates.OR(preconditions);
 
                         var reward =
                             _action.GetReward(ref targetState, ref setting, ref _stackData);
