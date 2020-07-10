@@ -117,14 +117,10 @@ namespace Zephyr.GOAP.System
                 //对待检查列表进行检查（与CurrentStates比对）
                 if (CheckNodes(ref uncheckedNodes, ref nodeGraph, ref stackData.CurrentStates,
                     ref unexpandedNodes, iteration)) foundPlan = true;
-                
-                // nodeGraph.DebugCheckNoCookStateBeforeIteration4(iteration);
 
                 //对待展开列表进行展开，并挑选进入待检查和展开后列表
                 ExpandNodes(ref unexpandedNodes, ref stackData, ref nodeGraph,
                     ref uncheckedNodesWriter, ref expandedNodes, iteration);
-                
-                // nodeGraph.DebugCheckNodeEffects(ref uncheckedNodes);
 
                 //直至待展开列表为空或Early Exit
                 iteration++;
@@ -381,6 +377,7 @@ namespace Zephyr.GOAP.System
         /// <param name="nodeGraph"></param>
         /// <param name="currentStates"></param>
         /// <param name="unexpandedNodes"></param>
+        /// <param name="iteration"></param>
         public bool CheckNodes(ref NativeHashMap<int, Node> uncheckedNodes, ref NodeGraph nodeGraph,
             ref StateGroup currentStates, ref NativeList<Node> unexpandedNodes, int iteration)
         {
@@ -391,8 +388,10 @@ namespace Zephyr.GOAP.System
                 Debugger?.Log("check node: "+uncheckedNode.Name);
                 nodeGraph.CleanAllDuplicateStates(uncheckedNode);
                 
-                var uncheckedStates = nodeGraph.GetNodeStates(uncheckedNode, Allocator.Temp);
-                uncheckedStates.Sub(ref currentStates, out var removedStates, Allocator.Temp);
+                var uncheckedStates = nodeGraph.GetNodeStates(uncheckedNode, Allocator.Temp, true);
+                uncheckedStates.AND(currentStates, true);
+                //对这些state调整后重新放回nodeGraph
+                nodeGraph.AddNodeStates(uncheckedStates, uncheckedNode.HashCode);
                 
                 //为了避免没有state的node(例如wander)与startNode有相同的hash，这种node被强制给了一个空state
                 //因此在只有1个state且内容为空时，也应视为找到了plan
@@ -426,14 +425,6 @@ namespace Zephyr.GOAP.System
                 if (!loop)
                 {
                     //没有产生循环，则把此node置入待展开列表
-                    //需要把他的state里符合currentState的移除掉，以避免再次被展开
-                    if (!foundPlan)
-                    {
-                        for (var i = 0; i < removedStates.Length(); i++)
-                        {
-                            nodeGraph.RemoveNodeState(uncheckedNode, removedStates[i]);
-                        }
-                    }
                     //如果这个node没有state，例如WanderAction
                     //则不需要继续展开了
                     if (uncheckedStates.Length() > 0)
@@ -446,8 +437,6 @@ namespace Zephyr.GOAP.System
                     //否则的话此node进入dead end 列表，以供debug查看
                     nodeGraph.AddDeadEndNode(uncheckedNode.HashCode);
                 }
-
-                removedStates.Dispose();
                 uncheckedStates.Dispose();
             }
 

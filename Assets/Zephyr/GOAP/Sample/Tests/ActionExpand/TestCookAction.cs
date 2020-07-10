@@ -63,7 +63,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             
             var result = _debugger.PathResult[0];
             Assert.AreEqual(nameof(CookAction), result.name);
-            Assert.IsTrue(result.states[0].target.Equals(_cookerEntity));
+            Assert.IsTrue(result.preconditions[0].target.Equals(_cookerEntity));
         }
 
         //对未指明Target的goal进行规划
@@ -79,7 +79,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             
             var result = _debugger.PathResult[0];
             Assert.AreEqual(nameof(CookAction), result.name);
-            Assert.IsTrue(result.states[0].target.Equals(_cookerEntity));
+            Assert.IsTrue(result.preconditions[0].target.Equals(_cookerEntity));
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             
             var result = _debugger.PathResult[0];
             Assert.AreEqual(nameof(CookAction), result.name);
-            Assert.IsTrue(result.states[0].target.Equals(_cookerEntity));
+            Assert.IsTrue(result.preconditions[0].target.Equals(_cookerEntity));
         }
         
         //只指定ValueTrait的，根据配方产生多个node
@@ -133,9 +133,9 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             //3种有配方的方案
             var children = _debugger.GetChildren(_debugger.GoalNodeLog);
             Assert.AreEqual(3, children.Length);
-            Assert.IsTrue(children.Any(nodeLog => nodeLog.states.Any(
+            Assert.IsTrue(children.Any(nodeLog => nodeLog.preconditions.Any(
                 state => state.valueString.Equals(Utils.RawPeachName.ToString()))));
-            Assert.IsTrue(children.Any(nodeLog => nodeLog.states.Any(
+            Assert.IsTrue(children.Any(nodeLog => nodeLog.preconditions.Any(
                 state => state.valueString.Equals(Utils.RawAppleName.ToString()))));
         }
 
@@ -167,7 +167,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             
             var result = _debugger.PathResult[0];
             Assert.AreEqual(nameof(CookAction), result.name);
-            Assert.IsTrue(result.states[0].target.Equals(newCookerEntity));
+            Assert.IsTrue(result.preconditions[0].target.Equals(newCookerEntity));
         }
 
         //世界里同时有cooker和直接物品源时，选择cost最小的方案

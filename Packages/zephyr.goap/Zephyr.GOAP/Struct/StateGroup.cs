@@ -218,52 +218,6 @@ namespace Zephyr.GOAP.Struct
             }
         }
 
-        /// <summary>
-        /// Equal或双向Belong则移除，不同项则无视
-        /// 如果出现移除，effect需要记录被自己移除的state信息
-        /// </summary>
-        /// <param name="effectStates"></param>
-        /// <returns></returns>
-        public void SubForEffect(ref StateGroup effectStates)
-        {
-            Sub(ref effectStates, out var removedStates, Allocator.Temp);
-            removedStates.Dispose();
-        }
-
-        /// <summary>
-        /// Equal或双向Belong则移除，不同项则无视
-        /// </summary>
-        /// <param name="other"></param>
-        /// <param name="removedStates"></param>
-        /// <param name="allocatorForRemovedStates"></param>
-        /// <param name="func"></param>
-        /// <returns></returns>
-        public void Sub(ref StateGroup other, out StateGroup removedStates,
-            Allocator allocatorForRemovedStates, Func<State, State, State> func = null)
-        {
-            removedStates = new StateGroup(1, allocatorForRemovedStates);
-            
-            for (var i = 0; i < other._states.Length; i++)
-            {
-                var otherState = other._states[i];
-                for (var j = _states.Length - 1; j >= 0; j--)
-                {
-                    var state = _states[j];
-                    if (state.Equals(otherState)
-                        || state.BelongTo(otherState) || otherState.BelongTo(state))
-                    {
-                        if (func != null)
-                        {
-                            otherState = func(state, otherState);
-                            other[i] = otherState;
-                        }
-                        _states.RemoveAtSwapBack(j);
-                        removedStates.Add(state);
-                    }
-                }
-            }
-        }
-
         public State GetState(Func<State, bool> compare)
         {
             foreach (var state in _states)
@@ -313,7 +267,13 @@ namespace Zephyr.GOAP.Struct
 
         public override int GetHashCode()
         {
-            return _states.GetHashCode();
+            if (!_states.IsCreated) return 0;
+            var hash = Utils.BasicHash;
+            for (var i = 0; i < _states.Length; i++)
+            {
+                hash = Utils.CombineHash(hash, _states[i].GetHashCode());
+            }
+            return hash;
         }
 
         /// <summary>
@@ -323,6 +283,9 @@ namespace Zephyr.GOAP.Struct
         /// <returns></returns>
         public bool Equals(StateGroup other)
         {
+            if (!_states.IsCreated && !other._states.IsCreated) return true;
+            if (!_states.IsCreated) return false;
+            if (!other._states.IsCreated) return false;
             if (Length() != other.Length()) return false;
             
             for (var i = 0; i < _states.Length; i++)

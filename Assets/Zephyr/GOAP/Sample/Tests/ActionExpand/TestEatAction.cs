@@ -56,7 +56,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             
             var result = _debugger.PathResult[0];
             Assert.AreEqual(nameof(EatAction), result.name);
-            Assert.IsTrue(result.states[0].target.Equals(_diningTableEntity));
+            Assert.IsTrue(result.preconditions.Any(state => state.target.Equals(_diningTableEntity)));
             Assert.IsTrue(result.preconditions.Any(state=>state.valueString.Equals("raw_apple")));
         }
 

@@ -47,7 +47,13 @@ namespace Zephyr.GOAP.Logger
             var nodesData = nodeGraph.GetNodes(Allocator.Temp);
             foreach (var node in nodesData)
             {
-                nodes.Add(new NodeLog(ref nodeGraph, entityManager, node));
+                var nodeLog = new NodeLog(ref nodeGraph, entityManager, node);
+                if (node.HashCode.Equals(nodeGraph.StartNodeHash) ||
+                    node.HashCode.Equals(nodeGraph.GoalNodeHash))
+                {
+                    nodeLog.isPath = true;
+                }
+                nodes.Add(nodeLog);
             }
             //转换所有edge
             var edgesData = nodeGraph.GetEdges(Allocator.Temp);

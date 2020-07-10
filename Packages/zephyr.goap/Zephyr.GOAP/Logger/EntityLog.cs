@@ -19,6 +19,11 @@ namespace Zephyr.GOAP.Logger
 #endif
         }
 
+        public bool IsDefault()
+        {
+            return index == 0 && version == 0;
+        }
+
         public int CompareTo(EntityLog other)
         {
             return index.CompareTo(other.index);
