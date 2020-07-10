@@ -104,7 +104,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     if (effects.Length() > 0)
                     {
                         var newStates = new StateGroup(leftStates, Allocator.Temp);
-                        newStates.SubForEffect(ref effects);
+                        newStates.AND(effects);
                         newStates.OR(preconditions);
 
                         var reward =
@@ -164,7 +164,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     _nodeStatesWriter.AddNoResize((newNode.HashCode, state));
                 }
                 
-                if(!preconditions.Equals(default(StateGroup)))
+                if(!preconditions.Equals(default))
                 {
                     for(var i=0; i<preconditions.Length(); i++)
                     {
@@ -173,7 +173,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     }
                 }
 
-                if (!effects.Equals(default(StateGroup)))
+                if (!effects.Equals(default))
                 {
                     //目前effect不可能超过1个
                     Assert.IsTrue(effects.Length()<2, "[AddRouteNode] Too much effects!");

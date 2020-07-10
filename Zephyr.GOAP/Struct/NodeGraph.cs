@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
@@ -27,13 +28,13 @@ namespace Zephyr.GOAP.Struct
 
         public NativeList<int> _deadEndNodeHashes;
 
-        private int _goalNodeHash;
-
         /// <summary>
         /// 起点Node代表当前状态，没有Action
         /// </summary>
-        private int _startNodeHash;
- 
+        public int StartNodeHash { get; }
+        
+        public int GoalNodeHash { get; private set; }
+
         public NodeGraph(int initialCapacity, ref DynamicBuffer<State> startNodeStates, Allocator allocator)
         {
             _nodes = new NativeHashMap<int, Node>(initialCapacity, allocator);
@@ -46,34 +47,34 @@ namespace Zephyr.GOAP.Struct
             _deadEndNodeHashes = new NativeList<int>(allocator);
             
             var startNode = new Node {Name = "start"};
-            _startNodeHash = startNode.HashCode;
-            _nodes.Add(_startNodeHash, startNode);
+            StartNodeHash = startNode.HashCode;
+            _nodes.Add(StartNodeHash, startNode);
             for (var i = 0; i < startNodeStates.Length; i++)
             {
-                _effects.Add((_startNodeHash, startNodeStates[i]));
+                _effects.Add((StartNodeHash, startNodeStates[i]));
             }
             
-            _goalNodeHash = 0;
+            GoalNodeHash = 0;
         }
 
         public void SetGoalNode(Node goal, ref StateGroup stateGroup)
         {
-            if (_goalNodeHash != 0)
+            if (GoalNodeHash != 0)
             {
-                _nodes.Remove(_goalNodeHash);
+                _nodes.Remove(GoalNodeHash);
                 for (var i = _nodeStates.Length - 1; i >= 0; i--)
                 {
                     var (hash, _) = _nodeStates[i];
-                    if (!hash.Equals(_goalNodeHash)) continue;
+                    if (!hash.Equals(GoalNodeHash)) continue;
                     _nodeStates.RemoveAtSwapBack(i);
                 }
             }
             
-            _goalNodeHash = goal.HashCode;
-            _nodes.Add(_goalNodeHash, goal);
+            GoalNodeHash = goal.HashCode;
+            _nodes.Add(GoalNodeHash, goal);
             foreach (var state in stateGroup)
             {
-                _nodeStates.Add((_goalNodeHash, state));
+                _nodeStates.Add((GoalNodeHash, state));
             }
         }
 
@@ -95,13 +96,13 @@ namespace Zephyr.GOAP.Struct
         {
             //start node的iteration设置为此Node+1
             var iteration = parent.Iteration;
-            var startNode = _nodes[_startNodeHash];
+            var startNode = _nodes[StartNodeHash];
             if (startNode.Iteration <= iteration)
             {
                 startNode.Iteration = iteration + 1;
-                _nodes[_startNodeHash] = startNode;
+                _nodes[StartNodeHash] = startNode;
             }
-            _nodeToParents.Add((_startNodeHash, parent.HashCode));
+            _nodeToParents.Add((StartNodeHash, parent.HashCode));
         }
 
         public Node this[int hashCode]
@@ -195,7 +196,8 @@ namespace Zephyr.GOAP.Struct
         /// </summary>
         /// <param name="node"></param>
         /// <param name="allocator"></param>
-        public StateGroup GetNodeStates(Node node, Allocator allocator)
+        /// <param name="isPop">是否弹出（也就是取出后删除）</param>
+        public StateGroup GetNodeStates(Node node, Allocator allocator, bool isPop = false)
         {
             var group = new StateGroup(1, allocator);
             var nodeHash = node.HashCode;
@@ -204,9 +206,27 @@ namespace Zephyr.GOAP.Struct
                 var (hash, state) = _nodeStates[i];
                 if (!hash.Equals(nodeHash)) continue;
                 group.Add(state);
+                if (!isPop) continue;
+                _nodeStates.RemoveAt(i);    //不能用SwapBack，因为不按顺序的话，行为执行会变怪
+                i--;
             }
 
             return group;
+        }
+
+        /// <summary>
+        /// 将一组state全部加入到某一个node的states中
+        /// </summary>
+        /// <param name="states"></param>
+        /// <param name="nodeHash"></param>
+        /// <returns></returns>
+        public void AddNodeStates(StateGroup states, int nodeHash)
+        {
+            for (var i = 0; i < states.Length(); i++)
+            {
+                var state = states[i];
+                _nodeStates.Add((nodeHash, state));
+            }
         }
         
         public State[] GetNodeStates(Node node)
@@ -295,12 +315,12 @@ namespace Zephyr.GOAP.Struct
 
         public Node GetStartNode()
         {
-            return _nodes[_startNodeHash];
+            return _nodes[StartNodeHash];
         }
 
         public Node GetGoalNode()
         {
-            return _nodes[_goalNodeHash];
+            return _nodes[GoalNodeHash];
         }
 
         public void RemoveConnection(int childHash, int parentHash)

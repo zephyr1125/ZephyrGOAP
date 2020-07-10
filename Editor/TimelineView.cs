@@ -97,6 +97,7 @@ namespace Zephyr.GOAP.Editor
             for (var i = 0; i < pathNodes.Count; i++)
             {
                 var node = pathNodes[i];
+                if (node.agentExecutorEntity.IsDefault()) continue;
                 if (!agentEntities.Exists(agent => agent.Equals(node.agentExecutorEntity)))
                 {
                     agentEntities.Add(node.agentExecutorEntity);
