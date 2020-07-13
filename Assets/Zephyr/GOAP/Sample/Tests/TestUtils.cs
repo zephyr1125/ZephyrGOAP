@@ -1,0 +1,114 @@
+using NUnit.Framework;
+using Unity.Collections;
+using Zephyr.GOAP.Component;
+using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
+using Zephyr.GOAP.Struct;
+using Assert = Unity.Assertions.Assert;
+
+namespace Zephyr.GOAP.Sample.Tests
+{
+    public class TestUtils
+    {
+        private StateGroup _currentStates;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _currentStates = new StateGroup(3, Allocator.Temp);
+            _currentStates.Add(new State
+            {
+                Trait = typeof(RecipeOutputTrait),
+                ValueTrait = typeof(CookerTrait),    //以ValueTrait保存此recipe适用的生产设施
+                ValueString = "output",
+                Amount = 2
+            });
+            _currentStates.Add(new State
+            {
+                Trait = typeof(RecipeInputTrait),
+                ValueTrait = typeof(CookerTrait),
+                ValueString = "input1",
+                Amount = 1
+            });
+            _currentStates.Add(new State
+            {
+                Trait = typeof(RecipeInputTrait),
+                ValueTrait = typeof(CookerTrait),
+                ValueString = "input2",
+                Amount = 3
+            });
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            _currentStates.Dispose();
+        }
+        
+        //在获取配方时要根据输入的成品数量自动乘到输出的材料数量上
+        [Test]
+        public void GetRecipeInputInCurrentStates_MultiplyInputAmount()
+        {
+            var output = new State
+            {
+                Trait = typeof(RecipeOutputTrait),
+                ValueTrait = typeof(CookerTrait),
+                ValueString = "output",
+                Amount = 6
+            };
+
+            var inputs =
+                Utils.GetRecipeInputInCurrentStates(ref _currentStates, output, Allocator.Temp);
+
+            Assert.AreEqual(3, inputs[0].Amount);
+            Assert.AreEqual(9, inputs[1].Amount);
+            
+            inputs.Dispose();
+        }
+        
+        /// <summary>
+        /// 如果需求不足一次，也生产一次
+        /// </summary>
+        [Test]
+        public void GetRecipeInputInCurrentStates_AtLeastOnce()
+        {
+            var output = new State
+            {
+                Trait = typeof(RecipeOutputTrait),
+                ValueTrait = typeof(CookerTrait),
+                ValueString = "output",
+                Amount = 1
+            };
+
+            var inputs =
+                Utils.GetRecipeInputInCurrentStates(ref _currentStates, output, Allocator.Temp);
+
+            Assert.AreEqual(1, inputs[0].Amount);
+            Assert.AreEqual(3, inputs[1].Amount);
+            
+            inputs.Dispose();
+        }
+
+        /// <summary>
+        /// 如果出现配方产量超过需求，就产生富余
+        /// </summary>
+        [Test]
+        public void GetRecipeInputInCurrentStates_AdditionAmount()
+        {
+            var output = new State
+            {
+                Trait = typeof(RecipeOutputTrait),
+                ValueTrait = typeof(CookerTrait),
+                ValueString = "output",
+                Amount = 3
+            };
+
+            var inputs =
+                Utils.GetRecipeInputInCurrentStates(ref _currentStates, output, Allocator.Temp);
+
+            Assert.AreEqual(2, inputs[0].Amount);
+            Assert.AreEqual(6, inputs[1].Amount);
+            
+            inputs.Dispose();
+        }
+    }
+}

@@ -96,14 +96,14 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
                 Target = _collector0Entity,
                 Position = new float3(4, 0, 0),
                 Trait = typeof(ItemPotentialSourceTrait),
-                ValueString = "raw_apple"
+                ValueString = Utils.RawAppleName
             });
             buffer.Add(new State
             {
                 Target = _collector0Entity,
                 Position = new float3(4, 0, 0),
                 Trait = typeof(ItemPotentialSourceTrait),
-                ValueString = Sample.Utils.RawPeachName
+                ValueString = Utils.RawPeachName
             });
             
             // buffer.Add(new State

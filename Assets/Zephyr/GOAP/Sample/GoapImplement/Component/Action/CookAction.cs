@@ -24,6 +24,9 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
         {
             foreach (var targetState in targetStates)
             {
+                //数量应该大于0
+                if (targetState.Amount == 0) continue;
+                
                 var itemSourceState = new State
                 {
                     Trait = typeof(ItemSourceTrait),
@@ -145,6 +148,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                 Trait = typeof(RecipeOutputTrait),
                 ValueTrait = typeof(CookerTrait),
                 ValueString = setting.ValueString,
+                Amount = setting.Amount
             };
             var inputs = Utils.GetRecipeInputInCurrentStates(ref stackData.CurrentStates,
                 targetRecipeInputFilter, Allocator.Temp);
@@ -155,6 +159,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                 Position = setting.Position,
                 Trait = typeof(ItemDestinationTrait),
                 ValueString = inputs[0].ValueString,
+                Amount = inputs[0].Amount
             });
             if (!inputs[1].Equals(State.Null))
             {
@@ -164,6 +169,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                     Position = setting.Position,
                     Trait = typeof(ItemDestinationTrait),
                     ValueString = inputs[1].ValueString,
+                    Amount = inputs[1].Amount
                 });
             }
             inputs.Dispose();

@@ -34,7 +34,8 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             {
                 Target = _cookerEntity,
                 Trait = typeof(ItemSourceTrait),
-                ValueString = Sample.Utils.RoastPeachName
+                ValueString = Utils.RoastPeachName,
+                Amount = 1
             });
             
             //给CurrentStates写入假环境数据：世界里有cooker和recipe,cooker有原料
@@ -49,7 +50,8 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             {
                 Target = _cookerEntity,
                 Trait = typeof(ItemDestinationTrait),
-                ValueString = Sample.Utils.RawPeachName,
+                ValueString = Utils.RawPeachName,
+                Amount = 1
             });
             var recipeSensorSystem = World.GetOrCreateSystem<RecipeSensorSystem>();
             recipeSensorSystem.Update();
@@ -188,7 +190,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             {
                 Target = itemDestinationEntity,
                 Trait = typeof(ItemDestinationTrait),
-                ValueString = Sample.Utils.RoastPeachName
+                ValueString = Utils.RoastPeachName
             };
             SetGoal(goal.State);
             
@@ -198,7 +200,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
                 Target = itemSourceEntity,
                 Position = new float3(2,0,0),
                 Trait = typeof(ItemSourceTrait),
-                ValueString = Sample.Utils.RoastPeachName
+                ValueString = Utils.RoastPeachName
             });
             
             _system.Update();

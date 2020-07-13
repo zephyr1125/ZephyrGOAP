@@ -389,7 +389,7 @@ namespace Zephyr.GOAP.System
                 nodeGraph.CleanAllDuplicateStates(uncheckedNode);
                 
                 var uncheckedStates = nodeGraph.GetNodeStates(uncheckedNode, Allocator.Temp, true);
-                uncheckedStates.AND(currentStates, true);
+                uncheckedStates.AND(currentStates);
                 //对这些state调整后重新放回nodeGraph
                 nodeGraph.AddNodeStates(uncheckedStates, uncheckedNode.HashCode);
                 

@@ -2,7 +2,6 @@ using Unity.Collections;
 using Unity.Entities;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
-using Zephyr.GOAP.Struct;
 using Zephyr.GOAP.System;
 
 namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
@@ -23,9 +22,13 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
             //存储recipe这样复杂state的折中方案：
             //每个recipe以1个output+2个input的方式保存，占用连续的3个state
             //对于不需要第二个原料的recipe,其第二个input为空state
-            AddRecipeState(buffer, Sample.Utils.RoastPeachName, Sample.Utils.RawPeachName);
-            AddRecipeState(buffer, "roast_apple", "raw_apple");
-            AddRecipeState(buffer, "feast", "raw_apple", Sample.Utils.RawPeachName);
+            AddRecipeState(buffer, Utils.RoastPeachName, 1,
+                Utils.RawPeachName, 1);
+            AddRecipeState(buffer, Utils.RoastAppleName, 1,
+                Utils.RawAppleName, 1);
+            AddRecipeState(buffer, Utils.FeastName, 1,
+                Utils.RawAppleName, 1,
+                Utils.RawPeachName, 1);
         }
 
         /// <summary>
@@ -34,25 +37,30 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
         /// 对于不需要第二个原料的recipe,其第二个input为空state
         /// </summary>
         /// <param name="buffer"></param>
-        /// <param name="output"></param>
-        /// <param name="input1"></param>
-        /// <param name="input2"></param>
-        private void AddRecipeState(DynamicBuffer<State> buffer, NativeString32 output,
-            NativeString32 input1, NativeString32 input2 = default)
+        /// <param name="outputName"></param>
+        /// <param name="outputAmount"></param>
+        /// <param name="input1Name"></param>
+        /// <param name="input1Amount"></param>
+        /// <param name="input2Name"></param>
+        /// <param name="input2Amount"></param>
+        private void AddRecipeState(DynamicBuffer<State> buffer, NativeString32 outputName, byte outputAmount,
+            NativeString32 input1Name, byte input1Amount, NativeString32 input2Name = default, byte input2Amount = 0)
         {
             buffer.Add(new State
             {
                 Trait = typeof(RecipeOutputTrait),
                 ValueTrait = typeof(CookerTrait),    //以ValueTrait保存此recipe适用的生产设施
-                ValueString = output,
+                ValueString = outputName,
+                Amount = outputAmount
             });
             buffer.Add(new State
             {
                 Trait = typeof(RecipeInputTrait),
                 ValueTrait = typeof(CookerTrait),
-                ValueString = input1,
+                ValueString = input1Name,
+                Amount = input1Amount
             });
-            if(input2.Equals(default))
+            if(input2Name.Equals(default))
             {
                 buffer.Add(State.Null);
             }else
@@ -60,7 +68,8 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
                 buffer.Add(new State{
                     Trait = typeof(RecipeInputTrait),
                     ValueTrait = typeof(CookerTrait),
-                    ValueString = input2,
+                    ValueString = input2Name,
+                    Amount = input2Amount
                 });
             }
         }

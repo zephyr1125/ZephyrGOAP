@@ -60,7 +60,8 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                     {
                         Target = table.Target,
                         Trait = typeof(ItemDestinationTrait),
-                        ValueString = itemName
+                        ValueString = itemName,
+                        Amount = 1
                     };
                     settings.Add(foodOnTableTemplate);
                 }
