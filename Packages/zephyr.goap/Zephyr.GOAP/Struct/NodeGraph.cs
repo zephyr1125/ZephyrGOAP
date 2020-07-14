@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
-using UnityEngine;
 using UnityEngine.Assertions;
 using Zephyr.GOAP.Component;
 
@@ -27,7 +25,8 @@ namespace Zephyr.GOAP.Struct
         private NativeList<ValueTuple<int,int>> _preconditionHashes;
         
         [ReadOnly]
-        private NativeList<ValueTuple<int,State>> _nodeStates;
+        private NativeList<ValueTuple<int,int>> _nodeStateHashes;
+
 
         public NativeList<int> _deadEndNodeHashes;
 
@@ -43,11 +42,11 @@ namespace Zephyr.GOAP.Struct
             _nodes = new NativeHashMap<int, Node>(initialCapacity, allocator);
             
             _nodeToParents = new NativeList<ValueTuple<int, int>>(initialCapacity*4, allocator);
-            _nodeStates = new NativeList<ValueTuple<int, State>>(initialCapacity*4, allocator);
             
             _states = new NativeHashMap<int, State>(initialCapacity*4, allocator);
             _effectHashes = new NativeList<ValueTuple<int,int>>(initialCapacity*2, allocator);
             _preconditionHashes = new NativeList<ValueTuple<int,int>>(initialCapacity*2, allocator);
+            _nodeStateHashes = new NativeList<ValueTuple<int,int>>(initialCapacity*4, allocator);
             
             _deadEndNodeHashes = new NativeList<int>(allocator);
             
@@ -72,14 +71,16 @@ namespace Zephyr.GOAP.Struct
 
         public void SetGoalNode(Node goal, ref StateGroup stateGroup)
         {
+            //先清除旧的
             if (GoalNodeHash != 0)
             {
                 _nodes.Remove(GoalNodeHash);
-                for (var i = _nodeStates.Length - 1; i >= 0; i--)
+                for (var i = _nodeStateHashes.Length - 1; i >= 0; i--)
                 {
-                    var (hash, _) = _nodeStates[i];
-                    if (!hash.Equals(GoalNodeHash)) continue;
-                    _nodeStates.RemoveAtSwapBack(i);
+                    var (nodeHash, stateHash) = _nodeStateHashes[i];
+                    if (!nodeHash.Equals(GoalNodeHash)) continue;
+                    // _states.Remove(stateHash); //不可以从states里清除，因为可能有多个node引用到
+                    _nodeStateHashes.RemoveAtSwapBack(i);
                 }
             }
             
@@ -87,7 +88,9 @@ namespace Zephyr.GOAP.Struct
             _nodes.Add(GoalNodeHash, goal);
             foreach (var state in stateGroup)
             {
-                _nodeStates.Add((GoalNodeHash, state));
+                var stateHash = state.GetHashCode();
+                _nodeStateHashes.Add((GoalNodeHash, stateHash));
+                _states.TryAdd(stateHash, state);
             }
         }
 
@@ -95,8 +98,6 @@ namespace Zephyr.GOAP.Struct
         
         public NativeList<ValueTuple<int, int>>.ParallelWriter NodeToParentsWriter => _nodeToParents.AsParallelWriter();
         
-        public NativeList<ValueTuple<int, State>>.ParallelWriter NodeStatesWriter => _nodeStates.AsParallelWriter();
-
         public NativeHashMap<int, State>.ParallelWriter StatesWriter => _states.AsParallelWriter();
 
         public NativeList<ValueTuple<int,int>>.ParallelWriter EffectHashesWriter =>
@@ -104,6 +105,9 @@ namespace Zephyr.GOAP.Struct
         
         public NativeList<ValueTuple<int,int>>.ParallelWriter PreconditionHashesWriter =>
             _preconditionHashes.AsParallelWriter();
+        
+        public NativeList<ValueTuple<int, int>>.ParallelWriter NodeStateHashesWriter =>
+            _nodeStateHashes.AsParallelWriter();
 
         /// <summary>
         /// 追加对起点的链接
@@ -199,11 +203,11 @@ namespace Zephyr.GOAP.Struct
             for (var i = 0; i < nodes.Length; i++)
             {
                 var nodeHash = nodes[i].HashCode;
-                for (var j = 0; j < _nodeStates.Length; j++)
+                for (var stateHashId = 0; stateHashId < _nodeStateHashes.Length; stateHashId++)
                 {
-                    var (hash, _) = _nodeStates[j];
-                    if (!hash.Equals(nodeHash)) continue;
-                    outStates.Add(_nodeStates[j]);
+                    var (aNodeHash, stateHash) = _nodeStateHashes[stateHashId];
+                    if (!aNodeHash.Equals(nodeHash)) continue;
+                    outStates.Add((nodeHash, _states[stateHash]));
                 }
             }
         }
@@ -218,13 +222,13 @@ namespace Zephyr.GOAP.Struct
         {
             var group = new StateGroup(1, allocator);
             var nodeHash = node.HashCode;
-            for (var i = 0; i < _nodeStates.Length; i++)
+            for (var i = 0; i < _nodeStateHashes.Length; i++)
             {
-                var (hash, state) = _nodeStates[i];
-                if (!hash.Equals(nodeHash)) continue;
-                group.Add(state);
+                var (aNodeHash, stateHash) = _nodeStateHashes[i];
+                if (!aNodeHash.Equals(nodeHash)) continue;
+                group.Add(_states[stateHash]);
                 if (!isPop) continue;
-                _nodeStates.RemoveAt(i);    //不能用SwapBack，因为不按顺序的话，行为执行会变怪
+                _nodeStateHashes.RemoveAt(i);    //不能用SwapBack，因为不按顺序的话，行为执行会变怪
                 i--;
             }
 
@@ -242,7 +246,9 @@ namespace Zephyr.GOAP.Struct
             for (var i = 0; i < states.Length(); i++)
             {
                 var state = states[i];
-                _nodeStates.Add((nodeHash, state));
+                var stateHash = state.GetHashCode();
+                _states.TryAdd(stateHash, state);
+                _nodeStateHashes.Add((nodeHash, stateHash));
             }
         }
         
@@ -250,11 +256,11 @@ namespace Zephyr.GOAP.Struct
         {
             var result = new List<State>();
             var nodeHash = node.HashCode;
-            for (var i = 0; i < _nodeStates.Length; i++)
+            for (var i = 0; i < _nodeStateHashes.Length; i++)
             {
-                var (hash, state) = _nodeStates[i];
-                if (!hash.Equals(nodeHash)) continue;
-                result.Add(state);
+                var (aNodeHash, stateHash) = _nodeStateHashes[i];
+                if (!aNodeHash.Equals(nodeHash)) continue;
+                result.Add(_states[stateHash]);
             }
 
             return result.ToArray();
@@ -352,19 +358,6 @@ namespace Zephyr.GOAP.Struct
             }
         }
 
-        public void RemoveNodeState(Node node, State state)
-        {
-            var nodeHash = node.HashCode;
-            for (var i = 0; i < _nodeStates.Length; i++)
-            {
-                var (hash, aState) = _nodeStates[i];
-                if (!hash.Equals(nodeHash)) continue;
-                if (!aState.Equals(state)) continue;
-                _nodeStates.RemoveAtSwapBack(i);
-                break;
-            }
-        }
-
         /// <summary>
         /// 由于ActionExpand的并行会导致产生重复state
         /// 因此在CheckNodes中进行清理
@@ -374,7 +367,7 @@ namespace Zephyr.GOAP.Struct
         {
             CleanDuplicateStates(_preconditionHashes, node);
             CleanDuplicateStates(_effectHashes, node);
-            CleanDuplicateStates(_nodeStates, node);
+            CleanDuplicateStates(_nodeStateHashes, node);
         }
         
         private void CleanDuplicateStates<T>(NativeList<ValueTuple<int, T>> container, Node node)
@@ -406,11 +399,11 @@ namespace Zephyr.GOAP.Struct
             _nodes.Dispose();
 
             _nodeToParents.Dispose();
-            _nodeStates.Dispose();
 
             _states.Dispose();
             _effectHashes.Dispose();
             _preconditionHashes.Dispose();
+            _nodeStateHashes.Dispose();
 
             _deadEndNodeHashes.Dispose();
         }
