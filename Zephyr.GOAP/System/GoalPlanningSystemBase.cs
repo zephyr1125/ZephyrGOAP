@@ -73,7 +73,7 @@ namespace Zephyr.GOAP.System
             
             //找到最急需的一个goal
             var goal = GetMostPriorityGoal();
-            var goalStates = new StateGroup(1, Allocator.TempJob) {goal.State};
+            var goalRequires = new StateGroup(1, Allocator.TempJob) {goal.State};
 
             //从currentState的存储Entity上拿取current states
             var currentStateBuffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
@@ -99,11 +99,12 @@ namespace Zephyr.GOAP.System
 
             var goalPrecondition = new StateGroup();
             var goalEffects = new StateGroup();
-            var goalNode = new Node(ref goalPrecondition, ref goalEffects, ref goalStates,
+            var goalDeltas = new StateGroup();
+            var goalNode = new Node(ref goalPrecondition, ref goalEffects, ref goalRequires, ref goalDeltas,
                 "goal", 0, 0, 0, Entity.Null);
             
             //goalNode进入graph
-            nodeGraph.SetGoalNode(goalNode, ref goalStates);
+            nodeGraph.SetGoalNode(goalNode, ref goalRequires);
 
             //goalNode进入待检查列表
             uncheckedNodes.Add(goalNode.HashCode, goalNode);
@@ -201,7 +202,7 @@ namespace Zephyr.GOAP.System
             expandedNodes.Dispose();
             nodeGraph.Dispose();
             
-            goalStates.Dispose();
+            goalRequires.Dispose();
             agentMoveSpeeds.Dispose();
             agentStartTimes.Dispose();
             agentEntities.Dispose();
@@ -476,25 +477,29 @@ namespace Zephyr.GOAP.System
             var existedNodesHash = nodeGraph.GetAllNodesHash(Allocator.TempJob);
             nodeGraph.GetRequires(ref unexpandedNodes,
                 out var requires, Allocator.TempJob);
+            nodeGraph.GetDeltas(ref unexpandedNodes,
+                out var deltas, Allocator.TempJob);
             var nodesWriter = nodeGraph.NodesWriter;
             var nodeToParentsWriter = nodeGraph.NodeToParentsWriter;
-            var requireHashesWriter = nodeGraph.RequireHashesWriter;
-            
+
             var statesWriter = nodeGraph.StatesWriter;
             var effectHashesWriter = nodeGraph.EffectHashesWriter;
             var preconditionHashesWriter = nodeGraph.PreconditionHashesWriter;
+            var requireHashesWriter = nodeGraph.RequireHashesWriter;
+            var deltaHashesWriter = nodeGraph.DeltaHashesWriter;
             
             var handle = default(JobHandle);
             
             handle = ScheduleAllActionExpand(handle, ref stackData,
-                ref unexpandedNodes, ref existedNodesHash,  ref requires, nodesWriter,
+                ref unexpandedNodes, ref existedNodesHash,  ref requires, ref deltas, nodesWriter,
                 nodeToParentsWriter, statesWriter, preconditionHashesWriter,
-                effectHashesWriter, requireHashesWriter,
+                effectHashesWriter, requireHashesWriter, deltaHashesWriter,
                 ref uncheckedNodes, iteration);
 
             handle.Complete();
             existedNodesHash.Dispose();
             requires.Dispose();
+            deltas.Dispose();
             
             expandedNodes.AddRange(unexpandedNodes);
             unexpandedNodes.Clear();
@@ -504,24 +509,28 @@ namespace Zephyr.GOAP.System
             ref StackData stackData, ref NativeList<Node> unexpandedNodes,
             ref NativeArray<int> existedNodesHash,
             ref NativeList<ValueTuple<int, State>> requires,
+            ref NativeList<ValueTuple<int, State>> deltas,
             NativeHashMap<int, Node>.ParallelWriter nodesWriter,
             NativeList<ValueTuple<int, int>>.ParallelWriter nodeToParentsWriter,
             NativeHashMap<int, State>.ParallelWriter statesWriter,
             NativeList<ValueTuple<int, int>>.ParallelWriter preconditionHashesWriter,
             NativeList<ValueTuple<int, int>>.ParallelWriter effectHashesWriter,
             NativeList<ValueTuple<int, int>>.ParallelWriter requireHashesWriter,
+            NativeList<ValueTuple<int, int>>.ParallelWriter deltaHashesWriter, 
             ref NativeHashMap<int, Node>.ParallelWriter newlyCreatedNodesWriter, int iteration);
         
         protected JobHandle ScheduleActionExpand<T>(JobHandle handle,
             ref StackData stackData, ref NativeList<Node> unexpandedNodes,
             ref NativeArray<int> existedNodesHash,
             ref NativeList<ValueTuple<int, State>> requires,
+            ref NativeList<ValueTuple<int, State>> deltas,
             NativeHashMap<int, Node>.ParallelWriter nodesWriter,
             NativeList<ValueTuple<int, int>>.ParallelWriter nodeToParentsWriter,
             NativeHashMap<int, State>.ParallelWriter statesWriter,
             NativeList<ValueTuple<int, int>>.ParallelWriter preconditionHashesWriter,
             NativeList<ValueTuple<int, int>>.ParallelWriter effectHashesWriter,
             NativeList<ValueTuple<int, int>>.ParallelWriter requireHashesWriter, 
+            NativeList<ValueTuple<int, int>>.ParallelWriter deltaHashesWriter, 
             ref NativeHashMap<int, Node>.ParallelWriter newlyCreatedNodesWriter, int iteration) where T : struct, IAction, IComponentData
         {
             var agentCount = 0;
@@ -554,8 +563,9 @@ namespace Zephyr.GOAP.System
                 
                 var action = EntityManager.GetComponentData<T>(agentEntity);
                 handle = new ActionExpandJob<T>(ref unexpandedNodes, ref existedNodesHash,
-                    ref stackData, ref requires, nodesWriter, nodeToParentsWriter,
-                    statesWriter, preconditionHashesWriter, effectHashesWriter,requireHashesWriter,
+                    ref stackData, ref requires, ref deltas, nodesWriter, nodeToParentsWriter,
+                    statesWriter, 
+                    preconditionHashesWriter, effectHashesWriter, requireHashesWriter, deltaHashesWriter,
                     ref newlyCreatedNodesWriter, iteration, action).Schedule(
                     unexpandedNodes, 6, handle);
                 

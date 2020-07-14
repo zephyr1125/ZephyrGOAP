@@ -20,6 +20,9 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         [ReadOnly]
         private NativeList<ValueTuple<int, State>> _requires;
         
+        [ReadOnly]
+        private NativeList<ValueTuple<int, State>> _deltas;
+        
         /// <summary>
         /// NodeGraph中现存所有Node的hash
         /// </summary>
@@ -38,6 +41,8 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         
         private NativeList<ValueTuple<int, int>>.ParallelWriter _requireHashesWriter;
         
+        private NativeList<ValueTuple<int, int>>.ParallelWriter _deltaHashesWriter;
+        
         private NativeHashMap<int, Node>.ParallelWriter _newlyCreatedNodesWriter;
 
         private readonly int _iteration;
@@ -47,18 +52,21 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         public ActionExpandJob(ref NativeList<Node> unexpandedNodes, 
             ref NativeArray<int> existedNodesHash, ref StackData stackData,
             ref NativeList<ValueTuple<int, State>> requires,
+            ref NativeList<ValueTuple<int, State>> deltas,
             NativeHashMap<int, Node>.ParallelWriter nodesWriter,
             NativeList<ValueTuple<int, int>>.ParallelWriter nodeToParentsWriter,
             NativeHashMap<int, State>.ParallelWriter statesWriter,
             NativeList<ValueTuple<int, int>>.ParallelWriter preconditionHashesWriter, 
             NativeList<ValueTuple<int, int>>.ParallelWriter effectHashesWriter, 
             NativeList<ValueTuple<int, int>>.ParallelWriter requireHashesWriter, 
+            NativeList<ValueTuple<int, int>>.ParallelWriter deltaHashesWriter, 
             ref NativeHashMap<int, Node>.ParallelWriter newlyCreatedNodesWriter, int iteration, T action)
         {
             _unexpandedNodes = unexpandedNodes;
             _existedNodesHash = existedNodesHash;
             _stackData = stackData;
             _requires = requires;
+            _deltas = deltas;
             _nodesWriter = nodesWriter;
             _nodeToParentsWriter = nodeToParentsWriter;
             
@@ -66,6 +74,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             _preconditionHashesWriter = preconditionHashesWriter;
             _effectHashesWriter = effectHashesWriter;
             _requireHashesWriter = requireHashesWriter;
+            _deltaHashesWriter = deltaHashesWriter;
             
             _newlyCreatedNodesWriter = newlyCreatedNodesWriter;
             _iteration = iteration;
@@ -75,25 +84,35 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         public void Execute(int jobIndex)
         {
             var unexpandedNode = _unexpandedNodes[jobIndex];
-            //只考虑node的首个state
-            var sortedStates = new ZephyrNativeMinHeap<State>(Allocator.Temp);
+            
+            //只考虑node的首个require
+            var sortedRequires = new ZephyrNativeMinHeap<State>(Allocator.Temp);
             for (var i = 0; i < _requires.Length; i++)
             {
                 var (hash, state) = _requires[i];
                 if (!hash.Equals(unexpandedNode.HashCode)) continue;
                 var priority = state.Target.Index;
-                sortedStates.Add(new MinHashNode<State>(state, priority));
+                sortedRequires.Add(new MinHashNode<State>(state, priority));
             }
-            var leftStates = new StateGroup(sortedStates, Allocator.Temp);
-            var targetStates = new StateGroup(leftStates, 1, Allocator.Temp);
-            sortedStates.Dispose();
+            var leftRequires = new StateGroup(sortedRequires, Allocator.Temp);
+            var targetRequires = new StateGroup(leftRequires, 1, Allocator.Temp);
+            sortedRequires.Dispose();
             
-            var targetState = _action.GetTargetGoalState(ref targetStates, ref _stackData);
-            targetStates.Dispose();
+            var targetRequire = _action.GetTargetRequire(ref targetRequires, ref _stackData);
+            targetRequires.Dispose();
 
-            if (!targetState.Equals(State.Null))
+            if (!targetRequire.Equals(State.Null))
             {
-                var settings = _action.GetSettings(ref targetState, ref _stackData, Allocator.Temp);
+                //提取属于本node的deltas
+                var deltas = new StateGroup(2, Allocator.Temp);
+                for (var i = 0; i < _deltas.Length; i++)
+                {
+                    var (hash, state) = _deltas[i];
+                    if (!hash.Equals(unexpandedNode.HashCode)) continue;
+                    deltas.Add(state);
+                }
+                
+                var settings = _action.GetSettings(ref targetRequire, ref _stackData, Allocator.Temp);
 
                 for (var i=0; i<settings.Length(); i++)
                 {
@@ -101,46 +120,46 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     var preconditions = new StateGroup(1, Allocator.Temp);
                     var effects = new StateGroup(1, Allocator.Temp);
 
-                    _action.GetPreconditions(ref targetState, ref setting, ref _stackData, ref preconditions);
-                    //为了避免没有state的node(例如wander)与startNode有相同的hash，这种node被强制给了一个空state
-                    // if(preconditions.Length()==0)preconditions.Add(new State());
+                    _action.GetPreconditions(ref targetRequire, ref setting, ref _stackData, ref preconditions);
 
-                    _action.GetEffects(ref targetState, ref setting, ref _stackData, ref effects);
+                    _action.GetEffects(ref targetRequire, ref setting, ref _stackData, ref effects);
 
                     if (effects.Length() > 0)
                     {
-                        var newStates = new StateGroup(leftStates, Allocator.Temp);
-                        newStates.AND(effects);
-                        newStates.OR(preconditions);
+                        var requires = new StateGroup(leftRequires, Allocator.Temp);
+                        requires.AND(effects);
+                        requires.OR(preconditions);
 
                         var reward =
-                            _action.GetReward(ref targetState, ref setting, ref _stackData);
+                            _action.GetReward(ref targetRequire, ref setting, ref _stackData);
                         
                         var time =
-                            _action.GetExecuteTime(ref targetState, ref setting, ref _stackData);
+                            _action.GetExecuteTime(ref targetRequire, ref setting, ref _stackData);
 
-                        _action.GetNavigatingSubjectInfo(ref targetState, ref setting,
+                        _action.GetNavigatingSubjectInfo(ref targetRequire, ref setting,
                             ref _stackData, ref preconditions, out var subjectType, out var subjectId);
                         
-                        var node = new Node(ref preconditions, ref effects, ref newStates, 
+                        var node = new Node(ref preconditions, ref effects, ref requires, ref deltas,
                             _action.GetName(), reward, time, _iteration,
                             _stackData.AgentEntities[_stackData.CurrentAgentId], subjectType, subjectId);
 
                         var nodeExisted = _existedNodesHash.Contains(node.HashCode);
                         
-                        AddRouteNode(unexpandedNode, node, nodeExisted, ref newStates, 
-                            ref preconditions, ref effects, unexpandedNode, _action.GetName());
+                        AddRouteNode(unexpandedNode, node, nodeExisted, 
+                            ref preconditions, ref effects, ref requires, ref deltas,
+                            unexpandedNode, _action.GetName());
                         _newlyCreatedNodesWriter.TryAdd(node.HashCode, node);
 
-                        newStates.Dispose();
+                        requires.Dispose();
                     }
                 
                     preconditions.Dispose();
                     effects.Dispose();
                 }
                 settings.Dispose();
+                deltas.Dispose();
             }
-            leftStates.Dispose();
+            leftRequires.Dispose();
         }
 
         /// <summary>
@@ -152,8 +171,8 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         /// <param name="actionName"></param>
         /// <returns>此node已存在</returns>
         /// </summary>
-        private void AddRouteNode(Node baseNode, Node newNode, bool nodeExisted, ref StateGroup requires,
-            ref StateGroup preconditions, ref StateGroup effects,
+        private void AddRouteNode(Node baseNode, Node newNode, bool nodeExisted,
+            ref StateGroup preconditions, ref StateGroup effects, ref StateGroup requires, ref StateGroup deltas,
             Node parent, NativeString32 actionName)
         {
             newNode.Name = actionName;
@@ -194,6 +213,17 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     var stateHash = state.GetHashCode();
                     _statesWriter.TryAdd(stateHash, state);
                     _requireHashesWriter.AddNoResize((newNode.HashCode, stateHash));
+                }
+                
+                if (!deltas.Equals(default))
+                {
+                    for(var i=0; i<deltas.Length(); i++)
+                    {
+                        var state = deltas[i];
+                        var stateHash = state.GetHashCode();
+                        _statesWriter.TryAdd(stateHash, state);
+                        _deltaHashesWriter.AddNoResize((newNode.HashCode, stateHash));
+                    }
                 }
             }
         }
