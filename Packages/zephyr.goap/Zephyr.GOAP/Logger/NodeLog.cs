@@ -51,7 +51,7 @@ namespace Zephyr.GOAP.Logger
             reward = node.Reward;
             navigationSubject = new EntityLog(entityManager, node.NavigatingSubject);
             agentExecutorEntity = new EntityLog(entityManager, node.AgentExecutorEntity);
-            states = StateLog.CreateStateLogs(entityManager, nodeGraph.GetNodeStates(node));
+            states = StateLog.CreateStateLogs(entityManager, nodeGraph.GetRequires(node));
             preconditions = StateLog.CreateStateLogs(entityManager, nodeGraph.GetNodePreconditions(node));
             effects = StateLog.CreateStateLogs(entityManager, nodeGraph.GetNodeEffects(node));
             if (
