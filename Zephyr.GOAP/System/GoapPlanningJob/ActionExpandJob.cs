@@ -29,14 +29,14 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         private NativeHashMap<int, Node>.ParallelWriter _nodesWriter;
         
         private NativeList<ValueTuple<int, int>>.ParallelWriter _nodeToParentsWriter;
-        
-        private NativeList<ValueTuple<int, State>>.ParallelWriter _nodeStatesWriter;
 
         private NativeHashMap<int, State>.ParallelWriter _statesWriter;
         
         private NativeList<ValueTuple<int, int>>.ParallelWriter _preconditionHashesWriter;
         
         private NativeList<ValueTuple<int, int>>.ParallelWriter _effectHashesWriter;
+        
+        private NativeList<ValueTuple<int, int>>.ParallelWriter _nodeStateHashesWriter;
         
         private NativeHashMap<int, Node>.ParallelWriter _newlyCreatedNodesWriter;
 
@@ -49,10 +49,10 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             ref NativeList<ValueTuple<int, State>> nodeStates,
             NativeHashMap<int, Node>.ParallelWriter nodesWriter,
             NativeList<ValueTuple<int, int>>.ParallelWriter nodeToParentsWriter,
-            NativeList<ValueTuple<int, State>>.ParallelWriter nodeStatesWriter, 
             NativeHashMap<int, State>.ParallelWriter statesWriter,
             NativeList<ValueTuple<int, int>>.ParallelWriter preconditionHashesWriter, 
             NativeList<ValueTuple<int, int>>.ParallelWriter effectHashesWriter, 
+            NativeList<ValueTuple<int, int>>.ParallelWriter nodeStateHashesWriter, 
             ref NativeHashMap<int, Node>.ParallelWriter newlyCreatedNodesWriter, int iteration, T action)
         {
             _unexpandedNodes = unexpandedNodes;
@@ -61,10 +61,12 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             _nodeStates = nodeStates;
             _nodesWriter = nodesWriter;
             _nodeToParentsWriter = nodeToParentsWriter;
-            _nodeStatesWriter = nodeStatesWriter;
+            
             _statesWriter = statesWriter;
             _preconditionHashesWriter = preconditionHashesWriter;
             _effectHashesWriter = effectHashesWriter;
+            _nodeStateHashesWriter = nodeStateHashesWriter;
+            
             _newlyCreatedNodesWriter = newlyCreatedNodesWriter;
             _iteration = iteration;
             _action = action;
@@ -162,12 +164,6 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             {
                 _nodesWriter.TryAdd(newNode.HashCode, newNode);
                 
-                for(var i=0; i<nodeStates.Length(); i++)
-                {
-                    var state = nodeStates[i];
-                    _nodeStatesWriter.AddNoResize((newNode.HashCode, state));
-                }
-                
                 if(!preconditions.Equals(default))
                 {
                     for(var i=0; i<preconditions.Length(); i++)
@@ -190,6 +186,14 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                         _statesWriter.TryAdd(stateHash, state);
                         _effectHashesWriter.AddNoResize((newNode.HashCode, stateHash));
                     }
+                }
+                
+                for(var i=0; i<nodeStates.Length(); i++)
+                {
+                    var state = nodeStates[i];
+                    var stateHash = state.GetHashCode();
+                    _statesWriter.TryAdd(stateHash, state);
+                    _nodeStateHashesWriter.AddNoResize((newNode.HashCode, stateHash));
                 }
             }
         }
