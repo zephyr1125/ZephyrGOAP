@@ -21,16 +21,13 @@ namespace Zephyr.GOAP.Struct
         private NativeHashMap<int, State> _states;
 
         [ReadOnly]
-        private NativeHashMap<int, int> _effectHashes;
+        private NativeList<ValueTuple<int,int>> _effectHashes;
         
         [ReadOnly]
         private NativeList<ValueTuple<int,State>> _nodeStates;
         
         [ReadOnly]
         private NativeList<ValueTuple<int,State>> _preconditions;
-        
-        [ReadOnly]
-        private NativeList<ValueTuple<int,State>> _effects;
 
         public NativeList<int> _deadEndNodeHashes;
 
@@ -41,17 +38,16 @@ namespace Zephyr.GOAP.Struct
         
         public int GoalNodeHash { get; private set; }
 
-        public NodeGraph(int initialCapacity, ref DynamicBuffer<State> startNodeStates, Allocator allocator)
+        public NodeGraph(int initialCapacity, ref DynamicBuffer<State> startNodeStates, Allocator allocator) : this()
         {
             _nodes = new NativeHashMap<int, Node>(initialCapacity, allocator);
             
             _nodeToParents = new NativeList<ValueTuple<int, int>>(initialCapacity*4, allocator);
             _nodeStates = new NativeList<ValueTuple<int, State>>(initialCapacity*4, allocator);
             _preconditions = new NativeList<ValueTuple<int, State>>(initialCapacity*4, allocator);
-            _effects = new NativeList<ValueTuple<int, State>>(initialCapacity*4, allocator);
             
             _states = new NativeHashMap<int, State>(initialCapacity*4, allocator);
-            _effectHashes = new NativeHashMap<int, int>(initialCapacity*2, allocator);
+            _effectHashes = new NativeList<ValueTuple<int,int>>(initialCapacity*2, allocator);
             
             _deadEndNodeHashes = new NativeList<int>(allocator);
             
@@ -60,10 +56,18 @@ namespace Zephyr.GOAP.Struct
             _nodes.Add(StartNodeHash, startNode);
             for (var i = 0; i < startNodeStates.Length; i++)
             {
-                _effects.Add((StartNodeHash, startNodeStates[i]));
+               AddEffect(startNodeStates[i], StartNodeHash);
             }
             
             GoalNodeHash = 0;
+        }
+
+        public void AddEffect(State effect, int nodeHash)
+        {
+            var effectHash = effect.GetHashCode();
+            _effectHashes.Add((nodeHash, effectHash));
+            if (_states.ContainsKey(effectHash)) return;
+            _states.Add(effectHash, effect);
         }
 
         public void SetGoalNode(Node goal, ref StateGroup stateGroup)
@@ -94,12 +98,10 @@ namespace Zephyr.GOAP.Struct
         public NativeList<ValueTuple<int, State>>.ParallelWriter NodeStatesWriter => _nodeStates.AsParallelWriter();
         
         public NativeList<ValueTuple<int, State>>.ParallelWriter PreconditionsWriter => _preconditions.AsParallelWriter();
-        
-        public NativeList<ValueTuple<int, State>>.ParallelWriter EffectsWriter => _effects.AsParallelWriter();
 
         public NativeHashMap<int, State>.ParallelWriter StatesWriter => _states.AsParallelWriter();
 
-        public NativeHashMap<int, int>.ParallelWriter EffectHashesWriter =>
+        public NativeList<ValueTuple<int,int>>.ParallelWriter EffectHashesWriter =>
             _effectHashes.AsParallelWriter();
 
         /// <summary>
@@ -289,11 +291,11 @@ namespace Zephyr.GOAP.Struct
         {
             var group = new StateGroup(1, allocator);
             var nodeHash = node.HashCode;
-            for (var i = 0; i < _effects.Length; i++)
+            for (var i = 0; i < _effectHashes.Length; i++)
             {
-                var (hash, state) = _effects[i];
-                if (!hash.Equals(nodeHash)) continue;
-                group.Add(state);
+                var (aNodeHash, effectHash) = _effectHashes[i];
+                if (!nodeHash.Equals(aNodeHash)) continue;
+                group.Add(_states[effectHash]);
             }
 
             return group;
@@ -303,11 +305,11 @@ namespace Zephyr.GOAP.Struct
         {
             var result = new List<State>();
             var nodeHash = node.HashCode;
-            for (var i = 0; i < _effects.Length; i++)
+            for (var i = 0; i < _effectHashes.Length; i++)
             {
-                var (hash, effect) = _effects[i];
-                if (!hash.Equals(nodeHash)) continue;
-                result.Add(effect);
+                var (aNodeHash, effectHash) = _effectHashes[i];
+                if (!nodeHash.Equals(aNodeHash)) continue;
+                result.Add(_states[effectHash]);
             }
 
             return result.ToArray();
@@ -370,22 +372,22 @@ namespace Zephyr.GOAP.Struct
         public void CleanAllDuplicateStates(Node node)
         {
             CleanDuplicateStates(_preconditions, node);
-            CleanDuplicateStates(_effects, node);
+            CleanDuplicateStates(_effectHashes, node);
             CleanDuplicateStates(_nodeStates, node);
         }
         
-        private void CleanDuplicateStates(NativeList<ValueTuple<int, State>> container, Node node)
+        private void CleanDuplicateStates<T>(NativeList<ValueTuple<int, T>> container, Node node)
         {
             var nodeHash = node.HashCode;
             for (var baseId = 0; baseId < container.Length; baseId++)
             {
-                var (hash, state) = container[baseId];
-                if (!hash.Equals(nodeHash)) continue;
+                var (key, value) = container[baseId];
+                if (!key.Equals(nodeHash)) continue;
                 for (var otherId = baseId+1; otherId < container.Length; otherId++)
                 {
-                    var (otherHash, otherState) = container[otherId];
-                    if (!hash.Equals(otherHash)) continue;
-                    if (!state.Equals(otherState)) continue;
+                    var (otherKey, otherValue) = container[otherId];
+                    if (!key.Equals(otherKey)) continue;
+                    if (!value.Equals(otherValue)) continue;
                     container.RemoveAtSwapBack(otherId);
                     otherId--;
                 }
@@ -405,7 +407,6 @@ namespace Zephyr.GOAP.Struct
             _nodeToParents.Dispose();
             _nodeStates.Dispose();
             _preconditions.Dispose();
-            _effects.Dispose();
 
             _states.Dispose();
             _effectHashes.Dispose();

@@ -34,7 +34,9 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         
         private NativeList<ValueTuple<int, State>>.ParallelWriter _preconditionsWriter;
         
-        private NativeList<ValueTuple<int, State>>.ParallelWriter _effectsWriter;
+        private NativeHashMap<int, State>.ParallelWriter _statesWriter;
+        
+        private NativeList<ValueTuple<int, int>>.ParallelWriter _effectHashesWriter;
         
         private NativeHashMap<int, Node>.ParallelWriter _newlyCreatedNodesWriter;
 
@@ -49,7 +51,8 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             NativeList<ValueTuple<int, int>>.ParallelWriter nodeToParentsWriter,
             NativeList<ValueTuple<int, State>>.ParallelWriter nodeStatesWriter, 
             NativeList<ValueTuple<int, State>>.ParallelWriter preconditionsWriter, 
-            NativeList<ValueTuple<int, State>>.ParallelWriter effectsWriter, 
+            NativeHashMap<int, State>.ParallelWriter statesWriter,
+            NativeList<ValueTuple<int, int>>.ParallelWriter effectHashesWriter, 
             ref NativeHashMap<int, Node>.ParallelWriter newlyCreatedNodesWriter, int iteration, T action)
         {
             _unexpandedNodes = unexpandedNodes;
@@ -60,7 +63,8 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             _nodeToParentsWriter = nodeToParentsWriter;
             _nodeStatesWriter = nodeStatesWriter;
             _preconditionsWriter = preconditionsWriter;
-            _effectsWriter = effectsWriter;
+            _statesWriter = statesWriter;
+            _effectHashesWriter = effectHashesWriter;
             _newlyCreatedNodesWriter = newlyCreatedNodesWriter;
             _iteration = iteration;
             _action = action;
@@ -180,7 +184,9 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     for(var i=0; i<effects.Length(); i++)
                     {
                         var state = effects[i];
-                        _effectsWriter.AddNoResize((newNode.HashCode, state));
+                        var stateHash = state.GetHashCode();
+                        _statesWriter.TryAdd(stateHash, state);
+                        _effectHashesWriter.AddNoResize((newNode.HashCode, stateHash));
                     }
                 }
             }

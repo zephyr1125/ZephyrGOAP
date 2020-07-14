@@ -12,40 +12,42 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System
         protected override JobHandle ScheduleAllActionExpand(JobHandle handle, ref StackData stackData,
             ref NativeList<Node> unexpandedNodes, ref NativeArray<int> existedNodesHash, ref NativeList<(int, State)> nodeStates,
             NativeHashMap<int, Node>.ParallelWriter nodesWriter, NativeList<(int, int)>.ParallelWriter nodeToParentsWriter, NativeList<(int, State)>.ParallelWriter nodeStatesWriter,
-            NativeList<(int, State)>.ParallelWriter preconditionsWriter, NativeList<(int, State)>.ParallelWriter effectsWriter,
+            NativeList<(int, State)>.ParallelWriter preconditionsWriter,
+            NativeHashMap<int, State>.ParallelWriter statesWriter,
+            NativeList<(int, int)>.ParallelWriter effectHashesWriter,
             ref NativeHashMap<int, Node>.ParallelWriter newlyCreatedNodesWriter, int iteration)
         {
             handle = ScheduleActionExpand<DropItemAction>(handle, ref stackData,
                 ref unexpandedNodes, ref existedNodesHash, ref nodeStates, nodesWriter,
-                nodeToParentsWriter, nodeStatesWriter, preconditionsWriter, effectsWriter,
+                nodeToParentsWriter, nodeStatesWriter, preconditionsWriter, statesWriter, effectHashesWriter,
                 ref newlyCreatedNodesWriter, iteration);
             handle = ScheduleActionExpand<PickItemAction>(handle, ref stackData,
                 ref unexpandedNodes, ref existedNodesHash, ref nodeStates, nodesWriter,
-                nodeToParentsWriter, nodeStatesWriter, preconditionsWriter, effectsWriter,
+                nodeToParentsWriter, nodeStatesWriter, preconditionsWriter, statesWriter, effectHashesWriter,
                 ref newlyCreatedNodesWriter, iteration);
             handle = ScheduleActionExpand<EatAction>(handle, ref stackData,
                 ref unexpandedNodes, ref existedNodesHash, ref nodeStates, nodesWriter,
-                nodeToParentsWriter, nodeStatesWriter, preconditionsWriter, effectsWriter,
+                nodeToParentsWriter, nodeStatesWriter, preconditionsWriter, statesWriter, effectHashesWriter,
                 ref newlyCreatedNodesWriter, iteration);
             handle = ScheduleActionExpand<CookAction>(handle, ref stackData,
                 ref unexpandedNodes, ref existedNodesHash,  ref nodeStates, nodesWriter,
-                nodeToParentsWriter, nodeStatesWriter, preconditionsWriter, effectsWriter,
+                nodeToParentsWriter, nodeStatesWriter, preconditionsWriter, statesWriter, effectHashesWriter,
                 ref newlyCreatedNodesWriter, iteration);
             handle = ScheduleActionExpand<WanderAction>(handle, ref stackData,
                 ref unexpandedNodes, ref existedNodesHash,  ref nodeStates, nodesWriter,
-                nodeToParentsWriter, nodeStatesWriter, preconditionsWriter, effectsWriter,
+                nodeToParentsWriter, nodeStatesWriter, preconditionsWriter, statesWriter, effectHashesWriter,
                 ref newlyCreatedNodesWriter, iteration);
             handle = ScheduleActionExpand<CollectAction>(handle, ref stackData,
                 ref unexpandedNodes, ref existedNodesHash,  ref nodeStates, nodesWriter,
-                nodeToParentsWriter, nodeStatesWriter, preconditionsWriter, effectsWriter,
+                nodeToParentsWriter, nodeStatesWriter, preconditionsWriter, statesWriter, effectHashesWriter,
                 ref newlyCreatedNodesWriter, iteration);
             handle = ScheduleActionExpand<PickRawAction>(handle,ref stackData,
                 ref unexpandedNodes, ref existedNodesHash,  ref nodeStates, nodesWriter,
-                nodeToParentsWriter, nodeStatesWriter, preconditionsWriter, effectsWriter,
+                nodeToParentsWriter, nodeStatesWriter, preconditionsWriter, statesWriter, effectHashesWriter,
                 ref newlyCreatedNodesWriter, iteration);
             handle = ScheduleActionExpand<DropRawAction>(handle, ref stackData,
                 ref unexpandedNodes, ref existedNodesHash,  ref nodeStates, nodesWriter,
-                nodeToParentsWriter, nodeStatesWriter, preconditionsWriter, effectsWriter,
+                nodeToParentsWriter, nodeStatesWriter, preconditionsWriter, statesWriter, effectHashesWriter,
                 ref newlyCreatedNodesWriter, iteration);
             
             return handle;
