@@ -157,7 +157,8 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             {
                 Target = newCookerEntity,
                 Trait = typeof(ItemDestinationTrait),
-                ValueString = Sample.Utils.RawPeachName,
+                ValueString = Utils.RawPeachName,
+                Amount = 1
             });
             
             var goal = GetGoal();

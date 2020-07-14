@@ -132,14 +132,16 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
                 Target = _rawAppleEntity,
                 Position = new float3(5,0,0),
                 Trait = typeof(RawSourceTrait),
-                ValueString = "raw_apple"
+                ValueString = Utils.RawAppleName,
+                Amount = 1
             });
             buffer.Add(new State
             {
                 Target = _rawPeachEntity,
                 Position = new float3(6,0,0),
                 Trait = typeof(RawSourceTrait),
-                ValueString = Sample.Utils.RawPeachName
+                ValueString = Utils.RawPeachName,
+                Amount = 1
             });
 
             var recipeSensorSystem = World.GetOrCreateSystem<RecipeSensorSystem>();

@@ -4,9 +4,7 @@ using Unity.Entities;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Action;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
-using Zephyr.GOAP.Struct;
 using Zephyr.GOAP.System;
-using Zephyr.GOAP.Tests;
 
 namespace Zephyr.GOAP.Sample.Tests.ActionExpand
 {
@@ -45,6 +43,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
                 Target = _diningTableEntity,
                 Trait = typeof(ItemDestinationTrait),
                 ValueString = "raw_apple",
+                Amount = 1
             });
         }
 
@@ -69,6 +68,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
                 Target = _diningTableEntity,
                 Trait = typeof(ItemDestinationTrait),
                 ValueString = "roast_apple",
+                Amount = 1
             });
             
             _system.Update();

@@ -50,13 +50,15 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             {
                 Target = _collectorEntity,
                 Trait = typeof(ItemPotentialSourceTrait),
-                ValueString = Sample.Utils.RawPeachName
+                ValueString = Utils.RawPeachName,
+                Amount = 1
             });
             buffer.Add(new State
             {
                 Target = _collectorEntity,
                 Trait = typeof(RawDestinationTrait),
-                ValueString = Sample.Utils.RawPeachName
+                ValueString = Utils.RawPeachName,
+                Amount = 1
             });
         }
 
@@ -118,13 +120,13 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             {
                 Target = newCollectorEntity,
                 Trait = typeof(ItemPotentialSourceTrait),
-                ValueString = Sample.Utils.RawPeachName,
+                ValueString = Utils.RawPeachName,
             });
             buffer.Add(new State
             {
                 Target = newCollectorEntity,
                 Trait = typeof(RawDestinationTrait),
-                ValueString = Sample.Utils.RawPeachName
+                ValueString = Utils.RawPeachName
             });
             
             _system.Update();
@@ -152,7 +154,8 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
                 Target = itemSourceEntity,
                 Position = new float3(2,0,0),
                 Trait = typeof(ItemSourceTrait),
-                ValueString = Utils.RawPeachName
+                ValueString = Utils.RawPeachName,
+                Amount = 1
             });
             
             _system.Update();

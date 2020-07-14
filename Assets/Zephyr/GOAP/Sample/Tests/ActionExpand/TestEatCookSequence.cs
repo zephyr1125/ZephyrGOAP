@@ -52,6 +52,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
                 Target = _itemSourceEntity,
                 Trait = typeof(ItemSourceTrait),
                 ValueString = "raw_apple",
+                Amount = 1
             });
             buffer.Add(new State
             {
