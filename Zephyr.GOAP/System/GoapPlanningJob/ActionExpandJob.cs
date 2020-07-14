@@ -31,10 +31,10 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         private NativeList<ValueTuple<int, int>>.ParallelWriter _nodeToParentsWriter;
         
         private NativeList<ValueTuple<int, State>>.ParallelWriter _nodeStatesWriter;
-        
-        private NativeList<ValueTuple<int, State>>.ParallelWriter _preconditionsWriter;
-        
+
         private NativeHashMap<int, State>.ParallelWriter _statesWriter;
+        
+        private NativeList<ValueTuple<int, int>>.ParallelWriter _preconditionHashesWriter;
         
         private NativeList<ValueTuple<int, int>>.ParallelWriter _effectHashesWriter;
         
@@ -50,8 +50,8 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             NativeHashMap<int, Node>.ParallelWriter nodesWriter,
             NativeList<ValueTuple<int, int>>.ParallelWriter nodeToParentsWriter,
             NativeList<ValueTuple<int, State>>.ParallelWriter nodeStatesWriter, 
-            NativeList<ValueTuple<int, State>>.ParallelWriter preconditionsWriter, 
             NativeHashMap<int, State>.ParallelWriter statesWriter,
+            NativeList<ValueTuple<int, int>>.ParallelWriter preconditionHashesWriter, 
             NativeList<ValueTuple<int, int>>.ParallelWriter effectHashesWriter, 
             ref NativeHashMap<int, Node>.ParallelWriter newlyCreatedNodesWriter, int iteration, T action)
         {
@@ -62,8 +62,8 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             _nodesWriter = nodesWriter;
             _nodeToParentsWriter = nodeToParentsWriter;
             _nodeStatesWriter = nodeStatesWriter;
-            _preconditionsWriter = preconditionsWriter;
             _statesWriter = statesWriter;
+            _preconditionHashesWriter = preconditionHashesWriter;
             _effectHashesWriter = effectHashesWriter;
             _newlyCreatedNodesWriter = newlyCreatedNodesWriter;
             _iteration = iteration;
@@ -173,7 +173,9 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     for(var i=0; i<preconditions.Length(); i++)
                     {
                         var state = preconditions[i];
-                        _preconditionsWriter.AddNoResize((newNode.HashCode, state));
+                        var stateHash = state.GetHashCode();
+                        _statesWriter.TryAdd(stateHash, state);
+                        _preconditionHashesWriter.AddNoResize((newNode.HashCode, stateHash));
                     }
                 }
 
