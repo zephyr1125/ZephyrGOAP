@@ -480,13 +480,14 @@ namespace Zephyr.GOAP.System
             var nodeToParentsWriter = nodeGraph.NodeToParentsWriter;
             var nodeStatesWriter = nodeGraph.NodeStatesWriter;
             var preconditionsWriter = nodeGraph.PreconditionsWriter;
-            var effectsWriter = nodeGraph.EffectsWriter;
+            var statesWriter = nodeGraph.StatesWriter;
+            var effectHashesWriter = nodeGraph.EffectHashesWriter;
             
             var handle = default(JobHandle);
             
             handle = ScheduleAllActionExpand(handle, ref stackData,
                 ref unexpandedNodes, ref existedNodesHash,  ref nodeStates, nodesWriter,
-                nodeToParentsWriter, nodeStatesWriter, preconditionsWriter, effectsWriter,
+                nodeToParentsWriter, nodeStatesWriter, preconditionsWriter, statesWriter, effectHashesWriter,
                 ref uncheckedNodes, iteration);
 
             handle.Complete();
@@ -505,7 +506,8 @@ namespace Zephyr.GOAP.System
             NativeList<ValueTuple<int, int>>.ParallelWriter nodeToParentsWriter,
             NativeList<ValueTuple<int, State>>.ParallelWriter nodeStatesWriter,
             NativeList<ValueTuple<int, State>>.ParallelWriter preconditionsWriter,
-            NativeList<ValueTuple<int, State>>.ParallelWriter effectsWriter,
+            NativeHashMap<int, State>.ParallelWriter stateWriter,
+            NativeList<ValueTuple<int, int>>.ParallelWriter effectHashesWriter,
             ref NativeHashMap<int, Node>.ParallelWriter newlyCreatedNodesWriter, int iteration);
         
         protected JobHandle ScheduleActionExpand<T>(JobHandle handle,
@@ -516,7 +518,8 @@ namespace Zephyr.GOAP.System
             NativeList<ValueTuple<int, int>>.ParallelWriter nodeToParentsWriter,
             NativeList<ValueTuple<int, State>>.ParallelWriter nodeStatesWriter, 
             NativeList<ValueTuple<int, State>>.ParallelWriter preconditionsWriter, 
-            NativeList<ValueTuple<int, State>>.ParallelWriter effectsWriter, 
+            NativeHashMap<int, State>.ParallelWriter statesWriter,
+            NativeList<ValueTuple<int, int>>.ParallelWriter effectHashesWriter,
             ref NativeHashMap<int, Node>.ParallelWriter newlyCreatedNodesWriter, int iteration) where T : struct, IAction, IComponentData
         {
             var agentCount = 0;
@@ -550,7 +553,7 @@ namespace Zephyr.GOAP.System
                 var action = EntityManager.GetComponentData<T>(agentEntity);
                 handle = new ActionExpandJob<T>(ref unexpandedNodes, ref existedNodesHash,
                     ref stackData, ref nodeStates, nodesWriter,
-                    nodeToParentsWriter, nodeStatesWriter, preconditionsWriter, effectsWriter,
+                    nodeToParentsWriter, nodeStatesWriter, preconditionsWriter, statesWriter, effectHashesWriter,
                     ref newlyCreatedNodesWriter, iteration, action).Schedule(
                     unexpandedNodes, 6, handle);
                 
