@@ -16,6 +16,12 @@ namespace Zephyr.GOAP.Struct
         
         [ReadOnly]
         private NativeList<ValueTuple<int,int>> _nodeToParents;
+
+        [ReadOnly]
+        private NativeHashMap<int, State> _states;
+
+        [ReadOnly]
+        private NativeHashMap<int, int> _effectHashes;
         
         [ReadOnly]
         private NativeList<ValueTuple<int,State>> _nodeStates;
@@ -43,6 +49,9 @@ namespace Zephyr.GOAP.Struct
             _nodeStates = new NativeList<ValueTuple<int, State>>(initialCapacity*4, allocator);
             _preconditions = new NativeList<ValueTuple<int, State>>(initialCapacity*4, allocator);
             _effects = new NativeList<ValueTuple<int, State>>(initialCapacity*4, allocator);
+            
+            _states = new NativeHashMap<int, State>(initialCapacity*4, allocator);
+            _effectHashes = new NativeHashMap<int, int>(initialCapacity*2, allocator);
             
             _deadEndNodeHashes = new NativeList<int>(allocator);
             
@@ -87,6 +96,11 @@ namespace Zephyr.GOAP.Struct
         public NativeList<ValueTuple<int, State>>.ParallelWriter PreconditionsWriter => _preconditions.AsParallelWriter();
         
         public NativeList<ValueTuple<int, State>>.ParallelWriter EffectsWriter => _effects.AsParallelWriter();
+
+        public NativeHashMap<int, State>.ParallelWriter StatesWriter => _states.AsParallelWriter();
+
+        public NativeHashMap<int, int>.ParallelWriter EffectHashesWriter =>
+            _effectHashes.AsParallelWriter();
 
         /// <summary>
         /// 追加对起点的链接
@@ -392,6 +406,9 @@ namespace Zephyr.GOAP.Struct
             _nodeStates.Dispose();
             _preconditions.Dispose();
             _effects.Dispose();
+
+            _states.Dispose();
+            _effectHashes.Dispose();
 
             _deadEndNodeHashes.Dispose();
         }
