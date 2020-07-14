@@ -24,10 +24,10 @@ namespace Zephyr.GOAP.Struct
         private NativeList<ValueTuple<int,int>> _effectHashes;
         
         [ReadOnly]
-        private NativeList<ValueTuple<int,State>> _nodeStates;
+        private NativeList<ValueTuple<int,int>> _preconditionHashes;
         
         [ReadOnly]
-        private NativeList<ValueTuple<int,State>> _preconditions;
+        private NativeList<ValueTuple<int,State>> _nodeStates;
 
         public NativeList<int> _deadEndNodeHashes;
 
@@ -44,10 +44,10 @@ namespace Zephyr.GOAP.Struct
             
             _nodeToParents = new NativeList<ValueTuple<int, int>>(initialCapacity*4, allocator);
             _nodeStates = new NativeList<ValueTuple<int, State>>(initialCapacity*4, allocator);
-            _preconditions = new NativeList<ValueTuple<int, State>>(initialCapacity*4, allocator);
             
             _states = new NativeHashMap<int, State>(initialCapacity*4, allocator);
             _effectHashes = new NativeList<ValueTuple<int,int>>(initialCapacity*2, allocator);
+            _preconditionHashes = new NativeList<ValueTuple<int,int>>(initialCapacity*2, allocator);
             
             _deadEndNodeHashes = new NativeList<int>(allocator);
             
@@ -96,13 +96,14 @@ namespace Zephyr.GOAP.Struct
         public NativeList<ValueTuple<int, int>>.ParallelWriter NodeToParentsWriter => _nodeToParents.AsParallelWriter();
         
         public NativeList<ValueTuple<int, State>>.ParallelWriter NodeStatesWriter => _nodeStates.AsParallelWriter();
-        
-        public NativeList<ValueTuple<int, State>>.ParallelWriter PreconditionsWriter => _preconditions.AsParallelWriter();
 
         public NativeHashMap<int, State>.ParallelWriter StatesWriter => _states.AsParallelWriter();
 
         public NativeList<ValueTuple<int,int>>.ParallelWriter EffectHashesWriter =>
             _effectHashes.AsParallelWriter();
+        
+        public NativeList<ValueTuple<int,int>>.ParallelWriter PreconditionHashesWriter =>
+            _preconditionHashes.AsParallelWriter();
 
         /// <summary>
         /// 追加对起点的链接
@@ -263,11 +264,11 @@ namespace Zephyr.GOAP.Struct
         {
             var group = new StateGroup(1, allocator);
             var nodeHash = node.HashCode;
-            for (var i = 0; i < _preconditions.Length; i++)
+            for (var i = 0; i < _preconditionHashes.Length; i++)
             {
-                var (hash, precondition) = _preconditions[i];
-                if (!hash.Equals(nodeHash)) continue;
-                group.Add(precondition);
+                var (aNodeHash, preconditionHash) = _preconditionHashes[i];
+                if (!aNodeHash.Equals(nodeHash)) continue;
+                group.Add(_states[preconditionHash]);
             }
 
             return group;
@@ -277,11 +278,11 @@ namespace Zephyr.GOAP.Struct
         {
             var result = new List<State>();
             var nodeHash = node.HashCode;
-            for (var i = 0; i < _preconditions.Length; i++)
+            for (var i = 0; i < _preconditionHashes.Length; i++)
             {
-                var (hash, precondition) = _preconditions[i];
-                if (!hash.Equals(nodeHash)) continue;
-                result.Add(precondition);
+                var (aNodeHash, preconditionHash) = _preconditionHashes[i];
+                if (!aNodeHash.Equals(nodeHash)) continue;
+                result.Add(_states[preconditionHash]);
             }
 
             return result.ToArray();
@@ -371,7 +372,7 @@ namespace Zephyr.GOAP.Struct
         /// <param name="node"></param>
         public void CleanAllDuplicateStates(Node node)
         {
-            CleanDuplicateStates(_preconditions, node);
+            CleanDuplicateStates(_preconditionHashes, node);
             CleanDuplicateStates(_effectHashes, node);
             CleanDuplicateStates(_nodeStates, node);
         }
@@ -406,10 +407,10 @@ namespace Zephyr.GOAP.Struct
 
             _nodeToParents.Dispose();
             _nodeStates.Dispose();
-            _preconditions.Dispose();
 
             _states.Dispose();
             _effectHashes.Dispose();
+            _preconditionHashes.Dispose();
 
             _deadEndNodeHashes.Dispose();
         }
