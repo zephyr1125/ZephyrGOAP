@@ -388,15 +388,15 @@ namespace Zephyr.GOAP.System
                 Debugger?.Log("check node: "+uncheckedNode.Name);
                 nodeGraph.CleanAllDuplicateStates(uncheckedNode);
                 
-                var uncheckedStates = nodeGraph.GetNodeStates(uncheckedNode, Allocator.Temp, true);
-                uncheckedStates.AND(currentStates);
-                //对这些state调整后重新放回nodeGraph
-                nodeGraph.AddNodeStates(uncheckedStates, uncheckedNode.HashCode);
+                var uncheckedRequires = nodeGraph.GetRequires(uncheckedNode, Allocator.Temp, true);
+                uncheckedRequires.AND(currentStates);
+                //对这些require调整后重新放回nodeGraph
+                nodeGraph.AddRequires(uncheckedRequires, uncheckedNode.HashCode);
                 
                 //为了避免没有state的node(例如wander)与startNode有相同的hash，这种node被强制给了一个空state
                 //因此在只有1个state且内容为空时，也应视为找到了plan
-                if (uncheckedStates.Length() <= 0 ||
-                    (uncheckedStates.Length()==1 && uncheckedStates[0].Equals(default)))
+                if (uncheckedRequires.Length() <= 0 ||
+                    (uncheckedRequires.Length()==1 && uncheckedRequires[0].Equals(default)))
                 {
                     //找到Plan，追加起点Node
                     Debugger?.Log("found plan: "+uncheckedNode.Name);
@@ -427,7 +427,7 @@ namespace Zephyr.GOAP.System
                     //没有产生循环，则把此node置入待展开列表
                     //如果这个node没有state，例如WanderAction
                     //则不需要继续展开了
-                    if (uncheckedStates.Length() > 0)
+                    if (uncheckedRequires.Length() > 0)
                     {
                         unexpandedNodes.Add(uncheckedNode);
                     }
@@ -437,7 +437,7 @@ namespace Zephyr.GOAP.System
                     //否则的话此node进入dead end 列表，以供debug查看
                     nodeGraph.AddDeadEndNode(uncheckedNode.HashCode);
                 }
-                uncheckedStates.Dispose();
+                uncheckedRequires.Dispose();
             }
 
             nodes.Dispose();
@@ -474,11 +474,11 @@ namespace Zephyr.GOAP.System
             }
 
             var existedNodesHash = nodeGraph.GetAllNodesHash(Allocator.TempJob);
-            nodeGraph.GetNodeStates(ref unexpandedNodes,
-                out var nodeStates, Allocator.TempJob);
+            nodeGraph.GetRequires(ref unexpandedNodes,
+                out var requires, Allocator.TempJob);
             var nodesWriter = nodeGraph.NodesWriter;
             var nodeToParentsWriter = nodeGraph.NodeToParentsWriter;
-            var nodeStateHashesWriter = nodeGraph.NodeStateHashesWriter;
+            var requireHashesWriter = nodeGraph.RequireHashesWriter;
             
             var statesWriter = nodeGraph.StatesWriter;
             var effectHashesWriter = nodeGraph.EffectHashesWriter;
@@ -487,14 +487,14 @@ namespace Zephyr.GOAP.System
             var handle = default(JobHandle);
             
             handle = ScheduleAllActionExpand(handle, ref stackData,
-                ref unexpandedNodes, ref existedNodesHash,  ref nodeStates, nodesWriter,
+                ref unexpandedNodes, ref existedNodesHash,  ref requires, nodesWriter,
                 nodeToParentsWriter, statesWriter, preconditionHashesWriter,
-                effectHashesWriter, nodeStateHashesWriter,
+                effectHashesWriter, requireHashesWriter,
                 ref uncheckedNodes, iteration);
 
             handle.Complete();
             existedNodesHash.Dispose();
-            nodeStates.Dispose();
+            requires.Dispose();
             
             expandedNodes.AddRange(unexpandedNodes);
             unexpandedNodes.Clear();
@@ -503,25 +503,25 @@ namespace Zephyr.GOAP.System
         protected abstract JobHandle ScheduleAllActionExpand(JobHandle handle,
             ref StackData stackData, ref NativeList<Node> unexpandedNodes,
             ref NativeArray<int> existedNodesHash,
-            ref NativeList<ValueTuple<int, State>> nodeStates,
+            ref NativeList<ValueTuple<int, State>> requires,
             NativeHashMap<int, Node>.ParallelWriter nodesWriter,
             NativeList<ValueTuple<int, int>>.ParallelWriter nodeToParentsWriter,
             NativeHashMap<int, State>.ParallelWriter statesWriter,
             NativeList<ValueTuple<int, int>>.ParallelWriter preconditionHashesWriter,
             NativeList<ValueTuple<int, int>>.ParallelWriter effectHashesWriter,
-            NativeList<ValueTuple<int, int>>.ParallelWriter nodeStateHashesWriter,
+            NativeList<ValueTuple<int, int>>.ParallelWriter requireHashesWriter,
             ref NativeHashMap<int, Node>.ParallelWriter newlyCreatedNodesWriter, int iteration);
         
         protected JobHandle ScheduleActionExpand<T>(JobHandle handle,
             ref StackData stackData, ref NativeList<Node> unexpandedNodes,
             ref NativeArray<int> existedNodesHash,
-            ref NativeList<ValueTuple<int, State>> nodeStates,
+            ref NativeList<ValueTuple<int, State>> requires,
             NativeHashMap<int, Node>.ParallelWriter nodesWriter,
             NativeList<ValueTuple<int, int>>.ParallelWriter nodeToParentsWriter,
             NativeHashMap<int, State>.ParallelWriter statesWriter,
             NativeList<ValueTuple<int, int>>.ParallelWriter preconditionHashesWriter,
             NativeList<ValueTuple<int, int>>.ParallelWriter effectHashesWriter,
-            NativeList<ValueTuple<int, int>>.ParallelWriter nodeStateHashesWriter, 
+            NativeList<ValueTuple<int, int>>.ParallelWriter requireHashesWriter, 
             ref NativeHashMap<int, Node>.ParallelWriter newlyCreatedNodesWriter, int iteration) where T : struct, IAction, IComponentData
         {
             var agentCount = 0;
@@ -536,9 +536,9 @@ namespace Zephyr.GOAP.System
                 {
                     if (sameAgent) break;
                     var unexpandedNode = unexpandedNodes[nodeId];
-                    for (var stateId = 0; stateId < nodeStates.Length; stateId++)
+                    for (var stateId = 0; stateId < requires.Length; stateId++)
                     {
-                        var (hash, state) = nodeStates[stateId];
+                        var (hash, state) = requires[stateId];
                         if (!hash.Equals(unexpandedNode.HashCode)) continue;
                         if (!state.Target.Equals(agentEntity)) continue;
                         sameAgent = true;
@@ -554,8 +554,8 @@ namespace Zephyr.GOAP.System
                 
                 var action = EntityManager.GetComponentData<T>(agentEntity);
                 handle = new ActionExpandJob<T>(ref unexpandedNodes, ref existedNodesHash,
-                    ref stackData, ref nodeStates, nodesWriter, nodeToParentsWriter,
-                    statesWriter, preconditionHashesWriter, effectHashesWriter,nodeStateHashesWriter,
+                    ref stackData, ref requires, nodesWriter, nodeToParentsWriter,
+                    statesWriter, preconditionHashesWriter, effectHashesWriter,requireHashesWriter,
                     ref newlyCreatedNodesWriter, iteration, action).Schedule(
                     unexpandedNodes, 6, handle);
                 

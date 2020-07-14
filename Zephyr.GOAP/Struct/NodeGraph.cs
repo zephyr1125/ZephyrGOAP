@@ -25,7 +25,7 @@ namespace Zephyr.GOAP.Struct
         private NativeList<ValueTuple<int,int>> _preconditionHashes;
         
         [ReadOnly]
-        private NativeList<ValueTuple<int,int>> _nodeStateHashes;
+        private NativeList<ValueTuple<int,int>> _requireHashes;
 
 
         public NativeList<int> _deadEndNodeHashes;
@@ -37,7 +37,7 @@ namespace Zephyr.GOAP.Struct
         
         public int GoalNodeHash { get; private set; }
 
-        public NodeGraph(int initialCapacity, ref DynamicBuffer<State> startNodeStates, Allocator allocator) : this()
+        public NodeGraph(int initialCapacity, ref DynamicBuffer<State> startRequires, Allocator allocator) : this()
         {
             _nodes = new NativeHashMap<int, Node>(initialCapacity, allocator);
             
@@ -46,16 +46,16 @@ namespace Zephyr.GOAP.Struct
             _states = new NativeHashMap<int, State>(initialCapacity*4, allocator);
             _effectHashes = new NativeList<ValueTuple<int,int>>(initialCapacity*2, allocator);
             _preconditionHashes = new NativeList<ValueTuple<int,int>>(initialCapacity*2, allocator);
-            _nodeStateHashes = new NativeList<ValueTuple<int,int>>(initialCapacity*4, allocator);
+            _requireHashes = new NativeList<ValueTuple<int,int>>(initialCapacity*4, allocator);
             
             _deadEndNodeHashes = new NativeList<int>(allocator);
             
             var startNode = new Node {Name = "start"};
             StartNodeHash = startNode.HashCode;
             _nodes.Add(StartNodeHash, startNode);
-            for (var i = 0; i < startNodeStates.Length; i++)
+            for (var i = 0; i < startRequires.Length; i++)
             {
-               AddEffect(startNodeStates[i], StartNodeHash);
+               AddEffect(startRequires[i], StartNodeHash);
             }
             
             GoalNodeHash = 0;
@@ -75,12 +75,12 @@ namespace Zephyr.GOAP.Struct
             if (GoalNodeHash != 0)
             {
                 _nodes.Remove(GoalNodeHash);
-                for (var i = _nodeStateHashes.Length - 1; i >= 0; i--)
+                for (var i = _requireHashes.Length - 1; i >= 0; i--)
                 {
-                    var (nodeHash, stateHash) = _nodeStateHashes[i];
+                    var (nodeHash, stateHash) = _requireHashes[i];
                     if (!nodeHash.Equals(GoalNodeHash)) continue;
                     // _states.Remove(stateHash); //不可以从states里清除，因为可能有多个node引用到
-                    _nodeStateHashes.RemoveAtSwapBack(i);
+                    _requireHashes.RemoveAtSwapBack(i);
                 }
             }
             
@@ -89,7 +89,7 @@ namespace Zephyr.GOAP.Struct
             foreach (var state in stateGroup)
             {
                 var stateHash = state.GetHashCode();
-                _nodeStateHashes.Add((GoalNodeHash, stateHash));
+                _requireHashes.Add((GoalNodeHash, stateHash));
                 _states.TryAdd(stateHash, state);
             }
         }
@@ -106,8 +106,8 @@ namespace Zephyr.GOAP.Struct
         public NativeList<ValueTuple<int,int>>.ParallelWriter PreconditionHashesWriter =>
             _preconditionHashes.AsParallelWriter();
         
-        public NativeList<ValueTuple<int, int>>.ParallelWriter NodeStateHashesWriter =>
-            _nodeStateHashes.AsParallelWriter();
+        public NativeList<ValueTuple<int, int>>.ParallelWriter RequireHashesWriter =>
+            _requireHashes.AsParallelWriter();
 
         /// <summary>
         /// 追加对起点的链接
@@ -190,12 +190,12 @@ namespace Zephyr.GOAP.Struct
         }
 
         /// <summary>
-        /// 读取指定node组的所有state
+        /// 读取指定node组的所有require
         /// </summary>
         /// <param name="nodes"></param>
         /// <param name="outStates"></param>
         /// <param name="allocator"></param>
-        public void GetNodeStates(ref NativeList<Node> nodes,
+        public void GetRequires(ref NativeList<Node> nodes,
             out NativeList<ValueTuple<int, State>> outStates, Allocator allocator)
         {
             outStates = new NativeList<ValueTuple<int, State>>(allocator);
@@ -203,9 +203,9 @@ namespace Zephyr.GOAP.Struct
             for (var i = 0; i < nodes.Length; i++)
             {
                 var nodeHash = nodes[i].HashCode;
-                for (var stateHashId = 0; stateHashId < _nodeStateHashes.Length; stateHashId++)
+                for (var stateHashId = 0; stateHashId < _requireHashes.Length; stateHashId++)
                 {
-                    var (aNodeHash, stateHash) = _nodeStateHashes[stateHashId];
+                    var (aNodeHash, stateHash) = _requireHashes[stateHashId];
                     if (!aNodeHash.Equals(nodeHash)) continue;
                     outStates.Add((nodeHash, _states[stateHash]));
                 }
@@ -213,22 +213,22 @@ namespace Zephyr.GOAP.Struct
         }
 
         /// <summary>
-        /// 读取指定node的所有state到StateGroup中
+        /// 读取指定node的所有require到StateGroup中
         /// </summary>
         /// <param name="node"></param>
         /// <param name="allocator"></param>
         /// <param name="isPop">是否弹出（也就是取出后删除）</param>
-        public StateGroup GetNodeStates(Node node, Allocator allocator, bool isPop = false)
+        public StateGroup GetRequires(Node node, Allocator allocator, bool isPop = false)
         {
             var group = new StateGroup(1, allocator);
             var nodeHash = node.HashCode;
-            for (var i = 0; i < _nodeStateHashes.Length; i++)
+            for (var i = 0; i < _requireHashes.Length; i++)
             {
-                var (aNodeHash, stateHash) = _nodeStateHashes[i];
+                var (aNodeHash, stateHash) = _requireHashes[i];
                 if (!aNodeHash.Equals(nodeHash)) continue;
                 group.Add(_states[stateHash]);
                 if (!isPop) continue;
-                _nodeStateHashes.RemoveAt(i);    //不能用SwapBack，因为不按顺序的话，行为执行会变怪
+                _requireHashes.RemoveAt(i);    //不能用SwapBack，因为不按顺序的话，行为执行会变怪
                 i--;
             }
 
@@ -236,29 +236,29 @@ namespace Zephyr.GOAP.Struct
         }
 
         /// <summary>
-        /// 将一组state全部加入到某一个node的states中
+        /// 将一组state全部加入到某一个node的require中
         /// </summary>
         /// <param name="states"></param>
         /// <param name="nodeHash"></param>
         /// <returns></returns>
-        public void AddNodeStates(StateGroup states, int nodeHash)
+        public void AddRequires(StateGroup states, int nodeHash)
         {
             for (var i = 0; i < states.Length(); i++)
             {
                 var state = states[i];
                 var stateHash = state.GetHashCode();
                 _states.TryAdd(stateHash, state);
-                _nodeStateHashes.Add((nodeHash, stateHash));
+                _requireHashes.Add((nodeHash, stateHash));
             }
         }
         
-        public State[] GetNodeStates(Node node)
+        public State[] GetRequires(Node node)
         {
             var result = new List<State>();
             var nodeHash = node.HashCode;
-            for (var i = 0; i < _nodeStateHashes.Length; i++)
+            for (var i = 0; i < _requireHashes.Length; i++)
             {
-                var (aNodeHash, stateHash) = _nodeStateHashes[i];
+                var (aNodeHash, stateHash) = _requireHashes[i];
                 if (!aNodeHash.Equals(nodeHash)) continue;
                 result.Add(_states[stateHash]);
             }
@@ -367,7 +367,7 @@ namespace Zephyr.GOAP.Struct
         {
             CleanDuplicateStates(_preconditionHashes, node);
             CleanDuplicateStates(_effectHashes, node);
-            CleanDuplicateStates(_nodeStateHashes, node);
+            CleanDuplicateStates(_requireHashes, node);
         }
         
         private void CleanDuplicateStates<T>(NativeList<ValueTuple<int, T>> container, Node node)
@@ -403,7 +403,7 @@ namespace Zephyr.GOAP.Struct
             _states.Dispose();
             _effectHashes.Dispose();
             _preconditionHashes.Dispose();
-            _nodeStateHashes.Dispose();
+            _requireHashes.Dispose();
 
             _deadEndNodeHashes.Dispose();
         }

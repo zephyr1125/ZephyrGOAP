@@ -18,13 +18,13 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         private StackData _stackData;
 
         [ReadOnly]
-        private NativeList<ValueTuple<int, State>> _nodeStates;
+        private NativeList<ValueTuple<int, State>> _requires;
         
         /// <summary>
         /// NodeGraph中现存所有Node的hash
         /// </summary>
         [ReadOnly]
-        private NativeArray<int> _existedNodesHash;
+        private readonly NativeArray<int> _existedNodesHash;
 
         private NativeHashMap<int, Node>.ParallelWriter _nodesWriter;
         
@@ -36,7 +36,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         
         private NativeList<ValueTuple<int, int>>.ParallelWriter _effectHashesWriter;
         
-        private NativeList<ValueTuple<int, int>>.ParallelWriter _nodeStateHashesWriter;
+        private NativeList<ValueTuple<int, int>>.ParallelWriter _requireHashesWriter;
         
         private NativeHashMap<int, Node>.ParallelWriter _newlyCreatedNodesWriter;
 
@@ -46,26 +46,26 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
 
         public ActionExpandJob(ref NativeList<Node> unexpandedNodes, 
             ref NativeArray<int> existedNodesHash, ref StackData stackData,
-            ref NativeList<ValueTuple<int, State>> nodeStates,
+            ref NativeList<ValueTuple<int, State>> requires,
             NativeHashMap<int, Node>.ParallelWriter nodesWriter,
             NativeList<ValueTuple<int, int>>.ParallelWriter nodeToParentsWriter,
             NativeHashMap<int, State>.ParallelWriter statesWriter,
             NativeList<ValueTuple<int, int>>.ParallelWriter preconditionHashesWriter, 
             NativeList<ValueTuple<int, int>>.ParallelWriter effectHashesWriter, 
-            NativeList<ValueTuple<int, int>>.ParallelWriter nodeStateHashesWriter, 
+            NativeList<ValueTuple<int, int>>.ParallelWriter requireHashesWriter, 
             ref NativeHashMap<int, Node>.ParallelWriter newlyCreatedNodesWriter, int iteration, T action)
         {
             _unexpandedNodes = unexpandedNodes;
             _existedNodesHash = existedNodesHash;
             _stackData = stackData;
-            _nodeStates = nodeStates;
+            _requires = requires;
             _nodesWriter = nodesWriter;
             _nodeToParentsWriter = nodeToParentsWriter;
             
             _statesWriter = statesWriter;
             _preconditionHashesWriter = preconditionHashesWriter;
             _effectHashesWriter = effectHashesWriter;
-            _nodeStateHashesWriter = nodeStateHashesWriter;
+            _requireHashesWriter = requireHashesWriter;
             
             _newlyCreatedNodesWriter = newlyCreatedNodesWriter;
             _iteration = iteration;
@@ -77,9 +77,9 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             var unexpandedNode = _unexpandedNodes[jobIndex];
             //只考虑node的首个state
             var sortedStates = new ZephyrNativeMinHeap<State>(Allocator.Temp);
-            for (var i = 0; i < _nodeStates.Length; i++)
+            for (var i = 0; i < _requires.Length; i++)
             {
-                var (hash, state) = _nodeStates[i];
+                var (hash, state) = _requires[i];
                 if (!hash.Equals(unexpandedNode.HashCode)) continue;
                 var priority = state.Target.Index;
                 sortedStates.Add(new MinHashNode<State>(state, priority));
@@ -145,14 +145,14 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
 
         /// <summary>
         /// <param name="newNode"></param>
-        /// <param name="nodeStates"></param>
+        /// <param name="requires"></param>
         /// <param name="preconditions"></param>
         /// <param name="effects"></param>
         /// <param name="parent"></param>
         /// <param name="actionName"></param>
         /// <returns>此node已存在</returns>
         /// </summary>
-        private void AddRouteNode(Node baseNode, Node newNode, bool nodeExisted, ref StateGroup nodeStates,
+        private void AddRouteNode(Node baseNode, Node newNode, bool nodeExisted, ref StateGroup requires,
             ref StateGroup preconditions, ref StateGroup effects,
             Node parent, NativeString32 actionName)
         {
@@ -188,12 +188,12 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     }
                 }
                 
-                for(var i=0; i<nodeStates.Length(); i++)
+                for(var i=0; i<requires.Length(); i++)
                 {
-                    var state = nodeStates[i];
+                    var state = requires[i];
                     var stateHash = state.GetHashCode();
                     _statesWriter.TryAdd(stateHash, state);
-                    _nodeStateHashesWriter.AddNoResize((newNode.HashCode, stateHash));
+                    _requireHashesWriter.AddNoResize((newNode.HashCode, stateHash));
                 }
             }
         }
