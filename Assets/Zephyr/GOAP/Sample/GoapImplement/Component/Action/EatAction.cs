@@ -18,9 +18,9 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return nameof(EatAction);
         }
 
-        public State GetTargetGoalState(ref StateGroup targetStates, ref StackData stackData)
+        public State GetTargetRequire(ref StateGroup targetRequires, ref StackData stackData)
         {
-            foreach (var targetState in targetStates)
+            foreach (var targetState in targetRequires)
             {
                 var staminaState = new State
                 {

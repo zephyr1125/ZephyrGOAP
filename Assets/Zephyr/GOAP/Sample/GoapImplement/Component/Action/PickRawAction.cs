@@ -19,7 +19,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return nameof(PickRawAction);
         }
         
-        public State GetTargetGoalState([ReadOnly]ref StateGroup targetStates,
+        public State GetTargetRequire([ReadOnly]ref StateGroup targetRequires,
             [ReadOnly]ref StackData stackData)
         {
             //针对“自身获得原料”的state
@@ -28,7 +28,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                 Target = stackData.AgentEntities[stackData.CurrentAgentId],
                 Trait = typeof(RawTransferTrait),
             };
-            return targetStates.GetBelongingState(stateFilter);
+            return targetRequires.GetBelongingState(stateFilter);
         }
 
         public StateGroup GetSettings(ref State targetState, ref StackData stackData, Allocator allocator)

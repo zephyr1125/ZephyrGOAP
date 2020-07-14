@@ -12,7 +12,7 @@ namespace Zephyr.GOAP.Tests.Mock
             return "MockAction";
         }
 
-        public State GetTargetGoalState(ref StateGroup targetStates, ref StackData stackData)
+        public State GetTargetRequire(ref StateGroup targetRequires, ref StackData stackData)
         {
             return default;
         }

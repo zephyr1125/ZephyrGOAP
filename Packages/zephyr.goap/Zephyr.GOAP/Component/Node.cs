@@ -57,7 +57,7 @@ namespace Zephyr.GOAP.Component
         /// </summary>
         public float EstimateStartTime;
 
-        public Node(ref StateGroup preconditions, ref StateGroup effects, ref StateGroup states, 
+        public Node(ref StateGroup preconditions, ref StateGroup effects, ref StateGroup requires, ref StateGroup deltas,
             NativeString32 name, float reward, float executeTime, int iteration, Entity agentExecutorEntity,
             NodeNavigatingSubjectType subjectType = NodeNavigatingSubjectType.Null, byte subjectId = 0) : this()
         {
@@ -72,7 +72,8 @@ namespace Zephyr.GOAP.Component
             HashCode = Utils.BasicHash;
             HashCode = Utils.CombineHash(HashCode, preconditions.GetHashCode());
             HashCode = Utils.CombineHash(HashCode, effects.GetHashCode());
-            HashCode = Utils.CombineHash(HashCode, states.GetHashCode());
+            HashCode = Utils.CombineHash(HashCode, requires.GetHashCode());
+            HashCode = Utils.CombineHash(HashCode, deltas.GetHashCode());
             HashCode = Utils.CombineHash(HashCode, Utils.GetEntityHash(AgentExecutorEntity));
         }
 

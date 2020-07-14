@@ -27,6 +27,12 @@ namespace Zephyr.GOAP.Struct
         [ReadOnly]
         private NativeList<ValueTuple<int,int>> _requireHashes;
 
+        /// <summary>
+        /// node对currentStates的累积改变量
+        /// </summary>
+        [ReadOnly]
+        private NativeList<ValueTuple<int, int>> _deltaHashes;
+
 
         public NativeList<int> _deadEndNodeHashes;
 
@@ -46,7 +52,8 @@ namespace Zephyr.GOAP.Struct
             _states = new NativeHashMap<int, State>(initialCapacity*4, allocator);
             _effectHashes = new NativeList<ValueTuple<int,int>>(initialCapacity*2, allocator);
             _preconditionHashes = new NativeList<ValueTuple<int,int>>(initialCapacity*2, allocator);
-            _requireHashes = new NativeList<ValueTuple<int,int>>(initialCapacity*4, allocator);
+            _requireHashes = new NativeList<ValueTuple<int,int>>(initialCapacity*3, allocator);
+            _deltaHashes = new NativeList<ValueTuple<int,int>>(initialCapacity*2, allocator);
             
             _deadEndNodeHashes = new NativeList<int>(allocator);
             
@@ -69,7 +76,7 @@ namespace Zephyr.GOAP.Struct
             _states.Add(effectHash, effect);
         }
 
-        public void SetGoalNode(Node goal, ref StateGroup stateGroup)
+        public void SetGoalNode(Node goal, ref StateGroup requires)
         {
             //先清除旧的
             if (GoalNodeHash != 0)
@@ -86,7 +93,7 @@ namespace Zephyr.GOAP.Struct
             
             GoalNodeHash = goal.HashCode;
             _nodes.Add(GoalNodeHash, goal);
-            foreach (var state in stateGroup)
+            foreach (var state in requires)
             {
                 var stateHash = state.GetHashCode();
                 _requireHashes.Add((GoalNodeHash, stateHash));
@@ -108,6 +115,9 @@ namespace Zephyr.GOAP.Struct
         
         public NativeList<ValueTuple<int, int>>.ParallelWriter RequireHashesWriter =>
             _requireHashes.AsParallelWriter();
+        
+        public NativeList<ValueTuple<int, int>>.ParallelWriter DeltaHashesWriter =>
+            _deltaHashes.AsParallelWriter();
 
         /// <summary>
         /// 追加对起点的链接
@@ -266,6 +276,29 @@ namespace Zephyr.GOAP.Struct
             return result.ToArray();
         }
         
+        /// <summary>
+        /// 读取指定node组的所有delta
+        /// </summary>
+        /// <param name="nodes"></param>
+        /// <param name="outStates"></param>
+        /// <param name="allocator"></param>
+        public void GetDeltas(ref NativeList<Node> nodes,
+            out NativeList<ValueTuple<int, State>> outStates, Allocator allocator)
+        {
+            outStates = new NativeList<ValueTuple<int, State>>(allocator);
+            
+            for (var i = 0; i < nodes.Length; i++)
+            {
+                var nodeHash = nodes[i].HashCode;
+                for (var stateHashId = 0; stateHashId < _deltaHashes.Length; stateHashId++)
+                {
+                    var (aNodeHash, stateHash) = _deltaHashes[stateHashId];
+                    if (!aNodeHash.Equals(nodeHash)) continue;
+                    outStates.Add((nodeHash, _states[stateHash]));
+                }
+            }
+        }
+        
         public StateGroup GetNodePreconditions(Node node, Allocator allocator)
         {
             var group = new StateGroup(1, allocator);
@@ -404,6 +437,7 @@ namespace Zephyr.GOAP.Struct
             _effectHashes.Dispose();
             _preconditionHashes.Dispose();
             _requireHashes.Dispose();
+            _deltaHashes.Dispose();
 
             _deadEndNodeHashes.Dispose();
         }
