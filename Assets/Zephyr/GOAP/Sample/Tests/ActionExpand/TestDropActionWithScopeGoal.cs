@@ -26,7 +26,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
                 ValueTrait = typeof(FoodTrait)
             });
             
-            World.GetOrCreateSystem<CurrentStatesHelper>().Update();
+            World.GetOrCreateSystem<BaseStatesHelper>().Update();
         }
         
         //在使用非特指goal时，要每种物品一个setting

@@ -5,15 +5,15 @@ using Zephyr.GOAP.System;
 
 namespace Zephyr.GOAP.Tests
 {
-    public class TestCurrentStatesHelper : TestBase
+    public class TestBaseStatesHelper : TestBase
     {
-        private CurrentStatesHelper _system;
+        private BaseStatesHelper _system;
 
         [SetUp]
         public override void SetUp()
         {
             base.SetUp();
-            _system = World.GetOrCreateSystem<CurrentStatesHelper>();
+            _system = World.GetOrCreateSystem<BaseStatesHelper>();
         }
 
         //创建entity
@@ -22,7 +22,7 @@ namespace Zephyr.GOAP.Tests
         {
             _system.Update();
 
-            var query = EntityManager.CreateEntityQuery(typeof(CurrentStates), typeof(State));
+            var query = EntityManager.CreateEntityQuery(typeof(BaseStates), typeof(State));
             Assert.AreEqual(1, query.CalculateEntityCount());
         }
 
@@ -30,20 +30,20 @@ namespace Zephyr.GOAP.Tests
         [Test]
         public void ClearStatesAtSimulationEnd()
         {
-            var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
+            var buffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);
             buffer.Add(new State());
             
             _system.Update();
             EntityManager.CompleteAllJobs();
 
-            var states = CurrentStatesHelper.GetCurrentStates(EntityManager, Allocator.Temp);
+            var states = BaseStatesHelper.GetBaseStates(EntityManager, Allocator.Temp);
             Assert.AreEqual(1, states.Length());
             states.Dispose();
             
             _system._removeECBufferSystem.Update();
             EntityManager.CompleteAllJobs();
 
-            states = CurrentStatesHelper.GetCurrentStates(EntityManager, Allocator.Temp);
+            states = BaseStatesHelper.GetBaseStates(EntityManager, Allocator.Temp);
             Assert.AreEqual(0, states.Length());
             states.Dispose();
         }
@@ -54,12 +54,12 @@ namespace Zephyr.GOAP.Tests
         {
             _system.Update();
 
-            var query = EntityManager.CreateEntityQuery(typeof(CurrentStates), typeof(State));
+            var query = EntityManager.CreateEntityQuery(typeof(BaseStates), typeof(State));
 
             Assert.AreEqual(1, query.CalculateEntityCount());
             var entities = query.ToEntityArray(Allocator.TempJob);
 
-            Assert.AreEqual(entities[0], CurrentStatesHelper.CurrentStatesEntity);
+            Assert.AreEqual(entities[0], BaseStatesHelper.BaseStatesEntity);
 
             entities.Dispose();
         }
@@ -71,7 +71,7 @@ namespace Zephyr.GOAP.Tests
             _system.Update();
 
             Assert.IsTrue(EntityManager.HasComponent<State>(
-                CurrentStatesHelper.CurrentStatesEntity));
+                BaseStatesHelper.BaseStatesEntity));
         }
     }
 }

@@ -19,7 +19,7 @@
 //         private NativeList<Node> _unexpandedNodes;
 //         private NativeList<Node> _expandedNodes;
 //         private NodeGraph _nodeGraph;
-//         private StateGroup _currentStates;
+//         private StateGroup _baseStates;
 //         private Node _goalNode;
 //         private StackData _stackData;
 //
@@ -40,7 +40,7 @@
 //             _expandedNodes = new NativeList<Node>(Allocator.Persistent);
 //             
 //             _nodeGraph = new NodeGraph(256, Allocator.Persistent);
-//             _currentStates = new StateGroup(1, Allocator.Persistent);
+//             _baseStates = new StateGroup(1, Allocator.Persistent);
 //             
 //             var goalStates = new StateGroup(1, Allocator.Temp){new State
 //             {
@@ -56,14 +56,14 @@
 //             
 //             _unexpandedNodes.Add(_goalNode);
 //             
-//             _currentStates.Add(new State
+//             _baseStates.Add(new State
 //             {
 //                 Target = _agentEntity,
 //                 Trait = typeof(ItemContainerTrait),
 //                 ValueString = new NativeString64("test"),
 //             });
 //             
-//             _stackData = new StackData{CurrentStates = _currentStates};
+//             _stackData = new StackData{BaseStates = _baseStates};
 //         }
 //
 //         [TearDown]
@@ -74,7 +74,7 @@
 //             _unexpandedNodes.Dispose();
 //             _expandedNodes.Dispose();
 //             _nodeGraph.Dispose();
-//             _currentStates.Dispose();
+//             _baseStates.Dispose();
 // //            _stackData.Dispose();
 //         }
 //         

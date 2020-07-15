@@ -17,15 +17,15 @@ namespace Zephyr.GOAP.Sample.Tests.SensorSystem
 
         private Entity _containerEntity;
 
-        private CurrentStatesHelper _currentStatesHelper;
+        private BaseStatesHelper _baseStatesHelper;
         
         [SetUp]
         public override void SetUp()
         {
             base.SetUp();
 
-            _currentStatesHelper = World.GetOrCreateSystem<CurrentStatesHelper>();
-            _currentStatesHelper.Update();
+            _baseStatesHelper = World.GetOrCreateSystem<BaseStatesHelper>();
+            _baseStatesHelper.Update();
 
             _system = World.GetOrCreateSystem<ItemSourceSensorSystem>();
             _containerEntity = EntityManager.CreateEntity();
@@ -50,7 +50,7 @@ namespace Zephyr.GOAP.Sample.Tests.SensorSystem
             _system.Update();
             EntityManager.CompleteAllJobs();
 
-            var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
+            var buffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);
             Assert.AreEqual(1, buffer.Length);
             Assert.AreEqual(new State
             {

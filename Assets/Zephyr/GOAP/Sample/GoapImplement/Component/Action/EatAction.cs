@@ -46,7 +46,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                 Trait = typeof(DiningTableTrait),
             };
             var tables =
-                stackData.CurrentStates.GetBelongingStates(diningTableTemplate, Allocator.Temp);
+                stackData.BaseStates.GetBelongingStates(diningTableTemplate, Allocator.Temp);
             var itemNames =
                 Utils.GetItemNamesOfSpecificTrait(typeof(FoodTrait),
                     Allocator.Temp);

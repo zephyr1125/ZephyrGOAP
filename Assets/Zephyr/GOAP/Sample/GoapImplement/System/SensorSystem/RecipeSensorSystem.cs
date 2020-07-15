@@ -7,7 +7,7 @@ using Zephyr.GOAP.System;
 namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
 {
     /// <summary>
-    /// 检测所有Recipe并存入CurrentState
+    /// 检测所有Recipe并存入BaseState
     /// </summary>
     [UpdateInGroup(typeof(SensorSystemGroup))]
     public class RecipeSensorSystem : ComponentSystem
@@ -15,10 +15,10 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
         
         protected override void OnUpdate()
         {
-            if (!EntityManager.Exists(CurrentStatesHelper.CurrentStatesEntity)) return;
+            if (!EntityManager.Exists(BaseStatesHelper.BaseStatesEntity)) return;
             
             //范例只有一个recipe，直接手写，实际需要从define里批量写入
-            var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
+            var buffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);
             //存储recipe这样复杂state的折中方案：
             //每个recipe以1个output+2个input的方式保存，占用连续的3个state
             //对于不需要第二个原料的recipe,其第二个input为空state

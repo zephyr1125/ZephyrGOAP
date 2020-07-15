@@ -38,8 +38,8 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
                 ValueString = Sample.Utils.RawPeachName
             });
             
-            //给CurrentStates写入假环境数据：世界里有collector和collector已有原料
-            var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
+            //给BaseStates写入假环境数据：世界里有collector和collector已有原料
+            var buffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);
             buffer.Add(new State
             {
                 Target = _collectorEntity,
@@ -80,7 +80,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
         [Test]
         public void NullTargetAndNoCollector_Fail()
         {
-            var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
+            var buffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);
             buffer.RemoveAt(0);
             
             _system.Update();
@@ -95,7 +95,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
         [Test]
         public void NoRaw_Fail()
         {
-            var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
+            var buffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);
             buffer.RemoveAt(2);
             
             _system.Update();
@@ -109,7 +109,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
         {
             var newCollectorEntity = new Entity {Index = 99, Version = 99};
             //增加一个较近的cooker，planner应该选择这个cooker
-            var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
+            var buffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);
             buffer.Add(new State
             {
                 Target = newCollectorEntity,
@@ -148,7 +148,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             
             var itemSourceEntity = EntityManager.CreateEntity();
             
-            var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
+            var buffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);
             buffer.Add(new State
             {
                 Target = itemSourceEntity,

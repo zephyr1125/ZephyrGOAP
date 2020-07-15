@@ -38,8 +38,8 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
                 ValueString = Sample.Utils.RawPeachName
             });
             
-            //给CurrentStates写入假环境数据：世界里有collector和rawSource
-            var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
+            //给BaseStates写入假环境数据：世界里有collector和rawSource
+            var buffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);
             buffer.Add(new State
             {
                 Target = _collectorEntity,
@@ -81,7 +81,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
         [Test]
         public void NoRaw_Fail()
         {
-            var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
+            var buffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);
             buffer.RemoveAt(2);
             
             _system.Update();
@@ -96,7 +96,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
         {
             var newRawEntity = new Entity {Index = 99, Version = 99};
             //增加一个较近的raw，planner应该选择这个
-            var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
+            var buffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);
             buffer.Add(new State
             {
                 Target = newRawEntity,

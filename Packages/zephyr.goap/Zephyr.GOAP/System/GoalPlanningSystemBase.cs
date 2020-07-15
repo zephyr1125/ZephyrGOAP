@@ -75,8 +75,8 @@ namespace Zephyr.GOAP.System
             var goal = GetMostPriorityGoal();
             var goalRequires = new StateGroup(1, Allocator.TempJob) {goal.State};
 
-            //从currentState的存储Entity上拿取current states
-            var currentStateBuffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
+            //从baseState的存储Entity上拿取base states
+            var baseStateBuffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);
             
             var agentTranslations = _agentQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
             var agentMoveSpeeds = _agentQuery.ToComponentDataArray<MaxMoveSpeed>(Allocator.TempJob);
@@ -84,18 +84,18 @@ namespace Zephyr.GOAP.System
             
             //组织StackData
             var stackData = new StackData(ref agentEntities, ref agentTranslations,
-                new StateGroup(ref currentStateBuffer, Allocator.TempJob));
+                new StateGroup(ref baseStateBuffer, Allocator.TempJob));
             agentTranslations.Dispose();
 
             Debugger?.StartLog(EntityManager);
-            Debugger?.SetCurrentStates(ref stackData.CurrentStates, EntityManager);
+            Debugger?.SetBaseStates(ref stackData.BaseStates, EntityManager);
 
             var uncheckedNodes = new NativeHashMap<int, Node>(32, Allocator.TempJob);
             var uncheckedNodesWriter = uncheckedNodes.AsParallelWriter();
             var unexpandedNodes = new NativeList<Node>(Allocator.TempJob);
             var expandedNodes = new NativeList<Node>(Allocator.TempJob);
 
-            var nodeGraph = new NodeGraph(512, ref currentStateBuffer, Allocator.TempJob);
+            var nodeGraph = new NodeGraph(512, ref baseStateBuffer, Allocator.TempJob);
 
             var goalPrecondition = new StateGroup();
             var goalEffects = new StateGroup();
@@ -115,8 +115,8 @@ namespace Zephyr.GOAP.System
             while (uncheckedNodes.Count() > 0 && iteration < ExpandIterations)
             {
                 Debugger?.Log("Loop:");
-                //对待检查列表进行检查（与CurrentStates比对）
-                if (CheckNodes(ref uncheckedNodes, ref nodeGraph, ref stackData.CurrentStates,
+                //对待检查列表进行检查（与BaseStates比对）
+                if (CheckNodes(ref uncheckedNodes, ref nodeGraph, ref stackData.BaseStates,
                     ref unexpandedNodes, iteration)) foundPlan = true;
 
                 //对待展开列表进行展开，并挑选进入待检查和展开后列表
@@ -370,17 +370,17 @@ namespace Zephyr.GOAP.System
         }
 
         /// <summary>
-        /// 与CurrentStates一致的state被从Node中移除
+        /// 与BaseStates一致的state被从Node中移除
         /// 出现全部State都被移除的Node时，视为找到Plan，其后追加空Node作为起点，可以考虑此时EarlyExit
         /// 对于还有State不满足的Node进入待展开列表
         /// </summary>
         /// <param name="uncheckedNodes"></param>
         /// <param name="nodeGraph"></param>
-        /// <param name="currentStates"></param>
+        /// <param name="baseStates"></param>
         /// <param name="unexpandedNodes"></param>
         /// <param name="iteration"></param>
         public bool CheckNodes(ref NativeHashMap<int, Node> uncheckedNodes, ref NodeGraph nodeGraph,
-            ref StateGroup currentStates, ref NativeList<Node> unexpandedNodes, int iteration)
+            ref StateGroup baseStates, ref NativeList<Node> unexpandedNodes, int iteration)
         {
             bool foundPlan = false;
             var nodes = uncheckedNodes.GetValueArray(Allocator.Temp);
@@ -390,12 +390,12 @@ namespace Zephyr.GOAP.System
                 nodeGraph.CleanAllDuplicateStates(uncheckedNode);
                 
                 var uncheckedRequires = nodeGraph.GetRequires(uncheckedNode, Allocator.Temp, true);
-                var deltaCurrentStates = uncheckedRequires.AND(currentStates, true);
+                var deltaBaseStates = uncheckedRequires.AND(baseStates, true);
                 //对这些require调整后重新放回nodeGraph
                 nodeGraph.AddRequires(uncheckedRequires, uncheckedNode.HashCode);
                 //存入delta
-                nodeGraph.AddDeltas(deltaCurrentStates, uncheckedNode.HashCode);
-                deltaCurrentStates.Dispose();
+                nodeGraph.AddDeltas(deltaBaseStates, uncheckedNode.HashCode);
+                deltaBaseStates.Dispose();
                 
                 //为了避免没有state的node(例如wander)与startNode有相同的hash，这种node被强制给了一个空state
                 //因此在只有1个state且内容为空时，也应视为找到了plan

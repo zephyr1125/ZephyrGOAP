@@ -17,15 +17,15 @@ namespace Zephyr.GOAP.Sample.Tests.SensorSystem
 
         private Entity _collectorEntity, _rawSourceEntity;
 
-        private CurrentStatesHelper _currentStatesHelper;
+        private BaseStatesHelper _baseStatesHelper;
         
         [SetUp]
         public override void SetUp()
         {
             base.SetUp();
 
-            _currentStatesHelper = World.GetOrCreateSystem<CurrentStatesHelper>();
-            _currentStatesHelper.Update();
+            _baseStatesHelper = World.GetOrCreateSystem<BaseStatesHelper>();
+            _baseStatesHelper.Update();
 
             _system = World.GetOrCreateSystem<CollectorSensorSystem>();
             _collectorEntity = EntityManager.CreateEntity();
@@ -34,8 +34,8 @@ namespace Zephyr.GOAP.Sample.Tests.SensorSystem
             EntityManager.AddComponentData(_collectorEntity, new CollectorTrait());
             EntityManager.AddComponentData(_collectorEntity, new Translation());
             
-            var currentStateBuffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
-            currentStateBuffer.Add(new State
+            var baseStateBuffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);
+            baseStateBuffer.Add(new State
             {
                 Target = _rawSourceEntity,
                 Position = new float3(5,0,0),
@@ -51,7 +51,7 @@ namespace Zephyr.GOAP.Sample.Tests.SensorSystem
             _system.Update();
             EntityManager.CompleteAllJobs();
 
-            var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
+            var buffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);
             Assert.AreEqual(3, buffer.Length);    //1 raw + 1 collector + 1 item potential source
             Assert.AreEqual(new State
             {
@@ -70,15 +70,15 @@ namespace Zephyr.GOAP.Sample.Tests.SensorSystem
         [Test]
         public void RawSourceTooFar_NoState()
         {
-            var currentStateBuffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
-            var rawState = currentStateBuffer[0];
+            var baseStateBuffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);
+            var rawState = baseStateBuffer[0];
             rawState.Position = new float3(CollectorSensorSystem.CollectorRange+1, 0 ,0);
-            currentStateBuffer[0] = rawState;
+            baseStateBuffer[0] = rawState;
             
             _system.Update();
             EntityManager.CompleteAllJobs();
             
-            var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
+            var buffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);
             Assert.AreEqual(2, buffer.Length);    //1 raw + 1 collector
             Assert.AreEqual(new State
             {

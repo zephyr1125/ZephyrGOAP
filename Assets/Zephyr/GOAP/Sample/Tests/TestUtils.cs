@@ -9,27 +9,27 @@ namespace Zephyr.GOAP.Sample.Tests
 {
     public class TestUtils
     {
-        private StateGroup _currentStates;
+        private StateGroup _baseStates;
 
         [SetUp]
         public void SetUp()
         {
-            _currentStates = new StateGroup(3, Allocator.Temp);
-            _currentStates.Add(new State
+            _baseStates = new StateGroup(3, Allocator.Temp);
+            _baseStates.Add(new State
             {
                 Trait = typeof(RecipeOutputTrait),
                 ValueTrait = typeof(CookerTrait),    //以ValueTrait保存此recipe适用的生产设施
                 ValueString = "output",
                 Amount = 2
             });
-            _currentStates.Add(new State
+            _baseStates.Add(new State
             {
                 Trait = typeof(RecipeInputTrait),
                 ValueTrait = typeof(CookerTrait),
                 ValueString = "input1",
                 Amount = 1
             });
-            _currentStates.Add(new State
+            _baseStates.Add(new State
             {
                 Trait = typeof(RecipeInputTrait),
                 ValueTrait = typeof(CookerTrait),
@@ -41,12 +41,12 @@ namespace Zephyr.GOAP.Sample.Tests
         [TearDown]
         public void TearDown()
         {
-            _currentStates.Dispose();
+            _baseStates.Dispose();
         }
         
         //在获取配方时要根据输入的成品数量自动乘到输出的材料数量上
         [Test]
-        public void GetRecipeInputInCurrentStates_MultiplyInputAmount()
+        public void GetRecipeInputInBaseStates_MultiplyInputAmount()
         {
             var output = new State
             {
@@ -57,7 +57,7 @@ namespace Zephyr.GOAP.Sample.Tests
             };
 
             var inputs =
-                Utils.GetRecipeInputInCurrentStates(ref _currentStates, output, Allocator.Temp);
+                Utils.GetRecipeInputInBaseStates(ref _baseStates, output, Allocator.Temp);
 
             Assert.AreEqual(3, inputs[0].Amount);
             Assert.AreEqual(9, inputs[1].Amount);
@@ -69,7 +69,7 @@ namespace Zephyr.GOAP.Sample.Tests
         /// 如果需求不足一次，也生产一次
         /// </summary>
         [Test]
-        public void GetRecipeInputInCurrentStates_AtLeastOnce()
+        public void GetRecipeInputInBaseStates_AtLeastOnce()
         {
             var output = new State
             {
@@ -80,7 +80,7 @@ namespace Zephyr.GOAP.Sample.Tests
             };
 
             var inputs =
-                Utils.GetRecipeInputInCurrentStates(ref _currentStates, output, Allocator.Temp);
+                Utils.GetRecipeInputInBaseStates(ref _baseStates, output, Allocator.Temp);
 
             Assert.AreEqual(1, inputs[0].Amount);
             Assert.AreEqual(3, inputs[1].Amount);
@@ -92,7 +92,7 @@ namespace Zephyr.GOAP.Sample.Tests
         /// 如果出现配方产量超过需求，就产生富余
         /// </summary>
         [Test]
-        public void GetRecipeInputInCurrentStates_AdditionAmount()
+        public void GetRecipeInputInBaseStates_AdditionAmount()
         {
             var output = new State
             {
@@ -103,7 +103,7 @@ namespace Zephyr.GOAP.Sample.Tests
             };
 
             var inputs =
-                Utils.GetRecipeInputInCurrentStates(ref _currentStates, output, Allocator.Temp);
+                Utils.GetRecipeInputInBaseStates(ref _baseStates, output, Allocator.Temp);
 
             Assert.AreEqual(2, inputs[0].Amount);
             Assert.AreEqual(6, inputs[1].Amount);

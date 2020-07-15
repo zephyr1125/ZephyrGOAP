@@ -39,7 +39,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                         Target = targetState.Target,
                         Trait = typeof(CollectorTrait)
                     };
-                    var foundState = stackData.CurrentStates.GetBelongingState(collectorTemplate);
+                    var foundState = stackData.BaseStates.GetBelongingState(collectorTemplate);
                     if (foundState.Equals(State.Null)) continue;
                 }
                 
@@ -62,7 +62,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                     Trait = typeof(CollectorTrait)
                 };
                 var collectors =
-                    stackData.CurrentStates.GetBelongingStates(collectorState, Allocator.Temp);
+                    stackData.BaseStates.GetBelongingStates(collectorState, Allocator.Temp);
                 var nearestCollectorState = default(State);
                 var nearestDistance = float.MaxValue;
                 foreach (var collector in collectors)
@@ -73,7 +73,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                         Trait = typeof(ItemPotentialSourceTrait),
                         ValueString = targetState.ValueString
                     };
-                    if(stackData.CurrentStates.GetBelongingState(collectState).Equals(default))continue;
+                    if(stackData.BaseStates.GetBelongingState(collectState).Equals(default))continue;
                     var distance = math.distance(collector.Position,
                         stackData.AgentPositions[stackData.CurrentAgentId]);
                     if (distance >= nearestDistance) continue;

@@ -34,7 +34,7 @@ namespace Zephyr.GOAP.Sample.Tests
             EntityManager.AddComponentData(_agentEntity, new Translation());
             EntityManager.AddComponentData(_agentEntity, new MaxMoveSpeed{value = 1});
 
-            World.GetOrCreateSystem<CurrentStatesHelper>().Update();
+            World.GetOrCreateSystem<BaseStatesHelper>().Update();
         }
 
         [TearDown]

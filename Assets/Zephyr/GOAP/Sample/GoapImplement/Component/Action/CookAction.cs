@@ -64,7 +64,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                 ValueTrait = typeof(CookerTrait),
                 ValueString = name
             };
-            return !stackData.CurrentStates.GetBelongingState(foodRecipeState).Equals(State.Null);
+            return !stackData.BaseStates.GetBelongingState(foodRecipeState).Equals(State.Null);
         }
         
         public StateGroup GetSettings(ref State targetState, ref StackData stackData, Allocator allocator)
@@ -75,7 +75,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             {
                 //首先寻找最近的Cooker，如果没有则没有setting
                 var cookerState = new State {Trait = typeof(CookerTrait)};
-                var cookerStates = stackData.CurrentStates.GetBelongingStates(cookerState, Allocator.Temp);
+                var cookerStates = stackData.BaseStates.GetBelongingStates(cookerState, Allocator.Temp);
                 if (cookerStates.Length() <= 0)
                 {
                     cookerStates.Dispose();
@@ -150,7 +150,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                 ValueString = setting.ValueString,
                 Amount = setting.Amount
             };
-            var inputs = Utils.GetRecipeInputInCurrentStates(ref stackData.CurrentStates,
+            var inputs = Utils.GetRecipeInputInBaseStates(ref stackData.BaseStates,
                 targetRecipeInputFilter, Allocator.Temp);
             //把查到的配方转化为对此设施拥有的需求
             preconditions.Add(new State

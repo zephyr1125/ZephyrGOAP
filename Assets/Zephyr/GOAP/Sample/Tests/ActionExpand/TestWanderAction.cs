@@ -30,8 +30,8 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
                 Trait = typeof(WanderTrait),
             });
 
-            //给CurrentStates写入假环境数据
-            var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
+            //给BaseStates写入假环境数据
+            var buffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);
             buffer.Add(new State
             {
                 Target = _agentEntity,

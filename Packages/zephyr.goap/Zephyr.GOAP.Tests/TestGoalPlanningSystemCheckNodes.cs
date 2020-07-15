@@ -9,7 +9,7 @@
 // {
 //     public class TestGoalPlanningSystemCheckNodes : TestBase
 //     {
-//         //CurrentStates直接足以满足goal时，直接完成此goal
+//         //BaseStates直接足以满足goal时，直接完成此goal
 //
 //         private GoalPlanningSystem _system;
 //
@@ -18,7 +18,7 @@
 //         private NativeList<Node> _uncheckedNodes;
 //         private NativeList<Node> _unexpandedNodes;
 //         private NodeGraph _nodeGraph;
-//         private StateGroup _currentStates;
+//         private StateGroup _baseStates;
 //         private Node _goalNode;
 //
 //         [SetUp]
@@ -32,7 +32,7 @@
 //             _uncheckedNodes = new NativeList<Node>(Allocator.Persistent);
 //             _unexpandedNodes = new NativeList<Node>(Allocator.Persistent);
 //             _nodeGraph = new NodeGraph(1, Allocator.Persistent);
-//             _currentStates = new StateGroup(1, Allocator.Persistent);
+//             _baseStates = new StateGroup(1, Allocator.Persistent);
 //             
 //             var goalStates = new StateGroup(1, Allocator.Temp){new State
 //             {
@@ -46,7 +46,7 @@
 //             
 //             _uncheckedNodes.Add(_goalNode);
 //             
-//             _currentStates.Add(new State
+//             _baseStates.Add(new State
 //             {
 //                 Target = _agentEntity,
 //                 Trait = typeof(ItemContainerTrait),
@@ -61,7 +61,7 @@
 //             _uncheckedNodes.Dispose();
 //             _unexpandedNodes.Dispose();
 //             _nodeGraph.Dispose();
-//             _currentStates.Dispose();
+//             _baseStates.Dispose();
 //         }
 //
 //         [Test]
@@ -84,7 +84,7 @@
 //                 new NativeString64("route"));
 //             _uncheckedNodes.Add(node);
 //
-//             _system.CheckNodes(ref _uncheckedNodes, ref _nodeGraph, ref _currentStates,
+//             _system.CheckNodes(ref _uncheckedNodes, ref _nodeGraph, ref _baseStates,
 //                 ref _unexpandedNodes);
 //             
 //             Assert.AreEqual(3, _nodeGraph.Length());
@@ -96,7 +96,7 @@
 //         [Test]
 //         public void OnlyGoalInNodeGraph_GoalIntoUnExpandedNodes()
 //         {
-//             _system.CheckNodes(ref _uncheckedNodes, ref _nodeGraph, ref _currentStates,
+//             _system.CheckNodes(ref _uncheckedNodes, ref _nodeGraph, ref _baseStates,
 //                 ref _unexpandedNodes);
 //             
 //             Assert.AreEqual(1, _nodeGraph.Length());
@@ -124,7 +124,7 @@
 //                 new NativeString64("route"));
 //             _uncheckedNodes.Add(node);
 //
-//             _system.CheckNodes(ref _uncheckedNodes, ref _nodeGraph, ref _currentStates,
+//             _system.CheckNodes(ref _uncheckedNodes, ref _nodeGraph, ref _baseStates,
 //                 ref _unexpandedNodes);
 //             
 //             Assert.AreEqual(2, _nodeGraph.Length());

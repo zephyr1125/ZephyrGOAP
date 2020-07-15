@@ -45,7 +45,7 @@
 //                 ValueString = "item",
 //             });
 //             
-//             var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
+//             var buffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);
 //             buffer.Add(new State
 //             {
 //                 Target = _itemSourceEntity,

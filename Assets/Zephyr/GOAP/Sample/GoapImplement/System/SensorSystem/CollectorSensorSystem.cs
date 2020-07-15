@@ -30,11 +30,11 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
             [NativeDisableContainerSafetyRestriction]
             public BufferFromEntity<State> States;
 
-            public Entity CurrentStatesEntity;
+            public Entity BaseStatesEntity;
             
             public void Execute(Entity entity, int jobIndex, ref Translation translation)
             {
-                var buffer = States[CurrentStatesEntity];
+                var buffer = States[BaseStatesEntity];
                 var position = translation.Value;
                 var rawSourceStates = new StateGroup(3, Allocator.Temp);
                 
@@ -75,7 +75,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
             {
                 CollectorRange = CollectorRange,
                 States = GetBufferFromEntity<State>(),
-                CurrentStatesEntity = CurrentStatesHelper.CurrentStatesEntity
+                BaseStatesEntity = BaseStatesHelper.BaseStatesEntity
             };
             var handle = job.Schedule(this, inputDeps);
             return handle;

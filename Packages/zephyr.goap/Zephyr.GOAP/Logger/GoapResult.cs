@@ -16,7 +16,7 @@ namespace Zephyr.GOAP.Logger
 
         public List<EdgeLog> edges;
 
-        public List<StateLog> currentStates;
+        public List<StateLog> baseStates;
 
         public string timeStart;
         
@@ -37,7 +37,7 @@ namespace Zephyr.GOAP.Logger
             
             nodes = new List<NodeLog>();
             edges = new List<EdgeLog>();
-            currentStates = new List<StateLog>();
+            baseStates = new List<StateLog>();
             pathDependencies = new List<NodeDependencyLog>();
         }
         
@@ -137,11 +137,11 @@ namespace Zephyr.GOAP.Logger
             }
         }
 
-        public void SetCurrentStates(ref StateGroup currentStates, EntityManager entityManager)
+        public void SetBaseStates(ref StateGroup baseStates, EntityManager entityManager)
         {
-            foreach (var currentState in currentStates)
+            foreach (var baseState in baseStates)
             {
-                this.currentStates.Add(new StateLog(entityManager, currentState));
+                this.baseStates.Add(new StateLog(entityManager, baseState));
             }
         }
 

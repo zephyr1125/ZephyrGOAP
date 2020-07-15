@@ -38,8 +38,8 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
                 Amount = 1
             });
             
-            //给CurrentStates写入假环境数据：世界里有cooker和recipe,cooker有原料
-            var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
+            //给BaseStates写入假环境数据：世界里有cooker和recipe,cooker有原料
+            var buffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);
             buffer.Add(new State
             {
                 Target = _cookerEntity,
@@ -94,7 +94,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             goal.State.Target = Entity.Null;
             SetGoal(goal.State);
             
-            var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
+            var buffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);
             buffer.RemoveAt(1);
             
             _system.Update();
@@ -146,7 +146,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
         {
             var newCookerEntity = new Entity {Index = 99, Version = 99};
             //增加一个较近的cooker，planner应该选择这个cooker
-            var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
+            var buffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);
             buffer.Add(new State
             {
                 Target = newCookerEntity,
@@ -195,7 +195,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             };
             SetGoal(goal.State);
             
-            var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
+            var buffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);
             buffer.Add(new State
             {
                 Target = itemSourceEntity,

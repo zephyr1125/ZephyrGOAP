@@ -40,8 +40,8 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
                 Trait = typeof(StaminaTrait),
             });
             
-            //给CurrentStates写入假环境数据：世界里有餐桌、有原料、配方
-            var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
+            //给BaseStates写入假环境数据：世界里有餐桌、有原料、配方
+            var buffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);
             buffer.Add(new State
             {
                 Target = _cookerEntity,

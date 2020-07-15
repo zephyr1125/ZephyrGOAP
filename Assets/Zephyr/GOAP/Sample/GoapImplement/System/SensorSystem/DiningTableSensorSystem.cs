@@ -22,12 +22,12 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
             [NativeDisableContainerSafetyRestriction, WriteOnly]
             public BufferFromEntity<State> States;
 
-            public Entity CurrentStatesEntity;
+            public Entity BaseStatesEntity;
             
             public void Execute(Entity entity, int jobIndex, ref Translation translation)
             {
                 //写入diningTable
-                var buffer = States[CurrentStatesEntity];
+                var buffer = States[BaseStatesEntity];
                 buffer.Add(new State
                 {
                     Target = entity,
@@ -42,7 +42,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
             var job = new SenseJob
             {
                 States = GetBufferFromEntity<State>(),
-                CurrentStatesEntity = CurrentStatesHelper.CurrentStatesEntity
+                BaseStatesEntity = BaseStatesHelper.BaseStatesEntity
             };
             var handle = job.Schedule(this, inputDeps);
             return handle;
