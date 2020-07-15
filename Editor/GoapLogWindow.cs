@@ -27,7 +27,7 @@ namespace Zephyr.GOAP.Editor
         private VisualElement _nodeContainer;
         private VisualElement _statesTip;
         private Button _editorLoggingButton, _autoPageButton;
-        private VisualElement _currentStatesContainer;
+        private VisualElement _baseStatesContainer;
 
         private static int NodeWidth = 320;
         private static int NodeHeight = 80;
@@ -88,7 +88,7 @@ namespace Zephyr.GOAP.Editor
             rootVisualElement.Q<Button>("prev-button").clicked += PrevResult;
             rootVisualElement.Q<Button>("next-button").clicked += NextResult;
             
-            _currentStatesContainer = rootVisualElement.Q("unity-content");
+            _baseStatesContainer = rootVisualElement.Q("unity-content");
             
             rootVisualElement.AddManipulator(this);
             //拖拽node graph
@@ -124,7 +124,7 @@ namespace Zephyr.GOAP.Editor
         private void Reset()
         {
             _nodeContainer?.Clear();
-            _currentStatesContainer?.Clear();
+            _baseStatesContainer?.Clear();
             _timelineView?.Clear();
         }
 
@@ -183,10 +183,10 @@ namespace Zephyr.GOAP.Editor
             rootVisualElement.Q<Label>("agent-name").text = 
                 $"{result.timeCost}ms at ({result.timeStart})";
             
-            _currentStatesContainer.Clear();
-            foreach (var states in _log.results[_currentResult].currentStates)
+            _baseStatesContainer.Clear();
+            foreach (var states in _log.results[_currentResult].baseStates)
             {
-                _currentStatesContainer.Add(new Label(states.ToString()));
+                _baseStatesContainer.Add(new Label(states.ToString()));
             }
         }
 

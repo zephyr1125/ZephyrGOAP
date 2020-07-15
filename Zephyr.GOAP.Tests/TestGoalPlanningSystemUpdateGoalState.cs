@@ -41,8 +41,8 @@
 //             var stateBuffer = EntityManager.AddBuffer<State>(_agentEntity);
 //             stateBuffer.Add(goalState);
 //             
-//             //给CurrentStates写入假环境数据：自己有原料、世界里有cooker和recipe
-//             var buffer = EntityManager.GetBuffer<State>(CurrentStatesHelper.CurrentStatesEntity);
+//             //给BaseStates写入假环境数据：自己有原料、世界里有cooker和recipe
+//             var buffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);
 //             buffer.Add(new State
 //             {
 //                 Target = _agentEntity,

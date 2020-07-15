@@ -73,9 +73,9 @@ namespace Zephyr.GOAP.Logger
             _currentResult.SetNodeTotalTimes(ref nodeTotalTimes);
         }
 
-        public void SetCurrentStates(ref StateGroup currentStates, EntityManager entityManager)
+        public void SetBaseStates(ref StateGroup baseStates, EntityManager entityManager)
         {
-            _currentResult.SetCurrentStates(ref currentStates, entityManager);
+            _currentResult.SetBaseStates(ref baseStates, entityManager);
         }
 
         public void SetSpecifiedPreconditions(EntityManager entityManager,

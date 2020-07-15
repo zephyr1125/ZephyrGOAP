@@ -14,9 +14,9 @@ namespace Zephyr.GOAP.Struct
         //ActionExpand时的临时标记：当前正在展开的node所相关的agent的Id
         public int CurrentAgentId;
 
-        public StateGroup CurrentStates;
+        public StateGroup BaseStates;
 
-        public StackData(ref NativeArray<Entity> agentEntities, ref NativeArray<Translation> agentTranslations, StateGroup currentStates)
+        public StackData(ref NativeArray<Entity> agentEntities, ref NativeArray<Translation> agentTranslations, StateGroup baseStates)
         {
             AgentEntities = agentEntities;
             AgentPositions = new NativeArray<float3>(agentTranslations.Length, Allocator.Persistent);
@@ -24,14 +24,14 @@ namespace Zephyr.GOAP.Struct
             {
                 AgentPositions[i] = agentTranslations[i].Value;
             }
-            CurrentStates = currentStates;
+            BaseStates = baseStates;
             CurrentAgentId = 0;
         }
         
         public void Dispose()
         {
             AgentPositions.Dispose();
-            CurrentStates.Dispose();
+            BaseStates.Dispose();
         }
     }
 }

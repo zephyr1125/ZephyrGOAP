@@ -28,7 +28,7 @@ namespace Zephyr.GOAP.Struct
         private NativeList<ValueTuple<int,int>> _requireHashes;
 
         /// <summary>
-        /// node对currentStates的累积改变量
+        /// node对baseStates的累积改变量
         /// </summary>
         [ReadOnly]
         private NativeList<ValueTuple<int, int>> _deltaHashes;

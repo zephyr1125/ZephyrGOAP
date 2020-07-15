@@ -18,7 +18,7 @@ namespace Zephyr.GOAP.Debugger
         void SetPathResult(EntityManager entityManager,
             ref NativeArray<Entity> pathEntities, ref NativeList<Node> pathResult);
 
-        void SetCurrentStates(ref StateGroup currentStates, EntityManager entityManager);
+        void SetBaseStates(ref StateGroup baseStates, EntityManager entityManager);
 
         void SetNodeAgentInfos(EntityManager entityManager,
             ref NativeMultiHashMap<int, NodeAgentInfo> nodeAgentInfos);

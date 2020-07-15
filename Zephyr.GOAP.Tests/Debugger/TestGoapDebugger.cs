@@ -45,9 +45,9 @@ namespace Zephyr.GOAP.Tests.Debugger
             _goapLog.SetNodeTotalTimes(ref nodeTimes);
         }
 
-        public void SetCurrentStates(ref StateGroup currentStates, EntityManager entityManager)
+        public void SetBaseStates(ref StateGroup baseStates, EntityManager entityManager)
         {
-            _goapLog.SetCurrentStates(ref currentStates, entityManager);
+            _goapLog.SetBaseStates(ref baseStates, entityManager);
         }
 
         public void SetRewardSum(ref NativeHashMap<int, float> rewardSum)
