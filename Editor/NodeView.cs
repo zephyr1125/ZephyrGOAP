@@ -156,6 +156,16 @@ namespace Zephyr.GOAP.Editor
                     effectContainer.Add(new Label(effect.ToString()));
                 }
             }
+            
+            var deltaContainer = _statesTip.Q("deltas");
+            deltaContainer.Clear();
+            if (Node.deltas != null)
+            {
+                foreach (var delta in Node.deltas)
+                {
+                    deltaContainer.Add(new Label(delta.ToString()));
+                }
+            }
 
             var agentsContainer = _statesTip.Q("agents");
             agentsContainer.Clear();

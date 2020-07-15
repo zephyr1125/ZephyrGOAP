@@ -217,7 +217,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         {
             var dependentTime = 0f;
             var preconditions =
-                NodeGraph.GetNodePreconditions(neighbourNode, Allocator.Temp);
+                NodeGraph.GetPreconditions(neighbourNode, Allocator.Temp);
             for(var preconditionId = 0; preconditionId < preconditions.Length(); preconditionId++)
             {
                 var precondition = preconditions[preconditionId];
@@ -238,7 +238,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                 for (var childId = 0; childId < childrenHash.Length; childId++)
                 {
                     var childHash = childrenHash[childId];
-                    var childEffects = NodeGraph.GetNodeEffects(NodeGraph[childHash],
+                    var childEffects = NodeGraph.GetEffects(NodeGraph[childHash],
                         Allocator.Temp);
                     foreach (var childEffect in childEffects)
                     {
@@ -317,7 +317,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                 case NodeNavigatingSubjectType.EffectTarget:
                 {
                     var neighbourEffects =
-                        NodeGraph.GetNodeEffects(neighbourNode, Allocator.Temp);
+                        NodeGraph.GetEffects(neighbourNode, Allocator.Temp);
                     var effect = neighbourEffects[neighbourNode.NavigatingSubjectId];
                     neighbourNavigatingPosition = effect.Position;
                     navigateSubject = effect.Target;

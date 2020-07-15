@@ -1,11 +1,13 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
-    <ui:VisualElement name="states" style="background-color: rgb(106, 106, 106);&#10;align-items: stretch;&#10;position: absolute;&#10;width: 320px;&#10;left: 0;&#10;top: 0;&#10;">
+    <ui:VisualElement name="states" style="background-color: rgb(106, 106, 106); align-items: stretch; position: absolute; width: 320px; left: 0; top: 0;">
         <Style src="states.uss" />
         <ui:Label text="Preconditions" name="title-preconditions" class="title" />
         <ui:VisualElement name="preconditions" class="state-container" />
-        <ui:Label text="Effects" name="title-effects" class="title" style="background-color: rgba(0, 75, 132, 255);&#10;" />
+        <ui:Label text="Effects" name="title-effects" class="title" style="background-color: rgb(0, 75, 132);" />
         <ui:VisualElement name="effects" class="state-container" />
-        <ui:Label text="Agents" name="title-agents" class="title" style="background-color: rgba(0, 132, 23, 255);&#10;" />
+        <ui:Label text="Deltas" name="title-deltas" class="title" style="background-color: rgb(132, 0, 95);" />
+        <ui:VisualElement name="deltas" class="state-container" />
+        <ui:Label text="Agents" name="title-agents" class="title" style="background-color: rgb(0, 132, 23);" />
         <ui:VisualElement name="agents" class="state-container" />
     </ui:VisualElement>
 </ui:UXML>
