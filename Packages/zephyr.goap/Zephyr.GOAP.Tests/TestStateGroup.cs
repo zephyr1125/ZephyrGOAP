@@ -172,65 +172,6 @@ namespace Zephyr.GOAP.Tests
             Assert.AreEqual(1, _aStates.Length());
             Assert.AreEqual(typeof(MockTraitA), _aStates[0].Trait);
         }
-        
-        //removeOther==true且可数时,右侧减少数量
-        [Test]
-        public void AND_RemoveOther_Countable_ReduceRight()
-        {
-            _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0},
-                Trait = typeof(MockTraitB), Amount = 5});
-            
-            _aStates.AND(_bStates, true);
-            Assert.AreEqual(1, _bStates.Length());
-            Assert.AreEqual(2, _bStates[0].Amount);
-        }
-        
-        //removeOther==true且可数时,右侧减少到0的要移除
-        [Test]
-        public void AND_RemoveOther_Countable_RightZero_RemoveRight()
-        {
-            _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0},
-                Trait = typeof(MockTraitB), ValueString = "b", Amount = 1});
-            
-            _aStates.AND(_bStates, true);
-            Assert.AreEqual(0, _bStates.Length());
-        }
-        
-        //removeOther==true且可数,右侧多个符合时,右侧多次减少数量并删除为0者
-        [Test]
-        public void AND_RemoveOther_Countable_MultiFit_ReduceRight()
-        {
-            _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0}, Trait = typeof(MockTraitB), Amount = 4});
-            _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0},
-                Trait = typeof(MockTraitB), ValueString = "b", Amount = 1});
-            
-            _aStates.AND(_bStates, true);
-            Assert.AreEqual(1, _bStates.Length());
-            Assert.AreEqual(2, _bStates[0].Amount);    //for循环是倒着遍历的
-        }
-        
-        //removeOther==false时,右侧不可以减少数量
-        [Test]
-        public void AND_RemoveOtherFalse_Countable_NotReduceRight()
-        {
-            _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0},
-                Trait = typeof(MockTraitB), Amount = 5});
-            
-            _aStates.AND(_bStates);
-            Assert.AreEqual(1, _bStates.Length());
-            Assert.AreEqual(5, _bStates[0].Amount);
-        }
-
-        //即使removeOther==true,右侧也不能移除NonCountable的state
-        [Test]
-        public void AND_RemoveOther_NonCountable_NotRemove()
-        {
-            _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0}, Trait = typeof(MockTraitA)});
-            
-            _aStates.AND(_bStates, true);
-            Assert.AreEqual(1, _bStates.Length());
-            Assert.AreEqual(typeof(MockTraitA), _bStates[0].Trait);
-        }
 
         //多个state的整体测试
         [Test]
@@ -241,11 +182,38 @@ namespace Zephyr.GOAP.Tests
             _bStates.Add(belongState);
             _bStates.Add(sameState);
             
-            _aStates.AND(_bStates, true);
+            _aStates.AND(_bStates);
             Assert.AreEqual(1, _aStates.Length());
             Assert.AreEqual(1, _aStates[0].Amount);
-            Assert.AreEqual(1, _bStates.Length());
+            Assert.AreEqual(2, _bStates.Length());
             Assert.AreEqual(belongState, _bStates[0]);
+        }
+
+        //要输出被移除了的右侧state
+        [Test]
+        public void AND_OutputOtherRemovedStates()
+        {
+            var sameState = new State{Target = new Entity{Index = 1, Version = 0}, Trait = typeof(MockTraitB), Amount = 2};
+            _bStates.Add(sameState);
+
+            var removedOther = _aStates.AND(_bStates, true);
+            Assert.AreEqual(1, removedOther.Length());
+            Assert.AreEqual(sameState, removedOther[0]);
+            removedOther.Dispose();
+        }
+        
+        //要输出被减少的右侧state的正确数量
+        [Test]
+        public void AND_OutputOtherReducedAmount()
+        {
+            var sameState = new State{Target = new Entity{Index = 1, Version = 0}, Trait = typeof(MockTraitB), Amount = 5};
+            _bStates.Add(sameState);
+
+            var removedOther = _aStates.AND(_bStates, true);
+            Assert.AreEqual(1, removedOther.Length());
+            Assert.IsTrue(removedOther[0].SameTo(sameState));
+            Assert.AreEqual(2, removedOther[0].Amount);
+            removedOther.Dispose();
         }
         
         #endregion

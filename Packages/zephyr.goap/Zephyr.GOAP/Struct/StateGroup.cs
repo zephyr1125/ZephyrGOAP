@@ -122,9 +122,16 @@ namespace Zephyr.GOAP.Struct
         /// 会移除掉左侧满足的State，可数的减数量，不可数的移除
         /// </summary>
         /// <param name="other"></param>
-        /// <param name="removeOther">是否移除右侧满足的State，不可数不会被移除</param>
-        public void AND(StateGroup other, bool removeOther = false)
+        /// <param name="outputChangedOtherStates">是否输出右侧被变动的state，不可数不会被移除</param>
+        /// <param name="allocator"></param>
+        public StateGroup AND(StateGroup other, bool outputChangedOtherStates = false, Allocator allocator = Allocator.Temp)
         {
+            StateGroup changedOtherStates = default;
+            if (outputChangedOtherStates)
+            {
+                changedOtherStates = new StateGroup(3, allocator);
+            }
+            
             for (var thisId = Length() - 1; thisId >= 0; thisId--)
             {
                 var thisState = this[thisId];
@@ -138,9 +145,14 @@ namespace Zephyr.GOAP.Struct
                         var thisStateRemoved = false;
                         if (!thisState.SameTo(otherState) && !otherState.BelongTo(thisState))
                             continue;
-                        var costAmount = thisState.Amount;
                         if (otherState.Amount>=thisState.Amount)
                         {
+                            if (outputChangedOtherStates)
+                            {
+                                var changedOther = otherState;
+                                changedOther.Amount -= thisState.Amount;
+                                changedOtherStates.Add(changedOther);
+                            }
                             _states.RemoveAtSwapBack(thisId);
                             thisStateRemoved = true;
                         }
@@ -148,17 +160,9 @@ namespace Zephyr.GOAP.Struct
                         {
                             thisState.Amount -= otherState.Amount;
                             _states[thisId] = thisState;
-                        }
-                        if (removeOther)
-                        {
-                            if (costAmount >= otherState.Amount)
+                            if (outputChangedOtherStates)
                             {
-                                other._states.RemoveAtSwapBack(otherId);
-                            }
-                            else
-                            {
-                                otherState.Amount -= costAmount;
-                                other[otherId] = otherState;
+                                changedOtherStates.Add(otherState);
                             }
                         }
 
@@ -174,7 +178,8 @@ namespace Zephyr.GOAP.Struct
                     }
                 }
             }
-            
+
+            return changedOtherStates;
         }
         
         /// <summary>

@@ -230,7 +230,7 @@ namespace Zephyr.GOAP.Editor
                 frame.Q("titlebar").style.backgroundColor = new Color(0.5f, 0f, 0f);
             }
 
-            Utils.AddStatesToContainer(frame.Q("states"), node.states);
+            Utils.AddStatesToContainer(frame.Q("states"), node.requires);
 
             if (id >= nodes.Count - 1) return;
             ConstructNode(parent, ref nodes, id+1, ref nodeCounts);

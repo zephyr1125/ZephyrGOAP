@@ -291,7 +291,7 @@ namespace Zephyr.GOAP.System
             for (var i = 0; i < pathNodes.Length; i++)
             {
                 var node = pathNodes[i];
-                var effects = nodeGraph.GetNodeEffects(node, Allocator.Temp);
+                var effects = nodeGraph.GetEffects(node, Allocator.Temp);
 
                 var entity = EntityManager.CreateEntity();
                 pathEntities[i] = entity;
@@ -390,9 +390,12 @@ namespace Zephyr.GOAP.System
                 nodeGraph.CleanAllDuplicateStates(uncheckedNode);
                 
                 var uncheckedRequires = nodeGraph.GetRequires(uncheckedNode, Allocator.Temp, true);
-                uncheckedRequires.AND(currentStates);
+                var deltaCurrentStates = uncheckedRequires.AND(currentStates, true);
                 //对这些require调整后重新放回nodeGraph
                 nodeGraph.AddRequires(uncheckedRequires, uncheckedNode.HashCode);
+                //存入delta
+                nodeGraph.AddDeltas(deltaCurrentStates, uncheckedNode.HashCode);
+                deltaCurrentStates.Dispose();
                 
                 //为了避免没有state的node(例如wander)与startNode有相同的hash，这种node被强制给了一个空state
                 //因此在只有1个state且内容为空时，也应视为找到了plan

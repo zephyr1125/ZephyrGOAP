@@ -86,7 +86,7 @@ namespace Zephyr.GOAP.Struct
                 {
                     var (nodeHash, stateHash) = _requireHashes[i];
                     if (!nodeHash.Equals(GoalNodeHash)) continue;
-                    // _states.Remove(stateHash); //不可以从states里清除，因为可能有多个node引用到
+                    // _states.Removere(stateHash); //不可以从states里清除，因为可能有多个node引用到
                     _requireHashes.RemoveAtSwapBack(i);
                 }
             }
@@ -262,18 +262,21 @@ namespace Zephyr.GOAP.Struct
             }
         }
         
-        public State[] GetRequires(Node node)
+        /// <summary>
+        /// 将一组state全部加入到某一个node的delta中
+        /// </summary>
+        /// <param name="states"></param>
+        /// <param name="nodeHash"></param>
+        /// <returns></returns>
+        public void AddDeltas(StateGroup states, int nodeHash)
         {
-            var result = new List<State>();
-            var nodeHash = node.HashCode;
-            for (var i = 0; i < _requireHashes.Length; i++)
+            for (var i = 0; i < states.Length(); i++)
             {
-                var (aNodeHash, stateHash) = _requireHashes[i];
-                if (!aNodeHash.Equals(nodeHash)) continue;
-                result.Add(_states[stateHash]);
+                var state = states[i];
+                var stateHash = state.GetHashCode();
+                _states.TryAdd(stateHash, state);
+                _deltaHashes.Add((nodeHash, stateHash));
             }
-
-            return result.ToArray();
         }
         
         /// <summary>
@@ -299,7 +302,21 @@ namespace Zephyr.GOAP.Struct
             }
         }
         
-        public StateGroup GetNodePreconditions(Node node, Allocator allocator)
+        public State[] GetStates(Node node)
+        {
+            var result = new List<State>();
+            var nodeHash = node.HashCode;
+            for (var i = 0; i < _deltaHashes.Length; i++)
+            {
+                var (aNodeHash, stateHash) = _requireHashes[i];
+                if (!aNodeHash.Equals(nodeHash)) continue;
+                result.Add(_states[stateHash]);
+            }
+
+            return result.ToArray();
+        }
+        
+        public StateGroup GetPreconditions(Node node, Allocator allocator)
         {
             var group = new StateGroup(1, allocator);
             var nodeHash = node.HashCode;
@@ -312,22 +329,8 @@ namespace Zephyr.GOAP.Struct
 
             return group;
         }
-        
-        public State[] GetNodePreconditions(Node node)
-        {
-            var result = new List<State>();
-            var nodeHash = node.HashCode;
-            for (var i = 0; i < _preconditionHashes.Length; i++)
-            {
-                var (aNodeHash, preconditionHash) = _preconditionHashes[i];
-                if (!aNodeHash.Equals(nodeHash)) continue;
-                result.Add(_states[preconditionHash]);
-            }
 
-            return result.ToArray();
-        }
-        
-        public StateGroup GetNodeEffects(Node node, Allocator allocator)
+        public StateGroup GetEffects(Node node, Allocator allocator)
         {
             var group = new StateGroup(1, allocator);
             var nodeHash = node.HashCode;
@@ -339,20 +342,6 @@ namespace Zephyr.GOAP.Struct
             }
 
             return group;
-        }
-        
-        public State[] GetNodeEffects(Node node)
-        {
-            var result = new List<State>();
-            var nodeHash = node.HashCode;
-            for (var i = 0; i < _effectHashes.Length; i++)
-            {
-                var (aNodeHash, effectHash) = _effectHashes[i];
-                if (!nodeHash.Equals(aNodeHash)) continue;
-                result.Add(_states[effectHash]);
-            }
-
-            return result.ToArray();
         }
 
         public NativeList<int> GetChildren(int hash, Allocator allocator)
@@ -390,6 +379,40 @@ namespace Zephyr.GOAP.Struct
                 return;
             }
         }
+        
+        public State[] GetPreconditions(Node node)
+        {
+            return GetStates(_preconditionHashes, node);
+        }
+        
+        public State[] GetEffects(Node node)
+        {
+            return GetStates(_effectHashes, node);
+        }
+        
+        public State[] GetRequires(Node node)
+        {
+            return GetStates(_requireHashes, node);
+        }
+        
+        public State[] GetDeltas(Node node)
+        {
+            return GetStates(_deltaHashes, node);
+        }
+        
+        public State[] GetStates(NativeList<ValueTuple<int, int>> container, Node node)
+        {
+            var result = new List<State>();
+            var nodeHash = node.HashCode;
+            for (var i = 0; i < container.Length; i++)
+            {
+                var (aNodeHash, stateHash) = container[i];
+                if (!aNodeHash.Equals(nodeHash)) continue;
+                result.Add(_states[stateHash]);
+            }
+
+            return result.ToArray();
+        }
 
         /// <summary>
         /// 由于ActionExpand的并行会导致产生重复state
@@ -403,7 +426,7 @@ namespace Zephyr.GOAP.Struct
             CleanDuplicateStates(_requireHashes, node);
         }
         
-        private void CleanDuplicateStates<T>(NativeList<ValueTuple<int, T>> container, Node node)
+        private void CleanDuplicateStates(NativeList<ValueTuple<int, int>> container, Node node)
         {
             var nodeHash = node.HashCode;
             for (var baseId = 0; baseId < container.Length; baseId++)

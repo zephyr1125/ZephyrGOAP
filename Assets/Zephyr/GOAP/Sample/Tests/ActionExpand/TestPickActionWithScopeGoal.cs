@@ -35,13 +35,13 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             var children = _debugger.GetChildren(_debugger.GoalNodeLog);
             Assert.AreEqual(5, children.Length);
             Assert.IsTrue(children.Any(
-                nodeLog => nodeLog.states[0].valueString.Equals(Utils.RawAppleName.ToString())));
+                nodeLog => nodeLog.requires[0].valueString.Equals(Utils.RawAppleName.ToString())));
             Assert.IsTrue(children.Any(
-                nodeLog => nodeLog.states[0].valueString.Equals(Utils.RoastAppleName.ToString())));
+                nodeLog => nodeLog.requires[0].valueString.Equals(Utils.RoastAppleName.ToString())));
             Assert.IsTrue(children.Any(
-                nodeLog => nodeLog.states[0].valueString.Equals(Utils.RawPeachName.ToString())));
+                nodeLog => nodeLog.requires[0].valueString.Equals(Utils.RawPeachName.ToString())));
             Assert.IsTrue(children.Any(
-                nodeLog => nodeLog.states[0].valueString.Equals(Utils.RoastPeachName.ToString())));
+                nodeLog => nodeLog.requires[0].valueString.Equals(Utils.RoastPeachName.ToString())));
         }
     }
 }

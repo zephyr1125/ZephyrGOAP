@@ -1,0 +1,27 @@
+.main-frame {
+    flex-grow: 1;
+    background-color: rgb(38, 38, 38);
+    flex-shrink: 0;
+}
+
+.toolbar {
+    background-color: rgb(96, 96, 96);
+    height: 24px;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 2px;
+    padding-right: 2px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+.toolbar-button {
+    width: auto;
+    background-color: rgb(200, 200, 200);
+}
+
+.toolbar-button:hover {
+    background-color: rgb(238, 238, 238);
+}
