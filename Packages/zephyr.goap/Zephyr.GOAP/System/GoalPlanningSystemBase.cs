@@ -497,19 +497,29 @@ namespace Zephyr.GOAP.System
             var requireHashesWriter = nodeGraph.RequireHashesWriter;
             var deltaHashesWriter = nodeGraph.DeltaHashesWriter;
 
-            Debugger?.LogPerformance($"Expand{iteration}.PrepareDone: {(DateTime.Now - expandStartTime).TotalMilliseconds:F1}");
-
             var agentAmount = stackData.AgentEntities.Length;
+            var nodeAmount = unexpandedNodes.Length;
             var nodeAgentPairAmount = unexpandedNodes.Length * agentAmount;
 
             var nodeAgentPairs =
                 new NativeArray<ValueTuple<Entity, Node>>(nodeAgentPairAmount, Allocator.TempJob);
-            var handle = new PrepareNodeAgentPairsJob
+            for (var agentId = 0; agentId < stackData.AgentEntities.Length; agentId++)
             {
-                Entities = stackData.AgentEntities,
-                Nodes = unexpandedNodes,
-                NodeAgentPairs = nodeAgentPairs
-            }.Schedule(nodeAgentPairAmount, nodeAgentPairAmount);
+                for (var nodeId = 0; nodeId < unexpandedNodes.Length; nodeId++)
+                {
+                    nodeAgentPairs[agentId*nodeAmount + nodeId] = (stackData.AgentEntities[agentId], unexpandedNodes[nodeId]);
+                }
+            }
+            
+            Debugger?.LogPerformance($"Expand{iteration}.PrepareDone: {(DateTime.Now - expandStartTime).TotalMilliseconds:F1}");
+            
+            var handle = default(JobHandle);
+            // var handle = new PrepareNodeAgentPairsJob
+            // {
+            //     Entities = stackData.AgentEntities,
+            //     Nodes = unexpandedNodes,
+            //     NodeAgentPairs = nodeAgentPairs
+            // }.Schedule(nodeAgentPairAmount, nodeAgentPairAmount);
             
             var requires = nodeGraph.GetRequires(unexpandedNodes, Allocator.TempJob);
             var deltas = nodeGraph.GetDeltas(unexpandedNodes, Allocator.TempJob);
