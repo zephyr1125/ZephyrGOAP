@@ -1,8 +1,10 @@
 using System;
+using System.Globalization;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Transforms;
+using UnityEngine;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.GoalManage;
 using Zephyr.GOAP.Component.GoalManage.GoalState;
@@ -70,6 +72,8 @@ namespace Zephyr.GOAP.System
                 agentEntities.Dispose();
                 return;
             }
+
+            var agentAmount = agentEntities.Length;
             
             //找到最急需的一个goal
             var goal = GetMostPriorityGoal();
@@ -90,12 +94,12 @@ namespace Zephyr.GOAP.System
             Debugger?.StartLog(EntityManager);
             Debugger?.SetBaseStates(ref stackData.BaseStates, EntityManager);
 
-            var uncheckedNodes = new NativeHashMap<int, Node>(32, Allocator.TempJob);
+            var uncheckedNodes = new NativeHashMap<int, Node>(32*agentAmount, Allocator.TempJob);
             var uncheckedNodesWriter = uncheckedNodes.AsParallelWriter();
             var unexpandedNodes = new NativeList<Node>(Allocator.TempJob);
             var expandedNodes = new NativeList<Node>(Allocator.TempJob);
 
-            var nodeGraph = new NodeGraph(512, ref baseStateBuffer, Allocator.TempJob);
+            var nodeGraph = new NodeGraph(128*agentAmount, ref baseStateBuffer, Allocator.TempJob);
 
             var goalPrecondition = new StateGroup();
             var goalEffects = new StateGroup();
@@ -114,10 +118,10 @@ namespace Zephyr.GOAP.System
             
             while (uncheckedNodes.Count() > 0 && iteration < ExpandIterations)
             {
-                Debugger?.Log("Loop:");
                 //对待检查列表进行检查（与BaseStates比对）
                 if (CheckNodes(ref uncheckedNodes, ref nodeGraph, ref stackData.BaseStates,
                     ref unexpandedNodes, iteration)) foundPlan = true;
+                
 
                 //对待展开列表进行展开，并挑选进入待检查和展开后列表
                 ExpandNodes(ref unexpandedNodes, ref stackData, ref nodeGraph,
@@ -382,6 +386,7 @@ namespace Zephyr.GOAP.System
         public bool CheckNodes(ref NativeHashMap<int, Node> uncheckedNodes, ref NodeGraph nodeGraph,
             ref StateGroup baseStates, ref NativeList<Node> unexpandedNodes, int iteration)
         {
+            var checkTime = DateTime.Now;
             bool foundPlan = false;
             var nodes = uncheckedNodes.GetValueArray(Allocator.Temp);
             foreach (var uncheckedNode in nodes)
@@ -446,6 +451,9 @@ namespace Zephyr.GOAP.System
 
             nodes.Dispose();
             uncheckedNodes.Clear();
+            Debugger?.LogPerformance($"checkTime{iteration}: " +
+                                     $"{(DateTime.Now - checkTime).TotalMilliseconds:F1}");
+                ;
             return foundPlan;
         }
 
@@ -472,16 +480,14 @@ namespace Zephyr.GOAP.System
         {
             if (unexpandedNodes.Length <= 0) return;
             
+            var expandStartTime = DateTime.Now;
+            
             foreach (var node in unexpandedNodes)
             {
                 Debugger?.Log("expanding node: "+node.Name+", "+node.GetHashCode());
             }
 
             var existedNodesHash = nodeGraph.GetAllNodesHash(Allocator.TempJob);
-            nodeGraph.GetRequires(ref unexpandedNodes,
-                out var requires, Allocator.TempJob);
-            nodeGraph.GetDeltas(ref unexpandedNodes,
-                out var deltas, Allocator.TempJob);
             var nodesWriter = nodeGraph.NodesWriter;
             var nodeToParentsWriter = nodeGraph.NodeToParentsWriter;
 
@@ -490,29 +496,47 @@ namespace Zephyr.GOAP.System
             var preconditionHashesWriter = nodeGraph.PreconditionHashesWriter;
             var requireHashesWriter = nodeGraph.RequireHashesWriter;
             var deltaHashesWriter = nodeGraph.DeltaHashesWriter;
+
+            Debugger?.LogPerformance($"Expand{iteration}.PrepareDone: {(DateTime.Now - expandStartTime).TotalMilliseconds:F1}");
+
+            var agentAmount = stackData.AgentEntities.Length;
+            var nodeAgentPairAmount = unexpandedNodes.Length * agentAmount;
+
+            var nodeAgentPairs =
+                new NativeArray<ValueTuple<Entity, Node>>(nodeAgentPairAmount, Allocator.TempJob);
+            var handle = new PrepareNodeAgentPairsJob
+            {
+                Entities = stackData.AgentEntities,
+                Nodes = unexpandedNodes,
+                NodeAgentPairs = nodeAgentPairs
+            }.Schedule(nodeAgentPairAmount, nodeAgentPairAmount);
             
-            var handle = default(JobHandle);
+            var requires = nodeGraph.GetRequires(unexpandedNodes, Allocator.TempJob);
+            var deltas = nodeGraph.GetDeltas(unexpandedNodes, Allocator.TempJob);
             
             handle = ScheduleAllActionExpand(handle, ref stackData,
-                ref unexpandedNodes, ref existedNodesHash,  ref requires, ref deltas, nodesWriter,
+                nodeAgentPairs, ref existedNodesHash, requires, deltas, nodesWriter,
                 nodeToParentsWriter, statesWriter, preconditionHashesWriter,
                 effectHashesWriter, requireHashesWriter, deltaHashesWriter,
                 ref uncheckedNodes, iteration);
-
-            handle.Complete();
-            existedNodesHash.Dispose();
-            requires.Dispose();
-            deltas.Dispose();
+                
+            requires.Dispose(handle);
+            deltas.Dispose(handle);
+            nodeAgentPairs.Dispose(handle);
+            existedNodesHash.Dispose(handle);
             
+            handle.Complete();
+
             expandedNodes.AddRange(unexpandedNodes);
             unexpandedNodes.Clear();
+            
+            Debugger?.LogPerformance($"Expand{iteration}.Total: {(DateTime.Now - expandStartTime).TotalMilliseconds:F1}");
         }
 
         protected abstract JobHandle ScheduleAllActionExpand(JobHandle handle,
-            ref StackData stackData, ref NativeList<Node> unexpandedNodes,
+            ref StackData stackData, NativeArray<ValueTuple<Entity, Node>> nodeAgentPairs,
             ref NativeArray<int> existedNodesHash,
-            ref NativeList<ValueTuple<int, State>> requires,
-            ref NativeList<ValueTuple<int, State>> deltas,
+            NativeList<ValueTuple<int, State>> requires, NativeList<ValueTuple<int, State>> deltas,
             NativeHashMap<int, Node>.ParallelWriter nodesWriter,
             NativeList<ValueTuple<int, int>>.ParallelWriter nodeToParentsWriter,
             NativeHashMap<int, State>.ParallelWriter statesWriter,
@@ -523,10 +547,9 @@ namespace Zephyr.GOAP.System
             ref NativeHashMap<int, Node>.ParallelWriter newlyCreatedNodesWriter, int iteration);
         
         protected JobHandle ScheduleActionExpand<T>(JobHandle handle,
-            ref StackData stackData, ref NativeList<Node> unexpandedNodes,
+            ref StackData stackData, NativeArray<ValueTuple<Entity, Node>> nodeAgentPairs,
             ref NativeArray<int> existedNodesHash,
-            ref NativeList<ValueTuple<int, State>> requires,
-            ref NativeList<ValueTuple<int, State>> deltas,
+            NativeList<ValueTuple<int, State>> requires, NativeList<ValueTuple<int, State>> deltas,
             NativeHashMap<int, Node>.ParallelWriter nodesWriter,
             NativeList<ValueTuple<int, int>>.ParallelWriter nodeToParentsWriter,
             NativeHashMap<int, State>.ParallelWriter statesWriter,
@@ -536,45 +559,39 @@ namespace Zephyr.GOAP.System
             NativeList<ValueTuple<int, int>>.ParallelWriter deltaHashesWriter, 
             ref NativeHashMap<int, Node>.ParallelWriter newlyCreatedNodesWriter, int iteration) where T : struct, IAction, IComponentData
         {
-            var agentCount = 0;
-            for (var i = 0; i < stackData.AgentEntities.Length; i++)
+            var agentEntityAmount = stackData.AgentEntities.Length;
+            var actions = new NativeHashMap<Entity, T>(agentEntityAmount, Allocator.TempJob);
+            for (var agentId= 0; agentId < agentEntityAmount; agentId++)
             {
-                stackData.CurrentAgentId = i;
-                var agentEntity = stackData.AgentEntities[i];
-                if (!EntityManager.HasComponent<T>(agentEntity)) continue;
-
-                var sameAgent = false;
-                for (var nodeId = 0; nodeId < unexpandedNodes.Length; nodeId++)
-                {
-                    if (sameAgent) break;
-                    var unexpandedNode = unexpandedNodes[nodeId];
-                    for (var stateId = 0; stateId < requires.Length; stateId++)
-                    {
-                        var (hash, state) = requires[stateId];
-                        if (!hash.Equals(unexpandedNode.HashCode)) continue;
-                        if (!state.Target.Equals(agentEntity)) continue;
-                        sameAgent = true;
-                        break;
-                    }
-                }
-                
-                //即使超过了agent计数，但是这个agent是goal的target的话也要尝试展开
-                if (agentCount >= MaxAgentForAction && !sameAgent)
+                var agentEntity = stackData.AgentEntities[agentId];
+                if (!EntityManager.HasComponent<T>(agentEntity))
                 {
                     continue;
                 }
-                
-                var action = EntityManager.GetComponentData<T>(agentEntity);
-                handle = new ActionExpandJob<T>(ref unexpandedNodes, ref existedNodesHash,
-                    ref stackData, ref requires, ref deltas, nodesWriter, nodeToParentsWriter,
-                    statesWriter, 
-                    preconditionHashesWriter, effectHashesWriter, requireHashesWriter, deltaHashesWriter,
-                    ref newlyCreatedNodesWriter, iteration, action).Schedule(
-                    unexpandedNodes, 6, handle);
-                
-                //优化点：如果能够执行的agent较多，只展开其中前几个
-                agentCount++;
+                actions[agentEntity] = EntityManager.GetComponentData<T>(agentEntity);
             }
+            
+            handle = new ActionExpandJob<T>
+            {
+                NodeAgentPairs = nodeAgentPairs,
+                Actions = actions,
+                ExistedNodesHash = existedNodesHash,
+                StackData = stackData,
+                Requires = requires,
+                Deltas = deltas,
+                NodesWriter = nodesWriter,
+                NodeToParentsWriter = nodeToParentsWriter,
+                StatesWriter = statesWriter,
+                PreconditionHashesWriter = preconditionHashesWriter,
+                EffectHashesWriter = effectHashesWriter,
+                RequireHashesWriter = requireHashesWriter,
+                DeltaHashesWriter = deltaHashesWriter,
+                NewlyCreatedNodesWriter = newlyCreatedNodesWriter,
+                Iteration = iteration
+            }.Schedule(
+                nodeAgentPairs.Length, nodeAgentPairs.Length, handle);
+
+            actions.Dispose(handle);
             return handle;
         }
     }

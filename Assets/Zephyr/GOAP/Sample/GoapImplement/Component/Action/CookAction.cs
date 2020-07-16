@@ -20,7 +20,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return nameof(CookAction);
         }
 
-        public State GetTargetRequire(ref StateGroup targetRequires, ref StackData stackData)
+        public State GetTargetRequire(ref StateGroup targetRequires, Entity agentEntity, ref StackData stackData)
         {
             foreach (var targetRequire in targetRequires)
             {
@@ -67,7 +67,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return !stackData.BaseStates.GetBelongingState(foodRecipeState).Equals(State.Null);
         }
         
-        public StateGroup GetSettings(ref State targetState, ref StackData stackData, Allocator allocator)
+        public StateGroup GetSettings(ref State targetState, Entity agentEntity, ref StackData stackData, Allocator allocator)
         {
             var settings = new StateGroup(1, allocator);
 
@@ -84,7 +84,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
 
                 var nearestDistance = float.MaxValue;
                 var nearestState = new State();
-                var agentPosition = stackData.AgentPositions[stackData.CurrentAgentId];
+                var agentPosition = stackData.GetAgentPosition(agentEntity);
                 foreach (var state in cookerStates)
                 {
                     var distance = math.distance(state.Position, agentPosition);
@@ -139,7 +139,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return settings;
         }
 
-        public void GetPreconditions(ref State targetState, ref State setting,
+        public void GetPreconditions(ref State targetState, Entity agentEntity, ref State setting,
             ref StackData stackData, ref StateGroup preconditions)
         {
             //cooker有其生产所需原料

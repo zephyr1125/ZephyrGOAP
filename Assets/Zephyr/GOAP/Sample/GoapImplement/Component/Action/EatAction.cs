@@ -18,13 +18,13 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return nameof(EatAction);
         }
 
-        public State GetTargetRequire(ref StateGroup targetRequires, ref StackData stackData)
+        public State GetTargetRequire(ref StateGroup targetRequires, Entity agentEntity, ref StackData stackData)
         {
             foreach (var targetState in targetRequires)
             {
                 var staminaState = new State
                 {
-                    Target = stackData.AgentEntities[stackData.CurrentAgentId],
+                    Target = agentEntity,
                     Trait = typeof(StaminaTrait),
                 };
                 //只针对自身stamina的正面goal state
@@ -36,7 +36,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return default;
         }
         
-        public StateGroup GetSettings(ref State targetState, ref StackData stackData, Allocator allocator)
+        public StateGroup GetSettings(ref State targetState, Entity agentEntity, ref StackData stackData, Allocator allocator)
         {
             var settings = new StateGroup(1, allocator);
             
@@ -73,7 +73,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return settings;
         }
 
-        public void GetPreconditions(ref State targetState, ref State setting,
+        public void GetPreconditions(ref State targetState, Entity agentEntity, ref State setting,
             ref StackData stackData, ref StateGroup preconditions)
         {
             //有食物的餐桌

@@ -19,7 +19,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return nameof(CollectAction);
         }
 
-        public State GetTargetRequire(ref StateGroup targetRequires, ref StackData stackData)
+        public State GetTargetRequire(ref StateGroup targetRequires, Entity agentEntity, ref StackData stackData)
         {
             foreach (var targetState in targetRequires)
             {
@@ -49,7 +49,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return default;
         }
         
-        public StateGroup GetSettings(ref State targetState, ref StackData stackData, Allocator allocator)
+        public StateGroup GetSettings(ref State targetState, Entity agentEntity, ref StackData stackData, Allocator allocator)
         {
             var settings = new StateGroup(1, allocator);
 
@@ -75,7 +75,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                     };
                     if(stackData.BaseStates.GetBelongingState(collectState).Equals(default))continue;
                     var distance = math.distance(collector.Position,
-                        stackData.AgentPositions[stackData.CurrentAgentId]);
+                        stackData.GetAgentPosition(agentEntity));
                     if (distance >= nearestDistance) continue;
                     nearestDistance = distance;
                     nearestCollectorState = collector;
@@ -93,7 +93,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return settings;
         }
 
-        public void GetPreconditions(ref State targetState, ref State setting,
+        public void GetPreconditions(ref State targetState, Entity agentEntity, ref State setting,
             ref StackData stackData, ref StateGroup preconditions)
         {
             preconditions.Add(new State

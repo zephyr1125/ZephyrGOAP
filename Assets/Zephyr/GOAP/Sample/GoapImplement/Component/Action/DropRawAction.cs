@@ -19,7 +19,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return nameof(DropRawAction);
         }
 
-        public State GetTargetRequire(ref StateGroup targetRequires, ref StackData stackData)
+        public State GetTargetRequire(ref StateGroup targetRequires, Entity agentEntity, ref StackData stackData)
         {
             //针对“目标获得原料”的state
             var stateFilter = new State
@@ -31,7 +31,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return targetRequires.GetState(state => !agents.Contains(state.Target) && state.BelongTo(stateFilter));
         }
         
-        public StateGroup GetSettings(ref State targetState, ref StackData stackData, Allocator allocator)
+        public StateGroup GetSettings(ref State targetState, Entity agentEntity, ref StackData stackData, Allocator allocator)
         {
             //目前不考虑无Target或宽泛类别的goal
             var settings = new StateGroup(1, allocator);
@@ -42,12 +42,12 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return settings;
         }
 
-        public void GetPreconditions(ref State targetState, ref State setting,
+        public void GetPreconditions(ref State targetState, Entity agentEntity, ref State setting,
             ref StackData stackData, ref StateGroup preconditions)
         {
             //我自己需要有指定的原料
             var state = setting;
-            state.Target = stackData.AgentEntities[stackData.CurrentAgentId];
+            state.Target = agentEntity;
             state.Trait = typeof(RawTransferTrait);
             preconditions.Add(state);
         }

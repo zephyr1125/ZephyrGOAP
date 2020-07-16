@@ -36,5 +36,7 @@ namespace Zephyr.GOAP.Debugger
         void Log(string log);
 
         void LogWarning(string log);
+
+        void LogPerformance(string log);
     }
 }
