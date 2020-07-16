@@ -200,29 +200,6 @@ namespace Zephyr.GOAP.Struct
         }
 
         /// <summary>
-        /// 读取指定node组的所有require
-        /// </summary>
-        /// <param name="nodes"></param>
-        /// <param name="outStates"></param>
-        /// <param name="allocator"></param>
-        public void GetRequires(ref NativeList<Node> nodes,
-            out NativeList<ValueTuple<int, State>> outStates, Allocator allocator)
-        {
-            outStates = new NativeList<ValueTuple<int, State>>(allocator);
-            
-            for (var i = 0; i < nodes.Length; i++)
-            {
-                var nodeHash = nodes[i].HashCode;
-                for (var stateHashId = 0; stateHashId < _requireHashes.Length; stateHashId++)
-                {
-                    var (aNodeHash, stateHash) = _requireHashes[stateHashId];
-                    if (!aNodeHash.Equals(nodeHash)) continue;
-                    outStates.Add((nodeHash, _states[stateHash]));
-                }
-            }
-        }
-
-        /// <summary>
         /// 读取指定node的所有require到StateGroup中
         /// </summary>
         /// <param name="node"></param>
@@ -399,8 +376,8 @@ namespace Zephyr.GOAP.Struct
         {
             return GetStates(_deltaHashes, node);
         }
-        
-        public State[] GetStates(NativeList<ValueTuple<int, int>> container, Node node)
+
+        private State[] GetStates(NativeList<ValueTuple<int, int>> container, Node node)
         {
             var result = new List<State>();
             var nodeHash = node.HashCode;
@@ -412,6 +389,67 @@ namespace Zephyr.GOAP.Struct
             }
 
             return result.ToArray();
+        }
+        
+        public NativeList<State> GetRequires(Node node, Allocator allocator)
+        {
+            return GetStates(_requireHashes, node, allocator);
+        }
+        
+        public NativeList<State> GetDeltas(Node node, Allocator allocator)
+        {
+            return GetStates(_deltaHashes, node, allocator);
+        }
+
+        private NativeList<State> GetStates(NativeList<ValueTuple<int, int>> container, Node node, Allocator allocator)
+        {
+            var list = new NativeList<State>(allocator);
+            var nodeHash = node.HashCode;
+            for (var i = 0; i < container.Length; i++)
+            {
+                var (aNodeHash, stateHash) = container[i];
+                if (!aNodeHash.Equals(nodeHash)) continue;
+                list.Add(_states[stateHash]);
+            }
+            
+            return list;
+        }
+
+        public NativeList<ValueTuple<int, State>> GetRequires(NativeList<Node> nodes,
+            Allocator allocator)
+        {
+            return GetStates(_requireHashes, nodes, allocator);
+        }
+        
+        public NativeList<ValueTuple<int, State>> GetDeltas(NativeList<Node> nodes,
+            Allocator allocator)
+        {
+            return GetStates(_deltaHashes, nodes, allocator);
+        }
+
+        /// <summary>
+        /// 读取指定node组的所有state
+        /// </summary>
+        /// <param name="container"></param>
+        /// <param name="nodes"></param>
+        /// <param name="allocator"></param>
+        private NativeList<ValueTuple<int, State>> GetStates(NativeList<ValueTuple<int, int>> container, NativeList<Node> nodes,
+            Allocator allocator)
+        {
+            var result = new NativeList<ValueTuple<int, State>>(allocator);
+            
+            for (var i = 0; i < nodes.Length; i++)
+            {
+                var nodeHash = nodes[i].HashCode;
+                for (var stateHashId = 0; stateHashId < container.Length; stateHashId++)
+                {
+                    var (aNodeHash, stateHash) = container[stateHashId];
+                    if (!aNodeHash.Equals(nodeHash)) continue;
+                    result.Add((nodeHash, _states[stateHash]));
+                }
+            }
+
+            return result;
         }
 
         /// <summary>

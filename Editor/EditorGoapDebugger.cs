@@ -79,5 +79,10 @@ namespace Zephyr.GOAP.Editor
         {
             _onLogDone?.Invoke(_goapLog);
         }
+
+        public void LogPerformance(string log)
+        {
+            // Debug.Log(log);
+        }
     }
 }

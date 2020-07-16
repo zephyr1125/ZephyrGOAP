@@ -29,6 +29,16 @@ namespace Zephyr.GOAP.Struct
             }
         }
         
+        public StateGroup(NativeArray<State> copyFrom, Allocator allocator)
+        {
+            _states = new NativeList<State>(copyFrom.Length, allocator);
+            for (var i = 0; i < copyFrom.Length; i++)
+            {
+                var state = copyFrom[i];
+                _states.Add(state);
+            }
+        }
+        
         public StateGroup(ZephyrNativeMinHeap<State> copyFrom, Allocator allocator)
         {
             _states = new NativeList<State>(allocator);
@@ -55,23 +65,44 @@ namespace Zephyr.GOAP.Struct
         /// <param name="copyFrom"></param>
         /// <param name="length"></param>
         /// <param name="allocator"></param>
-        public StateGroup(StateGroup copyFrom, int length, Allocator allocator)
+        public StateGroup(NativeArray<State> copyFrom, int length, Allocator allocator)
         {
             _states = new NativeList<State>(length, allocator);
             for (var i = 0; i < length; i++)
             {
-                var state = copyFrom._states[i];
+                var state = copyFrom[i];
                 _states.Add(state);
             }
         }
-        
-        public StateGroup(NativeMinHeap<State> copyFrom, int length, Allocator allocator)
+
+        /// <summary>
+        /// 只拷贝来源的前几个state
+        /// </summary>
+        /// <param name="copyFrom"></param>
+        /// <param name="nodeHash"></param>
+        /// <param name="length"></param>
+        /// <param name="allocator"></param>
+        public StateGroup(NativeList<ValueTuple<int, State>> copyFrom, int nodeHash, int length, Allocator allocator)
         {
             _states = new NativeList<State>(length, allocator);
-            for (var i = 0; i < length; i++)
+            var pCopied = 0;
+            for (var stateId = 0; stateId < copyFrom.Length; stateId++)
             {
-                var found = copyFrom.Pop();
-                var state = copyFrom[found].Content;
+                var (aNodeHash, state) = copyFrom[stateId];
+                if (!aNodeHash.Equals(nodeHash)) continue;
+                _states.Add(state);
+                pCopied++;
+                if (pCopied >= length) break;
+            }
+        }
+        
+        public StateGroup(NativeList<ValueTuple<int, State>> copyFrom, int nodeHash, Allocator allocator)
+        {
+            _states = new NativeList<State>(copyFrom.Length, allocator);
+            for (var stateId = 0; stateId < copyFrom.Length; stateId++)
+            {
+                var (aNodeHash, state) = copyFrom[stateId];
+                if (!aNodeHash.Equals(nodeHash)) continue;
                 _states.Add(state);
             }
         }

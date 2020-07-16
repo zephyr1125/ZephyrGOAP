@@ -12,17 +12,17 @@ namespace Zephyr.GOAP.Tests.Mock
             return "MockAction";
         }
 
-        public State GetTargetRequire(ref StateGroup targetRequires, ref StackData stackData)
+        public State GetTargetRequire(ref StateGroup targetRequires, Entity agentEntity, ref StackData stackData)
         {
             return default;
         }
 
-        public StateGroup GetSettings(ref State targetState, ref StackData stackData, Allocator allocator)
+        public StateGroup GetSettings(ref State targetState, Entity agentEntity, ref StackData stackData, Allocator allocator)
         {
             return new StateGroup(1, allocator);
         }
 
-        public void GetPreconditions(ref State targetState, ref State setting, ref StackData stackData,
+        public void GetPreconditions(ref State targetState, Entity agentEntity, ref State setting, ref StackData stackData,
             ref StateGroup preconditions)
         {
             
