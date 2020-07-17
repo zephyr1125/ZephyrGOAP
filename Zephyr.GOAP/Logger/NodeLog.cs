@@ -44,7 +44,7 @@ namespace Zephyr.GOAP.Logger
 
         public Entity pathNodeEntity;
 
-        public NodeLog(ref NodeGraph nodeGraph, EntityManager entityManager, Node node)
+        public NodeLog(NodeGraph nodeGraph, EntityManager entityManager, Node node)
         {
             name = node.Name.ToString();
             iteration = node.Iteration;
@@ -78,8 +78,8 @@ namespace Zephyr.GOAP.Logger
         }
 
         public void SetSpecifiedPreconditions(EntityManager entityManager,
-            ref NativeList<int> pathNodeSpecifiedPreconditionIndices,
-            ref NativeList<State> pathNodeSpecifiedPreconditions)
+            NativeList<int> pathNodeSpecifiedPreconditionIndices,
+            NativeList<State> pathNodeSpecifiedPreconditions)
         {
             if (!isPath) return;
             

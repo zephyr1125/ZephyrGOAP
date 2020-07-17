@@ -12,7 +12,7 @@ namespace Zephyr.GOAP.Struct
         public NativeArray<float3> AgentPositions;
         public StateGroup BaseStates;
 
-        public StackData(NativeList<Entity> agentEntities, ref NativeArray<Translation> agentTranslations, StateGroup baseStates)
+        public StackData(NativeList<Entity> agentEntities, NativeArray<Translation> agentTranslations, StateGroup baseStates)
         {
             AgentEntities = agentEntities;
             AgentPositions = new NativeArray<float3>(agentTranslations.Length, Allocator.Persistent);

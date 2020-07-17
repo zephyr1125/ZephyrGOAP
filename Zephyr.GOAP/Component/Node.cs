@@ -57,7 +57,7 @@ namespace Zephyr.GOAP.Component
         /// </summary>
         public float EstimateStartTime;
 
-        public Node(ref StateGroup preconditions, ref StateGroup effects, ref StateGroup requires, ref StateGroup deltas,
+        public Node(StateGroup preconditions, StateGroup effects, StateGroup requires, StateGroup deltas,
             NativeString32 name, float reward, float executeTime, int iteration, Entity agentExecutorEntity,
             NodeNavigatingSubjectType subjectType = NodeNavigatingSubjectType.Null, byte subjectId = 0) : this()
         {
@@ -82,18 +82,18 @@ namespace Zephyr.GOAP.Component
             return HashCode.Equals(other.HashCode);
         }
 
-        public float GetReward([ReadOnly]ref NodeGraph nodeGraph)
+        public float GetReward([ReadOnly]NodeGraph nodeGraph)
         {
             return Reward;
         }
 
-        public float Heuristic([ReadOnly]ref NodeGraph nodeGraph)
+        public float Heuristic([ReadOnly]NodeGraph nodeGraph)
         {
             //todo heuristic计算
             return -Iteration;
         }
 
-        public NativeList<int> GetNeighbours([ReadOnly]ref NodeGraph nodeGraph, Allocator allocator)
+        public NativeList<int> GetNeighbours([ReadOnly]NodeGraph nodeGraph, Allocator allocator)
         {
             //所有的parent即为neighbour
             return nodeGraph.GetNodeParents(HashCode, allocator);

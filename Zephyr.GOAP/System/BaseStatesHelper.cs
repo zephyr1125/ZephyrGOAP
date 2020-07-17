@@ -34,7 +34,7 @@ namespace Zephyr.GOAP.System
         public static StateGroup GetBaseStates(EntityManager entityManager, Allocator allocator)
         {
             var buffer = entityManager.GetBuffer<State>(BaseStatesEntity);
-            var states = new StateGroup(ref buffer, allocator);
+            var states = new StateGroup(buffer, allocator);
             return states;
         }
     }

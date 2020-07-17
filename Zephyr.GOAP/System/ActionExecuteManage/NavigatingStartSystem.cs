@@ -37,7 +37,7 @@ namespace Zephyr.GOAP.System.ActionExecuteManage
                     {
                         //目标为空或agent自身，无需移动，直接跳到ReadyToActing
                         Utils.NextAgentState<ReadyToNavigate, ReadyToAct>(
-                            entity, entityInQueryIndex, ref ecb, readyToNavigate.NodeEntity);
+                            entity, entityInQueryIndex, ecb, readyToNavigate.NodeEntity);
                         return;
                     }
                 
@@ -52,7 +52,7 @@ namespace Zephyr.GOAP.System.ActionExecuteManage
                 
                     //切换agent状态,等待移动结束
                     Utils.NextAgentState<ReadyToNavigate, Navigating>(entity, entityInQueryIndex,
-                        ref ecb, readyToNavigate.NodeEntity);
+                        ecb, readyToNavigate.NodeEntity);
                     
                 }).Schedule(inputDeps);
             EcbSystem.AddJobHandleForProducer(handle);

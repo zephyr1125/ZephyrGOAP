@@ -68,7 +68,7 @@ namespace Zephyr.GOAP.System.ActionExecuteManage
                     var oldestNodeEntity = availableNodeEntities[availableNodeEntities.Pop()].Content;
                     
                     //双向链接保存记录
-                    Utils.NextAgentState<Idle, ReadyToNavigate>(agentEntity, entityInQueryIndex, ref ecb, oldestNodeEntity);
+                    Utils.NextAgentState<Idle, ReadyToNavigate>(agentEntity, entityInQueryIndex, ecb, oldestNodeEntity);
                     ecb.AddComponent(entityInQueryIndex, oldestNodeEntity, new ActionNodeActing{AgentEntity = agentEntity});
                     
                     availableNodeEntities.Dispose();

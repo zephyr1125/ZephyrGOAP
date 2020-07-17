@@ -10,22 +10,22 @@ namespace Zephyr.GOAP.Component
         
         bool CheckTargetRequire(State targetRequire, Entity agentEntity, [ReadOnly]StackData stackData);
 
-        StateGroup GetSettings(ref State targetState, Entity agentEntity, ref StackData stackData, Allocator allocator);
+        StateGroup GetSettings(State targetRequire, Entity agentEntity, [ReadOnly]StackData stackData, Allocator allocator);
 
-        void GetPreconditions([ReadOnly] ref State targetState, Entity agentEntity, ref State setting,
-            [ReadOnly] ref StackData stackData, ref StateGroup preconditions);
+        void GetPreconditions([ReadOnly] State targetRequire, Entity agentEntity, State setting,
+            [ReadOnly] StackData stackData, StateGroup preconditions);
 
-        void GetEffects([ReadOnly] ref State targetState, ref State setting,
-            [ReadOnly] ref StackData stackData, ref StateGroup effects);
+        void GetEffects([ReadOnly] State targetRequire, State setting,
+            [ReadOnly] StackData stackData, StateGroup effects);
         
-        float GetReward([ReadOnly] ref State targetState, ref State setting,
-            [ReadOnly] ref StackData stackData);
+        float GetReward([ReadOnly] State targetRequire, State setting,
+            [ReadOnly] StackData stackData);
         
-        float GetExecuteTime([ReadOnly] ref State targetState, ref State setting,
-            [ReadOnly] ref StackData stackData);
+        float GetExecuteTime([ReadOnly] State targetRequire, State setting,
+            [ReadOnly] StackData stackData);
 
-        void GetNavigatingSubjectInfo(ref State targetState, ref State setting,
-            [ReadOnly] ref StackData stackData, ref StateGroup preconditions,
+        void GetNavigatingSubjectInfo(State targetRequire, State setting,
+            [ReadOnly] StackData stackData, StateGroup preconditions,
             out NodeNavigatingSubjectType subjectType, out byte subjectId);
     }
 }

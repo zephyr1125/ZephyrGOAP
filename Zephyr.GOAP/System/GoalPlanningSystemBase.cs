@@ -111,28 +111,28 @@ namespace Zephyr.GOAP.System
             var agentStartTimes = new NativeArray<float>(agentTranslations.Length, Allocator.TempJob);
             
             //组织StackData
-            var stackData = new StackData(planningAgents, ref agentTranslations,
-                new StateGroup(ref baseStateBuffer, Allocator.TempJob));
+            var stackData = new StackData(planningAgents, agentTranslations,
+                new StateGroup(baseStateBuffer, Allocator.TempJob));
             agentTranslations.Dispose();
 
             Debugger?.StartLog(EntityManager);
-            Debugger?.SetBaseStates(ref stackData.BaseStates, EntityManager);
+            Debugger?.SetBaseStates(stackData.BaseStates, EntityManager);
 
             var uncheckedNodes = new NativeHashMap<int, Node>(32*agentAmount, Allocator.TempJob);
             var uncheckedNodesWriter = uncheckedNodes.AsParallelWriter();
             var unexpandedNodes = new NativeList<Node>(Allocator.TempJob);
             var expandedNodes = new NativeList<Node>(Allocator.TempJob);
 
-            var nodeGraph = new NodeGraph(128*agentAmount, ref baseStateBuffer, Allocator.TempJob);
+            var nodeGraph = new NodeGraph(128*agentAmount, baseStateBuffer, Allocator.TempJob);
 
             var goalPrecondition = new StateGroup();
             var goalEffects = new StateGroup();
             var goalDeltas = new StateGroup();
-            var goalNode = new Node(ref goalPrecondition, ref goalEffects, ref goalRequires, ref goalDeltas,
+            var goalNode = new Node(goalPrecondition, goalEffects, goalRequires, goalDeltas,
                 "goal", 0, 0, 0, Entity.Null);
             
             //goalNode进入graph
-            nodeGraph.SetGoalNode(goalNode, ref goalRequires);
+            nodeGraph.SetGoalNode(goalNode, goalRequires);
 
             //goalNode进入待检查列表
             uncheckedNodes.Add(goalNode.HashCode, goalNode);
@@ -143,13 +143,13 @@ namespace Zephyr.GOAP.System
             while (uncheckedNodes.Count() > 0 && iteration < ExpandIterations)
             {
                 //对待检查列表进行检查（与BaseStates比对）
-                if (CheckNodes(ref uncheckedNodes, ref nodeGraph, ref stackData.BaseStates,
-                    ref unexpandedNodes, iteration)) foundPlan = true;
+                if (CheckNodes(uncheckedNodes, nodeGraph, stackData.BaseStates,
+                    unexpandedNodes, iteration)) foundPlan = true;
                 
 
                 //对待展开列表进行展开，并挑选进入待检查和展开后列表
-                ExpandNodes(ref unexpandedNodes, ref stackData, ref nodeGraph,
-                    ref uncheckedNodesWriter, ref expandedNodes, iteration);
+                ExpandNodes(unexpandedNodes, stackData, nodeGraph,
+                    uncheckedNodesWriter, expandedNodes, iteration);
 
                 //直至待展开列表为空或Early Exit
                 iteration++;
@@ -174,7 +174,7 @@ namespace Zephyr.GOAP.System
                 var buffer = EntityManager.AddBuffer<FailedPlanLog>(goal.GoalEntity);
                 buffer.Add(new FailedPlanLog {Time = (float)Time.ElapsedTime});
                 
-                Debugger?.SetNodeGraph(ref nodeGraph, EntityManager);
+                Debugger?.SetNodeGraph(nodeGraph, EntityManager);
             }
             else
             {
@@ -187,13 +187,13 @@ namespace Zephyr.GOAP.System
                 var pathNodeSpecifiedPreconditions = new NativeList<State>(Allocator.TempJob);
                 var rewardSum = new NativeHashMap<int, float>(nodeGraph.Length(), Allocator.TempJob);
                 
-                var pathNodes = FindPath(ref nodeGraph, ref stackData,
-                    ref agentMoveSpeeds, ref agentStartTimes, ref nodeAgentInfos, ref nodeTotalTimes, ref pathNodesEstimateNavigateTime,
-                    ref pathNodeNavigateSubjects, ref pathNodeSpecifiedPreconditionIndices, ref pathNodeSpecifiedPreconditions,
-                    ref rewardSum);
+                var pathNodes = FindPath(nodeGraph, stackData,
+                    agentMoveSpeeds, agentStartTimes, nodeAgentInfos, nodeTotalTimes, pathNodesEstimateNavigateTime,
+                    pathNodeNavigateSubjects, pathNodeSpecifiedPreconditionIndices, pathNodeSpecifiedPreconditions,
+                    rewardSum);
                 
-                SavePath(ref pathNodes, ref nodeGraph, ref pathNodesEstimateNavigateTime, 
-                    ref pathNodeNavigateSubjects, ref pathNodeSpecifiedPreconditionIndices, ref pathNodeSpecifiedPreconditions,
+                SavePath(pathNodes, nodeGraph, pathNodesEstimateNavigateTime, 
+                    pathNodeNavigateSubjects, pathNodeSpecifiedPreconditionIndices, pathNodeSpecifiedPreconditions,
                     goal.GoalEntity, out var pathEntities);
                 
                 //保存总预测时间
@@ -201,13 +201,13 @@ namespace Zephyr.GOAP.System
                 goal.EstimateTimeLength = totalTime;
                 EntityManager.SetComponentData(goal.GoalEntity, goal);
 
-                Debugger?.SetNodeGraph(ref nodeGraph, EntityManager);
-                Debugger?.SetNodeAgentInfos(EntityManager, ref nodeAgentInfos);
-                Debugger?.SetNodeTotalTimes(ref nodeTotalTimes);
-                Debugger?.SetPathResult(EntityManager, ref pathEntities, ref pathNodes);
+                Debugger?.SetNodeGraph(nodeGraph, EntityManager);
+                Debugger?.SetNodeAgentInfos(EntityManager, nodeAgentInfos);
+                Debugger?.SetNodeTotalTimes(nodeTotalTimes);
+                Debugger?.SetPathResult(EntityManager, pathEntities, pathNodes);
                 Debugger?.SetSpecifiedPreconditions(EntityManager,
-                    ref pathNodeSpecifiedPreconditionIndices, ref pathNodeSpecifiedPreconditions);
-                Debugger?.SetRewardSum(ref rewardSum);
+                    pathNodeSpecifiedPreconditionIndices, pathNodeSpecifiedPreconditions);
+                Debugger?.SetRewardSum(rewardSum);
 
                 nodeAgentInfos.Dispose();
                 pathNodes.Dispose();
@@ -297,14 +297,14 @@ namespace Zephyr.GOAP.System
             return (float) (Priority.Max - priority + createTime / 60);
         }
         
-        private NativeList<Node> FindPath(ref NodeGraph nodeGraph, ref StackData stackData,
-            ref NativeArray<MaxMoveSpeed> agentMoveSpeed, ref NativeArray<float> agentStartTime,
-            ref NativeMultiHashMap<int, NodeAgentInfo> nodeAgentInfos,
-            ref NativeHashMap<int, float> nodeTotalTimes, ref NativeHashMap<int, float> nodeNavigateStartTimes,
-            ref NativeHashMap<int, Entity> nodeNavigateSubjects,
-            ref NativeList<int> pathNodeSpecifiedPreconditionIndices,
-            ref NativeList<State> pathNodeSpecifiedPreconditions,
-            ref NativeHashMap<int, float> rewardSum)
+        private NativeList<Node> FindPath(NodeGraph nodeGraph, StackData stackData,
+            NativeArray<MaxMoveSpeed> agentMoveSpeed, NativeArray<float> agentStartTime,
+            NativeMultiHashMap<int, NodeAgentInfo> nodeAgentInfos,
+            NativeHashMap<int, float> nodeTotalTimes, NativeHashMap<int, float> nodeNavigateStartTimes,
+            NativeHashMap<int, Entity> nodeNavigateSubjects,
+            NativeList<int> pathNodeSpecifiedPreconditionIndices,
+            NativeList<State> pathNodeSpecifiedPreconditions,
+            NativeHashMap<int, float> rewardSum)
         {
             var pathResult = new NativeList<Node>(Allocator.TempJob);
             var pathFindingJob = new PathFindingJob
@@ -333,11 +333,11 @@ namespace Zephyr.GOAP.System
             return pathResult;
         }
 
-        private void SavePath([ReadOnly]ref NativeList<Node> pathNodes, [ReadOnly]ref NodeGraph nodeGraph,
-            [ReadOnly]ref NativeHashMap<int, float> pathNodesEstimateNavigateTime,
-            [ReadOnly]ref NativeHashMap<int, Entity> pathNodeNavigateSubjects,
-            [ReadOnly]ref NativeList<int> pathNodeSpecifiedPreconditionIndices,
-            [ReadOnly]ref NativeList<State> pathNodeSpecifiedPreconditions, Entity goalEntity,
+        private void SavePath([ReadOnly]NativeList<Node> pathNodes, [ReadOnly]NodeGraph nodeGraph,
+            [ReadOnly]NativeHashMap<int, float> pathNodesEstimateNavigateTime,
+            [ReadOnly]NativeHashMap<int, Entity> pathNodeNavigateSubjects,
+            [ReadOnly]NativeList<int> pathNodeSpecifiedPreconditionIndices,
+            [ReadOnly]NativeList<State> pathNodeSpecifiedPreconditions, Entity goalEntity,
             out NativeArray<Entity> pathEntities)
         {
             pathEntities = new NativeArray<Entity>(pathNodes.Length, Allocator.Temp);
@@ -433,8 +433,8 @@ namespace Zephyr.GOAP.System
         /// <param name="baseStates"></param>
         /// <param name="unexpandedNodes"></param>
         /// <param name="iteration"></param>
-        public bool CheckNodes(ref NativeHashMap<int, Node> uncheckedNodes, ref NodeGraph nodeGraph,
-            ref StateGroup baseStates, ref NativeList<Node> unexpandedNodes, int iteration)
+        public bool CheckNodes(NativeHashMap<int, Node> uncheckedNodes, NodeGraph nodeGraph,
+            StateGroup baseStates, NativeList<Node> unexpandedNodes, int iteration)
         {
             var checkTime = DateTime.Now;
             bool foundPlan = false;
@@ -524,8 +524,8 @@ namespace Zephyr.GOAP.System
             return false;
         }
 
-        public void ExpandNodes(ref NativeList<Node> unexpandedNodes, ref StackData stackData,
-            ref NodeGraph nodeGraph, ref NativeHashMap<int, Node>.ParallelWriter uncheckedNodes, ref NativeList<Node> expandedNodes,
+        public void ExpandNodes(NativeList<Node> unexpandedNodes, StackData stackData,
+            NodeGraph nodeGraph, NativeHashMap<int, Node>.ParallelWriter uncheckedNodes, NativeList<Node> expandedNodes,
             int iteration)
         {
             if (unexpandedNodes.Length <= 0) return;
@@ -574,11 +574,11 @@ namespace Zephyr.GOAP.System
             var requires = nodeGraph.GetRequires(unexpandedNodes, Allocator.TempJob);
             var deltas = nodeGraph.GetDeltas(unexpandedNodes, Allocator.TempJob);
             
-            handle = ScheduleAllActionExpand(handle, ref stackData,
-                nodeAgentPairs, ref existedNodesHash, requires, deltas, nodesWriter,
+            handle = ScheduleAllActionExpand(handle, stackData,
+                nodeAgentPairs, existedNodesHash, requires, deltas, nodesWriter,
                 nodeToParentsWriter, statesWriter, preconditionHashesWriter,
                 effectHashesWriter, requireHashesWriter, deltaHashesWriter,
-                ref uncheckedNodes, iteration);
+                uncheckedNodes, iteration);
                 
             requires.Dispose(handle);
             deltas.Dispose(handle);
@@ -594,8 +594,8 @@ namespace Zephyr.GOAP.System
         }
 
         protected abstract JobHandle ScheduleAllActionExpand(JobHandle handle,
-            ref StackData stackData, NativeArray<ValueTuple<Entity, Node>> nodeAgentPairs,
-            ref NativeArray<int> existedNodesHash,
+            StackData stackData, NativeArray<ValueTuple<Entity, Node>> nodeAgentPairs,
+            NativeArray<int> existedNodesHash,
             NativeList<ValueTuple<int, State>> requires, NativeList<ValueTuple<int, State>> deltas,
             NativeHashMap<int, Node>.ParallelWriter nodesWriter,
             NativeList<ValueTuple<int, int>>.ParallelWriter nodeToParentsWriter,
@@ -604,11 +604,11 @@ namespace Zephyr.GOAP.System
             NativeList<ValueTuple<int, int>>.ParallelWriter effectHashesWriter,
             NativeList<ValueTuple<int, int>>.ParallelWriter requireHashesWriter,
             NativeList<ValueTuple<int, int>>.ParallelWriter deltaHashesWriter, 
-            ref NativeHashMap<int, Node>.ParallelWriter newlyCreatedNodesWriter, int iteration);
+            NativeHashMap<int, Node>.ParallelWriter newlyCreatedNodesWriter, int iteration);
         
         protected JobHandle ScheduleActionExpand<T>(JobHandle handle,
-            ref StackData stackData, NativeArray<ValueTuple<Entity, Node>> nodeAgentPairs,
-            ref NativeArray<int> existedNodesHash,
+            StackData stackData, NativeArray<ValueTuple<Entity, Node>> nodeAgentPairs,
+            NativeArray<int> existedNodesHash,
             NativeList<ValueTuple<int, State>> requires, NativeList<ValueTuple<int, State>> deltas,
             NativeHashMap<int, Node>.ParallelWriter nodesWriter,
             NativeList<ValueTuple<int, int>>.ParallelWriter nodeToParentsWriter,
@@ -617,7 +617,7 @@ namespace Zephyr.GOAP.System
             NativeList<ValueTuple<int, int>>.ParallelWriter effectHashesWriter,
             NativeList<ValueTuple<int, int>>.ParallelWriter requireHashesWriter, 
             NativeList<ValueTuple<int, int>>.ParallelWriter deltaHashesWriter, 
-            ref NativeHashMap<int, Node>.ParallelWriter newlyCreatedNodesWriter, int iteration) where T : struct, IAction, IComponentData
+            NativeHashMap<int, Node>.ParallelWriter newlyCreatedNodesWriter, int iteration) where T : struct, IAction, IComponentData
         {
             var agentEntityAmount = stackData.AgentEntities.Length;
             var actions = new NativeHashMap<Entity, T>(agentEntityAmount, Allocator.TempJob);

@@ -13,23 +13,23 @@ namespace Zephyr.GOAP.Debugger
     {
         void StartLog(EntityManager entityManager);
         
-        void SetNodeGraph(ref NodeGraph nodeGraph, EntityManager entityManager);
+        void SetNodeGraph(NodeGraph nodeGraph, EntityManager entityManager);
 
         void SetPathResult(EntityManager entityManager,
-            ref NativeArray<Entity> pathEntities, ref NativeList<Node> pathResult);
+            NativeArray<Entity> pathEntities, NativeList<Node> pathResult);
 
-        void SetBaseStates(ref StateGroup baseStates, EntityManager entityManager);
+        void SetBaseStates(StateGroup baseStates, EntityManager entityManager);
 
         void SetNodeAgentInfos(EntityManager entityManager,
-            ref NativeMultiHashMap<int, NodeAgentInfo> nodeAgentInfos);
+            NativeMultiHashMap<int, NodeAgentInfo> nodeAgentInfos);
 
-        void SetNodeTotalTimes(ref NativeHashMap<int, float> nodeTimes);
+        void SetNodeTotalTimes(NativeHashMap<int, float> nodeTimes);
 
         void SetSpecifiedPreconditions(EntityManager entityManager,
-            ref NativeList<int> pathNodeSpecifiedPreconditionIndices,
-            ref NativeList<State> pathNodeSpecifiedPreconditions);
+            NativeList<int> pathNodeSpecifiedPreconditionIndices,
+            NativeList<State> pathNodeSpecifiedPreconditions);
 
-        void SetRewardSum(ref NativeHashMap<int, float> rewardSum);
+        void SetRewardSum(NativeHashMap<int, float> rewardSum);
 
         void LogDone();
 

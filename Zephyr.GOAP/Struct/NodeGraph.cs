@@ -43,7 +43,7 @@ namespace Zephyr.GOAP.Struct
         
         public int GoalNodeHash { get; private set; }
 
-        public NodeGraph(int initialCapacity, ref DynamicBuffer<State> startRequires, Allocator allocator) : this()
+        public NodeGraph(int initialCapacity, DynamicBuffer<State> startRequires, Allocator allocator) : this()
         {
             _nodes = new NativeHashMap<int, Node>(initialCapacity, allocator);
             
@@ -76,7 +76,7 @@ namespace Zephyr.GOAP.Struct
             _states.Add(effectHash, effect);
         }
 
-        public void SetGoalNode(Node goal, ref StateGroup requires)
+        public void SetGoalNode(Node goal, StateGroup requires)
         {
             //先清除旧的
             if (GoalNodeHash != 0)
@@ -262,7 +262,7 @@ namespace Zephyr.GOAP.Struct
         /// <param name="nodes"></param>
         /// <param name="outStates"></param>
         /// <param name="allocator"></param>
-        public void GetDeltas(ref NativeList<Node> nodes,
+        public void GetDeltas(NativeList<Node> nodes,
             out NativeList<ValueTuple<int, State>> outStates, Allocator allocator)
         {
             outStates = new NativeList<ValueTuple<int, State>>(allocator);

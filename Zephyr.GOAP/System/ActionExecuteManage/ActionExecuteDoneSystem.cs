@@ -70,7 +70,7 @@ namespace Zephyr.GOAP.System.ActionExecuteManage
                 {
                     for (var i = 0; i < agentEntities.Length; i++)
                     {
-                        Utils.NextAgentState<ActDone, Idle>(agentEntities[i], ref ecb, Entity.Null);
+                        Utils.NextAgentState<ActDone, Idle>(agentEntities[i], ecb, Entity.Null);
                     }
                 }).Schedule(cleanDependencyHandle);
             EcbSystem.AddJobHandleForProducer(resetAgentHandle);

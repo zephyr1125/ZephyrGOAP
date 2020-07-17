@@ -40,9 +40,9 @@
 //                 Trait = typeof(ItemContainerTrait),
 //                 ValueString = new NativeString64("test"),
 //             }};
-//             _goalNode = new Node(ref goalStates,new NativeString64("goal"),0 , 0);
+//             _goalNode = new Node(goalStates,new NativeString64("goal"),0 , 0);
 //             
-//             _nodeGraph.SetGoalNode(_goalNode, ref goalStates);
+//             _nodeGraph.SetGoalNode(_goalNode, goalStates);
 //             
 //             _uncheckedNodes.Add(_goalNode);
 //             
@@ -73,19 +73,19 @@
 //                 Trait = typeof(ItemContainerTrait),
 //                 ValueString = new NativeString64("test"),
 //             };
-//             var node = new Node(ref state, new NativeString64("route"), 0, 1);
+//             var node = new Node(state, new NativeString64("route"), 0, 1);
 //
 //             var preconditions = new StateGroup();
 //             var effects = new StateGroup();
-//             _nodeGraph.AddRouteNode(node, ref state,
+//             _nodeGraph.AddRouteNode(node, state,
 //                 _nodeGraph.NodeStateWriter,
 //                 _nodeGraph.PreconditionWriter, _nodeGraph.EffectWriter,
-//                 ref preconditions, ref effects, _goalNode,
+//                 preconditions, effects, _goalNode,
 //                 new NativeString64("route"));
 //             _uncheckedNodes.Add(node);
 //
-//             _system.CheckNodes(ref _uncheckedNodes, ref _nodeGraph, ref _baseStates,
-//                 ref _unexpandedNodes);
+//             _system.CheckNodes(_uncheckedNodes, _nodeGraph, _baseStates,
+//                 _unexpandedNodes);
 //             
 //             Assert.AreEqual(3, _nodeGraph.Length());
 //             var startParents = _nodeGraph.GetEdgeToParents(_nodeGraph.GetStartNode());
@@ -96,8 +96,8 @@
 //         [Test]
 //         public void OnlyGoalInNodeGraph_GoalIntoUnExpandedNodes()
 //         {
-//             _system.CheckNodes(ref _uncheckedNodes, ref _nodeGraph, ref _baseStates,
-//                 ref _unexpandedNodes);
+//             _system.CheckNodes(_uncheckedNodes, _nodeGraph, _baseStates,
+//                 _unexpandedNodes);
 //             
 //             Assert.AreEqual(1, _nodeGraph.Length());
 //             Assert.AreEqual(1, _unexpandedNodes.Length);
@@ -113,19 +113,19 @@
 //                 Trait = typeof(GatherStationTrait),
 //                 ValueString = new NativeString64("test"),
 //             };
-//             var node = new Node(ref state, new NativeString64("route"), 0, 1);
+//             var node = new Node(state, new NativeString64("route"), 0, 1);
 //
 //             var preconditions = new StateGroup();
 //             var effects = new StateGroup();
-//             _nodeGraph.AddRouteNode(node, ref state,
+//             _nodeGraph.AddRouteNode(node, state,
 //                 _nodeGraph.NodeStateWriter,
 //                 _nodeGraph.PreconditionWriter, _nodeGraph.EffectWriter,
-//                 ref preconditions, ref effects, _goalNode,
+//                 preconditions, effects, _goalNode,
 //                 new NativeString64("route"));
 //             _uncheckedNodes.Add(node);
 //
-//             _system.CheckNodes(ref _uncheckedNodes, ref _nodeGraph, ref _baseStates,
-//                 ref _unexpandedNodes);
+//             _system.CheckNodes(_uncheckedNodes, _nodeGraph, _baseStates,
+//                 _unexpandedNodes);
 //             
 //             Assert.AreEqual(2, _nodeGraph.Length());
 //             Assert.AreEqual(2, _unexpandedNodes.Length);

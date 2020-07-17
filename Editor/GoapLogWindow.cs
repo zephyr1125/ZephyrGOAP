@@ -196,11 +196,11 @@ namespace Zephyr.GOAP.Editor
             var nodeCounts = new List<int>();    //记录每一层的Node数量以便向下排列
 
             var nodes = _log.results[_currentResult].nodes;
-            ConstructNode(_nodeContainer, ref nodes, 0, ref nodeCounts);
+            ConstructNode(_nodeContainer, nodes, 0, nodeCounts);
             ConstructConnections(_nodeContainer, nodes, _log.results[_currentResult].edges);
         }
 
-        private void ConstructNode(VisualElement parent, ref List<NodeLog>nodes, int id, ref List<int> nodeCounts)
+        private void ConstructNode(VisualElement parent, List<NodeLog>nodes, int id, List<int> nodeCounts)
         {
             var node = nodes[id];
             var iteration = node.iteration;
@@ -233,7 +233,7 @@ namespace Zephyr.GOAP.Editor
             Utils.AddStatesToContainer(frame.Q("states"), node.requires);
 
             if (id >= nodes.Count - 1) return;
-            ConstructNode(parent, ref nodes, id+1, ref nodeCounts);
+            ConstructNode(parent, nodes, id+1, nodeCounts);
         }
 
         private void ConstructTimeline()
