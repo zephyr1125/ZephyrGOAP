@@ -60,12 +60,9 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
 
             var leftRequires = new StateGroup(Requires, expandingNodeHash, Allocator.Temp);
             //只考虑node的首个require
-            var targetRequires = new StateGroup(Requires, expandingNodeHash, 1, Allocator.Temp);
-            
-            var targetRequire = action.GetTargetRequire(ref targetRequires, agentEntity, ref StackData);
-            targetRequires.Dispose();
+            var targetRequire = leftRequires[0];
 
-            if (!targetRequire.Equals(State.Null))
+            if (action.CheckTargetRequire(targetRequire, agentEntity, StackData))
             {
                 var deltas = new StateGroup(Deltas, expandingNodeHash, Allocator.Temp);
                 var settings = action.GetSettings(ref targetRequire, agentEntity, ref StackData, Allocator.Temp);

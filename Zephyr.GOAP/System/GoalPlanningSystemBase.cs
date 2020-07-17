@@ -99,8 +99,8 @@ namespace Zephyr.GOAP.System
             allAgents.Dispose();
 
             //缩减参与plan的agent数量到优化上限
-            var workAgents = TrimAgents(idleAgents, goal, Allocator.TempJob);
-            var agentAmount = workAgents.Length;
+            var planningAgents = TrimAgents(idleAgents, goal, Allocator.TempJob);
+            var agentAmount = planningAgents.Length;
             idleAgents.Dispose();
 
             //从baseState的存储Entity上拿取base states
@@ -111,7 +111,7 @@ namespace Zephyr.GOAP.System
             var agentStartTimes = new NativeArray<float>(agentTranslations.Length, Allocator.TempJob);
             
             //组织StackData
-            var stackData = new StackData(workAgents, ref agentTranslations,
+            var stackData = new StackData(planningAgents, ref agentTranslations,
                 new StateGroup(ref baseStateBuffer, Allocator.TempJob));
             agentTranslations.Dispose();
 
@@ -234,7 +234,7 @@ namespace Zephyr.GOAP.System
             agentMoveSpeeds.Dispose();
             agentStartTimes.Dispose();
             stackData.Dispose();
-            workAgents.Dispose();
+            planningAgents.Dispose();
         }
 
         /// <summary>
