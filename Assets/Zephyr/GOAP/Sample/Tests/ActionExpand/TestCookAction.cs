@@ -73,8 +73,8 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
         public void PlanCookForNullTarget()
         {
             var goal = GetGoal();
-            goal.State.Target = Entity.Null;
-            SetGoal(goal.State);
+            goal.Require.Target = Entity.Null;
+            SetGoal(goal.Require);
             
             _system.Update();
             EntityManager.CompleteAllJobs();
@@ -91,8 +91,8 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
         public void NullTargetAndNoCooker_Fail()
         {
             var goal = GetGoal();
-            goal.State.Target = Entity.Null;
-            SetGoal(goal.State);
+            goal.Require.Target = Entity.Null;
+            SetGoal(goal.Require);
             
             var buffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);
             buffer.RemoveAt(1);
@@ -108,9 +108,9 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
         public void PlanCookForValueTrait()
         {
             var goal = GetGoal();
-            goal.State.ValueString = default;
-            goal.State.ValueTrait = typeof(FoodTrait);
-            SetGoal(goal.State);
+            goal.Require.ValueString = default;
+            goal.Require.ValueTrait = typeof(FoodTrait);
+            SetGoal(goal.Require);
 
             _system.Update();
             EntityManager.CompleteAllJobs();
@@ -125,9 +125,9 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
         public void MultiSettingToMultiNodes()
         {
             var goal = GetGoal();
-            goal.State.ValueString = default;
-            goal.State.ValueTrait = typeof(FoodTrait);
-            SetGoal(goal.State);
+            goal.Require.ValueString = default;
+            goal.Require.ValueTrait = typeof(FoodTrait);
+            SetGoal(goal.Require);
             
             _system.Update();
             EntityManager.CompleteAllJobs();
@@ -162,8 +162,8 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             });
             
             var goal = GetGoal();
-            goal.State.Target = Entity.Null;
-            SetGoal(goal.State);
+            goal.Require.Target = Entity.Null;
+            SetGoal(goal.Require);
             
             _system.Update();
             EntityManager.CompleteAllJobs();
@@ -187,13 +187,13 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             var itemSourceEntity = EntityManager.CreateEntity();
             
             var goal = GetGoal();
-            goal.State = new State
+            goal.Require = new State
             {
                 Target = itemDestinationEntity,
                 Trait = typeof(ItemDestinationTrait),
                 ValueString = Utils.RoastPeachName
             };
-            SetGoal(goal.State);
+            SetGoal(goal.Require);
             
             var buffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);
             buffer.Add(new State

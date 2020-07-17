@@ -33,7 +33,7 @@ namespace Zephyr.GOAP.Sample.Game
                 }
                 entities.Dispose();
                 
-                var goalState = new State
+                var require = new State
                 {
                     // Target = cookerEntity,
                     // Position = entityManager.GetComponentData<Translation>(cookerEntity).Value,
@@ -46,7 +46,7 @@ namespace Zephyr.GOAP.Sample.Game
                 entityManager.AddComponentData(goalEntity, new Goal
                 {
                     GoalEntity = goalEntity,
-                    State = goalState,
+                    Require = require,
                     Priority = Priority.Normal,
                     CreateTime = 0
                 });

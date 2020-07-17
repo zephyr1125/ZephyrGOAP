@@ -46,13 +46,13 @@ namespace Zephyr.GOAP.Sample.Tests
             _debugger.Dispose();
         }
 
-        protected void SetGoal(State goalState,
+        protected void SetGoal(State require,
          Priority priority = Priority.Normal, double time = 0)
         {
             EntityManager.AddComponentData(_goalEntity, new Goal
             {
                 GoalEntity = _goalEntity,
-                State = goalState,
+                Require = require,
                 Priority = priority,
                 CreateTime = time
             });
