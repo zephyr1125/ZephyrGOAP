@@ -62,7 +62,7 @@ namespace Zephyr.GOAP.System.GoalManage
             EntityManager.AddComponentData(newGoalEntity, new Goal
                 {
                     GoalEntity = newGoalEntity,
-                    State = state,
+                    Require = state,
                     Priority = priority,
                     CreateTime = time
                 });
@@ -76,7 +76,7 @@ namespace Zephyr.GOAP.System.GoalManage
         {
             for (var i = 0; i < _existedGoals.Length; i++)
             {
-                if (!_existedGoals[i].State.Equals(state)) continue;
+                if (!_existedGoals[i].Require.Equals(state)) continue;
 
                 id = i;
                 priority = _existedGoals[i].Priority;

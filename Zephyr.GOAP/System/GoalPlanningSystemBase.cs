@@ -83,7 +83,7 @@ namespace Zephyr.GOAP.System
             
             //找到最急需的一个goal
             var goal = GetMostPriorityGoal();
-            var goalRequires = new StateGroup(1, Allocator.TempJob) {goal.State};
+            var goalRequires = new StateGroup(1, Allocator.TempJob) {goal.Require};
             
             var allAgents = _allAgentQuery.ToEntityArray(Allocator.TempJob);
             
@@ -265,7 +265,7 @@ namespace Zephyr.GOAP.System
             var workAgents = new NativeList<Entity>(allocator);
 
             //先把目标agent加入
-            var target = goal.State.Target;
+            var target = goal.Require.Target;
             if (idleAgents.Contains(target))
             {
                 workAgents.Add(target);
