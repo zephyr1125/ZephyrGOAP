@@ -2,6 +2,7 @@ using NUnit.Framework;
 using Unity.Entities;
 using Unity.Transforms;
 using Zephyr.GOAP.Component;
+using Zephyr.GOAP.Component.AgentState;
 using Zephyr.GOAP.Component.GoalManage;
 using Zephyr.GOAP.Component.GoalManage.GoalState;
 using Zephyr.GOAP.Sample.GoapImplement.System;
@@ -33,6 +34,7 @@ namespace Zephyr.GOAP.Sample.Tests
             EntityManager.AddComponentData(_agentEntity, new Agent());
             EntityManager.AddComponentData(_agentEntity, new Translation());
             EntityManager.AddComponentData(_agentEntity, new MaxMoveSpeed{value = 1});
+            EntityManager.AddComponentData(_agentEntity, new Idle());
 
             World.GetOrCreateSystem<BaseStatesHelper>().Update();
         }

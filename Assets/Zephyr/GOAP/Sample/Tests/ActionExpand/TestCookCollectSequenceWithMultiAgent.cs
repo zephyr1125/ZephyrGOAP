@@ -5,6 +5,7 @@ using Unity.Transforms;
 using UnityEngine;
 using UnityEngine.Profiling;
 using Zephyr.GOAP.Component;
+using Zephyr.GOAP.Component.AgentState;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Action;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
 using Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem;
@@ -47,6 +48,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             EntityManager.AddComponentData(_agentEntity, new MaxMoveSpeed{value = 1});
             
             EntityManager.AddComponentData(_agentBEntity, new Agent());
+            EntityManager.AddComponentData(_agentBEntity, new Idle());
             EntityManager.AddComponentData(_agentBEntity, new Translation());
             EntityManager.AddComponentData(_agentBEntity, new EatAction());
             EntityManager.AddComponentData(_agentBEntity, new CookAction{Level = 0});

@@ -8,11 +8,11 @@ namespace Zephyr.GOAP.Struct
 {
     public struct StackData : IDisposable
     {
-        public NativeArray<Entity> AgentEntities;
+        public NativeList<Entity> AgentEntities;
         public NativeArray<float3> AgentPositions;
         public StateGroup BaseStates;
 
-        public StackData(ref NativeArray<Entity> agentEntities, ref NativeArray<Translation> agentTranslations, StateGroup baseStates)
+        public StackData(NativeList<Entity> agentEntities, ref NativeArray<Translation> agentTranslations, StateGroup baseStates)
         {
             AgentEntities = agentEntities;
             AgentPositions = new NativeArray<float3>(agentTranslations.Length, Allocator.Persistent);
@@ -25,7 +25,7 @@ namespace Zephyr.GOAP.Struct
 
         public float3 GetAgentPosition(Entity agentEntity)
         {
-            var id = AgentEntities.IndexOf<Entity>(agentEntity);
+            var id = AgentEntities.IndexOf(agentEntity);
             return AgentPositions[id];
         }
         
