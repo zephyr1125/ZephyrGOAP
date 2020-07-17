@@ -80,8 +80,8 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             openSet.Add(new MinHashNode<int>(startId, 0));
             
             RewardSum[startId] = 0;
-            InitNodeAgentInfos(ref NodeAgentInfos, startId);
-            InitNodeTotalTimes(ref NodeTotalTimes, startId);
+            InitNodeAgentInfos(NodeAgentInfos, startId);
+            InitNodeTotalTimes(NodeTotalTimes, startId);
 
             var currentHash = -1;
             while (_iterations<IterationLimit && openSet.HasNext())
@@ -97,17 +97,17 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                 //     break;
                 // }
                     
-                var neighboursHash = currentNode.GetNeighbours(ref NodeGraph, Allocator.Temp);
+                var neighboursHash = currentNode.GetNeighbours(NodeGraph, Allocator.Temp);
 
                 for (var i = 0; i < neighboursHash.Length; i++)
                 {
                     var neighbourHash = neighboursHash[i];
                     var neighbourNode = NodeGraph[neighbourHash];
                     //if reward == -infinity means obstacle, skip
-                    if (float.IsNegativeInfinity(neighbourNode.GetReward(ref NodeGraph))) continue;
+                    if (float.IsNegativeInfinity(neighbourNode.GetReward(NodeGraph))) continue;
 
                     var newRewardSum =
-                        RewardSum[currentHash] + neighbourNode.GetReward(ref NodeGraph);
+                        RewardSum[currentHash] + neighbourNode.GetReward(NodeGraph);
 
                     var neighbourExecutor = neighbourNode.AgentExecutorEntity;
                     var neighbourExecutorMoveSpeed = FindAgentSpeed(neighbourExecutor);
@@ -118,14 +118,14 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     var tempPreconditionIndices = new NativeList<int>(Allocator.Temp);
                     var tempPreconditions = new NativeList<State>(Allocator.Temp);
                     var dependentTime = GetAllSpecificPreconditions(neighbourNode,
-                        currentHash, cameFrom, ref tempPreconditionIndices, ref tempPreconditions);
+                        currentHash, cameFrom, tempPreconditionIndices, tempPreconditions);
 
                     var neighbourNavigatingPosition = NeighbourNavigatingPosition(neighbourNode,
-                        ref tempPreconditionIndices, ref tempPreconditions,
+                        tempPreconditionIndices, tempPreconditions,
                         out var isNeedNavigate, out var neighbourNavigateSubject);
                     
                     var neighbourAgentsInfo = UpdateNeighbourAgentsInfo(
-                        ref NodeAgentInfos, currentHash, currentTotalTime, neighbourNode,
+                        NodeAgentInfos, currentHash, currentTotalTime, neighbourNode,
                         neighbourNavigatingPosition, isNeedNavigate, dependentTime,
                         neighbourExecutorMoveSpeed, Allocator.Temp, out var newTotalTime);
 
@@ -148,15 +148,15 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     }
 
                     //新记录更好，覆盖旧记录
-                    SaveNeighbourAgentsInfo(ref NodeAgentInfos, neighbourHash, ref neighbourAgentsInfo);
+                    SaveNeighbourAgentsInfo(NodeAgentInfos, neighbourHash, neighbourAgentsInfo);
                     //覆盖总时长
                     NodeTotalTimes[neighbourHash] = newTotalTime;
                     //覆盖精确preconditions
-                    ReplaceSpecifiedPreconditions(neighbourHash, ref tempPreconditionIndices,
-                        ref tempPreconditions);
+                    ReplaceSpecifiedPreconditions(neighbourHash, tempPreconditionIndices,
+                        tempPreconditions);
                     
                     var priority = newTotalTime -
-                                   (newRewardSum + neighbourNode.Heuristic(ref NodeGraph));
+                                   (newRewardSum + neighbourNode.Heuristic(NodeGraph));
                     openSet.Add(new MinHashNode<int>(neighbourHash, priority));
                     cameFrom[neighbourHash] = currentHash;
                     RewardSum[neighbourHash] = newRewardSum;
@@ -212,8 +212,8 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         
         private float GetAllSpecificPreconditions(Node neighbourNode, int currentHash,
             NativeHashMap<int, int> cameFrom,
-            ref NativeList<int> tempSpecifiedPreconditionIndices,
-            ref NativeList<State> tempSpecifiedPreconditions)
+            NativeList<int> tempSpecifiedPreconditionIndices,
+            NativeList<State> tempSpecifiedPreconditions)
         {
             var dependentTime = 0f;
             var preconditions =
@@ -273,7 +273,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         }
 
         private void ReplaceSpecifiedPreconditions(int nodeHash,
-            ref NativeList<int> newPreconditionIndices, ref NativeList<State> newPreconditions)
+            NativeList<int> newPreconditionIndices, NativeList<State> newPreconditions)
         {
             for (var i = 0; i < SpecifiedPreconditionIndices.Length; i++)
             {
@@ -286,7 +286,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         }
 
         private float3 NeighbourNavigatingPosition(Node neighbourNode,
-            ref NativeList<int> preconditionIndices, ref NativeList<State> preconditions,
+            NativeList<int> preconditionIndices, NativeList<State> preconditions,
             out bool isNeedNavigate, out Entity navigateSubject)
         {
             float3 neighbourNavigatingPosition;
@@ -335,7 +335,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             return neighbourNavigatingPosition;
         }
 
-        private void InitNodeAgentInfos(ref NativeMultiHashMap<int, NodeAgentInfo> nodeAgentInfos, int startId)
+        private void InitNodeAgentInfos(NativeMultiHashMap<int, NodeAgentInfo> nodeAgentInfos, int startId)
         {
             for (var i = 0; i < AgentEntities.Length; i++)
             {
@@ -348,7 +348,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             }
         }
         
-        private void InitNodeTotalTimes(ref NativeHashMap<int, float> nodeTotalTimes, int startId)
+        private void InitNodeTotalTimes(NativeHashMap<int, float> nodeTotalTimes, int startId)
         {
             nodeTotalTimes.Add(startId, 0);
         }
@@ -367,7 +367,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         /// <param name="allocator"></param>
         /// <param name="newTotalTime"></param>
         /// <returns>新的agents信息</returns>
-        private NativeList<NodeAgentInfo> UpdateNeighbourAgentsInfo(ref NativeMultiHashMap<int, NodeAgentInfo> agentsInfoOnNode,
+        private NativeList<NodeAgentInfo> UpdateNeighbourAgentsInfo(NativeMultiHashMap<int, NodeAgentInfo> agentsInfoOnNode,
             int currentNodeId, float currentTotalTime, Node neighbourNode, float3 neighbourNavigatingPosition, bool isNeedNavigate,
             float dependentTime, float neighbourExecutorMoveSpeed, Allocator allocator, out float newTotalTime)
         {
@@ -424,8 +424,8 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             return agentsInfo;
         }
 
-        private void SaveNeighbourAgentsInfo(ref NativeMultiHashMap<int, NodeAgentInfo> agentsInfo, int neighbourId,
-            ref NativeList<NodeAgentInfo> newInfos)
+        private void SaveNeighbourAgentsInfo(NativeMultiHashMap<int, NodeAgentInfo> agentsInfo, int neighbourId,
+            NativeList<NodeAgentInfo> newInfos)
         {
             Assert.IsTrue(newInfos.Length > 0);
             

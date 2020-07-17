@@ -70,12 +70,12 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
 
                         //通知执行完毕
                         Zephyr.GOAP.Utils.NextAgentState<ReadyToAct, ActDone>(agentEntity, entityInQueryIndex,
-                            ref ecb, nodeEntity);
+                            ecb, nodeEntity);
 
                         //node指示执行完毕 
                         Zephyr.GOAP.Utils.NextActionNodeState<ActionNodeActing, ActionNodeDone>(nodeEntity,
                             entityInQueryIndex,
-                            ref ecb, agentEntity);
+                            ecb, agentEntity);
                         break;
                     }
                 }).Schedule(inputDeps);

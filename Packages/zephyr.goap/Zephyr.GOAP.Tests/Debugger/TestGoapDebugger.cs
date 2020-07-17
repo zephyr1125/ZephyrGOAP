@@ -23,44 +23,44 @@ namespace Zephyr.GOAP.Tests.Debugger
             _goapLog.StartLog(entityManager);
         }
 
-        public void SetNodeGraph(ref NodeGraph nodeGraph, EntityManager entityManager)
+        public void SetNodeGraph(NodeGraph nodeGraph, EntityManager entityManager)
         {
-            _goapLog.SetNodeGraph(ref nodeGraph, entityManager);
+            _goapLog.SetNodeGraph(nodeGraph, entityManager);
         }
 
         public void SetPathResult(EntityManager entityManager,
-            ref NativeArray<Entity> pathEntities, ref NativeList<Node> pathResult)
+            NativeArray<Entity> pathEntities, NativeList<Node> pathResult)
         {
-            _goapLog.SetPathResult(entityManager, ref pathEntities, ref pathResult);
+            _goapLog.SetPathResult(entityManager, pathEntities, pathResult);
         }
 
         public void SetNodeAgentInfos(EntityManager entityManager,
-            ref NativeMultiHashMap<int, NodeAgentInfo> nodeAgentInfos)
+            NativeMultiHashMap<int, NodeAgentInfo> nodeAgentInfos)
         {
-            _goapLog.SetNodeAgentInfos(entityManager, ref nodeAgentInfos);
+            _goapLog.SetNodeAgentInfos(entityManager, nodeAgentInfos);
         }
 
-        public void SetNodeTotalTimes(ref NativeHashMap<int, float> nodeTimes)
+        public void SetNodeTotalTimes(NativeHashMap<int, float> nodeTimes)
         {
-            _goapLog.SetNodeTotalTimes(ref nodeTimes);
+            _goapLog.SetNodeTotalTimes(nodeTimes);
         }
 
-        public void SetBaseStates(ref StateGroup baseStates, EntityManager entityManager)
+        public void SetBaseStates(StateGroup baseStates, EntityManager entityManager)
         {
-            _goapLog.SetBaseStates(ref baseStates, entityManager);
+            _goapLog.SetBaseStates(baseStates, entityManager);
         }
 
-        public void SetRewardSum(ref NativeHashMap<int, float> rewardSum)
+        public void SetRewardSum(NativeHashMap<int, float> rewardSum)
         {
-            _goapLog.SetRewardSum(ref rewardSum);
+            _goapLog.SetRewardSum(rewardSum);
         }
 
         public void SetSpecifiedPreconditions(EntityManager entityManager,
-            ref NativeList<int> pathNodeSpecifiedPreconditionIndices,
-            ref NativeList<State> pathNodeSpecifiedPreconditions)
+            NativeList<int> pathNodeSpecifiedPreconditionIndices,
+            NativeList<State> pathNodeSpecifiedPreconditions)
         {
             _goapLog.SetSpecifiedPreconditions(entityManager,
-                ref pathNodeSpecifiedPreconditionIndices, ref pathNodeSpecifiedPreconditions);
+                pathNodeSpecifiedPreconditionIndices, pathNodeSpecifiedPreconditions);
         }
 
         public void LogDone()

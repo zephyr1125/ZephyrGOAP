@@ -65,7 +65,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             if (action.CheckTargetRequire(targetRequire, agentEntity, StackData))
             {
                 var deltas = new StateGroup(Deltas, expandingNodeHash, Allocator.Temp);
-                var settings = action.GetSettings(ref targetRequire, agentEntity, ref StackData, Allocator.Temp);
+                var settings = action.GetSettings(targetRequire, agentEntity, StackData, Allocator.Temp);
 
                 for (var i=0; i<settings.Length(); i++)
                 {
@@ -73,9 +73,9 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     var preconditions = new StateGroup(1, Allocator.Temp);
                     var effects = new StateGroup(1, Allocator.Temp);
 
-                    action.GetPreconditions(ref targetRequire, agentEntity, ref setting, ref StackData, ref preconditions);
+                    action.GetPreconditions(targetRequire, agentEntity, setting, StackData, preconditions);
 
-                    action.GetEffects(ref targetRequire, ref setting, ref StackData, ref effects);
+                    action.GetEffects(targetRequire, setting, StackData, effects);
 
                     if (effects.Length() > 0)
                     {
@@ -85,21 +85,21 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                         requires.OR(preconditions);
 
                         var reward =
-                            action.GetReward(ref targetRequire, ref setting, ref StackData);
+                            action.GetReward(targetRequire, setting, StackData);
                         
                         var time =
-                            action.GetExecuteTime(ref targetRequire, ref setting, ref StackData);
+                            action.GetExecuteTime(targetRequire, setting, StackData);
 
-                        action.GetNavigatingSubjectInfo(ref targetRequire, ref setting,
-                            ref StackData, ref preconditions, out var subjectType, out var subjectId);
+                        action.GetNavigatingSubjectInfo(targetRequire, setting,
+                            StackData, preconditions, out var subjectType, out var subjectId);
                         
-                        var node = new Node(ref preconditions, ref effects, ref requires, ref deltas,
+                        var node = new Node(preconditions, effects, requires, deltas,
                             action.GetName(), reward, time, Iteration, agentEntity, subjectType, subjectId);
 
                         var nodeExisted = ExistedNodesHash.Contains(node.HashCode);
                         
                         AddRouteNode(expandingNode, node, nodeExisted, 
-                            ref preconditions, ref effects, ref requires, ref deltas,
+                            preconditions, effects, requires, deltas,
                             expandingNode, action.GetName());
                         NewlyCreatedNodesWriter.TryAdd(node.HashCode, node);
 
@@ -126,7 +126,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         /// <returns>此node已存在</returns>
         /// </summary>
         private void AddRouteNode(Node baseNode, Node newNode, bool nodeExisted,
-            ref StateGroup preconditions, ref StateGroup effects, ref StateGroup requires, ref StateGroup deltas,
+            StateGroup preconditions, StateGroup effects, StateGroup requires, StateGroup deltas,
             Node parent, NativeString32 actionName)
         {
             newNode.Name = actionName;

@@ -44,12 +44,12 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return true;
         }
         
-        public StateGroup GetSettings(ref State targetState, Entity agentEntity, ref StackData stackData, Allocator allocator)
+        public StateGroup GetSettings([ReadOnly]State targetRequire, Entity agentEntity, [ReadOnly]StackData stackData, Allocator allocator)
         {
             var settings = new StateGroup(1, allocator);
 
             //如果没有指定目标，那么目前只考虑一种setting，即距离最近的能够采到目标物的collector
-            if (targetState.Target == Entity.Null)
+            if (targetRequire.Target == Entity.Null)
             {
                 //寻找能够采集的最近的collector
                 var collectorState = new State
@@ -66,7 +66,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                     {
                         Target = collector.Target,
                         Trait = typeof(ItemPotentialSourceTrait),
-                        ValueString = targetState.ValueString
+                        ValueString = targetRequire.ValueString
                     };
                     if(stackData.BaseStates.GetBelongingState(collectState).Equals(default))continue;
                     var distance = math.distance(collector.Position,
@@ -78,18 +78,18 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
 
                 if (!nearestCollectorState.Equals(default))
                 {
-                    targetState.Target = nearestCollectorState.Target;
-                    targetState.Position = nearestCollectorState.Position;
+                    targetRequire.Target = nearestCollectorState.Target;
+                    targetRequire.Position = nearestCollectorState.Position;
                 };
                 
                 collectors.Dispose();
             }
-            if(targetState.Target!=Entity.Null)settings.Add(targetState);
+            if(targetRequire.Target!=Entity.Null)settings.Add(targetRequire);
             return settings;
         }
 
-        public void GetPreconditions(ref State targetState, Entity agentEntity, ref State setting,
-            ref StackData stackData, ref StateGroup preconditions)
+        public void GetPreconditions([ReadOnly]State targetRequire, Entity agentEntity, [ReadOnly]State setting,
+            [ReadOnly]StackData stackData, [ReadOnly]StateGroup preconditions)
         {
             preconditions.Add(new State
             {
@@ -100,24 +100,24 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             });
         }
 
-        public void GetEffects(ref State targetState, ref State setting,
-            ref StackData stackData, ref StateGroup effects)
+        public void GetEffects([ReadOnly]State targetRequire, [ReadOnly]State setting,
+            [ReadOnly]StackData stackData, [ReadOnly]StateGroup effects)
         {
             effects.Add(setting);
         }
 
-        public float GetReward(ref State targetState, ref State setting, ref StackData stackData)
+        public float GetReward([ReadOnly]State targetRequire, [ReadOnly]State setting, [ReadOnly]StackData stackData)
         {
             return -1;
         }
 
-        public float GetExecuteTime(ref State targetState, ref State setting, ref StackData stackData)
+        public float GetExecuteTime([ReadOnly]State targetRequire, [ReadOnly]State setting, [ReadOnly]StackData stackData)
         {
             return 4 / (float)(Level + 1);
         }
 
-        public void GetNavigatingSubjectInfo(ref State targetState, ref State setting,
-            ref StackData stackData, ref StateGroup preconditions,
+        public void GetNavigatingSubjectInfo([ReadOnly]State targetRequire, [ReadOnly]State setting,
+            [ReadOnly]StackData stackData, [ReadOnly]StateGroup preconditions,
             out NodeNavigatingSubjectType subjectType, out byte subjectId)
         {
             //移动目标为采集设施

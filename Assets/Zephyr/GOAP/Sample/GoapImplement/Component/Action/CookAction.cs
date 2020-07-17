@@ -35,7 +35,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             //如果targetState有指明物品名，则直接寻找其是否为cooker的产物
             //这是因为在指定物品名的情况下，有可能会省略ValueTrait
             if (!targetRequire.ValueString.Equals(default)
-                &&!IsItemInRecipes(targetRequire.ValueString, ref stackData)) return false;
+                &&!IsItemInRecipes(targetRequire.ValueString, stackData)) return false;
                 
             //如果没有指定物品名，则必须指定FoodTrait
             if (targetRequire.ValueString.Equals(default) &&
@@ -51,7 +51,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
         /// <param name="name"></param>
         /// <param name="stackData"></param>
         /// <returns></returns>
-        private bool IsItemInRecipes(NativeString32 name, ref StackData stackData)
+        private bool IsItemInRecipes(NativeString32 name, [ReadOnly]StackData stackData)
         {
             var foodRecipeState = new State
             {
@@ -62,11 +62,11 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return !stackData.BaseStates.GetBelongingState(foodRecipeState).Equals(State.Null);
         }
         
-        public StateGroup GetSettings(ref State targetState, Entity agentEntity, ref StackData stackData, Allocator allocator)
+        public StateGroup GetSettings(State targetRequire, Entity agentEntity, StackData stackData, Allocator allocator)
         {
             var settings = new StateGroup(1, allocator);
 
-            if (targetState.Target == Entity.Null)
+            if (targetRequire.Target == Entity.Null)
             {
                 //首先寻找最近的Cooker，如果没有则没有setting
                 var cookerState = new State {Trait = typeof(CookerTrait)};
@@ -89,36 +89,36 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                 }
 
                 //todo 将来还需要考虑排除忙碌的cooker
-                targetState.Target = nearestState.Target;
-                targetState.Position = nearestState.Position;
+                targetRequire.Target = nearestState.Target;
+                targetRequire.Position = nearestState.Position;
             
                 cookerStates.Dispose();
             }
            
             
-            if (!targetState.ValueString.Equals(default))
+            if (!targetRequire.ValueString.Equals(default))
             {
                 //如果指定了物品名，那么只有一种setting，也就是targetState本身
-                settings.Add(targetState);
-            }else if (targetState.ValueString.Equals(default) &&
-                      targetState.ValueTrait == typeof(FoodTrait))
+                settings.Add(targetRequire);
+            }else if (targetRequire.ValueString.Equals(default) &&
+                      targetRequire.ValueTrait == typeof(FoodTrait))
             {
                 //如果targetState是类别范围，需要对每种符合范围的物品做setting
                 //todo 此处应查询define获得所有符合范围的物品名，示例里暂时从工具方法获取
                 var itemNames =
-                    Utils.GetItemNamesOfSpecificTrait(targetState.ValueTrait,
+                    Utils.GetItemNamesOfSpecificTrait(targetRequire.ValueTrait,
                         Allocator.Temp);
                 //还需要筛除不能被制作的item
                 for (var i = itemNames.Length - 1; i >= 0; i--)
                 {
-                    if (!IsItemInRecipes(itemNames[i], ref stackData))
+                    if (!IsItemInRecipes(itemNames[i], stackData))
                     {
                         itemNames.RemoveAtSwapBack(i);
                     }
                 }
                 for (var i = 0; i < itemNames.Length; i++)
                 {
-                    var state = targetState;
+                    var state = targetRequire;
                     state.ValueString = itemNames[i];
                     settings.Add(state);
                 }
@@ -128,14 +128,14 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             else
             {
                 //都不符合就出错了
-                Debug.LogError("wrong target in CookAction : "+targetState);
+                Debug.LogError("wrong target in CookAction : "+targetRequire);
             }
 
             return settings;
         }
 
-        public void GetPreconditions(ref State targetState, Entity agentEntity, ref State setting,
-            ref StackData stackData, ref StateGroup preconditions)
+        public void GetPreconditions(State targetRequire, Entity agentEntity, State setting,
+            [ReadOnly]StackData stackData, StateGroup preconditions)
         {
             //cooker有其生产所需原料
             var targetRecipeInputFilter = new State
@@ -145,7 +145,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                 ValueString = setting.ValueString,
                 Amount = setting.Amount
             };
-            var inputs = Utils.GetRecipeInputInBaseStates(ref stackData.BaseStates,
+            var inputs = Utils.GetRecipeInputInBaseStates(stackData.BaseStates,
                 targetRecipeInputFilter, Allocator.Temp);
             //把查到的配方转化为对此设施拥有的需求
             preconditions.Add(new State
@@ -170,25 +170,25 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             inputs.Dispose();
         }
 
-        public void GetEffects(ref State targetState, ref State setting,
-            ref StackData stackData, ref StateGroup effects)
+        public void GetEffects(State targetRequire, State setting,
+            [ReadOnly]StackData stackData, StateGroup effects)
         {
             //设施拥有了cook产物
             effects.Add(setting);
         }
 
-        public float GetReward(ref State targetState, ref State setting, ref StackData stackData)
+        public float GetReward(State targetRequire, State setting, [ReadOnly]StackData stackData)
         {
             return -1;
         }
 
-        public float GetExecuteTime(ref State targetState, ref State setting, ref StackData stackData)
+        public float GetExecuteTime(State targetRequire, State setting, [ReadOnly]StackData stackData)
         {
             return 4 / (float) (Level + 1);
         }
 
-        public void GetNavigatingSubjectInfo(ref State targetState, ref State setting,
-            ref StackData stackData, ref StateGroup preconditions,
+        public void GetNavigatingSubjectInfo(State targetRequire, State setting,
+            [ReadOnly]StackData stackData, StateGroup preconditions,
                 out NodeNavigatingSubjectType subjectType, out byte subjectId)
         {
             //移动目标为生产设施

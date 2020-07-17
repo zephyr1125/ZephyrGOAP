@@ -49,10 +49,10 @@
 //                 ValueString = new NativeString64("test"),
 //             }};
 //             var goalPreconditions = new StateGroup();
-//             _goalNode = new Node(ref goalPreconditions, ref goalStates, ref goalStates,
+//             _goalNode = new Node(goalPreconditions, goalStates, goalStates,
 //                 new NativeString64("goal"), 0, 0, 0, Entity.Null);
 //             
-//             _nodeGraph.SetGoalNode(_goalNode, ref goalStates);
+//             _nodeGraph.SetGoalNode(_goalNode, goalStates);
 //             
 //             _unexpandedNodes.Add(_goalNode);
 //             
@@ -84,8 +84,8 @@
 //         [Test]
 //         public void NewNodeIntoUnCheckedList()
 //         {
-//             _system.ExpandNodes(ref _unexpandedNodes, ref _stackData, ref _nodeGraph,
-//                 ref _uncheckedNodesWriter, ref _expandedNodes, 1);
+//             _system.ExpandNodes(_unexpandedNodes, _stackData, _nodeGraph,
+//                 _uncheckedNodesWriter, _expandedNodes, 1);
 //             
 //             Assert.AreEqual(2, _nodeGraph.Length());
 //             Assert.AreEqual(1, _uncheckedNodes.Count());
@@ -105,8 +105,8 @@
 //         [Test]
 //         public void OldNodeIntoExpandedList()
 //         {
-//             _system.ExpandNodes(ref _unexpandedNodes, ref _stackData, ref _nodeGraph,
-//                 ref _uncheckedNodesWriter, ref _expandedNodes, 1);
+//             _system.ExpandNodes(_unexpandedNodes, _stackData, _nodeGraph,
+//                 _uncheckedNodesWriter, _expandedNodes, 1);
 //             
 //             Assert.AreEqual(2, _nodeGraph.Length());
 //             Assert.AreEqual(1, _expandedNodes.Length);
@@ -127,8 +127,8 @@
 //         [Test]
 //         public void ClearUnExpandedList()
 //         {
-//             _system.ExpandNodes(ref _unexpandedNodes, ref _stackData, ref _nodeGraph,
-//                 ref _uncheckedNodesWriter, ref _expandedNodes, 1);
+//             _system.ExpandNodes(_unexpandedNodes, _stackData, _nodeGraph,
+//                 _uncheckedNodesWriter, _expandedNodes, 1);
 //             
 //             Assert.AreEqual(0, _unexpandedNodes.Length);
 //         }
@@ -139,8 +139,8 @@
 //         {
 //             EntityManager.RemoveComponent<DropItemAction>(_agentEntity);
 //             
-//             _system.ExpandNodes(ref _unexpandedNodes, ref _stackData, ref _nodeGraph,
-//                 ref _uncheckedNodesWriter, ref _expandedNodes, 1);
+//             _system.ExpandNodes(_unexpandedNodes, _stackData, _nodeGraph,
+//                 _uncheckedNodesWriter, _expandedNodes, 1);
 //             
 //             Assert.AreEqual(1, _nodeGraph.Length());
 //             Assert.AreEqual(1, _expandedNodes.Length);

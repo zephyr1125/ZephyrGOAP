@@ -11,7 +11,7 @@
 //         protected override void OnUpdate()
 //         {
 //             Entities.ForEach(
-//                 (Entity entity, DynamicBuffer<Node> nodes, ref Agent agent, ref Stamina stamina) =>
+//                 (Entity entity, DynamicBuffer<Node> nodes, Agent agent, Stamina stamina) =>
 //                 {
 //                     if (agent.ExecutingNodeId >= nodes.Length) return;
 //                     

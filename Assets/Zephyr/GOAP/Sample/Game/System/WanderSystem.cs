@@ -42,8 +42,8 @@ namespace Zephyr.GOAP.Sample.Game.System
                 ref Translation translation)
             {
                 //在附近随机一个移动目标
-                RandomTargetPosition(ref RandomDirections, ref RandomDistances, index,
-                    ECBuffer, entity, index, ref translation);
+                RandomTargetPosition(RandomDirections, RandomDistances, index,
+                    ECBuffer, entity, index, translation);
                 
                 //进入wandering状态
                 ECBuffer.AddComponent(index, entity, new Wandering
@@ -75,8 +75,8 @@ namespace Zephyr.GOAP.Sample.Game.System
                 if (Time - startTime < wander.Time)
                 {
                     //继续下一个随机路点
-                    RandomTargetPosition(ref RandomDirections, ref RandomDistances, index,
-                        ECBuffer, entity, index, ref translation);
+                    RandomTargetPosition(RandomDirections, RandomDistances, index,
+                        ECBuffer, entity, index, translation);
                 }
                 else
                 {
@@ -87,9 +87,9 @@ namespace Zephyr.GOAP.Sample.Game.System
             }
         }
         
-        private static void RandomTargetPosition(ref NativeArray<float2> randomDirections,
-            ref NativeArray<float> randomDistances, int jobId, EntityCommandBuffer.Concurrent ecBuffer,
-            Entity entity, int index, ref Translation translation)
+        private static void RandomTargetPosition(NativeArray<float2> randomDirections,
+            NativeArray<float> randomDistances, int jobId, EntityCommandBuffer.Concurrent ecBuffer,
+            Entity entity, int index, Translation translation)
         {
             var direction2 = randomDirections[jobId];
             var direction3 = new float3(direction2.x, 0, direction2.y);    //只在水平面上的随机

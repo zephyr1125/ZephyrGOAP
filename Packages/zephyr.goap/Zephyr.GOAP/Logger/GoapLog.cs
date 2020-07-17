@@ -51,39 +51,39 @@ namespace Zephyr.GOAP.Logger
             return results[id];
         }
 
-        public void SetNodeGraph(ref NodeGraph nodeGraph, EntityManager entityManager)
+        public void SetNodeGraph(NodeGraph nodeGraph, EntityManager entityManager)
         {
-            _currentResult.SetNodeGraph(ref nodeGraph, entityManager);
+            _currentResult.SetNodeGraph(nodeGraph, entityManager);
         }
 
         public void SetPathResult(EntityManager entityManager,
-            ref NativeArray<Entity> pathEntities, ref NativeList<Node> pathResult)
+            NativeArray<Entity> pathEntities, NativeList<Node> pathResult)
         {
-            _currentResult.SetPathResult(entityManager, ref pathEntities, ref pathResult);
+            _currentResult.SetPathResult(entityManager, pathEntities, pathResult);
         }
 
         public void SetNodeAgentInfos(EntityManager entityManager,
-            ref NativeMultiHashMap<int, NodeAgentInfo> nodeAgentInfos)
+            NativeMultiHashMap<int, NodeAgentInfo> nodeAgentInfos)
         {
-            _currentResult.SetNodeAgentInfos(entityManager, ref nodeAgentInfos);
+            _currentResult.SetNodeAgentInfos(entityManager, nodeAgentInfos);
         }
 
-        public void SetNodeTotalTimes(ref NativeHashMap<int, float> nodeTotalTimes)
+        public void SetNodeTotalTimes(NativeHashMap<int, float> nodeTotalTimes)
         {
-            _currentResult.SetNodeTotalTimes(ref nodeTotalTimes);
+            _currentResult.SetNodeTotalTimes(nodeTotalTimes);
         }
 
-        public void SetBaseStates(ref StateGroup baseStates, EntityManager entityManager)
+        public void SetBaseStates(StateGroup baseStates, EntityManager entityManager)
         {
-            _currentResult.SetBaseStates(ref baseStates, entityManager);
+            _currentResult.SetBaseStates(baseStates, entityManager);
         }
 
         public void SetSpecifiedPreconditions(EntityManager entityManager,
-            ref NativeList<int> pathNodeSpecifiedPreconditionIndices,
-            ref NativeList<State> pathNodeSpecifiedPreconditions)
+            NativeList<int> pathNodeSpecifiedPreconditionIndices,
+            NativeList<State> pathNodeSpecifiedPreconditions)
         {
             _currentResult.SetSpecifiedPreconditions(entityManager,
-                ref pathNodeSpecifiedPreconditionIndices, ref pathNodeSpecifiedPreconditions);
+                pathNodeSpecifiedPreconditionIndices, pathNodeSpecifiedPreconditions);
         }
 
         public NodeLog GetGoalNodeView()
@@ -101,9 +101,9 @@ namespace Zephyr.GOAP.Logger
             return _currentResult.GetChildren(parent);
         }
 
-        public void SetRewardSum(ref NativeHashMap<int, float> rewardSum)
+        public void SetRewardSum(NativeHashMap<int, float> rewardSum)
         {
-            _currentResult.SetRewardSum(ref rewardSum);
+            _currentResult.SetRewardSum(rewardSum);
         }
     }
 

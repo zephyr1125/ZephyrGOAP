@@ -11,47 +11,47 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System
 {
     public class GoalPlanningSystem : GoalPlanningSystemBase
     {
-        protected override JobHandle ScheduleAllActionExpand(JobHandle handle, ref StackData stackData,
+        protected override JobHandle ScheduleAllActionExpand(JobHandle handle, StackData stackData,
             NativeArray<ValueTuple<Entity, Node>> nodeAgentPairs, 
-            ref NativeArray<int> existedNodesHash,
+            NativeArray<int> existedNodesHash,
             NativeList<ValueTuple<int, State>> requires, NativeList<ValueTuple<int, State>> deltas,
             NativeHashMap<int, Node>.ParallelWriter nodesWriter, NativeList<(int, int)>.ParallelWriter nodeToParentsWriter,
             NativeHashMap<int, State>.ParallelWriter statesWriter, NativeList<(int, int)>.ParallelWriter preconditionHashesWriter,
             NativeList<(int, int)>.ParallelWriter effectHashesWriter, NativeList<(int, int)>.ParallelWriter requireHashesWriter,
-            NativeList<(int, int)>.ParallelWriter deltaHashesWriter, ref NativeHashMap<int, Node>.ParallelWriter newlyCreatedNodesWriter, int iteration)
+            NativeList<(int, int)>.ParallelWriter deltaHashesWriter, NativeHashMap<int, Node>.ParallelWriter newlyCreatedNodesWriter, int iteration)
         {
-             handle = ScheduleActionExpand<DropItemAction>(handle, ref stackData,
-                nodeAgentPairs, ref existedNodesHash, requires, deltas, nodesWriter, nodeToParentsWriter, 
+             handle = ScheduleActionExpand<DropItemAction>(handle, stackData,
+                nodeAgentPairs, existedNodesHash, requires, deltas, nodesWriter, nodeToParentsWriter, 
                 statesWriter, preconditionHashesWriter, effectHashesWriter, requireHashesWriter, deltaHashesWriter,
-                ref newlyCreatedNodesWriter, iteration);
-            handle = ScheduleActionExpand<PickItemAction>(handle, ref stackData,
-                nodeAgentPairs, ref existedNodesHash, requires, deltas, nodesWriter, nodeToParentsWriter, 
+                newlyCreatedNodesWriter, iteration);
+            handle = ScheduleActionExpand<PickItemAction>(handle, stackData,
+                nodeAgentPairs, existedNodesHash, requires, deltas, nodesWriter, nodeToParentsWriter, 
                 statesWriter, preconditionHashesWriter, effectHashesWriter, requireHashesWriter, deltaHashesWriter,
-                ref newlyCreatedNodesWriter, iteration);
-            handle = ScheduleActionExpand<EatAction>(handle, ref stackData,
-                nodeAgentPairs, ref existedNodesHash, requires, deltas, nodesWriter, nodeToParentsWriter, 
+                newlyCreatedNodesWriter, iteration);
+            handle = ScheduleActionExpand<EatAction>(handle, stackData,
+                nodeAgentPairs, existedNodesHash, requires, deltas, nodesWriter, nodeToParentsWriter, 
                 statesWriter, preconditionHashesWriter, effectHashesWriter, requireHashesWriter, deltaHashesWriter,
-                ref newlyCreatedNodesWriter, iteration);
-            handle = ScheduleActionExpand<CookAction>(handle, ref stackData,
-                nodeAgentPairs, ref existedNodesHash, requires, deltas, nodesWriter, nodeToParentsWriter, 
+                newlyCreatedNodesWriter, iteration);
+            handle = ScheduleActionExpand<CookAction>(handle, stackData,
+                nodeAgentPairs, existedNodesHash, requires, deltas, nodesWriter, nodeToParentsWriter, 
                 statesWriter, preconditionHashesWriter, effectHashesWriter, requireHashesWriter, deltaHashesWriter,
-                ref newlyCreatedNodesWriter, iteration);
-            handle = ScheduleActionExpand<WanderAction>(handle, ref stackData,
-                nodeAgentPairs, ref existedNodesHash, requires, deltas, nodesWriter, nodeToParentsWriter, 
+                newlyCreatedNodesWriter, iteration);
+            handle = ScheduleActionExpand<WanderAction>(handle, stackData,
+                nodeAgentPairs, existedNodesHash, requires, deltas, nodesWriter, nodeToParentsWriter, 
                 statesWriter, preconditionHashesWriter, effectHashesWriter, requireHashesWriter, deltaHashesWriter,
-                ref newlyCreatedNodesWriter, iteration);
-            handle = ScheduleActionExpand<CollectAction>(handle, ref stackData,
-                nodeAgentPairs, ref existedNodesHash, requires, deltas, nodesWriter, nodeToParentsWriter, 
+                newlyCreatedNodesWriter, iteration);
+            handle = ScheduleActionExpand<CollectAction>(handle, stackData,
+                nodeAgentPairs, existedNodesHash, requires, deltas, nodesWriter, nodeToParentsWriter, 
                 statesWriter, preconditionHashesWriter, effectHashesWriter, requireHashesWriter, deltaHashesWriter,
-                ref newlyCreatedNodesWriter, iteration);
-            handle = ScheduleActionExpand<PickRawAction>(handle, ref stackData,
-                nodeAgentPairs, ref existedNodesHash, requires, deltas, nodesWriter, nodeToParentsWriter, 
+                newlyCreatedNodesWriter, iteration);
+            handle = ScheduleActionExpand<PickRawAction>(handle, stackData,
+                nodeAgentPairs, existedNodesHash, requires, deltas, nodesWriter, nodeToParentsWriter, 
                 statesWriter, preconditionHashesWriter, effectHashesWriter, requireHashesWriter, deltaHashesWriter,
-                ref newlyCreatedNodesWriter, iteration);
-            handle = ScheduleActionExpand<DropRawAction>(handle, ref stackData,
-                nodeAgentPairs, ref existedNodesHash, requires, deltas, nodesWriter, nodeToParentsWriter, 
+                newlyCreatedNodesWriter, iteration);
+            handle = ScheduleActionExpand<DropRawAction>(handle, stackData,
+                nodeAgentPairs, existedNodesHash, requires, deltas, nodesWriter, nodeToParentsWriter, 
                 statesWriter, preconditionHashesWriter, effectHashesWriter, requireHashesWriter, deltaHashesWriter,
-                ref newlyCreatedNodesWriter, iteration);
+                newlyCreatedNodesWriter, iteration);
             
             return handle;
         }

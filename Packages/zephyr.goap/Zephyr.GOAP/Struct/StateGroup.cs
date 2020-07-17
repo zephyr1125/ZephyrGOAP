@@ -107,7 +107,7 @@ namespace Zephyr.GOAP.Struct
             }
         }
         
-        public StateGroup(ref DynamicBuffer<State> statesBuffer,
+        public StateGroup(DynamicBuffer<State> statesBuffer,
             Allocator allocator)
         {
             _states = new NativeList<State>(statesBuffer.Length, allocator);
@@ -283,7 +283,7 @@ namespace Zephyr.GOAP.Struct
             return group;
         }
 
-        public void WriteBuffer(ref DynamicBuffer<State> buffer)
+        public void WriteBuffer(DynamicBuffer<State> buffer)
         {
             foreach (var state in _states)
             {

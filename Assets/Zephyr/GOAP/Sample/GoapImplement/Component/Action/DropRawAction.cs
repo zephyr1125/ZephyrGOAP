@@ -31,19 +31,19 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return !agents.Contains(targetRequire.Target) && targetRequire.BelongTo(stateFilter);
         }
         
-        public StateGroup GetSettings(ref State targetState, Entity agentEntity, ref StackData stackData, Allocator allocator)
+        public StateGroup GetSettings(State targetRequire, Entity agentEntity, StackData stackData, Allocator allocator)
         {
             //目前不考虑无Target或宽泛类别的goal
             var settings = new StateGroup(1, allocator);
             
-            Assert.IsFalse(targetState.ValueString.Equals(default));
-            settings.Add(targetState);
+            Assert.IsFalse(targetRequire.ValueString.Equals(default));
+            settings.Add(targetRequire);
             
             return settings;
         }
 
-        public void GetPreconditions(ref State targetState, Entity agentEntity, ref State setting,
-            ref StackData stackData, ref StateGroup preconditions)
+        public void GetPreconditions(State targetRequire, Entity agentEntity, State setting,
+            StackData stackData, StateGroup preconditions)
         {
             //我自己需要有指定的原料
             var state = setting;
@@ -52,24 +52,24 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             preconditions.Add(state);
         }
 
-        public void GetEffects(ref State targetState, ref State setting,
-            ref StackData stackData, ref StateGroup effects)
+        public void GetEffects(State targetRequire, State setting,
+            StackData stackData, StateGroup effects)
         {
             effects.Add(setting);
         }
 
-        public float GetReward(ref State targetState, ref State setting, ref StackData stackData)
+        public float GetReward(State targetRequire, State setting, StackData stackData)
         {
             return 0;
         }
 
-        public float GetExecuteTime(ref State targetState, ref State setting, ref StackData stackData)
+        public float GetExecuteTime(State targetRequire, State setting, StackData stackData)
         {
             return 0;
         }
 
-        public void GetNavigatingSubjectInfo(ref State targetState, ref State setting,
-            ref StackData stackData, ref StateGroup preconditions,
+        public void GetNavigatingSubjectInfo(State targetRequire, State setting,
+            StackData stackData, StateGroup preconditions,
             out NodeNavigatingSubjectType subjectType, out byte subjectId)
         {
             subjectType = NodeNavigatingSubjectType.EffectTarget;

@@ -26,7 +26,7 @@ namespace Zephyr.GOAP.System.ActionExecuteManage
                 {
                     //切换agent状态,可以进行Acting了
                     Utils.NextAgentState<Navigating, ReadyToAct>(entity, entityInQueryIndex,
-                        ref ecb, navigating.NodeEntity);
+                        ecb, navigating.NodeEntity);
                 }).Schedule(inputDeps);
             EcbSystem.AddJobHandleForProducer(handle);
             return handle;

@@ -30,13 +30,13 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return targetRequire.BelongTo(stateFilter);
         }
 
-        public StateGroup GetSettings(ref State targetState, Entity agentEntity, ref StackData stackData, Allocator allocator)
+        public StateGroup GetSettings(State targetRequire, Entity agentEntity, StackData stackData, Allocator allocator)
         {
             //目前不考虑无Target或宽泛类别的goal
             var settings = new StateGroup(1, allocator);
             
-            Assert.IsFalse(targetState.ValueString.Equals(default));
-            settings.Add(targetState);
+            Assert.IsFalse(targetRequire.ValueString.Equals(default));
+            settings.Add(targetRequire);
             
             return settings;
         }
@@ -44,12 +44,12 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
         /// <summary>
         /// 条件：世界里要有对应原料
         /// </summary>
-        /// <param name="targetState"></param>
+        /// <param name="targetRequire"></param>
         /// <param name="setting"></param>
         /// <param name="stackData"></param>
         /// <param name="preconditions"></param>
-        public void GetPreconditions([ReadOnly]ref State targetState, Entity agentEntity, ref State setting,
-            [ReadOnly]ref StackData stackData, ref StateGroup preconditions)
+        public void GetPreconditions([ReadOnly]State targetRequire, Entity agentEntity, State setting,
+            [ReadOnly]StackData stackData, StateGroup preconditions)
         {
             var state = setting;
             state.Target = Entity.Null;
@@ -60,28 +60,28 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
         /// <summary>
         /// 效果：自身获得对应原料
         /// </summary>
-        /// <param name="targetState"></param>
+        /// <param name="targetRequire"></param>
         /// <param name="setting"></param>
         /// <param name="stackData"></param>
         /// <param name="effects"></param>
-        public void GetEffects([ReadOnly]ref State targetState, ref State setting,
-            [ReadOnly]ref StackData stackData, ref StateGroup effects)
+        public void GetEffects([ReadOnly]State targetRequire, State setting,
+            [ReadOnly]StackData stackData, StateGroup effects)
         {
             effects.Add(setting);
         }
 
-        public float GetReward(ref State targetState, ref State setting, ref StackData stackData)
+        public float GetReward(State targetRequire, State setting, StackData stackData)
         {
             return 0;
         }
 
-        public float GetExecuteTime(ref State targetState, ref State setting, ref StackData stackData)
+        public float GetExecuteTime(State targetRequire, State setting, StackData stackData)
         {
             return 0.5f;
         }
 
-        public void GetNavigatingSubjectInfo(ref State targetState, ref State setting,
-            ref StackData stackData, ref StateGroup preconditions,
+        public void GetNavigatingSubjectInfo(State targetRequire, State setting,
+            StackData stackData, StateGroup preconditions,
             out NodeNavigatingSubjectType subjectType, out byte subjectId)
         {
             subjectType = NodeNavigatingSubjectType.PreconditionTarget;

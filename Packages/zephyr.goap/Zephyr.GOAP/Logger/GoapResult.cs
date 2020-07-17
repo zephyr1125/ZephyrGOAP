@@ -41,13 +41,13 @@ namespace Zephyr.GOAP.Logger
             pathDependencies = new List<NodeDependencyLog>();
         }
         
-        public void SetNodeGraph(ref NodeGraph nodeGraph, EntityManager entityManager)
+        public void SetNodeGraph(NodeGraph nodeGraph, EntityManager entityManager)
         {
             //转换所有node
             var nodesData = nodeGraph.GetNodes(Allocator.Temp);
             foreach (var node in nodesData)
             {
-                var nodeLog = new NodeLog(ref nodeGraph, entityManager, node);
+                var nodeLog = new NodeLog(nodeGraph, entityManager, node);
                 if (node.HashCode.Equals(nodeGraph.StartNodeHash) ||
                     node.HashCode.Equals(nodeGraph.GoalNodeHash))
                 {
@@ -68,7 +68,7 @@ namespace Zephyr.GOAP.Logger
         }
 
         public void SetPathResult(EntityManager entityManager,
-            ref NativeArray<Entity> pathEntities, ref NativeList<Node> pathNodes)
+            NativeArray<Entity> pathEntities, NativeList<Node> pathNodes)
         {
             _pathHash = new int[pathNodes.Length];
             for (var i = 0; i < pathNodes.Length; i++)
@@ -103,17 +103,17 @@ namespace Zephyr.GOAP.Logger
         }
 
         public void SetSpecifiedPreconditions(EntityManager entityManager,
-            ref NativeList<int> pathNodeSpecifiedPreconditionIndices,
-            ref NativeList<State> pathNodeSpecifiedPreconditions)
+            NativeList<int> pathNodeSpecifiedPreconditionIndices,
+            NativeList<State> pathNodeSpecifiedPreconditions)
         {
             foreach (var nodeLog in nodes)
             {
                 nodeLog.SetSpecifiedPreconditions(entityManager,
-                    ref pathNodeSpecifiedPreconditionIndices, ref pathNodeSpecifiedPreconditions);
+                    pathNodeSpecifiedPreconditionIndices, pathNodeSpecifiedPreconditions);
             }
         }
 
-        public void SetNodeAgentInfos(EntityManager entityManager, ref NativeMultiHashMap<int, NodeAgentInfo> nodeTimes)
+        public void SetNodeAgentInfos(EntityManager entityManager, NativeMultiHashMap<int, NodeAgentInfo> nodeTimes)
         {
             for (var i = 0; i < nodes.Count; i++)
             {
@@ -127,7 +127,7 @@ namespace Zephyr.GOAP.Logger
             }
         }
 
-        public void SetNodeTotalTimes(ref NativeHashMap<int, float> nodeTotalTimes)
+        public void SetNodeTotalTimes(NativeHashMap<int, float> nodeTotalTimes)
         {
             for (var i = 0; i < nodes.Count; i++)
             {
@@ -137,7 +137,7 @@ namespace Zephyr.GOAP.Logger
             }
         }
 
-        public void SetBaseStates(ref StateGroup baseStates, EntityManager entityManager)
+        public void SetBaseStates(StateGroup baseStates, EntityManager entityManager)
         {
             foreach (var baseState in baseStates)
             {
@@ -145,7 +145,7 @@ namespace Zephyr.GOAP.Logger
             }
         }
 
-        public void SetRewardSum(ref NativeHashMap<int, float> rewardSum)
+        public void SetRewardSum(NativeHashMap<int, float> rewardSum)
         {
             for (var i = 0; i < nodes.Count; i++)
             {

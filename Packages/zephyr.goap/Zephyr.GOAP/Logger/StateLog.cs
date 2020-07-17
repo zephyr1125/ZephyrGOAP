@@ -39,8 +39,8 @@ namespace Zephyr.GOAP.Logger
         }
 
         public static StateLog[] CreateStateLogs(EntityManager entityManager, 
-            int nodeHash, ref NativeList<int> stateIndices,
-            ref NativeList<State> states)
+            int nodeHash, NativeList<int> stateIndices,
+            NativeList<State> states)
         {
             var stateLogs = new List<StateLog>();
             for (var i = 0; i < stateIndices.Length; i++)

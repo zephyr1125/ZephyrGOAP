@@ -23,7 +23,7 @@ namespace Zephyr.GOAP.Sample
         /// <param name="recipeOutFilter"></param>
         /// <param name="allocator"></param>
         /// <returns></returns>
-        public static StateGroup GetRecipeInputInBaseStates(ref StateGroup baseStates, State recipeOutFilter, Allocator allocator)
+        public static StateGroup GetRecipeInputInBaseStates(StateGroup baseStates, State recipeOutFilter, Allocator allocator)
         {
             
             var result = new StateGroup(2, allocator);

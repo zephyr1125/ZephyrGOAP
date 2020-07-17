@@ -29,7 +29,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return targetRequire.BelongTo(staminaState);
         }
         
-        public StateGroup GetSettings(ref State targetState, Entity agentEntity, ref StackData stackData, Allocator allocator)
+        public StateGroup GetSettings(State targetRequire, Entity agentEntity, StackData stackData, Allocator allocator)
         {
             var settings = new StateGroup(1, allocator);
             
@@ -66,34 +66,34 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return settings;
         }
 
-        public void GetPreconditions(ref State targetState, Entity agentEntity, ref State setting,
-            ref StackData stackData, ref StateGroup preconditions)
+        public void GetPreconditions(State targetRequire, Entity agentEntity, State setting,
+            StackData stackData, StateGroup preconditions)
         {
             //有食物的餐桌
             preconditions.Add(setting);
         }
 
-        public void GetEffects(ref State targetState, ref State setting,
-            ref StackData stackData, ref StateGroup effects)
+        public void GetEffects(State targetRequire, State setting,
+            StackData stackData, StateGroup effects)
         {
             //自身获得stamina
-            effects.Add(targetState);
+            effects.Add(targetRequire);
         }
 
-        public float GetReward(ref State targetState, ref State setting, ref StackData stackData)
+        public float GetReward(State targetRequire, State setting, StackData stackData)
         {
             //由食物决定
             //todo 示例项目通过工具方法获取食物reward，实际应从define取
             return Utils.GetFoodReward(setting.ValueString);
         }
 
-        public float GetExecuteTime(ref State targetState, ref State setting, ref StackData stackData)
+        public float GetExecuteTime(State targetRequire, State setting, StackData stackData)
         {
             return 2;
         }
 
-        public void GetNavigatingSubjectInfo(ref State targetState, ref State setting,
-            ref StackData stackData, ref StateGroup preconditions,
+        public void GetNavigatingSubjectInfo(State targetRequire, State setting,
+            StackData stackData, StateGroup preconditions,
             out NodeNavigatingSubjectType subjectType, out byte subjectId)
         {
             //导航目标为餐桌

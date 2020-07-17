@@ -42,7 +42,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
 
                         //进入执行中状态
                         Zephyr.GOAP.Utils.NextAgentState<ReadyToAct, Acting>(agentEntity, entityInQueryIndex,
-                            ref ecb, nodeEntity);
+                            ecb, nodeEntity);
                         break;
                     }
                 }).Schedule(inputDeps);
@@ -80,11 +80,11 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
 
                         //agent指示执行完毕
                         Zephyr.GOAP.Utils.NextAgentState<Acting, ActDone>(agentEntity, entityInQueryIndex,
-                            ref ecb, nodeEntity);
+                            ecb, nodeEntity);
 
                         //node指示执行完毕 
                         Zephyr.GOAP.Utils.NextActionNodeState<ActionNodeActing, ActionNodeDone>(nodeEntity,
-                            entityInQueryIndex, ref ecb, agentEntity);
+                            entityInQueryIndex, ecb, agentEntity);
                         break;
                     }
                 }).Schedule(inputDeps);
