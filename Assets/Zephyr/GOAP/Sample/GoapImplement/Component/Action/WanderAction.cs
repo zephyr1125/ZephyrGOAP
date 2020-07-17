@@ -20,22 +20,16 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return nameof(WanderAction);
         }
 
-        public State GetTargetRequire(ref StateGroup targetRequires, Entity agentEntity, ref StackData stackData)
+        public bool CheckTargetRequire(State targetRequire, Entity agentEntity, [ReadOnly]StackData stackData)
         {
-            foreach (var targetState in targetRequires)
+            var wanderState = new State
             {
-                var wanderState = new State
-                {
-                    Target = agentEntity,
-                    Trait = typeof(WanderTrait),
-                };
-                //只针对自身wander
-                if (!targetState.BelongTo(wanderState)) continue;
-
-                return targetState;
-            }
-
-            return default;
+                Target = agentEntity,
+                Trait = typeof(WanderTrait),
+            };
+            
+            //只针对自身wander
+            return targetRequire.BelongTo(wanderState);
         }
         
         public StateGroup GetSettings(ref State targetState, Entity agentEntity, ref StackData stackData, Allocator allocator)

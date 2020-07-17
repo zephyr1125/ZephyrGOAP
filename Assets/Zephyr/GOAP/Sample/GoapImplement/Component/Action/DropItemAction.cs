@@ -18,7 +18,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return nameof(DropItemAction);
         }
 
-        public State GetTargetRequire(ref StateGroup targetRequires, Entity agentEntity, ref StackData stackData)
+        public bool CheckTargetRequire(State targetRequire, Entity agentEntity, [ReadOnly]StackData stackData)
         {
             //针对“目标获得物品”的state
             var stateFilter = new State
@@ -27,7 +27,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             };
             var agents = stackData.AgentEntities;
             //额外：target不能为agent
-            return targetRequires.GetState(state => !agents.Contains(state.Target) && state.BelongTo(stateFilter));
+            return !agents.Contains(targetRequire.Target) && targetRequire.BelongTo(stateFilter);
         }
         
         public StateGroup GetSettings(ref State targetState, Entity agentEntity, ref StackData stackData, Allocator allocator)

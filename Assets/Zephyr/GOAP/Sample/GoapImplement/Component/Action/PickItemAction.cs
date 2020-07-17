@@ -18,8 +18,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return nameof(PickItemAction);
         }
         
-        public State GetTargetRequire([ReadOnly]ref StateGroup targetRequires, Entity agentEntity,
-            [ReadOnly]ref StackData stackData)
+        public bool CheckTargetRequire(State targetRequire, Entity agentEntity, [ReadOnly]StackData stackData)
         {
             //针对“自身运输物品”的state
             var stateFilter = new State
@@ -27,7 +26,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                 Target = agentEntity,
                 Trait = typeof(ItemTransferTrait),
             };
-            return targetRequires.GetBelongingState(stateFilter);
+            return targetRequire.BelongTo(stateFilter);
         }
 
         public StateGroup GetSettings(ref State targetState, Entity agentEntity, ref StackData stackData, Allocator allocator)

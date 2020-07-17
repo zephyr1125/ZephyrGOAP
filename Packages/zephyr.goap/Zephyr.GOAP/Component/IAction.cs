@@ -8,7 +8,7 @@ namespace Zephyr.GOAP.Component
     {
         NativeString32 GetName();
         
-        State GetTargetRequire(ref StateGroup targetRequires, Entity agentEntity, ref StackData stackData);
+        bool CheckTargetRequire(State targetRequire, Entity agentEntity, [ReadOnly]StackData stackData);
 
         StateGroup GetSettings(ref State targetState, Entity agentEntity, ref StackData stackData, Allocator allocator);
 

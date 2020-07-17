@@ -19,34 +19,29 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return nameof(CollectAction);
         }
 
-        public State GetTargetRequire(ref StateGroup targetRequires, Entity agentEntity, ref StackData stackData)
+        public bool CheckTargetRequire(State targetRequire, Entity agentEntity, [ReadOnly]StackData stackData)
         {
-            foreach (var targetState in targetRequires)
+            var itemSourceState = new State
             {
-                var itemSourceState = new State
+                Trait = typeof(ItemSourceTrait),
+            };
+            //只针对物品源需求的goal state
+            if (!targetRequire.BelongTo(itemSourceState)) return false;
+            //不支持没有value string
+            if (targetRequire.ValueString.Equals(default)) return false;
+            //如果Target已明确，那么Target必须是Collector
+            if (targetRequire.Target != Entity.Null)
+            {
+                var collectorTemplate = new State
                 {
-                    Trait = typeof(ItemSourceTrait),
+                    Target = targetRequire.Target,
+                    Trait = typeof(CollectorTrait)
                 };
-                //只针对物品源需求的goal state
-                if (!targetState.BelongTo(itemSourceState)) continue;
-                //不支持没有value string
-                if (targetState.ValueString.Equals(default)) continue;
-                //如果Target已明确，那么Target必须是Collector
-                if (targetState.Target != Entity.Null)
-                {
-                    var collectorTemplate = new State
-                    {
-                        Target = targetState.Target,
-                        Trait = typeof(CollectorTrait)
-                    };
-                    var foundState = stackData.BaseStates.GetBelongingState(collectorTemplate);
-                    if (foundState.Equals(State.Null)) continue;
-                }
-                
-                return targetState;
+                var foundState = stackData.BaseStates.GetBelongingState(collectorTemplate);
+                if (foundState.Equals(State.Null)) return false;
             }
-
-            return default;
+                
+            return true;
         }
         
         public StateGroup GetSettings(ref State targetState, Entity agentEntity, ref StackData stackData, Allocator allocator)

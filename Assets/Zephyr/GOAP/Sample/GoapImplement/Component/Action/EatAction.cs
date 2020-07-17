@@ -18,22 +18,15 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return nameof(EatAction);
         }
 
-        public State GetTargetRequire(ref StateGroup targetRequires, Entity agentEntity, ref StackData stackData)
+        public bool CheckTargetRequire(State targetRequire, Entity agentEntity, [ReadOnly]StackData stackData)
         {
-            foreach (var targetState in targetRequires)
+            var staminaState = new State
             {
-                var staminaState = new State
-                {
-                    Target = agentEntity,
-                    Trait = typeof(StaminaTrait),
-                };
-                //只针对自身stamina的正面goal state
-                if (!targetState.BelongTo(staminaState)) continue;
+                Target = agentEntity,
+                Trait = typeof(StaminaTrait),
+            };
 
-                return targetState;
-            }
-
-            return default;
+            return targetRequire.BelongTo(staminaState);
         }
         
         public StateGroup GetSettings(ref State targetState, Entity agentEntity, ref StackData stackData, Allocator allocator)

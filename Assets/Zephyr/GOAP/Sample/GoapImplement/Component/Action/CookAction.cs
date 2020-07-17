@@ -20,33 +20,28 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return nameof(CookAction);
         }
 
-        public State GetTargetRequire(ref StateGroup targetRequires, Entity agentEntity, ref StackData stackData)
+        public bool CheckTargetRequire(State targetRequire, Entity agentEntity, StackData stackData)
         {
-            foreach (var targetRequire in targetRequires)
+            //数量应该大于0
+            if (targetRequire.Amount == 0) return false;
+                
+            var itemSourceState = new State
             {
-                //数量应该大于0
-                if (targetRequire.Amount == 0) continue;
+                Trait = typeof(ItemSourceTrait),
+            };
+            //只针对物品源需求的goal state
+            if (!targetRequire.BelongTo(itemSourceState)) return false;
                 
-                var itemSourceState = new State
-                {
-                    Trait = typeof(ItemSourceTrait),
-                };
-                //只针对物品源需求的goal state
-                if (!targetRequire.BelongTo(itemSourceState)) continue;
+            //如果targetState有指明物品名，则直接寻找其是否为cooker的产物
+            //这是因为在指定物品名的情况下，有可能会省略ValueTrait
+            if (!targetRequire.ValueString.Equals(default)
+                &&!IsItemInRecipes(targetRequire.ValueString, ref stackData)) return false;
                 
-                //如果targetState有指明物品名，则直接寻找其是否为cooker的产物
-                //这是因为在指定物品名的情况下，有可能会省略ValueTrait
-                if (!targetRequire.ValueString.Equals(default)
-                    &&!IsItemInRecipes(targetRequire.ValueString, ref stackData)) continue;
+            //如果没有指定物品名，则必须指定FoodTrait
+            if (targetRequire.ValueString.Equals(default) &&
+                targetRequire.ValueTrait != typeof(FoodTrait)) return false;
                 
-                //如果没有指定物品名，则必须指定FoodTrait
-                if (targetRequire.ValueString.Equals(default) &&
-                    targetRequire.ValueTrait != typeof(FoodTrait)) continue;
-                
-                return targetRequire;
-            }
-
-            return default;
+            return true;
         }
 
         /// <summary>
