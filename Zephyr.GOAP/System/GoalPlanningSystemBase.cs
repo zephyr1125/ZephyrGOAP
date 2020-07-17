@@ -1,11 +1,11 @@
 using System;
-using System.Globalization;
+using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Transforms;
-using UnityEngine;
 using Zephyr.GOAP.Component;
+using Zephyr.GOAP.Component.AgentState;
 using Zephyr.GOAP.Component.GoalManage;
 using Zephyr.GOAP.Component.GoalManage.GoalState;
 using Zephyr.GOAP.Debugger;
@@ -34,11 +34,11 @@ namespace Zephyr.GOAP.System
         public int PathNodeLimit = 1000;
 
         /// <summary>
-        /// 对于一种action进行展开的agent的上限，以避免node graph过度膨胀
+        /// 参与一次planning的agent的上限，以避免node graph过度膨胀
         /// </summary>
-        public int MaxAgentForAction = 3;
-        
-        private EntityQuery _agentQuery, _goalQuery;
+        public int AgentAmountForPlanning = 3;
+
+        private EntityQuery _allAgentQuery, _idleAgentQuery, _goalQuery;
 
         public IGoapDebugger Debugger;
 
@@ -48,13 +48,21 @@ namespace Zephyr.GOAP.System
         {
             base.OnCreate();
             ECBSystem = World.GetOrCreateSystem<EndInitializationEntityCommandBufferSystem>();
-            _agentQuery = GetEntityQuery(new EntityQueryDesc()
+            _allAgentQuery = GetEntityQuery(new EntityQueryDesc()
+            {
+                All = new []
+                {
+                    ComponentType.ReadOnly<Agent>(),
+                }
+            });
+            _idleAgentQuery = GetEntityQuery(new EntityQueryDesc()
             {
                 All = new []
                 {
                     ComponentType.ReadOnly<Agent>(),
                     ComponentType.ReadOnly<Translation>(), 
                     ComponentType.ReadOnly<MaxMoveSpeed>(), 
+                    ComponentType.ReadOnly<Idle>(), 
                 }
             });
             _goalQuery = GetEntityQuery(new EntityQueryDesc
@@ -66,28 +74,44 @@ namespace Zephyr.GOAP.System
         protected override void OnUpdate()
         {
             //如果没有空闲agent或者没有任务,不运行
-            var agentEntities = _agentQuery.ToEntityArray(Allocator.TempJob);
-            if (agentEntities.Length <= 0 || _goalQuery.CalculateEntityCount() <= 0)
+            var idleAgents = _idleAgentQuery.ToEntityArray(Allocator.TempJob);
+            if (idleAgents.Length <= 0 || _goalQuery.CalculateEntityCount() <= 0)
             {
-                agentEntities.Dispose();
+                idleAgents.Dispose();
                 return;
             }
-
-            var agentAmount = agentEntities.Length;
             
             //找到最急需的一个goal
             var goal = GetMostPriorityGoal();
             var goalRequires = new StateGroup(1, Allocator.TempJob) {goal.State};
+            
+            var allAgents = _allAgentQuery.ToEntityArray(Allocator.TempJob);
+            
+            //如果goal有指定agent，但是这个agent在忙，不运行
+            var target = goalRequires[0].Target;
+            if (allAgents.Contains(target) && !idleAgents.Contains(target))
+            {
+                idleAgents.Dispose();
+                goalRequires.Dispose();
+                allAgents.Dispose();
+                return;
+            }
+            allAgents.Dispose();
+
+            //缩减参与plan的agent数量到优化上限
+            var workAgents = TrimAgents(idleAgents, goal, Allocator.TempJob);
+            var agentAmount = workAgents.Length;
+            idleAgents.Dispose();
 
             //从baseState的存储Entity上拿取base states
             var baseStateBuffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);
             
-            var agentTranslations = _agentQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
-            var agentMoveSpeeds = _agentQuery.ToComponentDataArray<MaxMoveSpeed>(Allocator.TempJob);
+            var agentTranslations = _idleAgentQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
+            var agentMoveSpeeds = _idleAgentQuery.ToComponentDataArray<MaxMoveSpeed>(Allocator.TempJob);
             var agentStartTimes = new NativeArray<float>(agentTranslations.Length, Allocator.TempJob);
             
             //组织StackData
-            var stackData = new StackData(ref agentEntities, ref agentTranslations,
+            var stackData = new StackData(workAgents, ref agentTranslations,
                 new StateGroup(ref baseStateBuffer, Allocator.TempJob));
             agentTranslations.Dispose();
 
@@ -209,8 +233,8 @@ namespace Zephyr.GOAP.System
             goalRequires.Dispose();
             agentMoveSpeeds.Dispose();
             agentStartTimes.Dispose();
-            agentEntities.Dispose();
             stackData.Dispose();
+            workAgents.Dispose();
         }
 
         /// <summary>
@@ -233,6 +257,32 @@ namespace Zephyr.GOAP.System
             goals.Dispose();
 
             return minNode.Content;
+        }
+
+        private NativeList<Entity> TrimAgents(NativeArray<Entity> idleAgents, Goal goal, Allocator allocator)
+        {
+            var agentP = 0;
+            var workAgents = new NativeList<Entity>(allocator);
+
+            //先把目标agent加入
+            var target = goal.State.Target;
+            if (idleAgents.Contains(target))
+            {
+                workAgents.Add(target);
+                agentP++;
+            }
+
+            //再加入其它agent，直到达到上限
+            for (var agentId = 0; agentId < idleAgents.Length; agentId++)
+            {
+                if (agentP >= AgentAmountForPlanning) break;
+                var agentEntity = idleAgents[agentId];
+                if (agentEntity.Equals(target)) continue;
+                workAgents.Add(agentEntity);
+                agentP++;
+            }
+
+            return workAgents;
         }
 
         /// <summary>
