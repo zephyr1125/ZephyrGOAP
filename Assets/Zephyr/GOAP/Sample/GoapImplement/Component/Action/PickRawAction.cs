@@ -16,7 +16,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
         
         public NativeString32 GetName()
         {
-            return nameof(PickRawAction);
+            return StringTable.Instance().PickRawActionName;
         }
         
         public bool CheckTargetRequire(State targetRequire, Entity agentEntity,
@@ -26,7 +26,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             var stateFilter = new State
             {
                 Target = agentEntity,
-                Trait = typeof(RawTransferTrait),
+                Trait = ComponentType.ReadOnly<RawTransferTrait>(),
             };
             return targetRequire.BelongTo(stateFilter);
         }
@@ -55,7 +55,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
         {
             var state = setting;
             state.Target = Entity.Null;
-            state.Trait = typeof(RawSourceTrait);
+            state.Trait = ComponentType.ReadOnly<RawSourceTrait>();
             preconditions.Add(state);
         }
 

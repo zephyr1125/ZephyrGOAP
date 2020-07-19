@@ -15,7 +15,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
         
         public NativeString32 GetName()
         {
-            return nameof(EatAction);
+            return StringTable.Instance().EatActionName;
         }
 
         public bool CheckTargetRequire(State targetRequire, Entity agentEntity,
@@ -24,7 +24,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             var staminaState = new State
             {
                 Target = agentEntity,
-                Trait = typeof(StaminaTrait),
+                Trait = ComponentType.ReadOnly<StaminaTrait>(),
             };
 
             return targetRequire.BelongTo(staminaState);
@@ -38,23 +38,24 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             //setting为有食物的餐桌
             var diningTableTemplate = new State
             {
-                Trait = typeof(DiningTableTrait),
+                Trait = ComponentType.ReadOnly<DiningTableTrait>(),
             };
             var tables =
                 currentStates.GetBelongingStates(diningTableTemplate, Allocator.Temp);
             var itemNames =
-                Utils.GetItemNamesOfSpecificTrait(typeof(FoodTrait),
+                Utils.GetItemNamesOfSpecificTrait(ComponentType.ReadOnly<FoodTrait>(),
                     Allocator.Temp);
             //todo 此处考虑直接寻找最近的餐桌以避免setting过于膨胀
-            foreach (var table in tables)
+            for (var tableId = 0; tableId < tables.Length(); tableId++)
             {
-                for (var i = 0; i < itemNames.Length; i++)
+                var table = tables[tableId];
+                for (var itemId = 0; itemId < itemNames.Length; itemId++)
                 {
-                    var itemName = itemNames[i];
+                    var itemName = itemNames[itemId];
                     var foodOnTableTemplate = new State
                     {
                         Target = table.Target,
-                        Trait = typeof(ItemDestinationTrait),
+                        Trait = ComponentType.ReadOnly<ItemDestinationTrait>(),
                         ValueString = itemName,
                         Amount = 1
                     };

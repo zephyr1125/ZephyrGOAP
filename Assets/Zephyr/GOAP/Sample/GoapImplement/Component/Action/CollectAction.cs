@@ -16,7 +16,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
         
         public NativeString32 GetName()
         {
-            return nameof(CollectAction);
+            return StringTable.Instance().CollectActionName;
         }
 
         public bool CheckTargetRequire(State targetRequire, Entity agentEntity,
@@ -24,7 +24,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
         {
             var itemSourceState = new State
             {
-                Trait = typeof(ItemSourceTrait),
+                Trait = ComponentType.ReadOnly<ItemSourceTrait>()
             };
             //只针对物品源需求的goal state
             if (!targetRequire.BelongTo(itemSourceState)) return false;
@@ -36,10 +36,10 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                 var collectorTemplate = new State
                 {
                     Target = targetRequire.Target,
-                    Trait = typeof(CollectorTrait)
+                    Trait = ComponentType.ReadOnly<CollectorTrait>()
                 };
                 var foundState = currentStates.GetBelongingState(collectorTemplate);
-                if (foundState.Equals(State.Null)) return false;
+                if (foundState.Equals(default)) return false;
             }
                 
             return true;
@@ -49,26 +49,28 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             [ReadOnly]StackData stackData, [ReadOnly]StateGroup currentStates, Allocator allocator)
         {
             var settings = new StateGroup(1, allocator);
+            var settingRequire = targetRequire;
 
             //如果没有指定目标，那么目前只考虑一种setting，即距离最近的能够采到目标物的collector
-            if (targetRequire.Target == Entity.Null)
+            if (settingRequire.Target == Entity.Null)
             {
                 //寻找能够采集的最近的collector
                 var collectorState = new State
                 {
-                    Trait = typeof(CollectorTrait)
+                    Trait = ComponentType.ReadOnly<CollectorTrait>()
                 };
                 var collectors =
                     currentStates.GetBelongingStates(collectorState, Allocator.Temp);
                 var nearestCollectorState = default(State);
                 var nearestDistance = float.MaxValue;
-                foreach (var collector in collectors)
+                for (var collectorId = 0; collectorId < collectors.Length(); collectorId++)
                 {
+                    var collector = collectors[collectorId];
                     var collectState = new State
                     {
                         Target = collector.Target,
-                        Trait = typeof(ItemPotentialSourceTrait),
-                        ValueString = targetRequire.ValueString
+                        Trait = ComponentType.ReadOnly<ItemPotentialSourceTrait>(),
+                        ValueString = settingRequire.ValueString
                     };
                     if(currentStates.GetBelongingState(collectState).Equals(default))continue;
                     var distance = math.distance(collector.Position,
@@ -80,13 +82,13 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
 
                 if (!nearestCollectorState.Equals(default))
                 {
-                    targetRequire.Target = nearestCollectorState.Target;
-                    targetRequire.Position = nearestCollectorState.Position;
+                    settingRequire.Target = nearestCollectorState.Target;
+                    settingRequire.Position = nearestCollectorState.Position;
                 };
                 
                 collectors.Dispose();
             }
-            if(targetRequire.Target!=Entity.Null)settings.Add(targetRequire);
+            if(settingRequire.Target!=Entity.Null)settings.Add(settingRequire);
             return settings;
         }
 
@@ -97,7 +99,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             {
                 Target = setting.Target,
                 Position = setting.Position,
-                Trait = typeof(RawDestinationTrait),
+                Trait = ComponentType.ReadOnly<RawDestinationTrait>(),
                 ValueString = setting.ValueString
             });
         }

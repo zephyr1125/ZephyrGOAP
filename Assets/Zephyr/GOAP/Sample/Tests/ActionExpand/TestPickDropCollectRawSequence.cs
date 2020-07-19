@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.GoalManage;
+using Zephyr.GOAP.Sample.GoapImplement;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Action;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
 using Zephyr.GOAP.Struct;
@@ -35,7 +36,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             {
                 Target = _collectorEntity,
                 Trait = typeof(ItemSourceTrait),
-                ValueString = Sample.Utils.RawPeachName
+                ValueString = StringTable.Instance().RawPeachName
             });
             
             //给BaseStates写入假环境数据：世界里有collector和rawSource
@@ -49,14 +50,14 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             {
                 Target = _collectorEntity,
                 Trait = typeof(ItemPotentialSourceTrait),
-                ValueString = Sample.Utils.RawPeachName
+                ValueString = StringTable.Instance().RawPeachName
             });
             buffer.Add(new State
             {
                 Target = _rawSourceEntity,
                 Position = new float3(5,0,0),
                 Trait = typeof(RawSourceTrait),
-                ValueString = Sample.Utils.RawPeachName
+                ValueString = StringTable.Instance().RawPeachName
             });
         }
 
@@ -102,7 +103,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
                 Target = newRawEntity,
                 Position = new float3(2,0,0),
                 Trait = typeof(RawSourceTrait),
-                ValueString = Sample.Utils.RawPeachName
+                ValueString = StringTable.Instance().RawPeachName
             });
             
             _system.Update();

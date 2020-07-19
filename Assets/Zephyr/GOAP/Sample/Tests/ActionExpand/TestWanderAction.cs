@@ -2,6 +2,7 @@ using NUnit.Framework;
 using Unity.Entities;
 using UnityEngine;
 using Zephyr.GOAP.Component;
+using Zephyr.GOAP.Sample.GoapImplement;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Action;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
 using Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem;
@@ -36,7 +37,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             {
                 Target = _agentEntity,
                 Trait = typeof(ItemContainerTrait),
-                ValueString = Sample.Utils.RawPeachName,
+                ValueString = StringTable.Instance().RawPeachName,
             });
             buffer.Add(new State
             {

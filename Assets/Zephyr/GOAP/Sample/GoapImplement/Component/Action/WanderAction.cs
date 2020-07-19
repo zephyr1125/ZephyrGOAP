@@ -17,7 +17,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
         
         public NativeString32 GetName()
         {
-            return nameof(WanderAction);
+            return StringTable.Instance().WanderActionName;
         }
 
         public bool CheckTargetRequire(State targetRequire, Entity agentEntity,
@@ -26,7 +26,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             var wanderState = new State
             {
                 Target = agentEntity,
-                Trait = typeof(WanderTrait),
+                Trait = ComponentType.ReadOnly<WanderTrait>(),
             };
             
             //只针对自身wander

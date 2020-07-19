@@ -16,7 +16,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
         
         public NativeString32 GetName()
         {
-            return nameof(DropRawAction);
+            return StringTable.Instance().DropRawActionName;
         }
 
         public bool CheckTargetRequire(State targetRequire, Entity agentEntity,
@@ -25,7 +25,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             //针对“目标获得原料”的state
             var stateFilter = new State
             {
-                Trait = typeof(RawDestinationTrait),
+                Trait = ComponentType.ReadOnly<RawDestinationTrait>(),
             };
             var agents = stackData.AgentEntities;
             //额外：target不能为自身
@@ -50,7 +50,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             //我自己需要有指定的原料
             var state = setting;
             state.Target = agentEntity;
-            state.Trait = typeof(RawTransferTrait);
+            state.Trait = ComponentType.ReadOnly<RawTransferTrait>();
             preconditions.Add(state);
         }
 

@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Zephyr.GOAP.Component;
+using Zephyr.GOAP.Sample.GoapImplement;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
 using Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem;
 using Zephyr.GOAP.Struct;
@@ -40,7 +41,7 @@ namespace Zephyr.GOAP.Sample.Tests.SensorSystem
                 Target = _rawSourceEntity,
                 Position = new float3(5,0,0),
                 Trait = typeof(RawSourceTrait),
-                ValueString = Sample.Utils.RawPeachName
+                ValueString = StringTable.Instance().RawPeachName
             });
         }
 
@@ -62,7 +63,7 @@ namespace Zephyr.GOAP.Sample.Tests.SensorSystem
             {
                 Target = _collectorEntity,
                 Trait = typeof(ItemPotentialSourceTrait),
-                ValueString = Sample.Utils.RawPeachName
+                ValueString = StringTable.Instance().RawPeachName
             }, buffer[2]);
         }
         

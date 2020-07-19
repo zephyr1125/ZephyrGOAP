@@ -33,6 +33,10 @@
             "Platform": "Windows",
             "Configuration": 2,
             "Incremental": false
+        },
+        {
+            "$type": "Unity.Build.Common.OutputBuildDirectory, Unity.Build",
+            "OutputDirectory": "Old"
         }
     ]
 }

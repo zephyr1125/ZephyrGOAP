@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Sample.Game.Component;
+using Zephyr.GOAP.Sample.GoapImplement;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Action;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
 using Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem;
@@ -84,7 +85,8 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExecute
             _system.EcbSystem.Update();
             EntityManager.CompleteAllJobs();
             
-            Assert.AreEqual(Sample.Utils.GetFoodStamina("roast_apple"), EntityManager.GetComponentData<Stamina>(_agentEntity).Value);
+            Assert.AreEqual(Sample.Utils.GetFoodStamina(StringTable.Instance().RoastAppleName), 
+                EntityManager.GetComponentData<Stamina>(_agentEntity).Value);
         }
     }
 }

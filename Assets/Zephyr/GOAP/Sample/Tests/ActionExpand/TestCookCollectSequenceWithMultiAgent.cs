@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.Profiling;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.AgentState;
+using Zephyr.GOAP.Sample.GoapImplement;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Action;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
 using Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem;
@@ -63,14 +64,14 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             // {
             //     Target = _cookerEntity,
             //     Position = new float3(2, 0, 0),
-            //     Trait = typeof(ItemSourceTrait),
+            //     Trait = ComponentType.ReadOnly<ItemSourceTrait>(),
             //     ValueString = "feast"
             // });
             
             SetGoal(new State
             {
                 Target = _agentEntity,
-                Trait = typeof(StaminaTrait),
+                Trait = ComponentType.ReadOnly<StaminaTrait>(),
             });
             
             //给BaseStates写入假环境数据：世界里有原料、配方
@@ -79,71 +80,71 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             {
                 Target = _diningTableEntity,
                 Position = new float3(1,0,0),
-                Trait = typeof(DiningTableTrait),
+                Trait = ComponentType.ReadOnly<DiningTableTrait>(),
             });
             buffer.Add(new State
             {
                 Target = _cookerEntity,
                 Position = new float3(2, 0, 0),
-                Trait = typeof(CookerTrait),
+                Trait = ComponentType.ReadOnly<CookerTrait>(),
             });
             
             buffer.Add(new State
             {
                 Target = _collector0Entity,
                 Position = new float3(4, 0, 0),
-                Trait = typeof(CollectorTrait),
+                Trait = ComponentType.ReadOnly<CollectorTrait>(),
             });
             buffer.Add(new State
             {
                 Target = _collector0Entity,
                 Position = new float3(4, 0, 0),
-                Trait = typeof(ItemPotentialSourceTrait),
-                ValueString = Utils.RawAppleName
+                Trait = ComponentType.ReadOnly<ItemPotentialSourceTrait>(),
+                ValueString = StringTable.Instance().RawAppleName
             });
             buffer.Add(new State
             {
                 Target = _collector0Entity,
                 Position = new float3(4, 0, 0),
-                Trait = typeof(ItemPotentialSourceTrait),
-                ValueString = Utils.RawPeachName
+                Trait = ComponentType.ReadOnly<ItemPotentialSourceTrait>(),
+                ValueString = StringTable.Instance().RawPeachName
             });
             
             // buffer.Add(new State
             // {
             //     Target = _collector1Entity,
             //     Position = new float3(3, 0, 0),
-            //     Trait = typeof(CollectorTrait),
+            //     Trait = ComponentType.ReadOnly<CollectorTrait>(),
             // });
             // buffer.Add(new State
             // {
             //     Target = _collector1Entity,
             //     Position = new float3(3, 0, 0),
-            //     Trait = typeof(ItemPotentialSourceTrait),
+            //     Trait = ComponentType.ReadOnly<ItemPotentialSourceTrait>(),
             //     ValueString = "raw_apple"
             // });
             // buffer.Add(new State
             // {
             //     Target = _collector1Entity,
             //     Position = new float3(3, 0, 0),
-            //     Trait = typeof(ItemPotentialSourceTrait),
-            //     ValueString = Sample.Utils.RawPeachName
+            //     Trait = ComponentType.ReadOnly<ItemPotentialSourceTrait>(),
+            //     ValueString = Sample.StringTable.Instance().RawPeachName
             // });
             
             buffer.Add(new State
             {
                 Target = _rawAppleEntity,
                 Position = new float3(5,0,0),
-                Trait = typeof(RawSourceTrait),
-                ValueString = Utils.RawAppleName,
+                Trait = ComponentType.ReadOnly<RawSourceTrait>(),
+                ValueString = StringTable.Instance().RawAppleName,
                 Amount = 1
             });
             buffer.Add(new State
             {
                 Target = _rawPeachEntity,
                 Position = new float3(6,0,0),
-                Trait = typeof(RawSourceTrait),
-                ValueString = Utils.RawPeachName,
+                Trait = ComponentType.ReadOnly<RawSourceTrait>(),
+                ValueString = StringTable.Instance().RawPeachName,
                 Amount = 1
             });
 

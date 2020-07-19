@@ -15,7 +15,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
         
         public NativeString32 GetName()
         {
-            return nameof(PickItemAction);
+            return StringTable.Instance().PickItemActionName;
         }
         
         public bool CheckTargetRequire(State targetRequire, Entity agentEntity,
@@ -25,7 +25,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             var stateFilter = new State
             {
                 Target = agentEntity,
-                Trait = typeof(ItemTransferTrait),
+                Trait = ComponentType.ReadOnly<ItemTransferTrait>()
             };
             return targetRequire.BelongTo(stateFilter);
         }
@@ -40,7 +40,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                 //如果指定了物品名，那么只有一种setting，也就是targetState本身
                 settings.Add(targetRequire);
             }else if (targetRequire.ValueString.Equals(default) &&
-                      targetRequire.ValueTrait != null)
+                      targetRequire.ValueTrait != default)
             {
                 //如果targetState是类别范围，需要对每种符合范围的物品做setting
                 //todo 此处应查询define获得所有符合范围的物品名，示例里暂时从工具方法获取
@@ -71,7 +71,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
         {
             var state = setting;
             state.Target = Entity.Null;
-            state.Trait = typeof(ItemSourceTrait);
+            state.Trait = ComponentType.ReadOnly<ItemSourceTrait>();
             preconditions.Add(state);
         }
 

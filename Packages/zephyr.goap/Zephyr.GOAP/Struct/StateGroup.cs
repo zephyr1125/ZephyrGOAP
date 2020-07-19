@@ -81,7 +81,7 @@ namespace Zephyr.GOAP.Struct
         /// <param name="nodeHash"></param>
         /// <param name="length"></param>
         /// <param name="allocator"></param>
-        public StateGroup(NativeList<ValueTuple<int, State>> copyFrom, int nodeHash, int length, Allocator allocator)
+        public StateGroup(NativeList<ZephyrValueTuple<int, State>> copyFrom, int nodeHash, int length, Allocator allocator)
         {
             _states = new NativeList<State>(length, allocator);
             var pCopied = 0;
@@ -95,7 +95,7 @@ namespace Zephyr.GOAP.Struct
             }
         }
         
-        public StateGroup(NativeList<ValueTuple<int, State>> copyFrom, int nodeHash, Allocator allocator)
+        public StateGroup(NativeList<ZephyrValueTuple<int, State>> copyFrom, int nodeHash, Allocator allocator)
         {
             _states = new NativeList<State>(copyFrom.Length, allocator);
             for (var stateId = 0; stateId < copyFrom.Length; stateId++)
@@ -255,20 +255,24 @@ namespace Zephyr.GOAP.Struct
 
         public State GetState(Func<State, bool> compare)
         {
-            foreach (var state in _states)
+            for (var i = 0; i < _states.Length; i++)
             {
+                var state = _states[i];
                 if (compare(state)) return state;
             }
-            return State.Null;
+
+            return default;
         }
 
         public State GetBelongingState(State belongTo)
         {
-            foreach (var state in _states)
+            for (var i = 0; i < _states.Length; i++)
             {
+                var state = _states[i];
                 if (state.BelongTo(belongTo)) return state;
             }
-            return State.Null;
+
+            return default;
         }
 
         public StateGroup GetBelongingStates(State belongTo, Allocator allocator)

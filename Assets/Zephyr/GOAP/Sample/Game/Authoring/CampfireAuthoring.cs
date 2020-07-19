@@ -2,6 +2,7 @@ using Sirenix.OdinInspector;
 using Unity.Entities;
 using UnityEngine;
 using Zephyr.GOAP.Sample.Game.Component;
+using Zephyr.GOAP.Sample.GoapImplement;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
 
 namespace Zephyr.GOAP.Sample.Game.Authoring
@@ -14,7 +15,7 @@ namespace Zephyr.GOAP.Sample.Game.Authoring
         [ValueDropdown("OutputNames")]
         public string[] Outputs;
         
-        private static string[] OutputNames = { "roast_apple", Utils.RoastPeachName.ToString() };
+        private static string[] OutputNames = { "roast_apple", StringTable.Instance().RoastPeachName.ToString() };
         
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {

@@ -12,10 +12,10 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
     public struct DropItemAction : IComponentData, IAction
     {
         public int Level;
-        
+
         public NativeString32 GetName()
         {
-            return nameof(DropItemAction);
+            return StringTable.Instance().DropItemActionName;
         }
 
         public bool CheckTargetRequire(State targetRequire, Entity agentEntity,
@@ -24,7 +24,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             //针对“目标获得物品”的state
             var stateFilter = new State
             {
-                Trait = typeof(ItemDestinationTrait),
+                Trait = ComponentType.ReadOnly<ItemDestinationTrait>(),
             };
             var agents = stackData.AgentEntities;
             //额外：target不能为agent
@@ -41,7 +41,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                 //如果指定了物品名，那么只有一种setting，也就是targetState本身
                 settings.Add(targetRequire);
             }else if (targetRequire.ValueString.Equals(default) &&
-                      targetRequire.ValueTrait != null)
+                      targetRequire.ValueTrait != default)
             {
                 //如果targetState是类别范围，需要对每种符合范围的物品做setting
                 //todo 此处应查询define获得所有符合范围的物品名，示例里暂时从工具方法获取
@@ -66,7 +66,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             //我自己需要有指定的物品
             var state = setting;
             state.Target = agentEntity;
-            state.Trait = typeof(ItemTransferTrait);
+            state.Trait = ComponentType.ReadOnly<ItemTransferTrait>();
             preconditions.Add(state);
         }
 

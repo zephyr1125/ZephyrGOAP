@@ -2,6 +2,7 @@ using System.Linq;
 using NUnit.Framework;
 using Unity.Entities;
 using Zephyr.GOAP.Component;
+using Zephyr.GOAP.Sample.GoapImplement;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Action;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
 using Zephyr.GOAP.Struct;
@@ -40,13 +41,13 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             
             Assert.AreEqual(5, children.Length);
             Assert.IsTrue(children.Any(
-                nodeLog => nodeLog.requires[0].valueString.Equals(Utils.RawAppleName.ToString())));
+                nodeLog => nodeLog.requires[0].valueString.Equals(StringTable.Instance().RawAppleName.ToString())));
             Assert.IsTrue(children.Any(
-                nodeLog => nodeLog.requires[0].valueString.Equals(Utils.RoastAppleName.ToString())));
+                nodeLog => nodeLog.requires[0].valueString.Equals(StringTable.Instance().RoastAppleName.ToString())));
             Assert.IsTrue(children.Any(
-                nodeLog => nodeLog.requires[0].valueString.Equals(Utils.RawPeachName.ToString())));
+                nodeLog => nodeLog.requires[0].valueString.Equals(StringTable.Instance().RawPeachName.ToString())));
             Assert.IsTrue(children.Any(
-                nodeLog => nodeLog.requires[0].valueString.Equals(Utils.RoastPeachName.ToString())));
+                nodeLog => nodeLog.requires[0].valueString.Equals(StringTable.Instance().RoastPeachName.ToString())));
         }
     }
 }

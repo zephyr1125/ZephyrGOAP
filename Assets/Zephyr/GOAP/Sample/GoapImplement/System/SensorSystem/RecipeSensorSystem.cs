@@ -22,13 +22,13 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
             //存储recipe这样复杂state的折中方案：
             //每个recipe以1个output+2个input的方式保存，占用连续的3个state
             //对于不需要第二个原料的recipe,其第二个input为空state
-            AddRecipeState(buffer, Utils.RoastPeachName, 1,
-                Utils.RawPeachName, 1);
-            AddRecipeState(buffer, Utils.RoastAppleName, 1,
-                Utils.RawAppleName, 1);
-            AddRecipeState(buffer, Utils.FeastName, 1,
-                Utils.RawAppleName, 1,
-                Utils.RawPeachName, 1);
+            AddRecipeState(buffer, StringTable.Instance().RoastPeachName, 1,
+                StringTable.Instance().RawPeachName, 1);
+            AddRecipeState(buffer, StringTable.Instance().RoastAppleName, 1,
+                StringTable.Instance().RawAppleName, 1);
+            AddRecipeState(buffer, StringTable.Instance().FeastName, 1,
+                StringTable.Instance().RawAppleName, 1,
+                StringTable.Instance().RawPeachName, 1);
         }
 
         /// <summary>
@@ -48,26 +48,26 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
         {
             buffer.Add(new State
             {
-                Trait = typeof(RecipeOutputTrait),
-                ValueTrait = typeof(CookerTrait),    //以ValueTrait保存此recipe适用的生产设施
+                Trait = ComponentType.ReadOnly<RecipeOutputTrait>(),
+                ValueTrait = ComponentType.ReadOnly<CookerTrait>(),    //以ValueTrait保存此recipe适用的生产设施
                 ValueString = outputName,
                 Amount = outputAmount
             });
             buffer.Add(new State
             {
-                Trait = typeof(RecipeInputTrait),
-                ValueTrait = typeof(CookerTrait),
+                Trait = ComponentType.ReadOnly<RecipeInputTrait>(),
+                ValueTrait = ComponentType.ReadOnly<CookerTrait>(),
                 ValueString = input1Name,
                 Amount = input1Amount
             });
             if(input2Name.Equals(default))
             {
-                buffer.Add(State.Null);
+                buffer.Add(default);
             }else
             {
                 buffer.Add(new State{
-                    Trait = typeof(RecipeInputTrait),
-                    ValueTrait = typeof(CookerTrait),
+                    Trait = ComponentType.ReadOnly<RecipeInputTrait>(),
+                    ValueTrait = ComponentType.ReadOnly<CookerTrait>(),
                     ValueString = input2Name,
                     Amount = input2Amount
                 });

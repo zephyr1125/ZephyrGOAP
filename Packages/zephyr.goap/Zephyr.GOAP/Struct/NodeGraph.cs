@@ -4,6 +4,7 @@ using Unity.Collections;
 using Unity.Entities;
 using UnityEngine.Assertions;
 using Zephyr.GOAP.Component;
+using Zephyr.GOAP.Lib;
 
 namespace Zephyr.GOAP.Struct
 {
@@ -13,25 +14,25 @@ namespace Zephyr.GOAP.Struct
         private NativeHashMap<int, Node> _nodes;
         
         [ReadOnly]
-        private NativeList<ValueTuple<int,int>> _nodeToParents;
+        private NativeList<ZephyrValueTuple<int,int>> _nodeToParents;
 
         [ReadOnly]
         private NativeHashMap<int, State> _states;
 
         [ReadOnly]
-        private NativeList<ValueTuple<int,int>> _effectHashes;
+        private NativeList<ZephyrValueTuple<int,int>> _effectHashes;
         
         [ReadOnly]
-        private NativeList<ValueTuple<int,int>> _preconditionHashes;
+        private NativeList<ZephyrValueTuple<int,int>> _preconditionHashes;
         
         [ReadOnly]
-        private NativeList<ValueTuple<int,int>> _requireHashes;
+        private NativeList<ZephyrValueTuple<int,int>> _requireHashes;
 
         /// <summary>
         /// node对baseStates的累积改变量
         /// </summary>
         [ReadOnly]
-        private NativeList<ValueTuple<int, int>> _deltaHashes;
+        private NativeList<ZephyrValueTuple<int, int>> _deltaHashes;
 
 
         public NativeList<int> _deadEndNodeHashes;
@@ -47,13 +48,13 @@ namespace Zephyr.GOAP.Struct
         {
             _nodes = new NativeHashMap<int, Node>(initialCapacity, allocator);
             
-            _nodeToParents = new NativeList<ValueTuple<int, int>>(initialCapacity*4, allocator);
+            _nodeToParents = new NativeList<ZephyrValueTuple<int, int>>(initialCapacity*4, allocator);
             
             _states = new NativeHashMap<int, State>(initialCapacity*4, allocator);
-            _effectHashes = new NativeList<ValueTuple<int,int>>(initialCapacity*2, allocator);
-            _preconditionHashes = new NativeList<ValueTuple<int,int>>(initialCapacity*2, allocator);
-            _requireHashes = new NativeList<ValueTuple<int,int>>(initialCapacity*3, allocator);
-            _deltaHashes = new NativeList<ValueTuple<int,int>>(initialCapacity*2, allocator);
+            _effectHashes = new NativeList<ZephyrValueTuple<int,int>>(initialCapacity*2, allocator);
+            _preconditionHashes = new NativeList<ZephyrValueTuple<int,int>>(initialCapacity*2, allocator);
+            _requireHashes = new NativeList<ZephyrValueTuple<int,int>>(initialCapacity*3, allocator);
+            _deltaHashes = new NativeList<ZephyrValueTuple<int,int>>(initialCapacity*2, allocator);
             
             _deadEndNodeHashes = new NativeList<int>(allocator);
             
@@ -71,7 +72,7 @@ namespace Zephyr.GOAP.Struct
         public void AddEffect(State effect, int nodeHash)
         {
             var effectHash = effect.GetHashCode();
-            _effectHashes.Add((nodeHash, effectHash));
+            _effectHashes.Add(new ZephyrValueTuple<int,int>(nodeHash, effectHash));
             if (_states.ContainsKey(effectHash)) return;
             _states.Add(effectHash, effect);
         }
@@ -96,27 +97,27 @@ namespace Zephyr.GOAP.Struct
             foreach (var state in requires)
             {
                 var stateHash = state.GetHashCode();
-                _requireHashes.Add((GoalNodeHash, stateHash));
+                _requireHashes.Add(new ZephyrValueTuple<int,int>(GoalNodeHash, stateHash));
                 _states.TryAdd(stateHash, state);
             }
         }
 
         public NativeHashMap<int, Node>.ParallelWriter NodesWriter => _nodes.AsParallelWriter();
         
-        public NativeList<ValueTuple<int, int>>.ParallelWriter NodeToParentsWriter => _nodeToParents.AsParallelWriter();
+        public NativeList<ZephyrValueTuple<int, int>>.ParallelWriter NodeToParentsWriter => _nodeToParents.AsParallelWriter();
         
         public NativeHashMap<int, State>.ParallelWriter StatesWriter => _states.AsParallelWriter();
 
-        public NativeList<ValueTuple<int,int>>.ParallelWriter EffectHashesWriter =>
+        public NativeList<ZephyrValueTuple<int,int>>.ParallelWriter EffectHashesWriter =>
             _effectHashes.AsParallelWriter();
         
-        public NativeList<ValueTuple<int,int>>.ParallelWriter PreconditionHashesWriter =>
+        public NativeList<ZephyrValueTuple<int,int>>.ParallelWriter PreconditionHashesWriter =>
             _preconditionHashes.AsParallelWriter();
         
-        public NativeList<ValueTuple<int, int>>.ParallelWriter RequireHashesWriter =>
+        public NativeList<ZephyrValueTuple<int, int>>.ParallelWriter RequireHashesWriter =>
             _requireHashes.AsParallelWriter();
         
-        public NativeList<ValueTuple<int, int>>.ParallelWriter DeltaHashesWriter =>
+        public NativeList<ZephyrValueTuple<int, int>>.ParallelWriter DeltaHashesWriter =>
             _deltaHashes.AsParallelWriter();
 
         /// <summary>
@@ -133,7 +134,7 @@ namespace Zephyr.GOAP.Struct
                 startNode.Iteration = iteration + 1;
                 _nodes[StartNodeHash] = startNode;
             }
-            _nodeToParents.Add((StartNodeHash, parent.HashCode));
+            _nodeToParents.Add(new ZephyrValueTuple<int,int>(StartNodeHash, parent.HashCode));
         }
 
         public Node this[int hashCode]
@@ -235,7 +236,7 @@ namespace Zephyr.GOAP.Struct
                 var state = states[i];
                 var stateHash = state.GetHashCode();
                 _states.TryAdd(stateHash, state);
-                _requireHashes.Add((nodeHash, stateHash));
+                _requireHashes.Add(new ZephyrValueTuple<int,int>(nodeHash, stateHash));
             }
         }
         
@@ -252,7 +253,7 @@ namespace Zephyr.GOAP.Struct
                 var state = states[i];
                 var stateHash = state.GetHashCode();
                 _states.TryAdd(stateHash, state);
-                _deltaHashes.Add((nodeHash, stateHash));
+                _deltaHashes.Add(new ZephyrValueTuple<int,int>(nodeHash, stateHash));
             }
         }
         
@@ -263,9 +264,9 @@ namespace Zephyr.GOAP.Struct
         /// <param name="outStates"></param>
         /// <param name="allocator"></param>
         public void GetDeltas(NativeList<Node> nodes,
-            out NativeList<ValueTuple<int, State>> outStates, Allocator allocator)
+            out NativeList<ZephyrValueTuple<int, State>> outStates, Allocator allocator)
         {
-            outStates = new NativeList<ValueTuple<int, State>>(allocator);
+            outStates = new NativeList<ZephyrValueTuple<int, State>>(allocator);
             
             for (var i = 0; i < nodes.Length; i++)
             {
@@ -274,7 +275,7 @@ namespace Zephyr.GOAP.Struct
                 {
                     var (aNodeHash, stateHash) = _deltaHashes[stateHashId];
                     if (!aNodeHash.Equals(nodeHash)) continue;
-                    outStates.Add((nodeHash, _states[stateHash]));
+                    outStates.Add(new ZephyrValueTuple<int,State>(nodeHash, _states[stateHash]));
                 }
             }
         }
@@ -377,7 +378,7 @@ namespace Zephyr.GOAP.Struct
             return GetStates(_deltaHashes, node);
         }
 
-        private State[] GetStates(NativeList<ValueTuple<int, int>> container, Node node)
+        private State[] GetStates(NativeList<ZephyrValueTuple<int, int>> container, Node node)
         {
             var result = new List<State>();
             var nodeHash = node.HashCode;
@@ -401,7 +402,7 @@ namespace Zephyr.GOAP.Struct
             return GetStates(_deltaHashes, node, allocator);
         }
 
-        private NativeList<State> GetStates(NativeList<ValueTuple<int, int>> container, Node node, Allocator allocator)
+        private NativeList<State> GetStates(NativeList<ZephyrValueTuple<int, int>> container, Node node, Allocator allocator)
         {
             var list = new NativeList<State>(allocator);
             var nodeHash = node.HashCode;
@@ -415,13 +416,13 @@ namespace Zephyr.GOAP.Struct
             return list;
         }
 
-        public NativeList<ValueTuple<int, State>> GetRequires(NativeList<Node> nodes,
+        public NativeList<ZephyrValueTuple<int, State>> GetRequires(NativeList<Node> nodes,
             Allocator allocator)
         {
             return GetStates(_requireHashes, nodes, allocator);
         }
         
-        public NativeList<ValueTuple<int, State>> GetDeltas(NativeList<Node> nodes,
+        public NativeList<ZephyrValueTuple<int, State>> GetDeltas(NativeList<Node> nodes,
             Allocator allocator)
         {
             return GetStates(_deltaHashes, nodes, allocator);
@@ -433,10 +434,10 @@ namespace Zephyr.GOAP.Struct
         /// <param name="container"></param>
         /// <param name="nodes"></param>
         /// <param name="allocator"></param>
-        private NativeList<ValueTuple<int, State>> GetStates(NativeList<ValueTuple<int, int>> container, NativeList<Node> nodes,
+        private NativeList<ZephyrValueTuple<int, State>> GetStates(NativeList<ZephyrValueTuple<int, int>> container, NativeList<Node> nodes,
             Allocator allocator)
         {
-            var result = new NativeList<ValueTuple<int, State>>(allocator);
+            var result = new NativeList<ZephyrValueTuple<int, State>>(allocator);
             
             for (var i = 0; i < nodes.Length; i++)
             {
@@ -445,7 +446,7 @@ namespace Zephyr.GOAP.Struct
                 {
                     var (aNodeHash, stateHash) = container[stateHashId];
                     if (!aNodeHash.Equals(nodeHash)) continue;
-                    result.Add((nodeHash, _states[stateHash]));
+                    result.Add(new ZephyrValueTuple<int,State>(nodeHash, _states[stateHash]));
                 }
             }
 
@@ -464,7 +465,7 @@ namespace Zephyr.GOAP.Struct
             CleanDuplicateStates(_requireHashes, node);
         }
         
-        private void CleanDuplicateStates(NativeList<ValueTuple<int, int>> container, Node node)
+        private void CleanDuplicateStates(NativeList<ZephyrValueTuple<int, int>> container, Node node)
         {
             var nodeHash = node.HashCode;
             for (var baseId = 0; baseId < container.Length; baseId++)
