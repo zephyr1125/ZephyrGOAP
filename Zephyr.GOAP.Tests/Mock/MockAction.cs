@@ -12,39 +12,41 @@ namespace Zephyr.GOAP.Tests.Mock
             return "MockAction";
         }
 
-        public bool CheckTargetRequire(State targetRequire, Entity agentEntity, StackData stackData)
+        public bool CheckTargetRequire(State targetRequire, Entity agentEntity
+            , [ReadOnly]StackData stackData, [ReadOnly]StateGroup currentStates)
         {
             return true;
         }
 
-        public StateGroup GetSettings(State targetRequire, Entity agentEntity, StackData stackData, Allocator allocator)
+        public StateGroup GetSettings(State targetRequire, Entity agentEntity,
+            [ReadOnly]StackData stackData, [ReadOnly]StateGroup currentStates, Allocator allocator)
         {
             return new StateGroup(1, allocator);
         }
 
-        public void GetPreconditions(State targetRequire, Entity agentEntity, State setting, StackData stackData,
-            StateGroup preconditions)
+        public void GetPreconditions(State targetRequire, Entity agentEntity, State setting,
+            [ReadOnly]StackData stackData, [ReadOnly]StateGroup currentStates, StateGroup preconditions)
         {
             
         }
 
-        public void GetEffects(State targetRequire, State setting, StackData stackData,
+        public void GetEffects(State targetRequire, State setting, [ReadOnly]StackData stackData,
             StateGroup effects)
         {
             
         }
 
-        public float GetReward(State targetRequire, State setting, StackData stackData)
+        public float GetReward(State targetRequire, State setting, [ReadOnly]StackData stackData)
         {
             return 0;
         }
 
-        public float GetExecuteTime(State targetRequire, State setting, StackData stackData)
+        public float GetExecuteTime(State targetRequire, State setting, [ReadOnly]StackData stackData)
         {
             return 0;
         }
 
-        public void GetNavigatingSubjectInfo(State targetRequire, State setting, StackData stackData,
+        public void GetNavigatingSubjectInfo(State targetRequire, State setting, [ReadOnly]StackData stackData,
             StateGroup preconditions, out NodeNavigatingSubjectType subjectType, out byte subjectId)
         {
             subjectType = NodeNavigatingSubjectType.Null;

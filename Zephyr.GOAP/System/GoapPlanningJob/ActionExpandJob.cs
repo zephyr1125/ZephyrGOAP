@@ -62,10 +62,14 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             //只考虑node的首个require
             var targetRequire = leftRequires[0];
 
-            if (action.CheckTargetRequire(targetRequire, agentEntity, StackData))
+            var deltas = new StateGroup(Deltas, expandingNodeHash, Allocator.Temp);
+            var currentStates = new StateGroup(StackData.BaseStates, Allocator.Temp);
+            currentStates.AND(deltas);
+            
+            if (action.CheckTargetRequire(targetRequire, agentEntity, StackData, currentStates))
             {
-                var deltas = new StateGroup(Deltas, expandingNodeHash, Allocator.Temp);
-                var settings = action.GetSettings(targetRequire, agentEntity, StackData, Allocator.Temp);
+               var settings = action.GetSettings(targetRequire, agentEntity,
+                   StackData, currentStates, Allocator.Temp);
 
                 for (var i=0; i<settings.Length(); i++)
                 {
@@ -73,7 +77,8 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     var preconditions = new StateGroup(1, Allocator.Temp);
                     var effects = new StateGroup(1, Allocator.Temp);
 
-                    action.GetPreconditions(targetRequire, agentEntity, setting, StackData, preconditions);
+                    action.GetPreconditions(targetRequire, agentEntity, setting,
+                        StackData, currentStates, preconditions);
 
                     action.GetEffects(targetRequire, setting, StackData, effects);
 
@@ -110,10 +115,12 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     effects.Dispose();
                 }
                 settings.Dispose();
-                deltas.Dispose();
+                
             }
             
             leftRequires.Dispose();
+            deltas.Dispose();
+            currentStates.Dispose();
         }
 
         /// <summary>
