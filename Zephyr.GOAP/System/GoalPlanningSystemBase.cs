@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -47,6 +46,7 @@ namespace Zephyr.GOAP.System
         protected override void OnCreate()
         {
             base.OnCreate();
+            
             ECBSystem = World.GetOrCreateSystem<EndInitializationEntityCommandBufferSystem>();
             _allAgentQuery = GetEntityQuery(new EntityQueryDesc()
             {
@@ -341,7 +341,7 @@ namespace Zephyr.GOAP.System
             out NativeArray<Entity> pathEntities)
         {
             pathEntities = new NativeArray<Entity>(pathNodes.Length, Allocator.Temp);
-            var pathPreconditionHashes = new NativeList<ValueTuple<int, int>>(Allocator.Temp);
+            var pathPreconditionHashes = new NativeList<ZephyrValueTuple<int, int>>(Allocator.Temp);
             for (var i = 0; i < pathNodes.Length; i++)
             {
                 var node = pathNodes[i];
@@ -358,7 +358,7 @@ namespace Zephyr.GOAP.System
                     if (!pathNodeSpecifiedPreconditionIndices[j].Equals(node.HashCode)) continue;
                     stateBuffer.Add(specifiedPrecondition);
                     node.PreconditionsBitmask |= (ulong) 1 << stateBuffer.Length - 1;
-                    pathPreconditionHashes.Add((node.HashCode, specifiedPrecondition.GetHashCode()));
+                    pathPreconditionHashes.Add(new ZephyrValueTuple<int,int>(node.HashCode, specifiedPrecondition.GetHashCode()));
                 }
                 for (var j = 0; j < effects.Length(); j++)
                 {
@@ -404,7 +404,7 @@ namespace Zephyr.GOAP.System
                     {
                         if ((otherNode.EffectsBitmask & (ulong)1<<otherStateId) <= 0) continue;
                         var otherEffect = otherNodeStates[otherStateId];
-                        if (!pathPreconditionHashes.Contains((nodeHash, otherEffect.GetHashCode())))
+                        if (!pathPreconditionHashes.Contains(new ZephyrValueTuple<int,int>(nodeHash, otherEffect.GetHashCode())))
                             continue;
                         buffer.Add(new NodeDependency {Entity = otherEntity});
                     }
@@ -552,12 +552,13 @@ namespace Zephyr.GOAP.System
             var nodeAgentPairAmount = unexpandedNodes.Length * agentAmount;
 
             var nodeAgentPairs =
-                new NativeArray<ValueTuple<Entity, Node>>(nodeAgentPairAmount, Allocator.TempJob);
+                new NativeArray<ZephyrValueTuple<Entity, Node>>(nodeAgentPairAmount, Allocator.TempJob);
             for (var agentId = 0; agentId < stackData.AgentEntities.Length; agentId++)
             {
                 for (var nodeId = 0; nodeId < unexpandedNodes.Length; nodeId++)
                 {
-                    nodeAgentPairs[agentId*nodeAmount + nodeId] = (stackData.AgentEntities[agentId], unexpandedNodes[nodeId]);
+                    nodeAgentPairs[agentId*nodeAmount + nodeId] =
+                        new ZephyrValueTuple<Entity,Node>(stackData.AgentEntities[agentId], unexpandedNodes[nodeId]);
                 }
             }
             
@@ -594,29 +595,29 @@ namespace Zephyr.GOAP.System
         }
 
         protected abstract JobHandle ScheduleAllActionExpand(JobHandle handle,
-            StackData stackData, NativeArray<ValueTuple<Entity, Node>> nodeAgentPairs,
+            StackData stackData, NativeArray<ZephyrValueTuple<Entity, Node>> nodeAgentPairs,
             NativeArray<int> existedNodesHash,
-            NativeList<ValueTuple<int, State>> requires, NativeList<ValueTuple<int, State>> deltas,
+            NativeList<ZephyrValueTuple<int, State>> requires, NativeList<ZephyrValueTuple<int, State>> deltas,
             NativeHashMap<int, Node>.ParallelWriter nodesWriter,
-            NativeList<ValueTuple<int, int>>.ParallelWriter nodeToParentsWriter,
+            NativeList<ZephyrValueTuple<int, int>>.ParallelWriter nodeToParentsWriter,
             NativeHashMap<int, State>.ParallelWriter statesWriter,
-            NativeList<ValueTuple<int, int>>.ParallelWriter preconditionHashesWriter,
-            NativeList<ValueTuple<int, int>>.ParallelWriter effectHashesWriter,
-            NativeList<ValueTuple<int, int>>.ParallelWriter requireHashesWriter,
-            NativeList<ValueTuple<int, int>>.ParallelWriter deltaHashesWriter, 
+            NativeList<ZephyrValueTuple<int, int>>.ParallelWriter preconditionHashesWriter,
+            NativeList<ZephyrValueTuple<int, int>>.ParallelWriter effectHashesWriter,
+            NativeList<ZephyrValueTuple<int, int>>.ParallelWriter requireHashesWriter,
+            NativeList<ZephyrValueTuple<int, int>>.ParallelWriter deltaHashesWriter, 
             NativeHashMap<int, Node>.ParallelWriter newlyCreatedNodesWriter, int iteration);
         
         protected JobHandle ScheduleActionExpand<T>(JobHandle handle,
-            StackData stackData, NativeArray<ValueTuple<Entity, Node>> nodeAgentPairs,
+            StackData stackData, NativeArray<ZephyrValueTuple<Entity, Node>> nodeAgentPairs,
             NativeArray<int> existedNodesHash,
-            NativeList<ValueTuple<int, State>> requires, NativeList<ValueTuple<int, State>> deltas,
+            NativeList<ZephyrValueTuple<int, State>> requires, NativeList<ZephyrValueTuple<int, State>> deltas,
             NativeHashMap<int, Node>.ParallelWriter nodesWriter,
-            NativeList<ValueTuple<int, int>>.ParallelWriter nodeToParentsWriter,
+            NativeList<ZephyrValueTuple<int, int>>.ParallelWriter nodeToParentsWriter,
             NativeHashMap<int, State>.ParallelWriter statesWriter,
-            NativeList<ValueTuple<int, int>>.ParallelWriter preconditionHashesWriter,
-            NativeList<ValueTuple<int, int>>.ParallelWriter effectHashesWriter,
-            NativeList<ValueTuple<int, int>>.ParallelWriter requireHashesWriter, 
-            NativeList<ValueTuple<int, int>>.ParallelWriter deltaHashesWriter, 
+            NativeList<ZephyrValueTuple<int, int>>.ParallelWriter preconditionHashesWriter,
+            NativeList<ZephyrValueTuple<int, int>>.ParallelWriter effectHashesWriter,
+            NativeList<ZephyrValueTuple<int, int>>.ParallelWriter requireHashesWriter, 
+            NativeList<ZephyrValueTuple<int, int>>.ParallelWriter deltaHashesWriter, 
             NativeHashMap<int, Node>.ParallelWriter newlyCreatedNodesWriter, int iteration) where T : struct, IAction, IComponentData
         {
             var agentEntityAmount = stackData.AgentEntities.Length;
@@ -629,6 +630,12 @@ namespace Zephyr.GOAP.System
                     continue;
                 }
                 actions[agentEntity] = EntityManager.GetComponentData<T>(agentEntity);
+            }
+
+            if (actions.Count() == 0)
+            {
+                actions.Dispose();
+                return handle;
             }
             
             handle = new ActionExpandJob<T>

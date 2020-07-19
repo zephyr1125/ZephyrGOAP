@@ -47,7 +47,7 @@
 //             {
 //                 Target = _agentEntity,
 //                 Trait = typeof(ItemContainerTrait),
-//                 ValueString = Utils.RawPeachName,
+//                 ValueString = StringTable.Instance().RawPeachName,
 //             });
 //             buffer.Add(new State
 //             {

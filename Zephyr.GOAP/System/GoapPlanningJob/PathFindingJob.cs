@@ -296,7 +296,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                 {
                     //找到关键precondition
                     var navigateSubjectId = neighbourNode.NavigatingSubjectId;
-                    var precondition = State.Null;
+                    var precondition = default(State);
                     //subjectId标识的是第几个precondition的target为导航目标，因此需要计数直到找到
                     var preconditionCount = -1;
                     for (var i = 0; i < preconditionIndices.Length; i++)
@@ -307,7 +307,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                         precondition = preconditions[i];
                     }
                     //todo
-                    Assert.AreNotEqual(State.Null, precondition);
+                    Assert.AreNotEqual(default, precondition);
                 
                     neighbourNavigatingPosition = precondition.Position;
                     navigateSubject = precondition.Target;

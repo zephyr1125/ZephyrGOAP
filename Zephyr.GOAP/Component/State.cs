@@ -42,8 +42,6 @@ namespace Zephyr.GOAP.Component
         {
             return Amount > 0;
         }
-        
-        public static State Null = new State();
 
         /// <summary>
         /// 范围的从属关系，意指other是一个包含自己的大范围state，类型筛选上比Equals宽松
@@ -54,14 +52,14 @@ namespace Zephyr.GOAP.Component
         /// <returns></returns>
         public bool BelongTo(State other)
         {
-            if (Equals(Null) || other.Equals(Null)) return false;
+            if (Equals(default) || other.Equals(default)) return false;
 
             if (Equals(other)) return true;
             
             //凡是other不明指的项目，都可以包含this
             if (other.Target!=Entity.Null && Target != other.Target) return false;
-            if (other.Trait!=null && Trait != other.Trait) return false;
-            if (ValueTrait!=null && other.ValueTrait!=null && ValueTrait != other.ValueTrait) return false;
+            if (other.Trait!=default && Trait != other.Trait) return false;
+            if (ValueTrait!=default && other.ValueTrait!=default && ValueTrait != other.ValueTrait) return false;
             if (!other.ValueString.Equals(default) && !ValueString.Equals(other.ValueString)) return false;
             
             if (IsNegative != other.IsNegative) return false;

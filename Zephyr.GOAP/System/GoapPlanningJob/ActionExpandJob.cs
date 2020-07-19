@@ -1,10 +1,10 @@
-using System;
 using Unity.Assertions;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Zephyr.GOAP.Component;
+using Zephyr.GOAP.Lib;
 using Zephyr.GOAP.Struct;
 
 namespace Zephyr.GOAP.System.GoapPlanningJob
@@ -13,7 +13,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
     public struct ActionExpandJob<T> : IJobParallelFor where T : struct, IAction
     {
         [ReadOnly]
-        public NativeArray<ValueTuple<Entity, Node>> NodeAgentPairs;
+        public NativeArray<ZephyrValueTuple<Entity, Node>> NodeAgentPairs;
 
         [ReadOnly]
         public NativeHashMap<Entity, T> Actions;
@@ -22,10 +22,10 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         public StackData StackData;
 
         [ReadOnly]
-        public NativeList<ValueTuple<int, State>> Requires;
+        public NativeList<ZephyrValueTuple<int, State>> Requires;
         
         [ReadOnly]
-        public NativeList<ValueTuple<int, State>> Deltas;
+        public NativeList<ZephyrValueTuple<int, State>> Deltas;
         
         /// <summary>
         /// NodeGraph中现存所有Node的hash
@@ -35,17 +35,17 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
 
         public NativeHashMap<int, Node>.ParallelWriter NodesWriter;
         
-        public NativeList<ValueTuple<int, int>>.ParallelWriter NodeToParentsWriter;
+        public NativeList<ZephyrValueTuple<int, int>>.ParallelWriter NodeToParentsWriter;
 
         public NativeHashMap<int, State>.ParallelWriter StatesWriter;
         
-        public NativeList<ValueTuple<int, int>>.ParallelWriter PreconditionHashesWriter;
+        public NativeList<ZephyrValueTuple<int, int>>.ParallelWriter PreconditionHashesWriter;
         
-        public NativeList<ValueTuple<int, int>>.ParallelWriter EffectHashesWriter;
+        public NativeList<ZephyrValueTuple<int, int>>.ParallelWriter EffectHashesWriter;
         
-        public NativeList<ValueTuple<int, int>>.ParallelWriter RequireHashesWriter;
+        public NativeList<ZephyrValueTuple<int, int>>.ParallelWriter RequireHashesWriter;
         
-        public NativeList<ValueTuple<int, int>>.ParallelWriter DeltaHashesWriter;
+        public NativeList<ZephyrValueTuple<int, int>>.ParallelWriter DeltaHashesWriter;
         
         public NativeHashMap<int, Node>.ParallelWriter NewlyCreatedNodesWriter;
 
@@ -138,7 +138,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         {
             newNode.Name = actionName;
             
-            NodeToParentsWriter.AddNoResize((newNode.HashCode, parent.HashCode));
+            NodeToParentsWriter.AddNoResize(new ZephyrValueTuple<int, int>(newNode.HashCode, parent.HashCode));
             
             if(!nodeExisted)
             {
@@ -151,7 +151,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                         var state = preconditions[i];
                         var stateHash = state.GetHashCode();
                         StatesWriter.TryAdd(stateHash, state);
-                        PreconditionHashesWriter.AddNoResize((newNode.HashCode, stateHash));
+                        PreconditionHashesWriter.AddNoResize(new ZephyrValueTuple<int, int>(newNode.HashCode, stateHash));
                     }
                 }
 
@@ -164,7 +164,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                         var state = effects[i];
                         var stateHash = state.GetHashCode();
                         StatesWriter.TryAdd(stateHash, state);
-                        EffectHashesWriter.AddNoResize((newNode.HashCode, stateHash));
+                        EffectHashesWriter.AddNoResize(new ZephyrValueTuple<int, int>(newNode.HashCode, stateHash));
                     }
                 }
                 
@@ -173,7 +173,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     var state = requires[i];
                     var stateHash = state.GetHashCode();
                     StatesWriter.TryAdd(stateHash, state);
-                    RequireHashesWriter.AddNoResize((newNode.HashCode, stateHash));
+                    RequireHashesWriter.AddNoResize(new ZephyrValueTuple<int, int>(newNode.HashCode, stateHash));
                 }
                 
                 if (!deltas.Equals(default))
@@ -183,7 +183,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                         var state = deltas[i];
                         var stateHash = state.GetHashCode();
                         StatesWriter.TryAdd(stateHash, state);
-                        DeltaHashesWriter.AddNoResize((newNode.HashCode, stateHash));
+                        DeltaHashesWriter.AddNoResize(new ZephyrValueTuple<int, int>(newNode.HashCode, stateHash));
                     }
                 }
             }
