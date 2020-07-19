@@ -18,7 +18,8 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return nameof(DropItemAction);
         }
 
-        public bool CheckTargetRequire(State targetRequire, Entity agentEntity, [ReadOnly]StackData stackData)
+        public bool CheckTargetRequire(State targetRequire, Entity agentEntity,
+            [ReadOnly]StackData stackData, [ReadOnly]StateGroup currentStates)
         {
             //针对“目标获得物品”的state
             var stateFilter = new State
@@ -30,7 +31,8 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return !agents.Contains(targetRequire.Target) && targetRequire.BelongTo(stateFilter);
         }
         
-        public StateGroup GetSettings(State targetRequire, Entity agentEntity, StackData stackData, Allocator allocator)
+        public StateGroup GetSettings(State targetRequire, Entity agentEntity,
+            [ReadOnly]StackData stackData, [ReadOnly]StateGroup currentStates, Allocator allocator)
         {
             var settings = new StateGroup(1, allocator);
             
@@ -59,7 +61,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
         }
 
         public void GetPreconditions(State targetRequire, Entity agentEntity, State setting,
-            StackData stackData, StateGroup preconditions)
+            [ReadOnly]StackData stackData, [ReadOnly]StateGroup currentStates, StateGroup preconditions)
         {
             //我自己需要有指定的物品
             var state = setting;
@@ -69,23 +71,23 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
         }
 
         public void GetEffects(State targetRequire, State setting,
-            StackData stackData, StateGroup effects)
+            [ReadOnly]StackData stackData, StateGroup effects)
         {
             effects.Add(setting);
         }
 
-        public float GetReward(State targetRequire, State setting, StackData stackData)
+        public float GetReward(State targetRequire, State setting, [ReadOnly]StackData stackData)
         {
             return 0;
         }
 
-        public float GetExecuteTime(State targetRequire, State setting, StackData stackData)
+        public float GetExecuteTime(State targetRequire, State setting, [ReadOnly]StackData stackData)
         {
             return 0;
         }
 
         public void GetNavigatingSubjectInfo(State targetRequire, State setting,
-            StackData stackData, StateGroup preconditions,
+            [ReadOnly]StackData stackData, StateGroup preconditions,
             out NodeNavigatingSubjectType subjectType, out byte subjectId)
         {
             subjectType = NodeNavigatingSubjectType.EffectTarget;

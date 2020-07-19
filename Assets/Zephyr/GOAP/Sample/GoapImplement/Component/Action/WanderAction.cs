@@ -20,7 +20,8 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return nameof(WanderAction);
         }
 
-        public bool CheckTargetRequire(State targetRequire, Entity agentEntity, [ReadOnly]StackData stackData)
+        public bool CheckTargetRequire(State targetRequire, Entity agentEntity,
+            [ReadOnly]StackData stackData, [ReadOnly]StateGroup currentStates)
         {
             var wanderState = new State
             {
@@ -32,7 +33,8 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return targetRequire.BelongTo(wanderState);
         }
         
-        public StateGroup GetSettings(State targetRequire, Entity agentEntity, StackData stackData, Allocator allocator)
+        public StateGroup GetSettings(State targetRequire, Entity agentEntity,
+            [ReadOnly]StackData stackData, [ReadOnly]StateGroup currentStates, Allocator allocator)
         {
             var settings = new StateGroup(1, allocator);
             
@@ -42,31 +44,31 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
         }
 
         public void GetPreconditions(State targetRequire, Entity agentEntity, State setting,
-            StackData stackData, StateGroup preconditions)
+            [ReadOnly]StackData stackData, [ReadOnly]StateGroup currentStates, StateGroup preconditions)
         {
             //没有precondition
         }
 
         public void GetEffects(State targetRequire, State setting,
-            StackData stackData, StateGroup effects)
+            [ReadOnly]StackData stackData, StateGroup effects)
         {
             //达成wander需求
             effects.Add(setting);
         }
 
-        public float GetReward(State targetRequire, State setting, StackData stackData)
+        public float GetReward(State targetRequire, State setting, [ReadOnly]StackData stackData)
         {
             return 0;
         }
 
-        public float GetExecuteTime(State targetRequire, State setting, StackData stackData)
+        public float GetExecuteTime(State targetRequire, State setting, [ReadOnly]StackData stackData)
         {
             return 0;
             // return WanderActionExecuteSystem.WanderTime;
         }
 
         public void GetNavigatingSubjectInfo(State targetRequire, State setting,
-            StackData stackData, StateGroup preconditions,
+            [ReadOnly]StackData stackData, StateGroup preconditions,
             out NodeNavigatingSubjectType subjectType, out byte subjectId)
         {
             subjectType = NodeNavigatingSubjectType.Null;

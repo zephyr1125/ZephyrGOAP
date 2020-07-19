@@ -20,7 +20,8 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return nameof(CookAction);
         }
 
-        public bool CheckTargetRequire(State targetRequire, Entity agentEntity, StackData stackData)
+        public bool CheckTargetRequire(State targetRequire, Entity agentEntity,
+            [ReadOnly]StackData stackData, [ReadOnly]StateGroup currentStates)
         {
             //数量应该大于0
             if (targetRequire.Amount == 0) return false;
@@ -35,7 +36,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             //如果targetState有指明物品名，则直接寻找其是否为cooker的产物
             //这是因为在指定物品名的情况下，有可能会省略ValueTrait
             if (!targetRequire.ValueString.Equals(default)
-                &&!IsItemInRecipes(targetRequire.ValueString, stackData)) return false;
+                &&!IsItemInRecipes(targetRequire.ValueString, currentStates)) return false;
                 
             //如果没有指定物品名，则必须指定FoodTrait
             if (targetRequire.ValueString.Equals(default) &&
@@ -49,9 +50,9 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
         /// (存在以他为输出的配方)
         /// </summary>
         /// <param name="name"></param>
-        /// <param name="stackData"></param>
+        /// <param name="currentStates"></param>
         /// <returns></returns>
-        private bool IsItemInRecipes(NativeString32 name, [ReadOnly]StackData stackData)
+        private bool IsItemInRecipes(NativeString32 name, [ReadOnly]StateGroup currentStates)
         {
             var foodRecipeState = new State
             {
@@ -59,10 +60,11 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                 ValueTrait = typeof(CookerTrait),
                 ValueString = name
             };
-            return !stackData.BaseStates.GetBelongingState(foodRecipeState).Equals(State.Null);
+            return !currentStates.GetBelongingState(foodRecipeState).Equals(State.Null);
         }
         
-        public StateGroup GetSettings(State targetRequire, Entity agentEntity, StackData stackData, Allocator allocator)
+        public StateGroup GetSettings(State targetRequire, Entity agentEntity,
+            [ReadOnly]StackData stackData, [ReadOnly]StateGroup currentStates, Allocator allocator)
         {
             var settings = new StateGroup(1, allocator);
 
@@ -70,7 +72,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             {
                 //首先寻找最近的Cooker，如果没有则没有setting
                 var cookerState = new State {Trait = typeof(CookerTrait)};
-                var cookerStates = stackData.BaseStates.GetBelongingStates(cookerState, Allocator.Temp);
+                var cookerStates = currentStates.GetBelongingStates(cookerState, Allocator.Temp);
                 if (cookerStates.Length() <= 0)
                 {
                     cookerStates.Dispose();
@@ -111,7 +113,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                 //还需要筛除不能被制作的item
                 for (var i = itemNames.Length - 1; i >= 0; i--)
                 {
-                    if (!IsItemInRecipes(itemNames[i], stackData))
+                    if (!IsItemInRecipes(itemNames[i], currentStates))
                     {
                         itemNames.RemoveAtSwapBack(i);
                     }
@@ -135,7 +137,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
         }
 
         public void GetPreconditions(State targetRequire, Entity agentEntity, State setting,
-            [ReadOnly]StackData stackData, StateGroup preconditions)
+            [ReadOnly]StackData stackData, [ReadOnly]StateGroup currentStates, StateGroup preconditions)
         {
             //cooker有其生产所需原料
             var targetRecipeInputFilter = new State
@@ -145,7 +147,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                 ValueString = setting.ValueString,
                 Amount = setting.Amount
             };
-            var inputs = Utils.GetRecipeInputInBaseStates(stackData.BaseStates,
+            var inputs = Utils.GetRecipeInputInStateGroup(currentStates,
                 targetRecipeInputFilter, Allocator.Temp);
             //把查到的配方转化为对此设施拥有的需求
             preconditions.Add(new State

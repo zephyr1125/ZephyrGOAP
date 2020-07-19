@@ -18,7 +18,8 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return nameof(EatAction);
         }
 
-        public bool CheckTargetRequire(State targetRequire, Entity agentEntity, [ReadOnly]StackData stackData)
+        public bool CheckTargetRequire(State targetRequire, Entity agentEntity,
+            [ReadOnly]StackData stackData, [ReadOnly]StateGroup currentStates)
         {
             var staminaState = new State
             {
@@ -29,7 +30,8 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return targetRequire.BelongTo(staminaState);
         }
         
-        public StateGroup GetSettings(State targetRequire, Entity agentEntity, StackData stackData, Allocator allocator)
+        public StateGroup GetSettings(State targetRequire, Entity agentEntity,
+            [ReadOnly]StackData stackData, [ReadOnly]StateGroup currentStates, Allocator allocator)
         {
             var settings = new StateGroup(1, allocator);
             
@@ -39,7 +41,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                 Trait = typeof(DiningTableTrait),
             };
             var tables =
-                stackData.BaseStates.GetBelongingStates(diningTableTemplate, Allocator.Temp);
+                currentStates.GetBelongingStates(diningTableTemplate, Allocator.Temp);
             var itemNames =
                 Utils.GetItemNamesOfSpecificTrait(typeof(FoodTrait),
                     Allocator.Temp);
@@ -67,33 +69,33 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
         }
 
         public void GetPreconditions(State targetRequire, Entity agentEntity, State setting,
-            StackData stackData, StateGroup preconditions)
+            [ReadOnly]StackData stackData, [ReadOnly]StateGroup currentStates, StateGroup preconditions)
         {
             //有食物的餐桌
             preconditions.Add(setting);
         }
 
         public void GetEffects(State targetRequire, State setting,
-            StackData stackData, StateGroup effects)
+            [ReadOnly]StackData stackData, StateGroup effects)
         {
             //自身获得stamina
             effects.Add(targetRequire);
         }
 
-        public float GetReward(State targetRequire, State setting, StackData stackData)
+        public float GetReward(State targetRequire, State setting, [ReadOnly]StackData stackData)
         {
             //由食物决定
             //todo 示例项目通过工具方法获取食物reward，实际应从define取
             return Utils.GetFoodReward(setting.ValueString);
         }
 
-        public float GetExecuteTime(State targetRequire, State setting, StackData stackData)
+        public float GetExecuteTime(State targetRequire, State setting, [ReadOnly]StackData stackData)
         {
             return 2;
         }
 
         public void GetNavigatingSubjectInfo(State targetRequire, State setting,
-            StackData stackData, StateGroup preconditions,
+            [ReadOnly]StackData stackData, StateGroup preconditions,
             out NodeNavigatingSubjectType subjectType, out byte subjectId)
         {
             //导航目标为餐桌

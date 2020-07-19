@@ -8,12 +8,12 @@ namespace Zephyr.GOAP.Component
     {
         NativeString32 GetName();
         
-        bool CheckTargetRequire(State targetRequire, Entity agentEntity, [ReadOnly]StackData stackData);
+        bool CheckTargetRequire(State targetRequire, Entity agentEntity, [ReadOnly]StackData stackData, [ReadOnly]StateGroup currentStates);
 
-        StateGroup GetSettings(State targetRequire, Entity agentEntity, [ReadOnly]StackData stackData, Allocator allocator);
+        StateGroup GetSettings(State targetRequire, Entity agentEntity, [ReadOnly]StackData stackData, [ReadOnly]StateGroup currentStates, Allocator allocator);
 
         void GetPreconditions([ReadOnly] State targetRequire, Entity agentEntity, State setting,
-            [ReadOnly] StackData stackData, StateGroup preconditions);
+            [ReadOnly] StackData stackData, [ReadOnly]StateGroup currentStates, StateGroup preconditions);
 
         void GetEffects([ReadOnly] State targetRequire, State setting,
             [ReadOnly] StackData stackData, StateGroup effects);

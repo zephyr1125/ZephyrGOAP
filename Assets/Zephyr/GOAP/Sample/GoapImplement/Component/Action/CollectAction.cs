@@ -19,7 +19,8 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return nameof(CollectAction);
         }
 
-        public bool CheckTargetRequire(State targetRequire, Entity agentEntity, [ReadOnly]StackData stackData)
+        public bool CheckTargetRequire(State targetRequire, Entity agentEntity,
+            [ReadOnly]StackData stackData, [ReadOnly]StateGroup currentStates)
         {
             var itemSourceState = new State
             {
@@ -37,14 +38,15 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                     Target = targetRequire.Target,
                     Trait = typeof(CollectorTrait)
                 };
-                var foundState = stackData.BaseStates.GetBelongingState(collectorTemplate);
+                var foundState = currentStates.GetBelongingState(collectorTemplate);
                 if (foundState.Equals(State.Null)) return false;
             }
                 
             return true;
         }
         
-        public StateGroup GetSettings([ReadOnly]State targetRequire, Entity agentEntity, [ReadOnly]StackData stackData, Allocator allocator)
+        public StateGroup GetSettings([ReadOnly]State targetRequire, Entity agentEntity,
+            [ReadOnly]StackData stackData, [ReadOnly]StateGroup currentStates, Allocator allocator)
         {
             var settings = new StateGroup(1, allocator);
 
@@ -57,7 +59,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                     Trait = typeof(CollectorTrait)
                 };
                 var collectors =
-                    stackData.BaseStates.GetBelongingStates(collectorState, Allocator.Temp);
+                    currentStates.GetBelongingStates(collectorState, Allocator.Temp);
                 var nearestCollectorState = default(State);
                 var nearestDistance = float.MaxValue;
                 foreach (var collector in collectors)
@@ -68,7 +70,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                         Trait = typeof(ItemPotentialSourceTrait),
                         ValueString = targetRequire.ValueString
                     };
-                    if(stackData.BaseStates.GetBelongingState(collectState).Equals(default))continue;
+                    if(currentStates.GetBelongingState(collectState).Equals(default))continue;
                     var distance = math.distance(collector.Position,
                         stackData.GetAgentPosition(agentEntity));
                     if (distance >= nearestDistance) continue;
@@ -89,7 +91,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
         }
 
         public void GetPreconditions([ReadOnly]State targetRequire, Entity agentEntity, [ReadOnly]State setting,
-            [ReadOnly]StackData stackData, [ReadOnly]StateGroup preconditions)
+            [ReadOnly]StackData stackData, [ReadOnly]StateGroup currentStates, [ReadOnly]StateGroup preconditions)
         {
             preconditions.Add(new State
             {

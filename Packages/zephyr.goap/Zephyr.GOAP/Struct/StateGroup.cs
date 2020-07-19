@@ -10,7 +10,6 @@ namespace Zephyr.GOAP.Struct
 {
     public struct StateGroup : IDisposable, IEnumerable<State>, IEquatable<StateGroup>
     {
-        [NativeDisableParallelForRestriction]
         private NativeList<State> _states;
         
         public StateGroup(int initialCapacity, Allocator allocator)
@@ -275,8 +274,9 @@ namespace Zephyr.GOAP.Struct
         public StateGroup GetBelongingStates(State belongTo, Allocator allocator)
         {
             var group = new StateGroup(3, allocator);
-            foreach (var state in _states)
+            for (var i = 0; i < _states.Length; i++)
             {
+                var state = _states[i];
                 if (state.BelongTo(belongTo)) group.Add(state);
             }
 
