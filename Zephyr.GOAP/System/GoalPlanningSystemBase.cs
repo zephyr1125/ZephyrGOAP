@@ -444,18 +444,12 @@ namespace Zephyr.GOAP.System
                 Debugger?.Log("check node: "+uncheckedNode.Name);
                 nodeGraph.CleanAllDuplicateStates(uncheckedNode);
                 
-                var uncheckedRequires = nodeGraph.GetRequires(uncheckedNode, Allocator.Temp, true);
-                var deltaBaseStates = uncheckedRequires.AND(baseStates, true);
-                //对这些require调整后重新放回nodeGraph
-                nodeGraph.AddRequires(uncheckedRequires, uncheckedNode.HashCode);
-                //存入delta
-                nodeGraph.AddDeltas(deltaBaseStates, uncheckedNode.HashCode);
-                deltaBaseStates.Dispose();
-                
+                var uncheckedRequires = nodeGraph.GetRequires(uncheckedNode, Allocator.Temp);
+
                 //为了避免没有state的node(例如wander)与startNode有相同的hash，这种node被强制给了一个空state
                 //因此在只有1个state且内容为空时，也应视为找到了plan
-                if (uncheckedRequires.Length() <= 0 ||
-                    (uncheckedRequires.Length()==1 && uncheckedRequires[0].Equals(default)))
+                if (uncheckedRequires.Length<= 0 ||
+                    (uncheckedRequires.Length==1 && uncheckedRequires[0].Equals(default)))
                 {
                     //找到Plan，追加起点Node
                     Debugger?.Log("found plan: "+uncheckedNode.Name);
@@ -486,7 +480,7 @@ namespace Zephyr.GOAP.System
                     //没有产生循环，则把此node置入待展开列表
                     //如果这个node没有state，例如WanderAction
                     //则不需要继续展开了
-                    if (uncheckedRequires.Length() > 0)
+                    if (uncheckedRequires.Length > 0)
                     {
                         unexpandedNodes.Add(uncheckedNode);
                     }

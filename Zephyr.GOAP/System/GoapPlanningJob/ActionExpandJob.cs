@@ -91,6 +91,8 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                         
                         requires.AND(effects);
                         requires.OR(preconditions);
+                        var newDeltas = requires.AND(currentStates, true);
+                        newDeltas.OR(deltas);
 
                         var reward =
                             action.GetReward(targetRequire, setting, StackData);
@@ -101,17 +103,18 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                         action.GetNavigatingSubjectInfo(targetRequire, setting,
                             StackData, preconditions, out var subjectType, out var subjectId);
                         
-                        var node = new Node(preconditions, effects, requires, deltas,
+                        var node = new Node(preconditions, effects, requires, newDeltas,
                             ActionName, reward, time, Iteration, agentEntity, subjectType, subjectId);
 
                         var nodeExisted = ExistedNodesHash.Contains(node.HashCode);
                         
                         AddRouteNode(expandingNode, node, nodeExisted, 
-                            preconditions, effects, requires, deltas,
+                            preconditions, effects, requires, newDeltas,
                             expandingNode, ActionName);
                         NewlyCreatedNodesWriter.TryAdd(node.HashCode, node);
 
                         requires.Dispose();
+                        newDeltas.Dispose();
                     }
                 
                     preconditions.Dispose();
