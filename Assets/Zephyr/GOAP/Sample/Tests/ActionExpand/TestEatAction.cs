@@ -77,5 +77,21 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             var preconditions = _debugger.PathResult[0].preconditions;
             Assert.IsTrue(preconditions.Any(state=>state.valueString.Equals("roast_apple")));
         }
+
+        /// <summary>
+        /// 餐桌食物要移除
+        /// </summary>
+        [Test]
+        public void NoLeftFood()
+        {
+            _system.Update();
+            EntityManager.CompleteAllJobs();
+
+            var deltas = _debugger.PathResult[0].deltas;
+            Assert.AreEqual(1, deltas.Length);
+            Assert.AreEqual(nameof(ItemDestinationTrait), deltas[0].trait);
+            Assert.AreEqual("raw_apple", deltas[0].valueString);
+            Assert.AreEqual(1, deltas[0].amount);
+        }
     }
 }
