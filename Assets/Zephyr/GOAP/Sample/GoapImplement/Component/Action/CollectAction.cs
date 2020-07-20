@@ -19,7 +19,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
         {
             var itemSourceState = new State
             {
-                Trait = ComponentType.ReadOnly<ItemSourceTrait>()
+                Trait = TypeManager.GetTypeIndex<ItemSourceTrait>()
             };
             //只针对物品源需求的goal state
             if (!targetRequire.BelongTo(itemSourceState)) return false;
@@ -31,7 +31,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                 var collectorTemplate = new State
                 {
                     Target = targetRequire.Target,
-                    Trait = ComponentType.ReadOnly<CollectorTrait>()
+                    Trait = TypeManager.GetTypeIndex<CollectorTrait>()
                 };
                 var foundState = currentStates.GetBelongingState(collectorTemplate);
                 if (foundState.Equals(default)) return false;
@@ -52,7 +52,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                 //寻找能够采集的最近的collector
                 var collectorState = new State
                 {
-                    Trait = ComponentType.ReadOnly<CollectorTrait>()
+                    Trait = TypeManager.GetTypeIndex<CollectorTrait>()
                 };
                 var collectors =
                     currentStates.GetBelongingStates(collectorState, Allocator.Temp);
@@ -64,7 +64,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                     var collectState = new State
                     {
                         Target = collector.Target,
-                        Trait = ComponentType.ReadOnly<ItemPotentialSourceTrait>(),
+                        Trait = TypeManager.GetTypeIndex<ItemPotentialSourceTrait>(),
                         ValueString = settingRequire.ValueString
                     };
                     if(currentStates.GetBelongingState(collectState).Equals(default))continue;
@@ -94,7 +94,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             {
                 Target = setting.Target,
                 Position = setting.Position,
-                Trait = ComponentType.ReadOnly<RawDestinationTrait>(),
+                Trait = TypeManager.GetTypeIndex<RawDestinationTrait>(),
                 ValueString = setting.ValueString
             });
         }

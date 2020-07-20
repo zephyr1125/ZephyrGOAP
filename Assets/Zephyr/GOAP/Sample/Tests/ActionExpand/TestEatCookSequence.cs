@@ -37,7 +37,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             SetGoal(new State
             {
                 Target = _agentEntity,
-                Trait = typeof(StaminaTrait),
+                Trait = TypeManager.GetTypeIndex<StaminaTrait>(),
             });
             
             //给BaseStates写入假环境数据：世界里有餐桌、有原料、配方
@@ -45,19 +45,19 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             buffer.Add(new State
             {
                 Target = _cookerEntity,
-                Trait = typeof(CookerTrait),
+                Trait = TypeManager.GetTypeIndex<CookerTrait>(),
             });
             buffer.Add(new State
             {
                 Target = _itemSourceEntity,
-                Trait = typeof(ItemSourceTrait),
+                Trait = TypeManager.GetTypeIndex<ItemSourceTrait>(),
                 ValueString = "raw_apple",
                 Amount = 1
             });
             buffer.Add(new State
             {
                 Target = _diningTableEntity,
-                Trait = typeof(DiningTableTrait),
+                Trait = TypeManager.GetTypeIndex<DiningTableTrait>(),
             });
             
             var recipeSensorSystem = World.GetOrCreateSystem<RecipeSensorSystem>();

@@ -28,7 +28,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             SetGoal(new State
             {
                 Target = _agentEntity,
-                Trait = typeof(WanderTrait),
+                Trait = TypeManager.GetTypeIndex<WanderTrait>(),
             });
 
             //给BaseStates写入假环境数据
@@ -36,13 +36,13 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             buffer.Add(new State
             {
                 Target = _agentEntity,
-                Trait = typeof(ItemContainerTrait),
+                Trait = TypeManager.GetTypeIndex<ItemContainerTrait>(),
                 ValueString = ItemNames.Instance().RawPeachName,
             });
             buffer.Add(new State
             {
                 Target = new Entity{Index = 9, Version = 1},
-                Trait = typeof(CookerTrait),
+                Trait = TypeManager.GetTypeIndex<CookerTrait>(),
             });
             var recipeSensorSystem = World.GetOrCreateSystem<RecipeSensorSystem>();
             recipeSensorSystem.Update();

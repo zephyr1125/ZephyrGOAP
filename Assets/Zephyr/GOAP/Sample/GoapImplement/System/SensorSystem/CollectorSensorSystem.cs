@@ -42,7 +42,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
                 for (var i = 0; i < buffer.Length; i++)
                 {
                     var state = buffer[i];
-                    if (state.Trait != typeof(RawSourceTrait)) continue;
+                    if (state.Trait != TypeManager.GetTypeIndex<RawSourceTrait>()) continue;
                     if (math.distance(state.Position, position) > CollectorRange) continue;
                     rawSourceStates.Add(state);
                 }
@@ -52,7 +52,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
                 {
                     Target = entity,
                     Position = position,
-                    Trait = typeof(CollectorTrait),
+                    Trait = TypeManager.GetTypeIndex<CollectorTrait>(),
                 });
                 //基于附近原料，写入潜在物品源
                 for (var i = 0; i < rawSourceStates.Length(); i++)
@@ -60,7 +60,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
                     buffer.Add(new State
                     {
                         Target = entity,
-                        Trait = typeof(ItemPotentialSourceTrait),
+                        Trait = TypeManager.GetTypeIndex<ItemPotentialSourceTrait>(),
                         ValueString = rawSourceStates[i].ValueString
                     });
                 }

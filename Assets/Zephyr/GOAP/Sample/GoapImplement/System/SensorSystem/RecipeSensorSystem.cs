@@ -48,15 +48,15 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
         {
             buffer.Add(new State
             {
-                Trait = ComponentType.ReadOnly<RecipeOutputTrait>(),
-                ValueTrait = ComponentType.ReadOnly<CookerTrait>(),    //以ValueTrait保存此recipe适用的生产设施
+                Trait = TypeManager.GetTypeIndex<RecipeOutputTrait>(),
+                ValueTrait = TypeManager.GetTypeIndex<CookerTrait>(),    //以ValueTrait保存此recipe适用的生产设施
                 ValueString = outputName,
                 Amount = outputAmount
             });
             buffer.Add(new State
             {
-                Trait = ComponentType.ReadOnly<RecipeInputTrait>(),
-                ValueTrait = ComponentType.ReadOnly<CookerTrait>(),
+                Trait = TypeManager.GetTypeIndex<RecipeInputTrait>(),
+                ValueTrait = TypeManager.GetTypeIndex<CookerTrait>(),
                 ValueString = input1Name,
                 Amount = input1Amount
             });
@@ -66,8 +66,8 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
             }else
             {
                 buffer.Add(new State{
-                    Trait = ComponentType.ReadOnly<RecipeInputTrait>(),
-                    ValueTrait = ComponentType.ReadOnly<CookerTrait>(),
+                    Trait = TypeManager.GetTypeIndex<RecipeInputTrait>(),
+                    ValueTrait = TypeManager.GetTypeIndex<CookerTrait>(),
                     ValueString = input2Name,
                     Amount = input2Amount
                 });

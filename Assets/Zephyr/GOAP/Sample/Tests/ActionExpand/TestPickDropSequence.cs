@@ -41,7 +41,7 @@
 //             SetGoal(new State
 //             {
 //                 Target = _targetContainerEntity,
-//                 Trait = typeof(ItemDestinationTrait),
+//                 Trait = TypeManager.GetTypeIndex<ItemDestinationTrait>(),
 //                 ValueString = "item",
 //             });
 //             
@@ -49,7 +49,7 @@
 //             buffer.Add(new State
 //             {
 //                 Target = _itemSourceEntity,
-//                 Trait = typeof(ItemSourceTrait),
+//                 Trait = TypeManager.GetTypeIndex<ItemSourceTrait>(),
 //                 ValueString = "item"
 //             });
 //         }
@@ -67,7 +67,7 @@
 //             Assert.IsTrue(dropNodeLog.states[0].Equals(new State
 //             {
 //                 Target = _agentEntity,
-//                 Trait = typeof(ItemTransferTrait),
+//                 Trait = TypeManager.GetTypeIndex<ItemTransferTrait>(),
 //                 ValueString = "item",
 //             }));
 //             
@@ -78,7 +78,7 @@
 //             Assert.IsTrue(pickNodeView.states[0].Equals(new State
 //             {
 //                 Target = _itemSourceEntity,
-//                 Trait = typeof(ItemSourceTrait),
+//                 Trait = TypeManager.GetTypeIndex<ItemSourceTrait>(),
 //                 ValueString = "item",
 //             }));
 //             
@@ -132,7 +132,7 @@
 //                     Assert.IsTrue(bufferStates[i].Equals(new State
 //                     {
 //                         Target = _itemSourceEntity,
-//                         Trait = typeof(ItemSourceTrait),
+//                         Trait = TypeManager.GetTypeIndex<ItemSourceTrait>(),
 //                         ValueString = "item",
 //                     }));
 //                 }
@@ -143,7 +143,7 @@
 //                     Assert.IsTrue(bufferStates[i].Equals(new State
 //                     {
 //                         Target = _agentEntity,
-//                         Trait = typeof(ItemTransferTrait),
+//                         Trait = TypeManager.GetTypeIndex<ItemTransferTrait>(),
 //                         ValueString = "item",
 //                     }));
 //                 }
@@ -155,7 +155,7 @@
 //                     {
 //                         Target = _agentEntity,
 //                         Position = new float3(),
-//                         Trait = typeof(ItemTransferTrait),
+//                         Trait = TypeManager.GetTypeIndex<ItemTransferTrait>(),
 //                         ValueString = "item",
 //                     }, bufferStates[i]);
 //                 }
@@ -166,7 +166,7 @@
 //                     Assert.AreEqual(new State
 //                     {
 //                         Target = _targetContainerEntity,
-//                         Trait = typeof(ItemDestinationTrait),
+//                         Trait = TypeManager.GetTypeIndex<ItemDestinationTrait>(),
 //                         ValueString = "item",
 //                     }, bufferStates[i]);
 //                 }

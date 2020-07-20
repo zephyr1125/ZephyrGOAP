@@ -21,7 +21,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             var wanderState = new State
             {
                 Target = agentEntity,
-                Trait = ComponentType.ReadOnly<WanderTrait>(),
+                Trait = TypeManager.GetTypeIndex<WanderTrait>(),
             };
             
             //只针对自身wander

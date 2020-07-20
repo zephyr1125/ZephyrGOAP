@@ -9,9 +9,9 @@ namespace Zephyr.GOAP.Component
     {
         public Entity Target;
         public float3 Position;
-        public ComponentType Trait;
+        public int Trait;
         public NativeString32 ValueString;
-        public ComponentType ValueTrait;
+        public int ValueTrait;
         public byte Amount;
         /// <summary>
         /// true时表示这个state表达反面意义，比如“目标不拥有指定物品”

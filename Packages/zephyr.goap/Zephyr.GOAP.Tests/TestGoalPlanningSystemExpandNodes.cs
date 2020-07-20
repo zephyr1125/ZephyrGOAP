@@ -45,7 +45,7 @@
 //             var goalStates = new StateGroup(1, Allocator.Temp){new State
 //             {
 //                 Target = _targetEntity,
-//                 Trait = typeof(ItemContainerTrait),
+//                 Trait = TypeManager.GetTypeIndex<ItemContainerTrait>(),
 //                 ValueString = new NativeString64("test"),
 //             }};
 //             var goalPreconditions = new StateGroup();
@@ -59,7 +59,7 @@
 //             _baseStates.Add(new State
 //             {
 //                 Target = _agentEntity,
-//                 Trait = typeof(ItemContainerTrait),
+//                 Trait = TypeManager.GetTypeIndex<ItemContainerTrait>(),
 //                 ValueString = new NativeString64("test"),
 //             });
 //             
@@ -94,7 +94,7 @@
 //             Assert.AreEqual(new State
 //             {
 //                 Target = _agentEntity,
-//                 Trait = typeof(ItemContainerTrait),
+//                 Trait = TypeManager.GetTypeIndex<ItemContainerTrait>(),
 //                 ValueString = new NativeString64("test"),
 //             }, states[0]);
 //             
@@ -116,7 +116,7 @@
 //             Assert.AreEqual(new State
 //             {
 //                 Target = _targetEntity,
-//                 Trait = typeof(ItemContainerTrait),
+//                 Trait = TypeManager.GetTypeIndex<ItemContainerTrait>(),
 //                 ValueString = new NativeString64("test"),
 //             }, states[0]);
 //             
@@ -151,7 +151,7 @@
 //             Assert.AreEqual(new State
 //             {
 //                 Target = _targetEntity,
-//                 Trait = typeof(ItemContainerTrait),
+//                 Trait = TypeManager.GetTypeIndex<ItemContainerTrait>(),
 //                 ValueString = new NativeString64("test"),
 //             }, states[0]);
 //             

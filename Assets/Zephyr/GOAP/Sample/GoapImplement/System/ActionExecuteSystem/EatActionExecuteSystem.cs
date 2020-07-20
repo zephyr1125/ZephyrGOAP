@@ -18,7 +18,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
         protected override JobHandle ExecuteActionJob(NativeString32 nameOfAction, NativeArray<Entity> waitingNodeEntities,
             NativeArray<Node> waitingNodes, BufferFromEntity<State> waitingStates, EntityCommandBuffer.Concurrent ecb, JobHandle inputDeps)
         {
-            ComponentType itemDestType = typeof(ItemDestinationTrait);
+            var itemDestType = TypeManager.GetTypeIndex<ItemDestinationTrait>();
             var allBufferItems = GetBufferFromEntity<ContainedItemRef>();
             return Entities.WithName("EatActionExecuteJob")
                 .WithoutBurst()    //由于示例里要用到string的物品名称，只能关闭burst

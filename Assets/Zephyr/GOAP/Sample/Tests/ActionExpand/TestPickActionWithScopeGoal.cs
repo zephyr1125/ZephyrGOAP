@@ -1,5 +1,6 @@
 using System.Linq;
 using NUnit.Framework;
+using Unity.Entities;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Sample.GoapImplement;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Action;
@@ -21,8 +22,8 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             SetGoal(new State
             {
                 Target = _agentEntity,
-                Trait = typeof(ItemTransferTrait),
-                ValueTrait = typeof(FoodTrait)
+                Trait = TypeManager.GetTypeIndex<ItemTransferTrait>(),
+                ValueTrait = TypeManager.GetTypeIndex<FoodTrait>()
             });
         }
         

@@ -48,12 +48,12 @@ namespace Zephyr.GOAP.Sample
         /// <param name="itemNames"></param>
         /// <param name="allocator"></param>
         /// <returns></returns>
-        public static NativeList<NativeString32> GetItemNamesOfSpecificTrait(ComponentType trait,
+        public static NativeList<NativeString32> GetItemNamesOfSpecificTrait(int trait,
             NativeHashMap<int, NativeString32> itemNames, Allocator allocator)
         {
             var result = new NativeList<NativeString32>(allocator);
             
-            if (trait.Equals(ComponentType.ReadOnly<FoodTrait>()))
+            if (trait.Equals(TypeManager.GetTypeIndex<FoodTrait>()))
             {
                 result.Add(itemNames[(int)ItemName.RawPeach]);
                 result.Add(itemNames[(int)ItemName.RoastPeach]);

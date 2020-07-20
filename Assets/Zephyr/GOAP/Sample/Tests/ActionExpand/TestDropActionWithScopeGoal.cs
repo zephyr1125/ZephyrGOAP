@@ -23,8 +23,8 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             SetGoal(new State
             {
                 Target = new Entity {Index = 9, Version = 9},
-                Trait = typeof(ItemDestinationTrait),
-                ValueTrait = typeof(FoodTrait)
+                Trait = TypeManager.GetTypeIndex<ItemDestinationTrait>(),
+                ValueTrait = TypeManager.GetTypeIndex<FoodTrait>()
             });
             
             World.GetOrCreateSystem<BaseStatesHelper>().Update();

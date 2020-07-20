@@ -35,7 +35,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             
             SetGoal(new State{
                 Target = _itemDestinationEntity,
-                Trait = typeof(ItemDestinationTrait),
+                Trait = TypeManager.GetTypeIndex<ItemDestinationTrait>(),
                 ValueString = ItemNames.Instance().RawPeachName
             });
             
@@ -45,19 +45,19 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             {
                 Target = _collectorEntity,
                 Position = new float3(5,0,0),
-                Trait = typeof(CollectorTrait),
+                Trait = TypeManager.GetTypeIndex<CollectorTrait>(),
             });
             buffer.Add(new State
             {
                 Target = _collectorEntity,
-                Trait = typeof(ItemPotentialSourceTrait),
+                Trait = TypeManager.GetTypeIndex<ItemPotentialSourceTrait>(),
                 ValueString = ItemNames.Instance().RawPeachName,
                 Amount = 1
             });
             buffer.Add(new State
             {
                 Target = _collectorEntity,
-                Trait = typeof(RawDestinationTrait),
+                Trait = TypeManager.GetTypeIndex<RawDestinationTrait>(),
                 ValueString = ItemNames.Instance().RawPeachName,
                 Amount = 1
             });
@@ -115,18 +115,18 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             {
                 Target = newCollectorEntity,
                 Position = new float3(2,0,0),
-                Trait = typeof(CollectorTrait),
+                Trait = TypeManager.GetTypeIndex<CollectorTrait>(),
             });
             buffer.Add(new State
             {
                 Target = newCollectorEntity,
-                Trait = typeof(ItemPotentialSourceTrait),
+                Trait = TypeManager.GetTypeIndex<ItemPotentialSourceTrait>(),
                 ValueString = ItemNames.Instance().RawPeachName,
             });
             buffer.Add(new State
             {
                 Target = newCollectorEntity,
-                Trait = typeof(RawDestinationTrait),
+                Trait = TypeManager.GetTypeIndex<RawDestinationTrait>(),
                 ValueString = ItemNames.Instance().RawPeachName
             });
             
@@ -154,7 +154,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             {
                 Target = itemSourceEntity,
                 Position = new float3(2,0,0),
-                Trait = typeof(ItemSourceTrait),
+                Trait = TypeManager.GetTypeIndex<ItemSourceTrait>(),
                 ValueString = ItemNames.Instance().RawPeachName,
                 Amount = 1
             });

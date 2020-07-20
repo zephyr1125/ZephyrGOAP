@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using Unity.Collections;
+using Unity.Entities;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
 using Zephyr.GOAP.Struct;
@@ -17,22 +18,22 @@ namespace Zephyr.GOAP.Sample.Tests
             _baseStates = new StateGroup(3, Allocator.Temp);
             _baseStates.Add(new State
             {
-                Trait = typeof(RecipeOutputTrait),
-                ValueTrait = typeof(CookerTrait),    //以ValueTrait保存此recipe适用的生产设施
+                Trait = TypeManager.GetTypeIndex<RecipeOutputTrait>(),
+                ValueTrait = TypeManager.GetTypeIndex<CookerTrait>(),    //以ValueTrait保存此recipe适用的生产设施
                 ValueString = "output",
                 Amount = 2
             });
             _baseStates.Add(new State
             {
-                Trait = typeof(RecipeInputTrait),
-                ValueTrait = typeof(CookerTrait),
+                Trait = TypeManager.GetTypeIndex<RecipeInputTrait>(),
+                ValueTrait = TypeManager.GetTypeIndex<CookerTrait>(),
                 ValueString = "input1",
                 Amount = 1
             });
             _baseStates.Add(new State
             {
-                Trait = typeof(RecipeInputTrait),
-                ValueTrait = typeof(CookerTrait),
+                Trait = TypeManager.GetTypeIndex<RecipeInputTrait>(),
+                ValueTrait = TypeManager.GetTypeIndex<CookerTrait>(),
                 ValueString = "input2",
                 Amount = 3
             });
@@ -50,8 +51,8 @@ namespace Zephyr.GOAP.Sample.Tests
         {
             var output = new State
             {
-                Trait = typeof(RecipeOutputTrait),
-                ValueTrait = typeof(CookerTrait),
+                Trait = TypeManager.GetTypeIndex<RecipeOutputTrait>(),
+                ValueTrait = TypeManager.GetTypeIndex<CookerTrait>(),
                 ValueString = "output",
                 Amount = 6
             };
@@ -73,8 +74,8 @@ namespace Zephyr.GOAP.Sample.Tests
         {
             var output = new State
             {
-                Trait = typeof(RecipeOutputTrait),
-                ValueTrait = typeof(CookerTrait),
+                Trait = TypeManager.GetTypeIndex<RecipeOutputTrait>(),
+                ValueTrait = TypeManager.GetTypeIndex<CookerTrait>(),
                 ValueString = "output",
                 Amount = 1
             };
@@ -96,8 +97,8 @@ namespace Zephyr.GOAP.Sample.Tests
         {
             var output = new State
             {
-                Trait = typeof(RecipeOutputTrait),
-                ValueTrait = typeof(CookerTrait),
+                Trait = TypeManager.GetTypeIndex<RecipeOutputTrait>(),
+                ValueTrait = TypeManager.GetTypeIndex<CookerTrait>(),
                 ValueString = "output",
                 Amount = 3
             };

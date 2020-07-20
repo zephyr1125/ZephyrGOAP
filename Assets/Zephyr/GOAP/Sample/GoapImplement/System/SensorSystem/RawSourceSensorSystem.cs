@@ -31,7 +31,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
                 {
                     Target = entity,
                     Position = translation.Value,
-                    Trait = typeof(RawSourceTrait),
+                    Trait = TypeManager.GetTypeIndex<RawSourceTrait>(),
                     ValueString = rawSourceTrait.RawName
                 });
             }

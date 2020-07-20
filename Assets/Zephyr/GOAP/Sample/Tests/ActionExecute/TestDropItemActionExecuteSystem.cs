@@ -50,13 +50,13 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExecute
             bufferStates.Add(new State
             {
                 Target = _agentEntity,
-                Trait = typeof(ItemTransferTrait),
+                Trait = TypeManager.GetTypeIndex<ItemTransferTrait>(),
                 ValueString = "item",
             });
             bufferStates.Add(new State
             {
                 Target = _containerEntity,
-                Trait = typeof(ItemDestinationTrait),
+                Trait = TypeManager.GetTypeIndex<ItemDestinationTrait>(),
                 ValueString ="item",
             });
         }

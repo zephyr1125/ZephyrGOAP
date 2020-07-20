@@ -21,7 +21,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
         protected override JobHandle ExecuteActionJob(NativeString32 nameOfAction, NativeArray<Entity> waitingNodeEntities,
             NativeArray<Node> waitingNodes, BufferFromEntity<State> waitingStates, EntityCommandBuffer.Concurrent ecb, JobHandle inputDeps)
         {
-            ComponentType actionType = typeof(ItemDestinationTrait);
+            var actionType = TypeManager.GetTypeIndex<ItemDestinationTrait>();
             var allItems = GetBufferFromEntity<ContainedItemRef>();
             return Entities.WithName("CookActionExecuteJob")
                 .WithAll<ReadyToAct>()

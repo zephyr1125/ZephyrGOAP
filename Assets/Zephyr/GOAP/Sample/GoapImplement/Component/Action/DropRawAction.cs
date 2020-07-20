@@ -20,7 +20,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             //针对“目标获得原料”的state
             var stateFilter = new State
             {
-                Trait = ComponentType.ReadOnly<RawDestinationTrait>(),
+                Trait = TypeManager.GetTypeIndex<RawDestinationTrait>(),
             };
             var agents = stackData.AgentEntities;
             //额外：target不能为自身
@@ -45,7 +45,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             //我自己需要有指定的原料
             var state = setting;
             state.Target = agentEntity;
-            state.Trait = ComponentType.ReadOnly<RawTransferTrait>();
+            state.Trait = TypeManager.GetTypeIndex<RawTransferTrait>();
             preconditions.Add(state);
         }
 

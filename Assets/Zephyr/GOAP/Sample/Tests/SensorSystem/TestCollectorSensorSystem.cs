@@ -40,7 +40,7 @@ namespace Zephyr.GOAP.Sample.Tests.SensorSystem
             {
                 Target = _rawSourceEntity,
                 Position = new float3(5,0,0),
-                Trait = typeof(RawSourceTrait),
+                Trait = TypeManager.GetTypeIndex<RawSourceTrait>(),
                 ValueString = ItemNames.Instance().RawPeachName
             });
         }
@@ -57,12 +57,12 @@ namespace Zephyr.GOAP.Sample.Tests.SensorSystem
             Assert.AreEqual(new State
             {
                 Target = _collectorEntity,
-                Trait = typeof(CollectorTrait),
+                Trait = TypeManager.GetTypeIndex<CollectorTrait>(),
             }, buffer[1]);
             Assert.AreEqual(new State
             {
                 Target = _collectorEntity,
-                Trait = typeof(ItemPotentialSourceTrait),
+                Trait = TypeManager.GetTypeIndex<ItemPotentialSourceTrait>(),
                 ValueString = ItemNames.Instance().RawPeachName
             }, buffer[2]);
         }
@@ -84,7 +84,7 @@ namespace Zephyr.GOAP.Sample.Tests.SensorSystem
             Assert.AreEqual(new State
             {
                 Target = _collectorEntity,
-                Trait = typeof(CollectorTrait),
+                Trait = TypeManager.GetTypeIndex<CollectorTrait>(),
             }, buffer[1]);
         }
     }

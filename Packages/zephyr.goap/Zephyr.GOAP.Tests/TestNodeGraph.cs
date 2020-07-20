@@ -20,7 +20,7 @@
 //             var goalStates = new StateGroup(1, Allocator.Temp){new State
 //             {
 //                 Target = Entity.Null,
-//                 Trait = typeof(ItemContainerTrait),
+//                 Trait = TypeManager.GetTypeIndex<ItemContainerTrait>(),
 //                 ValueString = new NativeString64("test"),
 //             }};
 //             var goalPreconditions = new StateGroup();

@@ -34,7 +34,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             SetGoal(new State
             {
                 Target = _cookerEntity,
-                Trait = typeof(ItemSourceTrait),
+                Trait = TypeManager.GetTypeIndex<ItemSourceTrait>(),
                 ValueString = ItemNames.Instance().RoastPeachName,
                 Amount = 1
             });
@@ -45,12 +45,12 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             {
                 Target = _cookerEntity,
                 Position = new float3(5,0,0),
-                Trait = typeof(CookerTrait),
+                Trait = TypeManager.GetTypeIndex<CookerTrait>(),
             });
             buffer.Add(new State
             {
                 Target = _cookerEntity,
-                Trait = typeof(ItemDestinationTrait),
+                Trait = TypeManager.GetTypeIndex<ItemDestinationTrait>(),
                 ValueString = ItemNames.Instance().RawPeachName,
                 Amount = 1
             });
@@ -110,7 +110,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
         {
             var goal = GetGoal();
             goal.Require.ValueString = default;
-            goal.Require.ValueTrait = typeof(FoodTrait);
+            goal.Require.ValueTrait = TypeManager.GetTypeIndex<FoodTrait>();
             SetGoal(goal.Require);
 
             _system.Update();
@@ -127,7 +127,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
         {
             var goal = GetGoal();
             goal.Require.ValueString = default;
-            goal.Require.ValueTrait = typeof(FoodTrait);
+            goal.Require.ValueTrait = TypeManager.GetTypeIndex<FoodTrait>();
             SetGoal(goal.Require);
             
             _system.Update();
@@ -152,12 +152,12 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             {
                 Target = newCookerEntity,
                 Position = new float3(2,0,0),
-                Trait = typeof(CookerTrait),
+                Trait = TypeManager.GetTypeIndex<CookerTrait>(),
             });
             buffer.Add(new State
             {
                 Target = newCookerEntity,
-                Trait = typeof(ItemDestinationTrait),
+                Trait = TypeManager.GetTypeIndex<ItemDestinationTrait>(),
                 ValueString = ItemNames.Instance().RawPeachName,
                 Amount = 1
             });
@@ -191,7 +191,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             goal.Require = new State
             {
                 Target = itemDestinationEntity,
-                Trait = typeof(ItemDestinationTrait),
+                Trait = TypeManager.GetTypeIndex<ItemDestinationTrait>(),
                 ValueString = ItemNames.Instance().RoastPeachName
             };
             SetGoal(goal.Require);
@@ -201,7 +201,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             {
                 Target = itemSourceEntity,
                 Position = new float3(2,0,0),
-                Trait = typeof(ItemSourceTrait),
+                Trait = TypeManager.GetTypeIndex<ItemSourceTrait>(),
                 ValueString = ItemNames.Instance().RoastPeachName
             });
             

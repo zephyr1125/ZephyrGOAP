@@ -37,7 +37,7 @@
 //             var goalStates = new StateGroup(1, Allocator.Temp){new State
 //             {
 //                 Target = _targetEntity,
-//                 Trait = typeof(ItemContainerTrait),
+//                 Trait = TypeManager.GetTypeIndex<ItemContainerTrait>(),
 //                 ValueString = new NativeString64("test"),
 //             }};
 //             _goalNode = new Node(goalStates,new NativeString64("goal"),0 , 0);
@@ -49,7 +49,7 @@
 //             _baseStates.Add(new State
 //             {
 //                 Target = _agentEntity,
-//                 Trait = typeof(ItemContainerTrait),
+//                 Trait = TypeManager.GetTypeIndex<ItemContainerTrait>(),
 //                 ValueString = new NativeString64("test"),
 //             });
 //         }
@@ -70,7 +70,7 @@
 //             var state = new State
 //             {
 //                 Target = _agentEntity,
-//                 Trait = typeof(ItemContainerTrait),
+//                 Trait = TypeManager.GetTypeIndex<ItemContainerTrait>(),
 //                 ValueString = new NativeString64("test"),
 //             };
 //             var node = new Node(state, new NativeString64("route"), 0, 1);
@@ -110,7 +110,7 @@
 //             var state = new State
 //             {
 //                 Target = _agentEntity,
-//                 Trait = typeof(GatherStationTrait),
+//                 Trait = TypeManager.GetTypeIndex<GatherStationTrait>(),
 //                 ValueString = new NativeString64("test"),
 //             };
 //             var node = new Node(state, new NativeString64("route"), 0, 1);

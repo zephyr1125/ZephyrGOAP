@@ -17,8 +17,8 @@ namespace Zephyr.GOAP.Tests
         {
             _aStates = new StateGroup(2, Allocator.Temp)
             {
-                new State {Target = new Entity{Index = 1, Version = 0}, Trait = typeof(MockTraitA)},
-                new State {Target = new Entity{Index = 1, Version = 0}, Trait = typeof(MockTraitB), Amount = 3}
+                new State {Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitA>()},
+                new State {Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitB>(), Amount = 3}
             };
 
             _bStates = new StateGroup(1, Allocator.Temp);
@@ -37,13 +37,13 @@ namespace Zephyr.GOAP.Tests
         [Test]
         public void OR_NonCountable_Exist_Nothing()
         {
-            _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0}, Trait = typeof(MockTraitA)});
+            _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitA>()});
             _aStates.OR(_bStates);
             
             Assert.AreEqual(2, _aStates.Length());
-            Assert.AreEqual(new State {Target = new Entity{Index = 1, Version = 0}, Trait = typeof(MockTraitA)},
+            Assert.AreEqual(new State {Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitA>()},
                 _aStates[0]);
-            Assert.AreEqual(new State {Target = new Entity{Index = 1, Version = 0}, Trait = typeof(MockTraitB), Amount = 3},
+            Assert.AreEqual(new State {Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitB>(), Amount = 3},
                 _aStates[1]);
         }
 
@@ -52,7 +52,7 @@ namespace Zephyr.GOAP.Tests
          public void OR_NonCountable_NotExist_Append()
          {
              var state = new State
-                 {Target = new Entity {Index = 2, Version = 0}, Trait = typeof(MockTraitA)};
+                 {Target = new Entity {Index = 2, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitA>()};
              _bStates.Add(state);
              _aStates.OR(_bStates);
              
@@ -64,7 +64,7 @@ namespace Zephyr.GOAP.Tests
         [Test]
         public void OR_Countable_Same_AddAmount()
         {
-            _bStates.Add(new State{Target = new Entity{Index = 1, Version = 0}, Trait = typeof(MockTraitB), Amount = 2});
+            _bStates.Add(new State{Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitB>(), Amount = 2});
             
             _aStates.OR(_bStates);
             Assert.AreEqual(2, _aStates.Length());
@@ -76,7 +76,7 @@ namespace Zephyr.GOAP.Tests
         [Test]
         public void OR_BelongTo_Append()
         {
-            _bStates.Add(new State{Trait = typeof(MockTraitB), Amount = 2});
+            _bStates.Add(new State{Trait = TypeManager.GetTypeIndex<MockTraitB>(), Amount = 2});
             
             _aStates.OR(_bStates);
             Assert.AreEqual(3, _aStates.Length());
@@ -87,9 +87,9 @@ namespace Zephyr.GOAP.Tests
         [Test]
         public void OR_MultiStates()
         {
-            var equalState = new State {Target = new Entity{Index = 1, Version = 0}, Trait = typeof(MockTraitA)};
-            var newState = new State {Target = new Entity {Index = 2, Version = 0}, Trait = typeof(MockTraitA)};
-            var sameState = new State{Target = new Entity{Index = 1, Version = 0}, Trait = typeof(MockTraitB), Amount = 2};
+            var equalState = new State {Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitA>()};
+            var newState = new State {Target = new Entity {Index = 2, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitA>()};
+            var sameState = new State{Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitB>(), Amount = 2};
             _bStates.Add(equalState);
             _bStates.Add(newState);
             _bStates.Add(sameState);
@@ -108,28 +108,28 @@ namespace Zephyr.GOAP.Tests
         [Test]
         public void AND_NonCountable_Equal_RemoveLeft()
         {
-            _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0}, Trait = typeof(MockTraitA)});
+            _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitA>()});
             
             _aStates.AND(_bStates);
             Assert.AreEqual(1, _aStates.Length());
-            Assert.AreEqual(typeof(MockTraitB), _aStates[0].Trait);
+            Assert.AreEqual(TypeManager.GetTypeIndex<MockTraitB>(), _aStates[0].Trait);
         }
 
         //右 belong to 左，移除左侧
         [Test]
         public void AND_NonCountable_BelongTo_RemoveLeft()
         {
-            _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0}, Trait = typeof(MockTraitA), ValueString = "a"});
+            _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitA>(), ValueString = "a"});
             
             _aStates.AND(_bStates);
             Assert.AreEqual(1, _aStates.Length());
-            Assert.AreEqual(typeof(MockTraitB), _aStates[0].Trait);
+            Assert.AreEqual(TypeManager.GetTypeIndex<MockTraitB>(), _aStates[0].Trait);
         }
         
         //可数左右Same的，减少左侧数量
         [Test]
         public void AND_Countable_Same_ReduceLeft() {
-            _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0}, Trait = typeof(MockTraitB), Amount = 1});
+            _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitB>(), Amount = 1});
             
             _aStates.AND(_bStates);
             Assert.AreEqual(2, _aStates.Length());
@@ -141,7 +141,7 @@ namespace Zephyr.GOAP.Tests
         public void AND_Countable_BelongTo_ReduceLeft()
         {
             _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0},
-                Trait = typeof(MockTraitB), ValueString = "b", Amount = 1});
+                Trait = TypeManager.GetTypeIndex<MockTraitB>(), ValueString = "b", Amount = 1});
             
             _aStates.AND(_bStates);
             Assert.AreEqual(2, _aStates.Length());
@@ -152,9 +152,9 @@ namespace Zephyr.GOAP.Tests
         [Test]
         public void AND_Countable_MultiFit_ReduceLeft()
         {
-            _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0}, Trait = typeof(MockTraitB), Amount = 1});
+            _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitB>(), Amount = 1});
             _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0},
-                Trait = typeof(MockTraitB), ValueString = "b", Amount = 1});
+                Trait = TypeManager.GetTypeIndex<MockTraitB>(), ValueString = "b", Amount = 1});
             
             _aStates.AND(_bStates);
             Assert.AreEqual(2, _aStates.Length());
@@ -166,19 +166,19 @@ namespace Zephyr.GOAP.Tests
         public void AND_Zero_Countable_RemoveState()
         {
             _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0},
-                Trait = typeof(MockTraitB), ValueString = "b", Amount = 3});
+                Trait = TypeManager.GetTypeIndex<MockTraitB>(), ValueString = "b", Amount = 3});
             
             _aStates.AND(_bStates);
             Assert.AreEqual(1, _aStates.Length());
-            Assert.AreEqual(typeof(MockTraitA), _aStates[0].Trait);
+            Assert.AreEqual(TypeManager.GetTypeIndex<MockTraitA>(), _aStates[0].Trait);
         }
 
         //多个state的整体测试
         [Test]
         public void AND_MultiState()
         {
-            var belongState = new State {Target = new Entity{Index = 1, Version = 0}, Trait = typeof(MockTraitA), ValueString = "b"};
-            var sameState = new State{Target = new Entity{Index = 1, Version = 0}, Trait = typeof(MockTraitB), Amount = 2};
+            var belongState = new State {Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitA>(), ValueString = "b"};
+            var sameState = new State{Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitB>(), Amount = 2};
             _bStates.Add(belongState);
             _bStates.Add(sameState);
             
@@ -193,7 +193,7 @@ namespace Zephyr.GOAP.Tests
         [Test]
         public void AND_OutputOtherRemovedStates()
         {
-            var sameState = new State{Target = new Entity{Index = 1, Version = 0}, Trait = typeof(MockTraitB), Amount = 2};
+            var sameState = new State{Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitB>(), Amount = 2};
             _bStates.Add(sameState);
 
             var removedOther = _aStates.AND(_bStates, true);
@@ -206,7 +206,7 @@ namespace Zephyr.GOAP.Tests
         [Test]
         public void AND_OutputOtherReducedAmount()
         {
-            var sameState = new State{Target = new Entity{Index = 1, Version = 0}, Trait = typeof(MockTraitB), Amount = 5};
+            var sameState = new State{Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitB>(), Amount = 5};
             _bStates.Add(sameState);
 
             var removedOther = _aStates.AND(_bStates, true);

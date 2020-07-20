@@ -19,7 +19,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             var staminaState = new State
             {
                 Target = agentEntity,
-                Trait = ComponentType.ReadOnly<StaminaTrait>(),
+                Trait = TypeManager.GetTypeIndex<StaminaTrait>(),
             };
 
             return targetRequire.BelongTo(staminaState);
@@ -33,12 +33,12 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             //setting为有食物的餐桌
             var diningTableTemplate = new State
             {
-                Trait = ComponentType.ReadOnly<DiningTableTrait>(),
+                Trait = TypeManager.GetTypeIndex<DiningTableTrait>(),
             };
             var tables =
                 currentStates.GetBelongingStates(diningTableTemplate, Allocator.Temp);
             var itemNames =
-                Utils.GetItemNamesOfSpecificTrait(ComponentType.ReadOnly<FoodTrait>(),
+                Utils.GetItemNamesOfSpecificTrait(TypeManager.GetTypeIndex<FoodTrait>(),
                     stackData.ItemNames, Allocator.Temp);
             //todo 此处考虑直接寻找最近的餐桌以避免setting过于膨胀
             for (var tableId = 0; tableId < tables.Length(); tableId++)
@@ -50,7 +50,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                     var foodOnTableTemplate = new State
                     {
                         Target = table.Target,
-                        Trait = ComponentType.ReadOnly<ItemDestinationTrait>(),
+                        Trait = TypeManager.GetTypeIndex<ItemDestinationTrait>(),
                         ValueString = itemName,
                         Amount = 1
                     };

@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using Unity.Entities;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.ActionNodeState;
 using Zephyr.GOAP.Component.AgentState;
@@ -35,7 +36,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExecute
             bufferStates.Add(new State
             {
                 Target = _agentEntity,
-                Trait = typeof(WanderTrait),
+                Trait = TypeManager.GetTypeIndex<WanderTrait>(),
             });
         }
 

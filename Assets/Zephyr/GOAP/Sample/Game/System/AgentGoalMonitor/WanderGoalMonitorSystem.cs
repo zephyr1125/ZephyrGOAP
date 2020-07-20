@@ -26,7 +26,7 @@ namespace Zephyr.GOAP.Sample.Game.System.AgentGoalMonitor
                 AddGoal(entity, new State
                 {
                     Target = entity,
-                    Trait = typeof(WanderTrait),
+                    Trait = TypeManager.GetTypeIndex<WanderTrait>(),
                 }, Time.ElapsedTime);
             });
         }

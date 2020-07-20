@@ -21,7 +21,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             var stateFilter = new State
             {
                 Target = agentEntity,
-                Trait = ComponentType.ReadOnly<RawTransferTrait>(),
+                Trait = TypeManager.GetTypeIndex<RawTransferTrait>(),
             };
             return targetRequire.BelongTo(stateFilter);
         }
@@ -50,7 +50,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
         {
             var state = setting;
             state.Target = Entity.Null;
-            state.Trait = ComponentType.ReadOnly<RawSourceTrait>();
+            state.Trait = TypeManager.GetTypeIndex<RawSourceTrait>();
             preconditions.Add(state);
         }
 

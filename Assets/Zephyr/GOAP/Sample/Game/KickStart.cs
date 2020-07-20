@@ -37,10 +37,10 @@ namespace Zephyr.GOAP.Sample.Game
                 {
                     // Target = cookerEntity,
                     // Position = entityManager.GetComponentData<Translation>(cookerEntity).Value,
-                    // Trait = typeof(ItemSourceTrait),
+                    // Trait = TypeManager.GetTypeIndex<ItemSourceTrait>(),
                     // ValueString = "feast"
                     Target = agentAEntity,
-                    Trait = typeof(StaminaTrait),
+                    Trait = TypeManager.GetTypeIndex<StaminaTrait>(),
                 };
                 
                 entityManager.AddComponentData(goalEntity, new Goal

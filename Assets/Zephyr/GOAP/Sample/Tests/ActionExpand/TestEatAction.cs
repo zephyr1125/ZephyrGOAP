@@ -28,7 +28,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             SetGoal(new State
             {
                 Target = _agentEntity,
-                Trait = ComponentType.ReadOnly<StaminaTrait>(),
+                Trait = TypeManager.GetTypeIndex<StaminaTrait>(),
             });
             
             //给BaseStates写入假环境数据：世界里有餐桌，餐桌上有食物
@@ -36,12 +36,12 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             buffer.Add(new State
             {
                 Target = _diningTableEntity,
-                Trait = ComponentType.ReadOnly<DiningTableTrait>(),
+                Trait = TypeManager.GetTypeIndex<DiningTableTrait>(),
             });
             buffer.Add(new State
             {
                 Target = _diningTableEntity,
-                Trait = ComponentType.ReadOnly<ItemDestinationTrait>(),
+                Trait = TypeManager.GetTypeIndex<ItemDestinationTrait>(),
                 ValueString = "raw_apple",
                 Amount = 1
             });
@@ -66,7 +66,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             buffer.Add(new State
             {
                 Target = _diningTableEntity,
-                Trait = typeof(ItemDestinationTrait),
+                Trait = TypeManager.GetTypeIndex<ItemDestinationTrait>(),
                 ValueString = "roast_apple",
                 Amount = 1
             });

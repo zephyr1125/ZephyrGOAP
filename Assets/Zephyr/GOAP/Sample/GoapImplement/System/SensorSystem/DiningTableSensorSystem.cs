@@ -32,7 +32,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
                 {
                     Target = entity,
                     Position = translation.Value,
-                    Trait = typeof(DiningTableTrait),
+                    Trait = TypeManager.GetTypeIndex<DiningTableTrait>(),
                 });
             }
         }

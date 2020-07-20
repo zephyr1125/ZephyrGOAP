@@ -23,7 +23,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                 
             var itemSourceState = new State
             {
-                Trait = ComponentType.ReadOnly<ItemSourceTrait>(),
+                Trait = TypeManager.GetTypeIndex<ItemSourceTrait>(),
             };
             //只针对物品源需求的goal state
             if (!targetRequire.BelongTo(itemSourceState)) return false;
@@ -35,7 +35,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                 
             //如果没有指定物品名，则必须指定FoodTrait
             if (targetRequire.ValueString.Equals(default) &&
-                targetRequire.ValueTrait != ComponentType.ReadOnly<FoodTrait>()) return false;
+                targetRequire.ValueTrait != TypeManager.GetTypeIndex<FoodTrait>()) return false;
                 
             return true;
         }
@@ -51,8 +51,8 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
         {
             var foodRecipeState = new State
             {
-                Trait = ComponentType.ReadOnly<RecipeOutputTrait>(),
-                ValueTrait = ComponentType.ReadOnly<CookerTrait>(),
+                Trait = TypeManager.GetTypeIndex<RecipeOutputTrait>(),
+                ValueTrait = TypeManager.GetTypeIndex<CookerTrait>(),
                 ValueString = name
             };
             return !currentStates.GetBelongingState(foodRecipeState).Equals(default);
@@ -66,7 +66,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             if (targetRequire.Target == Entity.Null)
             {
                 //首先寻找最近的Cooker，如果没有则没有setting
-                var cookerState = new State {Trait = ComponentType.ReadOnly<CookerTrait>()};
+                var cookerState = new State {Trait = TypeManager.GetTypeIndex<CookerTrait>()};
                 var cookerStates = currentStates.GetBelongingStates(cookerState, Allocator.Temp);
                 if (cookerStates.Length() <= 0)
                 {
@@ -99,7 +99,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                 //如果指定了物品名，那么只有一种setting，也就是targetState本身
                 settings.Add(targetRequire);
             }else if (targetRequire.ValueString.Equals(default) &&
-                      targetRequire.ValueTrait == ComponentType.ReadOnly<FoodTrait>())
+                      targetRequire.ValueTrait == TypeManager.GetTypeIndex<FoodTrait>())
             {
                 //如果targetState是类别范围，需要对每种符合范围的物品做setting
                 //todo 此处应查询define获得所有符合范围的物品名，示例里暂时从工具方法获取
@@ -138,8 +138,8 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             //cooker有其生产所需原料
             var targetRecipeInputFilter = new State
             {
-                Trait = ComponentType.ReadOnly<RecipeOutputTrait>(),
-                ValueTrait = ComponentType.ReadOnly<CookerTrait>(),
+                Trait = TypeManager.GetTypeIndex<RecipeOutputTrait>(),
+                ValueTrait = TypeManager.GetTypeIndex<CookerTrait>(),
                 ValueString = setting.ValueString,
                 Amount = setting.Amount
             };
@@ -150,7 +150,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             {
                 Target = setting.Target,    //Target仍是同一设施
                 Position = setting.Position,
-                Trait = ComponentType.ReadOnly<ItemDestinationTrait>(),
+                Trait = TypeManager.GetTypeIndex<ItemDestinationTrait>(),
                 ValueString = inputs[0].ValueString,
                 Amount = inputs[0].Amount
             });
@@ -160,7 +160,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                 {
                     Target = setting.Target,
                     Position = setting.Position,
-                    Trait = ComponentType.ReadOnly<ItemDestinationTrait>(),
+                    Trait = TypeManager.GetTypeIndex<ItemDestinationTrait>(),
                     ValueString = inputs[1].ValueString,
                     Amount = inputs[1].Amount
                 });

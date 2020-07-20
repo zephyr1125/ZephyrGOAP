@@ -51,19 +51,19 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExecute
             bufferStates.Add(new State
             {
                 Target = _diningTableEntity,
-                Trait = typeof(DiningTableTrait),
+                Trait = TypeManager.GetTypeIndex<DiningTableTrait>(),
             });
             bufferStates.Add(new State
             {
                 Target = _diningTableEntity,
-                Trait = typeof(ItemDestinationTrait),
+                Trait = TypeManager.GetTypeIndex<ItemDestinationTrait>(),
                 ValueString = "roast_apple",
             });
             //effect
             bufferStates.Add(new State
             {
                 Target = _agentEntity,
-                Trait = typeof(StaminaTrait),
+                Trait = TypeManager.GetTypeIndex<StaminaTrait>(),
             });
         }
 

@@ -55,7 +55,7 @@ namespace Zephyr.GOAP.Sample.Tests.SensorSystem
             Assert.AreEqual(new State
             {
                 Target = _containerEntity,
-                Trait = typeof(ItemContainerTrait),
+                Trait = TypeManager.GetTypeIndex<ItemContainerTrait>(),
                 ValueString = "test"
             }, buffer[0]);
         }
