@@ -1,4 +1,5 @@
 using System;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -10,7 +11,7 @@ using Zephyr.GOAP.Struct;
 
 namespace Zephyr.GOAP.System.GoapPlanningJob
 {
-    // [BurstCompile]
+    [BurstCompile]
     public struct PathFindingJob : IJob
     {
         public int StartNodeId, GoalNodeId;
@@ -180,22 +181,22 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             }
                 
             //Log Result
-            var success = true;
-            var log = new NativeString32("Path finding success");
-            if (!openSet.HasNext() && currentHash != goalId)
-            {
-                success = false;
-                log = "Out of openset";
-            }
-            if (_iterations >= IterationLimit && currentHash != goalId)
-            {
-                success = false;
-                log = "Iteration limit reached";
-            }else if (_pathNodeCount >= PathNodeLimit && !nodeId.Equals(startId))
-            {
-                success = false;
-                log = "Step limit reached";
-            }
+            // var success = true;
+            // var log = new NativeString32("Path finding success");
+            // if (!openSet.HasNext() && currentHash != goalId)
+            // {
+            //     success = false;
+            //     log = "Out of openset";
+            // }
+            // if (_iterations >= IterationLimit && currentHash != goalId)
+            // {
+            //     success = false;
+            //     log = "Iteration limit reached";
+            // }else if (_pathNodeCount >= PathNodeLimit && !nodeId.Equals(startId))
+            // {
+            //     success = false;
+            //     log = "Step limit reached";
+            // }
                 
             //Clear
             openSet.Dispose();
@@ -240,8 +241,9 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     var childHash = childrenHash[childId];
                     var childEffects = NodeGraph.GetEffects(NodeGraph[childHash],
                         Allocator.Temp);
-                    foreach (var childEffect in childEffects)
+                    for (var effectId = 0; effectId < childEffects.Length(); effectId++)
                     {
+                        var childEffect = childEffects[effectId];
                         if (!childEffect.BelongTo(precondition)) continue;
                         childSpecificEffect = childEffect;
                         break;
