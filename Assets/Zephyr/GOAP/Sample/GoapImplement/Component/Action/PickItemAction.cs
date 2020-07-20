@@ -13,11 +13,6 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
     {
         public int Level;
         
-        public NativeString32 GetName()
-        {
-            return StringTable.Instance().PickItemActionName;
-        }
-        
         public bool CheckTargetRequire(State targetRequire, Entity agentEntity,
             [ReadOnly]StackData stackData, [ReadOnly]StateGroup currentStates)
         {
@@ -46,7 +41,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                 //todo 此处应查询define获得所有符合范围的物品名，示例里暂时从工具方法获取
                 var itemNames =
                     Utils.GetItemNamesOfSpecificTrait(targetRequire.ValueTrait,
-                        Allocator.Temp);
+                        stackData.ItemNames, Allocator.Temp);
                 for (var i = 0; i < itemNames.Length; i++)
                 {
                     var state = targetRequire;

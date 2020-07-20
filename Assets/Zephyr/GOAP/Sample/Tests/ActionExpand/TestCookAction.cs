@@ -35,7 +35,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             {
                 Target = _cookerEntity,
                 Trait = typeof(ItemSourceTrait),
-                ValueString = StringTable.Instance().RoastPeachName,
+                ValueString = ItemNames.Instance().RoastPeachName,
                 Amount = 1
             });
             
@@ -51,7 +51,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             {
                 Target = _cookerEntity,
                 Trait = typeof(ItemDestinationTrait),
-                ValueString = StringTable.Instance().RawPeachName,
+                ValueString = ItemNames.Instance().RawPeachName,
                 Amount = 1
             });
             var recipeSensorSystem = World.GetOrCreateSystem<RecipeSensorSystem>();
@@ -137,9 +137,9 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             var children = _debugger.GetChildren(_debugger.GoalNodeLog);
             Assert.AreEqual(3, children.Length);
             Assert.IsTrue(children.Any(nodeLog => nodeLog.preconditions.Any(
-                state => state.valueString.Equals(StringTable.Instance().RawPeachName.ToString()))));
+                state => state.valueString.Equals(ItemNames.Instance().RawPeachName.ToString()))));
             Assert.IsTrue(children.Any(nodeLog => nodeLog.preconditions.Any(
-                state => state.valueString.Equals(StringTable.Instance().RawAppleName.ToString()))));
+                state => state.valueString.Equals(ItemNames.Instance().RawAppleName.ToString()))));
         }
 
         [Test]
@@ -158,7 +158,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             {
                 Target = newCookerEntity,
                 Trait = typeof(ItemDestinationTrait),
-                ValueString = StringTable.Instance().RawPeachName,
+                ValueString = ItemNames.Instance().RawPeachName,
                 Amount = 1
             });
             
@@ -192,7 +192,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             {
                 Target = itemDestinationEntity,
                 Trait = typeof(ItemDestinationTrait),
-                ValueString = StringTable.Instance().RoastPeachName
+                ValueString = ItemNames.Instance().RoastPeachName
             };
             SetGoal(goal.Require);
             
@@ -202,7 +202,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
                 Target = itemSourceEntity,
                 Position = new float3(2,0,0),
                 Trait = typeof(ItemSourceTrait),
-                ValueString = StringTable.Instance().RoastPeachName
+                ValueString = ItemNames.Instance().RoastPeachName
             });
             
             _system.Update();

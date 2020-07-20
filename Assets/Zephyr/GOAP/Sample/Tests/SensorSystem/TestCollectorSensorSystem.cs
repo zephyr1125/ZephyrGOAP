@@ -41,7 +41,7 @@ namespace Zephyr.GOAP.Sample.Tests.SensorSystem
                 Target = _rawSourceEntity,
                 Position = new float3(5,0,0),
                 Trait = typeof(RawSourceTrait),
-                ValueString = StringTable.Instance().RawPeachName
+                ValueString = ItemNames.Instance().RawPeachName
             });
         }
 
@@ -63,7 +63,7 @@ namespace Zephyr.GOAP.Sample.Tests.SensorSystem
             {
                 Target = _collectorEntity,
                 Trait = typeof(ItemPotentialSourceTrait),
-                ValueString = StringTable.Instance().RawPeachName
+                ValueString = ItemNames.Instance().RawPeachName
             }, buffer[2]);
         }
         

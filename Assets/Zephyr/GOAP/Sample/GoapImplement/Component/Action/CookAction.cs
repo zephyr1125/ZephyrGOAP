@@ -14,11 +14,6 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
     public struct CookAction : IComponentData, IAction
     {
         public int Level;
-        
-        public NativeString32 GetName()
-        {
-            return StringTable.Instance().CookActionName;
-        }
 
         public bool CheckTargetRequire(State targetRequire, Entity agentEntity,
             [ReadOnly]StackData stackData, [ReadOnly]StateGroup currentStates)
@@ -110,7 +105,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                 //todo 此处应查询define获得所有符合范围的物品名，示例里暂时从工具方法获取
                 var itemNames =
                     Utils.GetItemNamesOfSpecificTrait(targetRequire.ValueTrait,
-                        Allocator.Temp);
+                        stackData.ItemNames, Allocator.Temp);
                 //还需要筛除不能被制作的item
                 for (var i = itemNames.Length - 1; i >= 0; i--)
                 {

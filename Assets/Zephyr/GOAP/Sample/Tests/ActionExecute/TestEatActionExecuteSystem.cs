@@ -85,7 +85,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExecute
             _system.EcbSystem.Update();
             EntityManager.CompleteAllJobs();
             
-            Assert.AreEqual(Sample.Utils.GetFoodStamina(StringTable.Instance().RoastAppleName), 
+            Assert.AreEqual(Sample.Utils.GetFoodStamina(ItemNames.Instance().RoastAppleName), 
                 EntityManager.GetComponentData<Stamina>(_agentEntity).Value);
         }
     }

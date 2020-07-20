@@ -14,11 +14,6 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
     public struct WanderAction : IComponentData, IAction
     {
         public int Level;
-        
-        public NativeString32 GetName()
-        {
-            return StringTable.Instance().WanderActionName;
-        }
 
         public bool CheckTargetRequire(State targetRequire, Entity agentEntity,
             [ReadOnly]StackData stackData, [ReadOnly]StateGroup currentStates)

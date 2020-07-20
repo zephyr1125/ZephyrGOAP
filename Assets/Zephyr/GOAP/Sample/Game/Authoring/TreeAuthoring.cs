@@ -16,8 +16,8 @@ namespace Zephyr.GOAP.Sample.Game.Authoring
         public string FruitName;
 
         private static string[] FruitNames = {
-            StringTable.Instance().RawAppleName.ToString(),
-            StringTable.Instance().RawPeachName.ToString()
+            ItemNames.Instance().RawAppleName.ToString(),
+            ItemNames.Instance().RawPeachName.ToString()
         };
         
         public void Convert(Entity entity, EntityManager dstManager,

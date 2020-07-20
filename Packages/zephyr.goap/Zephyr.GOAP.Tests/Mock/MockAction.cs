@@ -7,9 +7,9 @@ namespace Zephyr.GOAP.Tests.Mock
 {
     public struct MockAction : IComponentData, IAction
     {
-        public NativeString32 GetName()
+        public int GetName()
         {
-            return "MockAction";
+            return "MockAction".GetHashCode();
         }
 
         public bool CheckTargetRequire(State targetRequire, Entity agentEntity

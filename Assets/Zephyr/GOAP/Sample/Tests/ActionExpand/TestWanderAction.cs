@@ -37,7 +37,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             {
                 Target = _agentEntity,
                 Trait = typeof(ItemContainerTrait),
-                ValueString = StringTable.Instance().RawPeachName,
+                ValueString = ItemNames.Instance().RawPeachName,
             });
             buffer.Add(new State
             {

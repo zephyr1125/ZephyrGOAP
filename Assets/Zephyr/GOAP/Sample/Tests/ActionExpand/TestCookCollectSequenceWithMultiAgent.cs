@@ -100,14 +100,14 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
                 Target = _collector0Entity,
                 Position = new float3(4, 0, 0),
                 Trait = ComponentType.ReadOnly<ItemPotentialSourceTrait>(),
-                ValueString = StringTable.Instance().RawAppleName
+                ValueString = ItemNames.Instance().RawAppleName
             });
             buffer.Add(new State
             {
                 Target = _collector0Entity,
                 Position = new float3(4, 0, 0),
                 Trait = ComponentType.ReadOnly<ItemPotentialSourceTrait>(),
-                ValueString = StringTable.Instance().RawPeachName
+                ValueString = ItemNames.Instance().RawPeachName
             });
             
             // buffer.Add(new State
@@ -136,7 +136,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
                 Target = _rawAppleEntity,
                 Position = new float3(5,0,0),
                 Trait = ComponentType.ReadOnly<RawSourceTrait>(),
-                ValueString = StringTable.Instance().RawAppleName,
+                ValueString = ItemNames.Instance().RawAppleName,
                 Amount = 1
             });
             buffer.Add(new State
@@ -144,7 +144,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
                 Target = _rawPeachEntity,
                 Position = new float3(6,0,0),
                 Trait = ComponentType.ReadOnly<RawSourceTrait>(),
-                ValueString = StringTable.Instance().RawPeachName,
+                ValueString = ItemNames.Instance().RawPeachName,
                 Amount = 1
             });
 

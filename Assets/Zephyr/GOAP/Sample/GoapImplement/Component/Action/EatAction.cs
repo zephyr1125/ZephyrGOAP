@@ -12,11 +12,6 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
     public struct EatAction : IComponentData, IAction
     {
         public int Level;
-        
-        public NativeString32 GetName()
-        {
-            return StringTable.Instance().EatActionName;
-        }
 
         public bool CheckTargetRequire(State targetRequire, Entity agentEntity,
             [ReadOnly]StackData stackData, [ReadOnly]StateGroup currentStates)
@@ -44,7 +39,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                 currentStates.GetBelongingStates(diningTableTemplate, Allocator.Temp);
             var itemNames =
                 Utils.GetItemNamesOfSpecificTrait(ComponentType.ReadOnly<FoodTrait>(),
-                    Allocator.Temp);
+                    stackData.ItemNames, Allocator.Temp);
             //todo 此处考虑直接寻找最近的餐桌以避免setting过于膨胀
             for (var tableId = 0; tableId < tables.Length(); tableId++)
             {
@@ -87,7 +82,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
         {
             //由食物决定
             //todo 示例项目通过工具方法获取食物reward，实际应从define取
-            return Utils.GetFoodReward(setting.ValueString);
+            return Utils.GetFoodReward(setting.ValueString, stackData.ItemNames);
         }
 
         public float GetExecuteTime(State targetRequire, State setting, [ReadOnly]StackData stackData)

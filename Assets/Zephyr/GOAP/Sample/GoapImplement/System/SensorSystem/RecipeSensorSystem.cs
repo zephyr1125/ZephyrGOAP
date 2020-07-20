@@ -22,13 +22,13 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
             //存储recipe这样复杂state的折中方案：
             //每个recipe以1个output+2个input的方式保存，占用连续的3个state
             //对于不需要第二个原料的recipe,其第二个input为空state
-            AddRecipeState(buffer, StringTable.Instance().RoastPeachName, 1,
-                StringTable.Instance().RawPeachName, 1);
-            AddRecipeState(buffer, StringTable.Instance().RoastAppleName, 1,
-                StringTable.Instance().RawAppleName, 1);
-            AddRecipeState(buffer, StringTable.Instance().FeastName, 1,
-                StringTable.Instance().RawAppleName, 1,
-                StringTable.Instance().RawPeachName, 1);
+            AddRecipeState(buffer, ItemNames.Instance().RoastPeachName, 1,
+                ItemNames.Instance().RawPeachName, 1);
+            AddRecipeState(buffer, ItemNames.Instance().RoastAppleName, 1,
+                ItemNames.Instance().RawAppleName, 1);
+            AddRecipeState(buffer, ItemNames.Instance().FeastName, 1,
+                ItemNames.Instance().RawAppleName, 1,
+                ItemNames.Instance().RawPeachName, 1);
         }
 
         /// <summary>

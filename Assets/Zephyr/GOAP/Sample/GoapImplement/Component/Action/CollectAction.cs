@@ -13,11 +13,6 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
     public struct CollectAction : IComponentData, IAction
     {
         public int Level;
-        
-        public NativeString32 GetName()
-        {
-            return StringTable.Instance().CollectActionName;
-        }
 
         public bool CheckTargetRequire(State targetRequire, Entity agentEntity,
             [ReadOnly]StackData stackData, [ReadOnly]StateGroup currentStates)

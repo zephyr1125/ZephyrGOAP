@@ -36,7 +36,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             SetGoal(new State{
                 Target = _itemDestinationEntity,
                 Trait = typeof(ItemDestinationTrait),
-                ValueString = StringTable.Instance().RawPeachName
+                ValueString = ItemNames.Instance().RawPeachName
             });
             
             //给BaseStates写入假环境数据：世界里有collector和collector已有原料
@@ -51,14 +51,14 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             {
                 Target = _collectorEntity,
                 Trait = typeof(ItemPotentialSourceTrait),
-                ValueString = StringTable.Instance().RawPeachName,
+                ValueString = ItemNames.Instance().RawPeachName,
                 Amount = 1
             });
             buffer.Add(new State
             {
                 Target = _collectorEntity,
                 Trait = typeof(RawDestinationTrait),
-                ValueString = StringTable.Instance().RawPeachName,
+                ValueString = ItemNames.Instance().RawPeachName,
                 Amount = 1
             });
         }
@@ -121,13 +121,13 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             {
                 Target = newCollectorEntity,
                 Trait = typeof(ItemPotentialSourceTrait),
-                ValueString = StringTable.Instance().RawPeachName,
+                ValueString = ItemNames.Instance().RawPeachName,
             });
             buffer.Add(new State
             {
                 Target = newCollectorEntity,
                 Trait = typeof(RawDestinationTrait),
-                ValueString = StringTable.Instance().RawPeachName
+                ValueString = ItemNames.Instance().RawPeachName
             });
             
             _system.Update();
@@ -155,7 +155,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
                 Target = itemSourceEntity,
                 Position = new float3(2,0,0),
                 Trait = typeof(ItemSourceTrait),
-                ValueString = StringTable.Instance().RawPeachName,
+                ValueString = ItemNames.Instance().RawPeachName,
                 Amount = 1
             });
             

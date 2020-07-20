@@ -1,7 +1,6 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
-using UnityEngine;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Sample.GoapImplement;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
@@ -41,25 +40,26 @@ namespace Zephyr.GOAP.Sample
 
             return result;
         }
-        
+
         /// <summary>
         /// 示例用的方法，根据trait获取所有对应物品名，实际应从define获取
         /// </summary>
         /// <param name="trait"></param>
+        /// <param name="itemNames"></param>
         /// <param name="allocator"></param>
         /// <returns></returns>
         public static NativeList<NativeString32> GetItemNamesOfSpecificTrait(ComponentType trait,
-            Allocator allocator)
+            NativeHashMap<int, NativeString32> itemNames, Allocator allocator)
         {
             var result = new NativeList<NativeString32>(allocator);
             
             if (trait.Equals(ComponentType.ReadOnly<FoodTrait>()))
             {
-                result.Add(StringTable.Instance().RawPeachName);
-                result.Add(StringTable.Instance().RoastPeachName);
-                result.Add(StringTable.Instance().RawAppleName);
-                result.Add(StringTable.Instance().RoastAppleName);
-                result.Add(StringTable.Instance().FeastName);
+                result.Add(itemNames[(int)ItemName.RawPeach]);
+                result.Add(itemNames[(int)ItemName.RoastPeach]);
+                result.Add(itemNames[(int)ItemName.RawApple]);
+                result.Add(itemNames[(int)ItemName.RoastApple]);
+                result.Add(itemNames[(int)ItemName.Feast]);
             }
 
             return result;
@@ -70,32 +70,34 @@ namespace Zephyr.GOAP.Sample
         public const float RoastPeachStamina = 0.4f;
         public const float RoastAppleStamina = 0.5f;
         public const float FeastStamina = 2;
-        
+
         /// <summary>
         /// 示例用的方法，获取不同食物的食用reward
         /// </summary>
         /// <param name="foodName"></param>
+        /// <param name="itemNames"></param>
         /// <returns></returns>
-        public static float GetFoodReward(NativeString32 foodName)
+        public static float GetFoodReward(NativeString32 foodName,
+            NativeHashMap<int, NativeString32> itemNames)
         {
             var plus = 10;
-            if (foodName.Equals(StringTable.Instance().RawPeachName))
+            if (foodName.Equals(itemNames[(int)ItemName.RawPeach]))
             {
                 return RawPeachStamina*plus;
             }
-            if (foodName.Equals(StringTable.Instance().RoastPeachName))
+            if (foodName.Equals(itemNames[(int)ItemName.RoastPeach]))
             {
                 return RoastPeachStamina*plus;
             }
-            if (foodName.Equals(StringTable.Instance().RawAppleName))
+            if (foodName.Equals(itemNames[(int)ItemName.RawApple]))
             {
                 return RawAppleStamina*plus;
             }
-            if (foodName.Equals(StringTable.Instance().RoastAppleName))
+            if (foodName.Equals(itemNames[(int)ItemName.RoastApple]))
             {
                 return RoastAppleStamina*plus;
             }
-            if (foodName.Equals(StringTable.Instance().FeastName))
+            if (foodName.Equals(itemNames[(int)ItemName.Feast]))
             {
                 return FeastStamina*plus;
             }
@@ -104,23 +106,23 @@ namespace Zephyr.GOAP.Sample
         
         public static float GetFoodStamina(NativeString32 foodName)
         {
-            if (foodName.Equals(StringTable.Instance().RawPeachName))
+            if (foodName.Equals(ItemNames.Instance().RawPeachName))
             {
                 return RawPeachStamina;
             }
-            if (foodName.Equals(StringTable.Instance().RoastPeachName))
+            if (foodName.Equals(ItemNames.Instance().RoastPeachName))
             {
                 return RoastPeachStamina;
             }
-            if (foodName.Equals(StringTable.Instance().RawAppleName))
+            if (foodName.Equals(ItemNames.Instance().RawAppleName))
             {
                 return RawAppleStamina;
             }
-            if (foodName.Equals(StringTable.Instance().RoastAppleName))
+            if (foodName.Equals(ItemNames.Instance().RoastAppleName))
             {
                 return RoastAppleStamina;
             }
-            if (foodName.Equals(StringTable.Instance().FeastName))
+            if (foodName.Equals(ItemNames.Instance().FeastName))
             {
                 return FeastStamina;
             }

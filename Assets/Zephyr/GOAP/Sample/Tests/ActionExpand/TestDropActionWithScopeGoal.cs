@@ -41,13 +41,13 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             
             Assert.AreEqual(5, children.Length);
             Assert.IsTrue(children.Any(
-                nodeLog => nodeLog.requires[0].valueString.Equals(StringTable.Instance().RawAppleName.ToString())));
+                nodeLog => nodeLog.requires[0].valueString.Equals(ItemNames.Instance().RawAppleName.ToString())));
             Assert.IsTrue(children.Any(
-                nodeLog => nodeLog.requires[0].valueString.Equals(StringTable.Instance().RoastAppleName.ToString())));
+                nodeLog => nodeLog.requires[0].valueString.Equals(ItemNames.Instance().RoastAppleName.ToString())));
             Assert.IsTrue(children.Any(
-                nodeLog => nodeLog.requires[0].valueString.Equals(StringTable.Instance().RawPeachName.ToString())));
+                nodeLog => nodeLog.requires[0].valueString.Equals(ItemNames.Instance().RawPeachName.ToString())));
             Assert.IsTrue(children.Any(
-                nodeLog => nodeLog.requires[0].valueString.Equals(StringTable.Instance().RoastPeachName.ToString())));
+                nodeLog => nodeLog.requires[0].valueString.Equals(ItemNames.Instance().RoastPeachName.ToString())));
         }
     }
 }

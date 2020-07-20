@@ -14,11 +14,6 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
     {
         public int Level;
         
-        public NativeString32 GetName()
-        {
-            return StringTable.Instance().PickRawActionName;
-        }
-        
         public bool CheckTargetRequire(State targetRequire, Entity agentEntity,
             [ReadOnly]StackData stackData, [ReadOnly]StateGroup currentStates)
         {
