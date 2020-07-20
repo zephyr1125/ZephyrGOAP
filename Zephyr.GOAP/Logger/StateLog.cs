@@ -24,9 +24,9 @@ namespace Zephyr.GOAP.Logger
         {
             target = new EntityLog(entityManager, state.Target);
             position = state.Position;
-            if(state.Trait!=default)trait = state.Trait.ToString();
+            if(state.Trait!=default)trait = TypeManager.GetType(state.Trait).Name;
             valueString = state.ValueString.ToString();
-            if(state.ValueTrait!=default)valueTrait = state.ValueTrait.ToString();
+            if(state.ValueTrait!=default)valueTrait = TypeManager.GetType(state.ValueTrait).Name;
             isNegative = state.IsNegative;
             amount = state.Amount;
         }
