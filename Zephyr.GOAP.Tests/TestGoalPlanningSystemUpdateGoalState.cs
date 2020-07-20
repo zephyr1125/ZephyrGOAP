@@ -23,8 +23,8 @@
 //             var goalState = new State
 //             {
 //                 Target = _agentEntity,
-//                 Trait = typeof(ItemContainerTrait),
-//                 ValueTrait = typeof(FoodTrait),
+//                 Trait = TypeManager.GetTypeIndex<ItemContainerTrait>(),
+//                 ValueTrait = TypeManager.GetTypeIndex<FoodTrait>(),
 //             };
 //
 //             EntityManager.AddComponentData(_goalEntity, new Goal
@@ -46,13 +46,13 @@
 //             buffer.Add(new State
 //             {
 //                 Target = _agentEntity,
-//                 Trait = typeof(ItemContainerTrait),
+//                 Trait = TypeManager.GetTypeIndex<ItemContainerTrait>(),
 //                 ValueString = StringTable.Instance().RawPeachName,
 //             });
 //             buffer.Add(new State
 //             {
 //                 Target = new Entity{Index = 9, Version = 1},
-//                 Trait = typeof(CookerTrait),
+//                 Trait = TypeManager.GetTypeIndex<CookerTrait>(),
 //             });
 //             var recipeSensorSystem = World.GetOrCreateSystem<RecipeSensorSystem>();
 //             recipeSensorSystem.Update();

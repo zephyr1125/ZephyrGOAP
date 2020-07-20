@@ -18,13 +18,13 @@ namespace Zephyr.GOAP.Tests
             _requires0 = new StateGroup(1, Allocator.Temp){new State
             {
                 Target = Entity.Null,
-                Trait = typeof(MockTraitA),
+                Trait = TypeManager.GetTypeIndex<MockTraitA>(),
                 ValueString = "test",
             }};
             _requires1 = new StateGroup(1, Allocator.Temp){new State
             {
                 Target = Entity.Null,
-                Trait = typeof(MockTraitA),
+                Trait = TypeManager.GetTypeIndex<MockTraitA>(),
                 ValueString = "test",
             }};
         }
@@ -57,7 +57,7 @@ namespace Zephyr.GOAP.Tests
         {
             _requires1.Add(new State{
                 Target = Entity.Null,
-                Trait = typeof(MockTraitB),
+                Trait = TypeManager.GetTypeIndex<MockTraitB>(),
                 ValueString = "test",
             });
             

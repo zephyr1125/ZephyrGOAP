@@ -13,7 +13,7 @@ namespace Zephyr.GOAP.Tests
         [SetUp]
         public void SetUp()
         {
-            _aState = new State {Target = new Entity{Index = 1, Version = 0}, Trait = typeof(MockTraitA)};
+            _aState = new State {Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitA>()};
         }
 
         [Test]
@@ -32,7 +32,7 @@ namespace Zephyr.GOAP.Tests
         public void SameTo_BothCountable_DifferentAmount_True()
         {
             _aState.Amount = 1;
-            _bState = new State {Target = new Entity{Index = 1, Version = 0}, Trait = typeof(MockTraitA), Amount = 2};
+            _bState = new State {Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitA>(), Amount = 2};
 
             Assert.IsTrue(_aState.SameTo(_bState));
         }
@@ -43,14 +43,14 @@ namespace Zephyr.GOAP.Tests
         [Test]
         public void SameTo_CountableDifferent_False()
         {
-            _bState = new State {Target = new Entity{Index = 1, Version = 0}, Trait = typeof(MockTraitA), Amount = 3};
+            _bState = new State {Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitA>(), Amount = 3};
             Assert.IsFalse(_aState.SameTo(_bState));
         }
 
         [Test]
         public void Equal_AllEqual_True()
         {
-            _bState = new State {Target = new Entity{Index = 1, Version = 0}, Trait = typeof(MockTraitA)};
+            _bState = new State {Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitA>()};
             Assert.IsTrue(_aState.Equals(_bState));
         }
     }
