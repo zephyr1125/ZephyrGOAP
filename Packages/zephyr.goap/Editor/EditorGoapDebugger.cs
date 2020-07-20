@@ -84,5 +84,15 @@ namespace Zephyr.GOAP.Editor
         {
             // Debug.Log(log);
         }
+
+        public GoapLog GetLog()
+        {
+            return _goapLog;
+        }
+
+        public void SetWriteFile(bool isWriteFile)
+        {
+            //todo 尚不支持
+        }
     }
 }

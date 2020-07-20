@@ -137,7 +137,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
                 Position = new float3(5,0,0),
                 Trait = TypeManager.GetTypeIndex<RawSourceTrait>(),
                 ValueString = ItemNames.Instance().RawAppleName,
-                Amount = 1
+                Amount = 255
             });
             buffer.Add(new State
             {
@@ -145,7 +145,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
                 Position = new float3(6,0,0),
                 Trait = TypeManager.GetTypeIndex<RawSourceTrait>(),
                 ValueString = ItemNames.Instance().RawPeachName,
-                Amount = 1
+                Amount = 255
             });
 
             var recipeSensorSystem = World.GetOrCreateSystem<RecipeSensorSystem>();
@@ -174,5 +174,31 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             
             Debug.Log("Done");
         }
+        
+        
+        [TestCase(1000)]
+        public void PerformanceTest(int times)
+        {
+            float totalTime = 0;
+            
+            for (var i = 0; i < times; i++)
+            {
+                SetUp();
+                _system.Debugger.SetWriteFile(false);
+                
+                _system.Update();
+                _system.ECBSystem.Update();
+                EntityManager.CompleteAllJobs();
+                //第一次不算，因为有额外的编译时间
+                var time = float.Parse(_debugger.GetLog().results[0].timeCost);
+                if(i>0)totalTime += time;
+
+                TearDown();
+            }
+
+            var averageTime = totalTime / (times-1);
+            Debug.Log($"[Performance Test]Average Time = {averageTime}");
+        }
+
     }
 }

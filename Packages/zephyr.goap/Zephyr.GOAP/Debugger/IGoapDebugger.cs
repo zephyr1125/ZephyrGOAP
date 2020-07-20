@@ -1,6 +1,7 @@
 using Unity.Collections;
 using Unity.Entities;
 using Zephyr.GOAP.Component;
+using Zephyr.GOAP.Logger;
 using Zephyr.GOAP.Struct;
 
 namespace Zephyr.GOAP.Debugger
@@ -38,5 +39,9 @@ namespace Zephyr.GOAP.Debugger
         void LogWarning(string log);
 
         void LogPerformance(string log);
+
+        GoapLog GetLog();
+
+        void SetWriteFile(bool isWriteFile);
     }
 }
