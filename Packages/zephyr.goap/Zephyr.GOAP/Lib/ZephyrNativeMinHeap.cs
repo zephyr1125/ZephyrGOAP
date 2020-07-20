@@ -1,5 +1,6 @@
 using System;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 
 namespace Zephyr.GOAP.Lib
 {
@@ -8,7 +9,10 @@ namespace Zephyr.GOAP.Lib
     /// 所以我基于NativeList包装了一个伪MinHeap
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public struct ZephyrNativeMinHeap<T> : IDisposable where T : struct
+    [NativeContainerSupportsDeallocateOnJobCompletion]
+    [NativeContainerSupportsMinMaxWriteRestriction]
+    [NativeContainer]
+    public struct ZephyrNativeMinHeap<T> : IDisposable where T : struct,IEquatable<T>
     {
         private NativeList<MinHashNode<T>> _nodes;
 
