@@ -9,7 +9,7 @@ using Zephyr.GOAP.Struct;
 
 namespace Zephyr.GOAP.System.GoapPlanningJob
 {
-    // [BurstCompile]
+    [BurstCompile]
     public struct ActionExpandJob<T> : IJobParallelFor where T : struct, IAction
     {
         [ReadOnly]
@@ -48,6 +48,9 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         public NativeList<ZephyrValueTuple<int, int>>.ParallelWriter DeltaHashesWriter;
         
         public NativeHashMap<int, Node>.ParallelWriter NewlyCreatedNodesWriter;
+
+        [ReadOnly]
+        public NativeString32 ActionName;
 
         public int Iteration;
 
@@ -99,13 +102,13 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                             StackData, preconditions, out var subjectType, out var subjectId);
                         
                         var node = new Node(preconditions, effects, requires, deltas,
-                            action.GetName(), reward, time, Iteration, agentEntity, subjectType, subjectId);
+                            ActionName, reward, time, Iteration, agentEntity, subjectType, subjectId);
 
                         var nodeExisted = ExistedNodesHash.Contains(node.HashCode);
                         
                         AddRouteNode(expandingNode, node, nodeExisted, 
                             preconditions, effects, requires, deltas,
-                            expandingNode, action.GetName());
+                            expandingNode, ActionName);
                         NewlyCreatedNodesWriter.TryAdd(node.HashCode, node);
 
                         requires.Dispose();

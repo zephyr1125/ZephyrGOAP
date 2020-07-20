@@ -6,8 +6,6 @@ namespace Zephyr.GOAP.Component
 {
     public interface IAction
     {
-        NativeString32 GetName();
-        
         bool CheckTargetRequire(State targetRequire, Entity agentEntity, [ReadOnly]StackData stackData, [ReadOnly]StateGroup currentStates);
 
         StateGroup GetSettings(State targetRequire, Entity agentEntity, [ReadOnly]StackData stackData, [ReadOnly]StateGroup currentStates, Allocator allocator);

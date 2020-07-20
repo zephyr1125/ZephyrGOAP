@@ -654,6 +654,7 @@ namespace Zephyr.GOAP.System
                 RequireHashesWriter = requireHashesWriter,
                 DeltaHashesWriter = deltaHashesWriter,
                 NewlyCreatedNodesWriter = newlyCreatedNodesWriter,
+                ActionName = typeof(T).Name,
                 Iteration = iteration
             }.Schedule(
                 nodeAgentPairs.Length, nodeAgentPairs.Length, handle);
