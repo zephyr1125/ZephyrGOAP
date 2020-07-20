@@ -12,6 +12,7 @@ namespace Zephyr.GOAP.Tests.Debugger
 {
     public class TestGoapDebugger : IGoapDebugger, IDisposable
     {
+        private bool _isWriteFile = true;
         private GoapLog _goapLog;
 
         public void StartLog(EntityManager entityManager)
@@ -70,6 +71,8 @@ namespace Zephyr.GOAP.Tests.Debugger
 
         private void SaveToFile()
         {
+            if (!_isWriteFile) return;
+            
             var json = JsonUtility.ToJson(_goapLog);
 
             var path = "GoapTestLog/" + DateTime.Now.ToShortDateString();
@@ -104,9 +107,19 @@ namespace Zephyr.GOAP.Tests.Debugger
             // Debug.Log(log);
         }
 
+        public GoapLog GetLog()
+        {
+            return _goapLog;
+        }
+
         public void Dispose()
         {
             
+        }
+
+        public void SetWriteFile(bool isWriteFile)
+        {
+            _isWriteFile = isWriteFile;
         }
     }
 }
