@@ -96,11 +96,11 @@ namespace Zephyr.GOAP.Logger
             return target.Equals(state.Target) &&
                    (state.Trait == default
                        ? string.IsNullOrEmpty(trait)
-                       : trait.Equals(state.Trait.ToString())) &&
+                       : trait.Equals(TypeManager.GetType(state.Trait).Name)) &&
                    valueString.Equals(state.ValueString.ToString()) &&
                    (state.ValueTrait == default
                        ? string.IsNullOrEmpty(valueTrait)
-                       : valueTrait.Equals(state.ValueTrait.ToString())) &&
+                       : valueTrait.Equals(TypeManager.GetType(state.ValueTrait).Name)) &&
                    isNegative == state.IsNegative;
         }
     }
