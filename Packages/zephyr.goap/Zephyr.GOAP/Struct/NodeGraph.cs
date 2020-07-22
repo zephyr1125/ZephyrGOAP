@@ -463,6 +463,7 @@ namespace Zephyr.GOAP.Struct
             CleanDuplicateStates(_preconditionHashes, node);
             CleanDuplicateStates(_effectHashes, node);
             CleanDuplicateStates(_requireHashes, node);
+            CleanDuplicateStates(_deltaHashes, node);
         }
         
         private void CleanDuplicateStates(NativeList<ZephyrValueTuple<int, int>> container, Node node)
