@@ -159,6 +159,8 @@ namespace Zephyr.GOAP.System
             Debugger?.Log($"{nodes.Length} nodes in graph");
             nodes.Dispose();
 
+            Debugger?.SetPlanSuccess(foundPlan);
+            
             if (!foundPlan)
             {
                 //在展开阶段没有能够链接到current state的话，就没有找到规划，也就不用继续寻路了

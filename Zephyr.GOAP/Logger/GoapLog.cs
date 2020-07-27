@@ -105,6 +105,16 @@ namespace Zephyr.GOAP.Logger
         {
             _currentResult.SetRewardSum(rewardSum);
         }
+
+        public void SetPlanSuccess(bool isSuccess)
+        {
+            _currentResult.SetPlanSuccess(isSuccess);
+        }
+
+        public bool IsPlanSuccess()
+        {
+            return _currentResult.isPlanSuccess;
+        }
     }
 
 }

@@ -30,6 +30,8 @@ namespace Zephyr.GOAP.Logger
 
         public List<NodeDependencyLog> pathDependencies;
 
+        public bool isPlanSuccess;
+
         public void StartLog(EntityManager entityManager)
         {
             _timeStart = DateTime.Now;
@@ -189,6 +191,11 @@ namespace Zephyr.GOAP.Logger
         public NodeLog GetGoalNodeLog()
         {
             return nodes.Find(log => log.hashCode == _goalNodeHash);
+        }
+
+        public void SetPlanSuccess(bool isSuccess)
+        {
+            isPlanSuccess = isSuccess;
         }
     }
 }
