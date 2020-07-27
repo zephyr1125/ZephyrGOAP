@@ -100,14 +100,16 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
                 Target = _collector0Entity,
                 Position = new float3(4, 0, 0),
                 Trait = TypeManager.GetTypeIndex<ItemPotentialSourceTrait>(),
-                ValueString = ItemNames.Instance().RawAppleName
+                ValueString = ItemNames.Instance().RawAppleName,
+                Amount = 255
             });
             buffer.Add(new State
             {
                 Target = _collector0Entity,
                 Position = new float3(4, 0, 0),
                 Trait = TypeManager.GetTypeIndex<ItemPotentialSourceTrait>(),
-                ValueString = ItemNames.Instance().RawPeachName
+                ValueString = ItemNames.Instance().RawPeachName,
+                Amount = 255
             });
             
             // buffer.Add(new State
@@ -172,11 +174,11 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             // Debug.Log(_debugger.GoalNodeLog);
             // var pathResult = _debugger.PathResult;
             
-            Debug.Log("Done");
+            Assert.IsTrue(_debugger.IsPlanSuccess());
         }
         
         
-        [TestCase(1000)]
+        [TestCase(1)]
         public void PerformanceTest(int times)
         {
             float totalTime = 0;

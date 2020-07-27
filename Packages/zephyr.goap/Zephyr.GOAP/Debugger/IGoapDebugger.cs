@@ -43,5 +43,9 @@ namespace Zephyr.GOAP.Debugger
         GoapLog GetLog();
 
         void SetWriteFile(bool isWriteFile);
+
+        void SetPlanSuccess(bool isSuccess);
+
+        bool IsPlanSuccess();
     }
 }

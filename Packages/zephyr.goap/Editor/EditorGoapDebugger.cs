@@ -94,5 +94,15 @@ namespace Zephyr.GOAP.Editor
         {
             //todo 尚不支持
         }
+
+        public void SetPlanSuccess(bool isSuccess)
+        {
+            _goapLog.SetPlanSuccess(isSuccess);
+        }
+
+        public bool IsPlanSuccess()
+        {
+            return _goapLog.IsPlanSuccess();
+        }
     }
 }

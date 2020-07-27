@@ -180,7 +180,7 @@ namespace Zephyr.GOAP.Struct
                             if (outputChangedOtherStates)
                             {
                                 var changedOther = otherState;
-                                changedOther.Amount -= thisState.Amount;
+                                changedOther.Amount = thisState.Amount;
                                 changedOtherStates.Add(changedOther);
                             }
                             _states.RemoveAtSwapBack(thisId);

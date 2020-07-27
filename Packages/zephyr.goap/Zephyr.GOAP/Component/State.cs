@@ -73,6 +73,8 @@ namespace Zephyr.GOAP.Component
             hash = Utils.CombineHash(hash, Utils.GetEntityHash(Target));
             hash = Utils.CombineHash(hash, Trait.GetHashCode());
             hash = Utils.CombineHash(hash, ValueString.GetHashCode());
+            hash = Utils.CombineHash(hash, ValueTrait.GetHashCode());
+            hash = Utils.CombineHash(hash, Amount.GetHashCode());
             hash = Utils.CombineHash(hash, IsNegative.GetHashCode());
             return hash;
         }

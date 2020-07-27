@@ -121,5 +121,15 @@ namespace Zephyr.GOAP.Tests.Debugger
         {
             _isWriteFile = isWriteFile;
         }
+
+        public void SetPlanSuccess(bool isSuccess)
+        {
+            _goapLog.SetPlanSuccess(isSuccess);
+        }
+
+        public bool IsPlanSuccess()
+        {
+            return _goapLog.IsPlanSuccess();
+        }
     }
 }

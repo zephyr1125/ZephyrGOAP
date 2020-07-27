@@ -17,6 +17,9 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
         public bool CheckTargetRequire(State targetRequire, Entity agentEntity,
             [ReadOnly]StackData stackData, [ReadOnly]StateGroup currentStates)
         {
+            //要有数量
+            if (targetRequire.Amount == 0) return false;
+            
             var itemSourceState = new State
             {
                 Trait = TypeManager.GetTypeIndex<ItemSourceTrait>()
@@ -25,7 +28,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             if (!targetRequire.BelongTo(itemSourceState)) return false;
             //不支持没有value string
             if (targetRequire.ValueString.Equals(default)) return false;
-            //如果Target已明确，那么Target必须是Collector
+            //如果Target已明确，那么Target必须是一个现存的Collector
             if (targetRequire.Target != Entity.Null)
             {
                 var collectorTemplate = new State
@@ -58,6 +61,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                     currentStates.GetBelongingStates(collectorState, Allocator.Temp);
                 var nearestCollectorState = default(State);
                 var nearestDistance = float.MaxValue;
+                byte nearestAmount = 0;
                 for (var collectorId = 0; collectorId < collectors.Length(); collectorId++)
                 {
                     var collector = collectors[collectorId];
@@ -67,19 +71,22 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                         Trait = TypeManager.GetTypeIndex<ItemPotentialSourceTrait>(),
                         ValueString = settingRequire.ValueString
                     };
-                    if(currentStates.GetBelongingState(collectState).Equals(default))continue;
+                    var existedSource = currentStates.GetBelongingState(collectState);
+                    if(existedSource.Equals(default))continue;
                     var distance = math.distance(collector.Position,
                         stackData.GetAgentPosition(agentEntity));
                     if (distance >= nearestDistance) continue;
                     nearestDistance = distance;
                     nearestCollectorState = collector;
+                    nearestAmount = existedSource.Amount;
                 }
 
                 if (!nearestCollectorState.Equals(default))
                 {
                     settingRequire.Target = nearestCollectorState.Target;
                     settingRequire.Position = nearestCollectorState.Position;
-                };
+                    if (settingRequire.Amount > nearestAmount) settingRequire.Amount = nearestAmount;
+                }
                 
                 collectors.Dispose();
             }
@@ -95,7 +102,17 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                 Target = setting.Target,
                 Position = setting.Position,
                 Trait = TypeManager.GetTypeIndex<RawDestinationTrait>(),
-                ValueString = setting.ValueString
+                ValueString = setting.ValueString,
+                Amount = setting.Amount
+            });
+            //额外增加一个ItemPotential的precondition是为了delta能够计入ItemPotential的减少
+            preconditions.Add(new State
+            {
+                Target = setting.Target,
+                Position = setting.Position,
+                Trait = TypeManager.GetTypeIndex<ItemPotentialSourceTrait>(),
+                ValueString = setting.ValueString,
+                Amount = setting.Amount
             });
         }
 
