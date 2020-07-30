@@ -17,6 +17,9 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
         public bool CheckTargetRequire(State targetRequire, Entity agentEntity,
             [ReadOnly]StackData stackData, [ReadOnly]StateGroup currentStates)
         {
+            //数量应该大于0
+            if (targetRequire.Amount == 0) return false;
+            
             //针对“目标获得原料”的state
             var stateFilter = new State
             {

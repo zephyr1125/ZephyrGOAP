@@ -92,8 +92,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             
                 cookerStates.Dispose();
             }
-           
-            
+
             if (!targetRequire.ValueString.Equals(default))
             {
                 //如果指定了物品名，那么只有一种setting，也就是targetState本身

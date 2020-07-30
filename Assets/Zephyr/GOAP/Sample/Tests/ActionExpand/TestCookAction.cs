@@ -52,7 +52,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
                 Target = _cookerEntity,
                 Trait = TypeManager.GetTypeIndex<ItemDestinationTrait>(),
                 ValueString = ItemNames.Instance().RawPeachName,
-                Amount = 1
+                Amount = 99
             });
             var recipeSensorSystem = World.GetOrCreateSystem<RecipeSensorSystem>();
             recipeSensorSystem.Update();
@@ -192,7 +192,8 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             {
                 Target = itemDestinationEntity,
                 Trait = TypeManager.GetTypeIndex<ItemDestinationTrait>(),
-                ValueString = ItemNames.Instance().RoastPeachName
+                ValueString = ItemNames.Instance().RoastPeachName,
+                Amount = 1
             };
             SetGoal(goal.Require);
             
@@ -202,7 +203,8 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
                 Target = itemSourceEntity,
                 Position = new float3(2,0,0),
                 Trait = TypeManager.GetTypeIndex<ItemSourceTrait>(),
-                ValueString = ItemNames.Instance().RoastPeachName
+                ValueString = ItemNames.Instance().RoastPeachName,
+                Amount = 1
             });
             
             _system.Update();
@@ -211,6 +213,35 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             var result = _debugger.PathResult[1];
             Assert.AreEqual(nameof(PickItemAction), result.name);
             Assert.IsTrue(result.preconditions[0].target.Equals(itemSourceEntity));
+        }
+
+        //要求生产多份成品会产生对应倍数的原料需求
+        [Test]
+        public void MultiplyAmountOfRecipe()
+        {
+            SetGoal(new State
+            {
+                Target = _cookerEntity,
+                Trait = TypeManager.GetTypeIndex<ItemSourceTrait>(),
+                ValueString = ItemNames.Instance().FeastName,
+                Amount = 3
+            });
+            var buffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);
+            buffer.Add(new State
+            {
+                Target = _cookerEntity,
+                Trait = TypeManager.GetTypeIndex<ItemDestinationTrait>(),
+                ValueString = ItemNames.Instance().RawAppleName,
+                Amount = 99
+            });
+            
+            _system.Update();
+            EntityManager.CompleteAllJobs();
+            
+            var result = _debugger.PathResult[0];
+            Assert.AreEqual(2, result.preconditions.Length);
+            Assert.AreEqual(3, result.preconditions[0].amount);
+            Assert.AreEqual(3, result.preconditions[1].amount);
         }
     }
 }

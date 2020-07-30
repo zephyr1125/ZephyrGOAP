@@ -11,7 +11,7 @@ using Zephyr.GOAP.Tests;
 
 namespace Zephyr.GOAP.Sample.Tests.ActionExpand
 {
-    public class TestDropActionWithScopeGoal : TestActionExpandBase
+    public class TestDropItemAction : TestActionExpandBase
     {
         [SetUp]
         public override void SetUp()
@@ -24,7 +24,8 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             {
                 Target = new Entity {Index = 9, Version = 9},
                 Trait = TypeManager.GetTypeIndex<ItemDestinationTrait>(),
-                ValueTrait = TypeManager.GetTypeIndex<FoodTrait>()
+                ValueTrait = TypeManager.GetTypeIndex<FoodTrait>(),
+                Amount = 1
             });
             
             World.GetOrCreateSystem<BaseStatesHelper>().Update();
@@ -48,6 +49,29 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
                 nodeLog => nodeLog.requires[0].valueString.Equals(ItemNames.Instance().RawPeachName.ToString())));
             Assert.IsTrue(children.Any(
                 nodeLog => nodeLog.requires[0].valueString.Equals(ItemNames.Instance().RoastPeachName.ToString())));
+        }
+
+        //产生同等Amount的precondition
+        [Test]
+        public void SameAmountOfPrecondition()
+        {
+            SetGoal(new State
+            {
+                Target = new Entity {Index = 9, Version = 9},
+                Trait = TypeManager.GetTypeIndex<ItemDestinationTrait>(),
+                ValueTrait = TypeManager.GetTypeIndex<FoodTrait>(),
+                Amount = 3
+            });
+            
+            _system.Update();
+            EntityManager.CompleteAllJobs();
+            
+            var children = _debugger.GetChildren(_debugger.GoalNodeLog);
+            for (var i = 0; i < children.Length; i++)
+            {
+                var node = children[i];
+                Assert.AreEqual(3, node.requires[0].amount);
+            }
         }
     }
 }

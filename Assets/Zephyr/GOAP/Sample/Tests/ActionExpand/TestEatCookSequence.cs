@@ -2,6 +2,7 @@ using NUnit.Framework;
 using Unity.Entities;
 using UnityEngine;
 using Zephyr.GOAP.Component;
+using Zephyr.GOAP.Sample.GoapImplement;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Action;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
 using Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem;
@@ -51,7 +52,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             {
                 Target = _itemSourceEntity,
                 Trait = TypeManager.GetTypeIndex<ItemSourceTrait>(),
-                ValueString = "raw_apple",
+                ValueString = ItemNames.Instance().RawAppleName,
                 Amount = 1
             });
             buffer.Add(new State
@@ -70,7 +71,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             _system.Update();
             EntityManager.CompleteAllJobs();
             
-            Debug.Log(_debugger.GoalNodeLog);
+            Assert.IsTrue(_debugger.IsPlanSuccess());
             var pathResult = _debugger.PathResult;
             Assert.AreEqual(6, pathResult.Length);
             Assert.AreEqual(nameof(EatAction), pathResult[0].name);

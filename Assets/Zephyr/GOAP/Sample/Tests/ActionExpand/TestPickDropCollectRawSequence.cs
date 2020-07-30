@@ -36,7 +36,8 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             {
                 Target = _collectorEntity,
                 Trait = TypeManager.GetTypeIndex<ItemSourceTrait>(),
-                ValueString = ItemNames.Instance().RawPeachName
+                ValueString = ItemNames.Instance().RawPeachName,
+                Amount = 1
             });
             
             //给BaseStates写入假环境数据：世界里有collector和rawSource
@@ -50,14 +51,16 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             {
                 Target = _collectorEntity,
                 Trait = TypeManager.GetTypeIndex<ItemPotentialSourceTrait>(),
-                ValueString = ItemNames.Instance().RawPeachName
+                ValueString = ItemNames.Instance().RawPeachName,
+                Amount = 1
             });
             buffer.Add(new State
             {
                 Target = _rawSourceEntity,
                 Position = new float3(5,0,0),
                 Trait = TypeManager.GetTypeIndex<RawSourceTrait>(),
-                ValueString = ItemNames.Instance().RawPeachName
+                ValueString = ItemNames.Instance().RawPeachName,
+                Amount = 1
             });
         }
 
@@ -103,7 +106,8 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
                 Target = newRawEntity,
                 Position = new float3(2,0,0),
                 Trait = TypeManager.GetTypeIndex<RawSourceTrait>(),
-                ValueString = ItemNames.Instance().RawPeachName
+                ValueString = ItemNames.Instance().RawPeachName,
+                Amount = 1
             });
             
             _system.Update();

@@ -17,6 +17,9 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
         public bool CheckTargetRequire(State targetRequire, Entity agentEntity,
             [ReadOnly]StackData stackData, [ReadOnly]StateGroup currentStates)
         {
+            //数量应该大于0
+            if (targetRequire.Amount == 0) return false;
+            
             //针对“自身获得原料”的state
             var stateFilter = new State
             {
@@ -29,21 +32,21 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
         public StateGroup GetSettings(State targetRequire, Entity agentEntity,
             [ReadOnly]StackData stackData, [ReadOnly]StateGroup currentStates, Allocator allocator)
         {
-            //目前不考虑无Target或宽泛类别的goal
-            var settings = new StateGroup(1, allocator);
-            
+            //不考虑无Target或宽泛类别的goal
             Assert.IsFalse(targetRequire.ValueString.Equals(default));
-            settings.Add(targetRequire);
-            
-            return settings;
+           
+            //setting直接就是targetRequire本身
+            return new StateGroup(1, allocator) {targetRequire};
         }
 
         /// <summary>
         /// 条件：世界里要有对应原料
         /// </summary>
         /// <param name="targetRequire"></param>
+        /// <param name="agentEntity"></param>
         /// <param name="setting"></param>
         /// <param name="stackData"></param>
+        /// <param name="currentStates"></param>
         /// <param name="preconditions"></param>
         public void GetPreconditions([ReadOnly]State targetRequire, Entity agentEntity, State setting,
             [ReadOnly]StackData stackData, [ReadOnly]StateGroup currentStates, StateGroup preconditions)
