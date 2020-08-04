@@ -240,8 +240,8 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             
             var result = _debugger.PathResult[0];
             Assert.AreEqual(2, result.preconditions.Length);
-            Assert.AreEqual(3, result.preconditions[0].amount);
-            Assert.AreEqual(3, result.preconditions[1].amount);
+            Assert.AreEqual(4, result.preconditions[0].amount);
+            Assert.AreEqual(6, result.preconditions[1].amount);
         }
     }
 }

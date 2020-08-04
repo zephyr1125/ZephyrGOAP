@@ -212,7 +212,7 @@ namespace Zephyr.GOAP.Tests
             var removedOther = _aStates.AND(_bStates, true);
             Assert.AreEqual(1, removedOther.Length());
             Assert.IsTrue(removedOther[0].SameTo(sameState));
-            Assert.AreEqual(2, removedOther[0].Amount);
+            Assert.AreEqual(3, removedOther[0].Amount);
             removedOther.Dispose();
         }
         

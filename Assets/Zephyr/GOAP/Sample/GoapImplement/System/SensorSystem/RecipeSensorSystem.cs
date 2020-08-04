@@ -26,9 +26,9 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
                 ItemNames.Instance().RawPeachName, 1);
             AddRecipeState(buffer, ItemNames.Instance().RoastAppleName, 1,
                 ItemNames.Instance().RawAppleName, 1);
-            AddRecipeState(buffer, ItemNames.Instance().FeastName, 1,
-                ItemNames.Instance().RawAppleName, 1,
-                ItemNames.Instance().RawPeachName, 1);
+            AddRecipeState(buffer, ItemNames.Instance().FeastName, 2,
+                ItemNames.Instance().RawAppleName, 2,
+                ItemNames.Instance().RawPeachName, 3);
         }
 
         /// <summary>
