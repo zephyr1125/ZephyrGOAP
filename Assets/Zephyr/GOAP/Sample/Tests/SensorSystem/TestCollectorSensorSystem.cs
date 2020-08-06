@@ -6,7 +6,6 @@ using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Sample.GoapImplement;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
 using Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem;
-using Zephyr.GOAP.Struct;
 using Zephyr.GOAP.System;
 using Zephyr.GOAP.Tests;
 

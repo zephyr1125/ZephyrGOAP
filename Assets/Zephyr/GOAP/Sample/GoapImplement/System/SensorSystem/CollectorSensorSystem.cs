@@ -14,28 +14,18 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
     /// 检测世界里的Collector，写入其存在
     /// 并且检测范围内的原料以写入潜在物品
     /// </summary>
-    [UpdateInGroup(typeof(SensorSystemGroup))]
     [UpdateAfter(typeof(RawSourceSensorSystem))]
-    public class CollectorSensorSystem : JobComponentSystem
+    public class CollectorSensorSystem : SensorSystemBase
     {
         //todo 示例固定数值
         public const float CollectorRange = 100;
 
-        public EntityCommandBufferSystem EcbSystem;
-
-        protected override void OnCreate()
+        protected override JobHandle ScheduleSensorJob(JobHandle inputDeps,
+            EntityCommandBuffer.ParallelWriter ecb, Entity baseStateEntity)
         {
-            base.OnCreate();
-            EcbSystem = World.GetOrCreateSystem<EndInitializationEntityCommandBufferSystem>();
-        }
-
-        protected override JobHandle OnUpdate(JobHandle inputDeps)
-        {
-            var ecb = EcbSystem.CreateCommandBuffer().AsParallelWriter();
-            var baseStateEntity = BaseStatesHelper.BaseStatesEntity;
             var bufferStates = GetBufferFromEntity<State>(true)[baseStateEntity];
-
-            var handle = Entities.WithAll<CollectorTrait>()
+            
+            return Entities.WithAll<CollectorTrait>()
                 .WithReadOnly(bufferStates)
                 .ForEach(
                     (Entity collectorEntity, int entityInQueryIndex, in Translation translation) =>
@@ -70,10 +60,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
                                 ValueString = rawSourceStates[i].ValueString
                             });
                         }
-                    }).Schedule(inputDeps);
-            
-            EcbSystem.AddJobHandleForProducer(handle);
-            return handle;
+                    }).Schedule(inputDeps);;
         }
     }
 }

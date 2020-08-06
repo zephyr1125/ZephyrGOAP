@@ -1,12 +1,9 @@
-using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Transforms;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Sample.Game.Component;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
-using Zephyr.GOAP.Struct;
 using Zephyr.GOAP.System;
 
 namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
@@ -14,39 +11,22 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
     /// <summary>
     /// 检测世界里的Cooker，写入其存在
     /// </summary>
-    [UpdateInGroup(typeof(SensorSystemGroup))]
-    public class CookerSensorSystem : JobComponentSystem
+    public class CookerSensorSystem : SensorSystemBase
     {
-        [RequireComponentTag(typeof(CookerTrait))]
-        private struct SenseJob : IJobForEachWithEntity_EBC<ContainedOutput, Translation>
+        protected override JobHandle ScheduleSensorJob(JobHandle inputDeps, EntityCommandBuffer.ParallelWriter ecb, Entity baseStateEntity)
         {
-            [NativeDisableContainerSafetyRestriction, WriteOnly]
-            public BufferFromEntity<State> States;
-
-            public Entity BaseStatesEntity;
-            
-            public void Execute(Entity entity, int jobIndex, DynamicBuffer<ContainedOutput> recipes, ref Translation translation)
-            {
-                //写入cooker
-                var buffer = States[BaseStatesEntity];
-                buffer.Add(new State
+            return Entities.WithAll<CookerTrait>()
+                .ForEach((Entity cookerEntity, int entityInQueryIndex,
+                    DynamicBuffer<ContainedOutput> recipes, in Translation translation) =>
                 {
-                    Target = entity,
-                    Position = translation.Value,
-                    Trait = TypeManager.GetTypeIndex<CookerTrait>(),
-                });
-            }
-        }
-        
-        protected override JobHandle OnUpdate(JobHandle inputDeps)
-        {
-            var job = new SenseJob
-            {
-                States = GetBufferFromEntity<State>(),
-                BaseStatesEntity = BaseStatesHelper.BaseStatesEntity
-            };
-            var handle = job.Schedule(this, inputDeps);
-            return handle;
+                    //写入cooker
+                    ecb.AppendToBuffer(entityInQueryIndex, baseStateEntity, new State
+                    {
+                        Target = cookerEntity,
+                        Position = translation.Value,
+                        Trait = TypeManager.GetTypeIndex<CookerTrait>(),
+                    });
+                }).Schedule(inputDeps);
         }
     }
 }

@@ -1,11 +1,8 @@
-using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Transforms;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
-using Zephyr.GOAP.Struct;
 using Zephyr.GOAP.System;
 
 namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
@@ -13,39 +10,22 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
     /// <summary>
     /// 探测所有原料源情况
     /// </summary>
-    [UpdateInGroup(typeof(SensorSystemGroup))]
-    public class RawSourceSensorSystem : JobComponentSystem
+    public class RawSourceSensorSystem : SensorSystemBase
     {
-        private struct SenseJob : IJobForEachWithEntity_ECC<RawSourceTrait, Translation>
+        protected override JobHandle ScheduleSensorJob(JobHandle inputDeps,
+            EntityCommandBuffer.ParallelWriter ecb, Entity baseStateEntity)
         {
-            [NativeDisableContainerSafetyRestriction, WriteOnly]
-            public BufferFromEntity<State> States;
-
-            public Entity BaseStatesEntity;
-
-            public void Execute(Entity entity, int jobIndex,
-                ref RawSourceTrait rawSourceTrait, ref Translation translation)
+            return Entities.ForEach((Entity rawSourceEntity, int entityInQueryIndex,
+                    in RawSourceTrait rawSourceTrait, in Translation translation) =>
             {
-                var buffer = States[BaseStatesEntity];
-                buffer.Add(new State
+                ecb.AppendToBuffer(entityInQueryIndex, baseStateEntity, new State
                 {
-                    Target = entity,
+                    Target = rawSourceEntity,
                     Position = translation.Value,
                     Trait = TypeManager.GetTypeIndex<RawSourceTrait>(),
                     ValueString = rawSourceTrait.RawName
                 });
-            }
-        }
-        
-        protected override JobHandle OnUpdate(JobHandle inputDeps)
-        {
-            var job = new SenseJob
-            {
-                States = GetBufferFromEntity<State>(),
-                BaseStatesEntity = BaseStatesHelper.BaseStatesEntity
-            };
-            var handle = job.Schedule(this, inputDeps);
-            return handle;
+            }).Schedule(inputDeps);
         }
     }
 }
