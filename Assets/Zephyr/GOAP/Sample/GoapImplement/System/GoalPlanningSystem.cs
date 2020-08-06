@@ -12,12 +12,12 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System
 {
     public class GoalPlanningSystem : GoalPlanningSystemBase
     {
-        private NativeHashMap<int, NativeString32> _itemNames;
+        private NativeHashMap<int, FixedString32> _itemNames;
         
         protected override void OnCreate()
         {
             base.OnCreate();
-            _itemNames = new NativeHashMap<int, NativeString32>(5, Allocator.Persistent);
+            _itemNames = new NativeHashMap<int, FixedString32>(5, Allocator.Persistent);
             _itemNames.Add((int)ItemName.RawPeach, ItemNames.Instance().RawPeachName);
             _itemNames.Add((int)ItemName.RoastPeach, ItemNames.Instance().RoastPeachName);
             _itemNames.Add((int)ItemName.RawApple, ItemNames.Instance().RawAppleName);

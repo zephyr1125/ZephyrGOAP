@@ -4,10 +4,10 @@
         <ui:Label text="Preconditions" name="title-preconditions" class="title" />
         <ui:VisualElement name="preconditions" class="state-container" />
         <ui:Label text="Effects" name="title-effects" class="title" style="background-color: rgb(0, 75, 132);" />
-        <ui:VisualElement name="effects" class="state-container" style="background-color: rgba(156, 221, 231, 255);" />
+        <ui:VisualElement name="effects" class="state-container" style="background-color: rgb(156, 221, 231);" />
         <ui:Label text="Deltas" name="title-deltas" class="title" style="background-color: rgb(132, 0, 95);" />
-        <ui:VisualElement name="deltas" class="state-container" style="background-color: rgba(231, 156, 225, 255);" />
+        <ui:VisualElement name="deltas" class="state-container" style="background-color: rgb(231, 156, 225);" />
         <ui:Label text="Agents" name="title-agents" class="title" style="background-color: rgb(0, 132, 23);" />
-        <ui:VisualElement name="agents" class="state-container" style="background-color: rgba(156, 231, 167, 255);" />
+        <ui:VisualElement name="agents" class="state-container" style="background-color: rgb(156, 231, 167);" />
     </ui:VisualElement>
 </ui:UXML>

@@ -5,7 +5,7 @@ namespace Zephyr.GOAP.Sample.Game.Component
 {
     public struct ContainedItemRef : IBufferElementData
     {
-        public NativeString32 ItemName;
+        public FixedString32 ItemName;
         public Entity ItemEntity;
     }
 }

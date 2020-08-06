@@ -36,7 +36,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             //目前不考虑无Target或宽泛类别的goal
             var settings = new StateGroup(1, allocator);
             
-            Assert.IsFalse(targetRequire.ValueString.Equals(default));
+            Assert.IsFalse(targetRequire.ValueString.Equals(new FixedString32()));
             settings.Add(targetRequire);
             
             return settings;

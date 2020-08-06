@@ -27,7 +27,7 @@ namespace Zephyr.GOAP.System.ActionExecuteManage
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             var ecb = EcbSystem.CreateCommandBuffer();
-            var ecbConcurrent = ecb.ToConcurrent();
+            var ecbConcurrent = ecb.AsParallelWriter();
             var doneNodesCount = _doneNodesQuery.CalculateEntityCount();
             var agentEntities = new NativeArray<Entity>(doneNodesCount, Allocator.TempJob);
             

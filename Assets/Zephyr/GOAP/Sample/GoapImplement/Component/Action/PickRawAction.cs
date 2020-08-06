@@ -33,7 +33,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             [ReadOnly]StackData stackData, [ReadOnly]StateGroup currentStates, Allocator allocator)
         {
             //不考虑无Target或宽泛类别的goal
-            Assert.IsFalse(targetRequire.ValueString.Equals(default));
+            Assert.IsFalse(targetRequire.ValueString.Equals(new FixedString32()));
            
             //setting直接就是targetRequire本身
             return new StateGroup(1, allocator) {targetRequire};

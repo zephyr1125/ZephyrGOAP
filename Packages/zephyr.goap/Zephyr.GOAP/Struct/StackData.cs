@@ -11,7 +11,7 @@ namespace Zephyr.GOAP.Struct
         public NativeList<Entity> AgentEntities;
         public NativeArray<float3> AgentPositions;
         public StateGroup BaseStates;
-        public NativeHashMap<int, NativeString32> ItemNames;
+        public NativeHashMap<int, FixedString32> ItemNames;
 
         public StackData(NativeList<Entity> agentEntities, NativeArray<Translation> agentTranslations, StateGroup baseStates)
         {

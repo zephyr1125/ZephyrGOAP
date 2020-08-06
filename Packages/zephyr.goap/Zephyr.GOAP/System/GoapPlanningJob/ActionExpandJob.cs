@@ -50,7 +50,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         public NativeHashMap<int, Node>.ParallelWriter NewlyCreatedNodesWriter;
 
         [ReadOnly]
-        public NativeString32 ActionName;
+        public FixedString32 ActionName;
 
         public int Iteration;
 
@@ -140,7 +140,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         /// </summary>
         private void AddRouteNode(Node baseNode, Node newNode, bool nodeExisted,
             StateGroup preconditions, StateGroup effects, StateGroup requires, StateGroup deltas,
-            Node parent, NativeString32 actionName)
+            Node parent, FixedString32 actionName)
         {
             newNode.Name = actionName;
             

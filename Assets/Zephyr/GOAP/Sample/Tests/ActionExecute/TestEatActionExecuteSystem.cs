@@ -32,7 +32,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExecute
             //diningTable预存好食物
             buffer.Add(new ContainedItemRef
             {
-                ItemName = new NativeString32("roast_apple"),
+                ItemName = new FixedString32("roast_apple"),
                 ItemEntity = new Entity {Index = 99, Version = 9}
             });
             

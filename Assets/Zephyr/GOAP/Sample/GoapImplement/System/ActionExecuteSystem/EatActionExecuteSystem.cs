@@ -15,8 +15,8 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
 {
     public class EatActionExecuteSystem : ActionExecuteSystemBase
     {
-        protected override JobHandle ExecuteActionJob(NativeString32 nameOfAction, NativeArray<Entity> waitingNodeEntities,
-            NativeArray<Node> waitingNodes, BufferFromEntity<State> waitingStates, EntityCommandBuffer.Concurrent ecb, JobHandle inputDeps)
+        protected override JobHandle ExecuteActionJob(FixedString32 nameOfAction, NativeArray<Entity> waitingNodeEntities,
+            NativeArray<Node> waitingNodes, BufferFromEntity<State> waitingStates, EntityCommandBuffer.ParallelWriter ecb, JobHandle inputDeps)
         {
             var itemDestType = TypeManager.GetTypeIndex<ItemDestinationTrait>();
             var allBufferItems = GetBufferFromEntity<ContainedItemRef>();
@@ -40,7 +40,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
 
                         var states = waitingStates[nodeEntity];
                         //从precondition里找食物.此时餐桌应该已经具有指定的食物
-                        var targetItemName = new NativeString32();
+                        var targetItemName = new FixedString32();
                         var tableEntity = Entity.Null;
                         for (var stateId = 0; stateId < states.Length; stateId++)
                         {
@@ -83,7 +83,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
             ;
         }
 
-        protected override NativeString32 GetNameOfAction()
+        protected override FixedString32 GetNameOfAction()
         {
             return nameof(EatAction);
         }

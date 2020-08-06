@@ -41,7 +41,8 @@ namespace Zephyr.GOAP.Sample.Tests.SensorSystem
                 Target = _rawSourceEntity,
                 Position = new float3(5,0,0),
                 Trait = TypeManager.GetTypeIndex<RawSourceTrait>(),
-                ValueString = ItemNames.Instance().RawPeachName
+                ValueString = ItemNames.Instance().RawPeachName,
+                Amount = 1
             });
         }
 
@@ -50,6 +51,7 @@ namespace Zephyr.GOAP.Sample.Tests.SensorSystem
         public void SetCollectorAndItemPotentialSourceState()
         {
             _system.Update();
+            _system.EcbSystem.Update();
             EntityManager.CompleteAllJobs();
 
             var buffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);
@@ -77,6 +79,7 @@ namespace Zephyr.GOAP.Sample.Tests.SensorSystem
             baseStateBuffer[0] = rawState;
             
             _system.Update();
+            _system.EcbSystem.Update();
             EntityManager.CompleteAllJobs();
             
             var buffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);

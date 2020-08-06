@@ -14,8 +14,8 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
 {
     public class DropRawActionExecuteSystem : ActionExecuteSystemBase
     {
-        protected override JobHandle ExecuteActionJob(NativeString32 nameOfAction, NativeArray<Entity> waitingNodeEntities,
-            NativeArray<Node> waitingNodes, BufferFromEntity<State> waitingStates, EntityCommandBuffer.Concurrent ecb, JobHandle inputDeps)
+        protected override JobHandle ExecuteActionJob(FixedString32 nameOfAction, NativeArray<Entity> waitingNodeEntities,
+            NativeArray<Node> waitingNodes, BufferFromEntity<State> waitingStates, EntityCommandBuffer.ParallelWriter ecb, JobHandle inputDeps)
         {
             var allBufferItems = GetBufferFromEntity<ContainedItemRef>();
             return Entities.WithName("DropRawActionExecuteJob")
@@ -38,7 +38,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                         var states = waitingStates[nodeEntity];
                         //从effect里找目标.
                         var targetEntity = Entity.Null;
-                        var targetItemName = new NativeString32();
+                        var targetItemName = new FixedString32();
                         for (var stateId = 0; stateId < states.Length; stateId++)
                         {
                             if ((node.EffectsBitmask & (ulong) 1 << stateId) <= 0) continue;
@@ -78,7 +78,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                 }).Schedule(inputDeps);
         }
 
-        protected override NativeString32 GetNameOfAction()
+        protected override FixedString32 GetNameOfAction()
         {
             return nameof(DropRawAction);
         }

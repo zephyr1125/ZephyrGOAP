@@ -10,13 +10,15 @@ namespace Zephyr.GOAP.Component
         public Entity Target;
         public float3 Position;
         public int Trait;
-        public NativeString32 ValueString;
+        public FixedString32 ValueString;
         public int ValueTrait;
         public byte Amount;
         /// <summary>
         /// true时表示这个state表达反面意义，比如“目标不拥有指定物品”
         /// </summary>
         public bool IsNegative;
+
+        public static State Null => new State();
         
         public bool Equals(State other)
         {
@@ -60,7 +62,7 @@ namespace Zephyr.GOAP.Component
             if (other.Target!=Entity.Null && Target != other.Target) return false;
             if (other.Trait!=default && Trait != other.Trait) return false;
             if (ValueTrait!=default && other.ValueTrait!=default && ValueTrait != other.ValueTrait) return false;
-            if (!other.ValueString.Equals(default) && !ValueString.Equals(other.ValueString)) return false;
+            if (!other.ValueString.Equals(new FixedString32()) && !ValueString.Equals(other.ValueString)) return false;
             
             if (IsNegative != other.IsNegative) return false;
 
@@ -85,7 +87,7 @@ namespace Zephyr.GOAP.Component
         /// <returns></returns>
         public bool IsScopeState()
         {
-            return ValueString.Equals(default) || Target.Equals(Entity.Null);
+            return ValueString.Equals(new FixedString32()) || Target.Equals(Entity.Null);
         }
     }
 }

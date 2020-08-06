@@ -12,18 +12,18 @@ namespace Zephyr.GOAP.Sample.GoapImplement
         
         public static ItemNames Instance()
         {
-            if(_instance.RawPeachName.Equals(default))
+            if(_instance.RawPeachName.Equals(new FixedString32()))
             {
                 Init();
             }
             return _instance;
         }
 
-        public NativeString32 RawPeachName;
-        public NativeString32 RoastPeachName;
-        public NativeString32 RawAppleName;
-        public NativeString32 RoastAppleName;
-        public NativeString32 FeastName;
+        public FixedString32 RawPeachName;
+        public FixedString32 RoastPeachName;
+        public FixedString32 RawAppleName;
+        public FixedString32 RoastAppleName;
+        public FixedString32 FeastName;
 
         
         public static void Init()

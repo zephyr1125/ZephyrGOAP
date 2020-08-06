@@ -27,7 +27,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             //只针对物品源需求的goal state
             if (!targetRequire.BelongTo(itemSourceState)) return false;
             //不支持没有value string
-            if (targetRequire.ValueString.Equals(default)) return false;
+            if (targetRequire.ValueString.Equals(new FixedString32())) return false;
             //如果Target已明确，那么Target必须是一个现存的Collector
             if (targetRequire.Target != Entity.Null)
             {

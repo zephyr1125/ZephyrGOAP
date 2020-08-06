@@ -21,7 +21,7 @@ namespace Zephyr.GOAP.Sample.Game.System
         // [BurstCompile]
         public struct MoveToPositionJob : IJobForEachWithEntity<Translation, MaxMoveSpeed, TargetPosition>
         {
-            public EntityCommandBuffer.Concurrent ECBuffer;
+            public EntityCommandBuffer.ParallelWriter ECBuffer;
             
             public float deltaSecond;
             
@@ -49,7 +49,7 @@ namespace Zephyr.GOAP.Sample.Game.System
             var job = new MoveToPositionJob
             {
                 deltaSecond = Time.DeltaTime,
-                ECBuffer = _ecbSystem.CreateCommandBuffer().ToConcurrent()
+                ECBuffer = _ecbSystem.CreateCommandBuffer().AsParallelWriter()
             };
             var handle = job.Schedule(this, inputDeps);
             _ecbSystem.AddJobHandleForProducer(handle);

@@ -35,13 +35,13 @@ namespace Zephyr.GOAP.System.ActionExecuteManage
             var waitingNodes =
                 _waitingActionNodeQuery.ToComponentDataArray<Node>(Allocator.TempJob);
 
-            var ecb = EcbSystem.CreateCommandBuffer().ToConcurrent();
+            var ecb = EcbSystem.CreateCommandBuffer().AsParallelWriter();
             var allDependencies = GetBufferFromEntity<NodeDependency>();
 
             var handle = Entities.WithName("ActionChooseJob")
                 .WithAll<Idle, Agent>()
-                .WithDeallocateOnJobCompletion(waitingNodeEntities)
-                .WithDeallocateOnJobCompletion(waitingNodes)
+                .WithDisposeOnCompletion(waitingNodeEntities)
+                .WithDisposeOnCompletion(waitingNodes)
                 .WithReadOnly(allDependencies)
                 .ForEach((Entity agentEntity, int entityInQueryIndex) =>
                 {
@@ -57,7 +57,7 @@ namespace Zephyr.GOAP.System.ActionExecuteManage
                         //工作不是我的，不执行
                         if (!node.AgentExecutorEntity.Equals(agentEntity)) continue;
                         //node仍有依赖则不执行
-                        if (allDependencies.Exists(nodeEntity) &&
+                        if (allDependencies.HasComponent(nodeEntity) &&
                             allDependencies[nodeEntity].Length > 0) continue;
                         
                         availableNodeEntities.Push(new MinHeapNode<Entity>(waitingNodeEntities[i], node.EstimateStartTime));

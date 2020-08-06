@@ -11,8 +11,8 @@ namespace Zephyr.GOAP.Tests.Mock
     [DisableAutoCreation]
     public class MockActionExecuteSystem : ActionExecuteSystemBase
     {
-        protected override JobHandle ExecuteActionJob(NativeString32 nameOfAction, NativeArray<Entity> waitingNodeEntities,
-            NativeArray<Node> waitingNodes, BufferFromEntity<State> waitingStates, EntityCommandBuffer.Concurrent ecb, JobHandle inputDeps)
+        protected override JobHandle ExecuteActionJob(FixedString32 nameOfAction, NativeArray<Entity> waitingNodeEntities,
+            NativeArray<Node> waitingNodes, BufferFromEntity<State> waitingStates, EntityCommandBuffer.ParallelWriter ecb, JobHandle inputDeps)
         {
             return Entities.WithName("PickRawActionExecuteJob")
                 .WithAll<ReadyToAct>()
@@ -45,7 +45,7 @@ namespace Zephyr.GOAP.Tests.Mock
             ;
         }
 
-        protected override NativeString32 GetNameOfAction()
+        protected override FixedString32 GetNameOfAction()
         {
             return nameof(MockAction);
         }

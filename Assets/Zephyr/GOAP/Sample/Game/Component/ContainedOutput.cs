@@ -5,6 +5,6 @@ namespace Zephyr.GOAP.Sample.Game.Component
 {
     public struct ContainedOutput : IBufferElementData
     {
-        public NativeString32 ItemOutput;
+        public FixedString32 ItemOutput;
     }
 }

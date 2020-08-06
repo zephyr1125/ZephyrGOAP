@@ -34,11 +34,11 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
         {
             var settings = new StateGroup(1, allocator);
             
-            if (!targetRequire.ValueString.Equals(default))
+            if (!targetRequire.ValueString.Equals(new FixedString32()))
             {
                 //如果指定了物品名，那么只有一种setting，也就是targetState本身
                 settings.Add(targetRequire);
-            }else if (targetRequire.ValueString.Equals(default) &&
+            }else if (targetRequire.ValueString.Equals(new FixedString32()) &&
                       targetRequire.ValueTrait != default)
             {
                 //如果targetState是类别范围，需要对每种符合范围的物品做setting

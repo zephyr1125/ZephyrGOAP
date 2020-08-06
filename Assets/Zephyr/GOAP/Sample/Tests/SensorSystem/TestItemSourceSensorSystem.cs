@@ -48,6 +48,7 @@ namespace Zephyr.GOAP.Sample.Tests.SensorSystem
         public void SetItemSourceState()
         {
             _system.Update();
+            _system.EcbSystem.Update();
             EntityManager.CompleteAllJobs();
 
             var buffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);

@@ -22,7 +22,7 @@ namespace Zephyr.GOAP.System.ActionExecuteManage
         protected override void OnUpdate()
         {
             var time = Time.ElapsedTime;
-            var ecb = _ecbSystem.CreateCommandBuffer().ToConcurrent();
+            var ecb = _ecbSystem.CreateCommandBuffer().AsParallelWriter();
             var goals = GetComponentDataFromEntity<Goal>();
             var handle = Entities.WithName("PlanStartTimeRecordJob")
                 .WithAll<Node, ActionNodeActing>()

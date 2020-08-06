@@ -43,8 +43,8 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
         /// <param name="input1Amount"></param>
         /// <param name="input2Name"></param>
         /// <param name="input2Amount"></param>
-        private void AddRecipeState(DynamicBuffer<State> buffer, NativeString32 outputName, byte outputAmount,
-            NativeString32 input1Name, byte input1Amount, NativeString32 input2Name = default, byte input2Amount = 0)
+        private void AddRecipeState(DynamicBuffer<State> buffer, FixedString32 outputName, byte outputAmount,
+            FixedString32 input1Name, byte input1Amount, FixedString32 input2Name = default, byte input2Amount = 0)
         {
             buffer.Add(new State
             {
@@ -60,7 +60,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
                 ValueString = input1Name,
                 Amount = input1Amount
             });
-            if(input2Name.Equals(default))
+            if(input2Name.Equals(new FixedString32()))
             {
                 buffer.Add(default);
             }else

@@ -112,7 +112,7 @@ namespace Zephyr.GOAP.Editor
                 AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(Utils.StateFilePath);
             statesVT.CloneTree(rootVisualElement.Q("main-frame"));
             _statesTip = rootVisualElement.Q("states");
-            _statesTip.style.top = -50;
+            _statesTip.style.top = -9999;
 
             EditorApplication.playModeStateChanged += OnPlayModeChange;
             

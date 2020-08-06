@@ -36,7 +36,7 @@ namespace Zephyr.GOAP.Sample.Game.System
             public float Time;
             public NativeArray<float2> RandomDirections;
             public NativeArray<float> RandomDistances;
-            public EntityCommandBuffer.Concurrent ECBuffer;
+            public EntityCommandBuffer.ParallelWriter ECBuffer;
             
             public void Execute(Entity entity, int index, ref Wander wander,
                 ref Translation translation)
@@ -66,7 +66,7 @@ namespace Zephyr.GOAP.Sample.Game.System
             public NativeArray<float2> RandomDirections;
             [DeallocateOnJobCompletion]
             public NativeArray<float> RandomDistances;
-            public EntityCommandBuffer.Concurrent ECBuffer;
+            public EntityCommandBuffer.ParallelWriter ECBuffer;
             
             public void Execute(Entity entity, int index, ref Wander wander, ref Wandering wandering,
                 ref Translation translation)
@@ -88,7 +88,7 @@ namespace Zephyr.GOAP.Sample.Game.System
         }
         
         private static void RandomTargetPosition(NativeArray<float2> randomDirections,
-            NativeArray<float> randomDistances, int jobId, EntityCommandBuffer.Concurrent ecBuffer,
+            NativeArray<float> randomDistances, int jobId, EntityCommandBuffer.ParallelWriter ecBuffer,
             Entity entity, int index, Translation translation)
         {
             var direction2 = randomDirections[jobId];
@@ -113,14 +113,14 @@ namespace Zephyr.GOAP.Sample.Game.System
             
             var wanderStartJob = new WanderStartJob
             {
-                ECBuffer = ECBSystem.CreateCommandBuffer().ToConcurrent(),
+                ECBuffer = ECBSystem.CreateCommandBuffer().AsParallelWriter(),
                 RandomDirections = randomDirections,
                 RandomDistances = randomDistances,
                 Time = (float)Time.ElapsedTime
             };
             var moveDoneJob = new MoveDoneJob
             {
-                ECBuffer = ECBSystem.CreateCommandBuffer().ToConcurrent(),
+                ECBuffer = ECBSystem.CreateCommandBuffer().AsParallelWriter(),
                 RandomDirections = randomDirections,
                 RandomDistances = randomDistances,
                 Time = (float)Time.ElapsedTime

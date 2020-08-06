@@ -30,11 +30,11 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                 
             //如果targetState有指明物品名，则直接寻找其是否为cooker的产物
             //这是因为在指定物品名的情况下，有可能会省略ValueTrait
-            if (!targetRequire.ValueString.Equals(default)
+            if (!targetRequire.ValueString.Equals(new FixedString32())
                 &&!IsItemInRecipes(targetRequire.ValueString, currentStates)) return false;
                 
             //如果没有指定物品名，则必须指定FoodTrait
-            if (targetRequire.ValueString.Equals(default) &&
+            if (targetRequire.ValueString.Equals(new FixedString32()) &&
                 targetRequire.ValueTrait != TypeManager.GetTypeIndex<FoodTrait>()) return false;
                 
             return true;
@@ -47,7 +47,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
         /// <param name="name"></param>
         /// <param name="currentStates"></param>
         /// <returns></returns>
-        private bool IsItemInRecipes(NativeString32 name, [ReadOnly]StateGroup currentStates)
+        private bool IsItemInRecipes(FixedString32 name, [ReadOnly]StateGroup currentStates)
         {
             var foodRecipeState = new State
             {
@@ -93,11 +93,11 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                 cookerStates.Dispose();
             }
 
-            if (!targetRequire.ValueString.Equals(default))
+            if (!targetRequire.ValueString.Equals(new FixedString32()))
             {
                 //如果指定了物品名，那么只有一种setting，也就是targetState本身
                 settings.Add(targetRequire);
-            }else if (targetRequire.ValueString.Equals(default) &&
+            }else if (targetRequire.ValueString.Equals(new FixedString32()) &&
                       targetRequire.ValueTrait == TypeManager.GetTypeIndex<FoodTrait>())
             {
                 //如果targetState是类别范围，需要对每种符合范围的物品做setting
@@ -153,7 +153,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                 ValueString = inputs[0].ValueString,
                 Amount = inputs[0].Amount
             });
-            if (!inputs[1].Equals(default))
+            if (!inputs[1].Equals(State.Null))
             {
                 preconditions.Add(new State
                 {

@@ -20,7 +20,7 @@ namespace Zephyr.GOAP
         /// <typeparam name="T">离开的状态</typeparam>
         /// <typeparam name="TU">进入的状态</typeparam>
         public static void NextAgentState<T, TU>(Entity agentEntity, int jobIndex,
-            EntityCommandBuffer.Concurrent eCBuffer, Entity nodeEntity) 
+            EntityCommandBuffer.ParallelWriter eCBuffer, Entity nodeEntity) 
             where T : struct, IComponentData, IAgentState where TU : struct, IComponentData, IAgentState
         {
             eCBuffer.RemoveComponent<T>(jobIndex, agentEntity);
@@ -51,7 +51,7 @@ namespace Zephyr.GOAP
         }
         
         public static void NextActionNodeState<T, TU>(Entity actionNodeEntity, int jobIndex,
-            EntityCommandBuffer.Concurrent eCBuffer, Entity agentEntity) 
+            EntityCommandBuffer.ParallelWriter eCBuffer, Entity agentEntity) 
             where T : struct, IComponentData, IActionNodeState where TU : struct, IComponentData, IActionNodeState
         {
             eCBuffer.RemoveComponent<T>(jobIndex, actionNodeEntity);

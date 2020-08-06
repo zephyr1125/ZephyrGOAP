@@ -48,10 +48,10 @@ namespace Zephyr.GOAP.Sample
         /// <param name="itemNames"></param>
         /// <param name="allocator"></param>
         /// <returns></returns>
-        public static NativeList<NativeString32> GetItemNamesOfSpecificTrait(int trait,
-            NativeHashMap<int, NativeString32> itemNames, Allocator allocator)
+        public static NativeList<FixedString32> GetItemNamesOfSpecificTrait(int trait,
+            NativeHashMap<int, FixedString32> itemNames, Allocator allocator)
         {
-            var result = new NativeList<NativeString32>(allocator);
+            var result = new NativeList<FixedString32>(allocator);
             
             if (trait.Equals(TypeManager.GetTypeIndex<FoodTrait>()))
             {
@@ -77,8 +77,8 @@ namespace Zephyr.GOAP.Sample
         /// <param name="foodName"></param>
         /// <param name="itemNames"></param>
         /// <returns></returns>
-        public static float GetFoodReward(NativeString32 foodName,
-            NativeHashMap<int, NativeString32> itemNames)
+        public static float GetFoodReward(FixedString32 foodName,
+            NativeHashMap<int, FixedString32> itemNames)
         {
             var plus = 10;
             if (foodName.Equals(itemNames[(int)ItemName.RawPeach]))
@@ -104,7 +104,7 @@ namespace Zephyr.GOAP.Sample
             return 0;
         }
         
-        public static float GetFoodStamina(NativeString32 foodName)
+        public static float GetFoodStamina(FixedString32 foodName)
         {
             if (foodName.Equals(ItemNames.Instance().RawPeachName))
             {

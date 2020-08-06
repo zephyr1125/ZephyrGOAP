@@ -68,7 +68,7 @@ namespace Zephyr.GOAP.Editor
         
         private void OnMouseLeave(MouseEventBase<MouseLeaveEvent> evt)
         {
-            UpdateStatesTipPos(new Vector2(0, -100));
+            UpdateStatesTipPos(new Vector2(0, -9999));
         }
         
         private void OnMouseDown(MouseEventBase<MouseDownEvent> evt)

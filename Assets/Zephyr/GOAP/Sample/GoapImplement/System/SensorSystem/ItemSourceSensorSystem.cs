@@ -1,12 +1,9 @@
-using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Transforms;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Sample.Game.Component;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
-using Zephyr.GOAP.Struct;
 using Zephyr.GOAP.System;
 
 namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
@@ -18,41 +15,38 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
     [UpdateInGroup(typeof(SensorSystemGroup))]
     public class ItemSourceSensorSystem : JobComponentSystem
     {
-        [RequireComponentTag(typeof(ItemContainerTrait))]
-        private struct SenseJob : IJobForEachWithEntity_EBCC<ContainedItemRef, ItemContainer, Translation>
+        public EntityCommandBufferSystem EcbSystem;
+
+        protected override void OnCreate()
         {
-            [NativeDisableContainerSafetyRestriction, WriteOnly]
-            public BufferFromEntity<State> States;
-
-            public Entity BaseStatesEntity;
-
-            public void Execute(Entity entity, int jobIndex,
-                DynamicBuffer<ContainedItemRef> itemRefs, ref ItemContainer container, ref Translation translation)
-            {
-                if (!container.IsTransferSource) return;
-
-                var buffer = States[BaseStatesEntity];
-                foreach (var itemRef in itemRefs)
-                {
-                    buffer.Add(new State
-                    {
-                        Target = entity,
-                        Position = translation.Value,
-                        Trait = TypeManager.GetTypeIndex<ItemContainerTrait>(),
-                        ValueString = itemRef.ItemName
-                    });
-                }
-            }
+            base.OnCreate();
+            EcbSystem = World.GetOrCreateSystem<EndInitializationEntityCommandBufferSystem>();
         }
         
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            var job = new SenseJob
-            {
-                States = GetBufferFromEntity<State>(),
-                BaseStatesEntity = BaseStatesHelper.BaseStatesEntity
-            };
-            var handle = job.Schedule(this, inputDeps);
+            var ecb = EcbSystem.CreateCommandBuffer().AsParallelWriter();
+            var baseStateEntity = BaseStatesHelper.BaseStatesEntity;
+            
+            var handle = Entities.WithAll<ItemContainerTrait>()
+                .ForEach((Entity itemContainerEntity, int entityInQueryIndex,
+                    DynamicBuffer<ContainedItemRef> itemRefs,
+                    in ItemContainer itemContainer, in Translation translation) =>
+                {
+                    if (!itemContainer.IsTransferSource) return;
+                    
+                    foreach (var itemRef in itemRefs)
+                    {
+                        ecb.AppendToBuffer(entityInQueryIndex, baseStateEntity, new State
+                        {
+                            Target = itemContainerEntity,
+                            Position = translation.Value,
+                            Trait = TypeManager.GetTypeIndex<ItemContainerTrait>(),
+                            ValueString = itemRef.ItemName
+                        });
+                    }
+                }).Schedule(inputDeps);
+            EcbSystem.AddJobHandleForProducer(handle);
             return handle;
         }
     }

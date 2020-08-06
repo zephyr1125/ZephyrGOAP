@@ -18,7 +18,7 @@ namespace Zephyr.GOAP.System.ActionExecuteManage
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            var ecb = EcbSystem.CreateCommandBuffer().ToConcurrent();
+            var ecb = EcbSystem.CreateCommandBuffer().AsParallelWriter();
             var handle = Entities.WithName("NavigatingEndJob")
                 .WithAll<Agent>()
                 .WithNone<TargetPosition>()

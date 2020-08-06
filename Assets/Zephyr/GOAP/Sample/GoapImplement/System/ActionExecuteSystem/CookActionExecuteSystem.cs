@@ -18,8 +18,8 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
     /// </summary>
     public class CookActionExecuteSystem : ActionExecuteSystemBase
     {
-        protected override JobHandle ExecuteActionJob(NativeString32 nameOfAction, NativeArray<Entity> waitingNodeEntities,
-            NativeArray<Node> waitingNodes, BufferFromEntity<State> waitingStates, EntityCommandBuffer.Concurrent ecb, JobHandle inputDeps)
+        protected override JobHandle ExecuteActionJob(FixedString32 nameOfAction, NativeArray<Entity> waitingNodeEntities,
+            NativeArray<Node> waitingNodes, BufferFromEntity<State> waitingStates, EntityCommandBuffer.ParallelWriter ecb, JobHandle inputDeps)
         {
             var actionType = TypeManager.GetTypeIndex<ItemDestinationTrait>();
             var allItems = GetBufferFromEntity<ContainedItemRef>();
@@ -43,7 +43,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                         var states = waitingStates[nodeEntity];
                         //从precondition里找CookerEntity以及原料
                         var cookerEntity = Entity.Null;
-                        var inputItemNames = new NativeHashMap<NativeString32, int>(2, Allocator.Temp);
+                        var inputItemNames = new NativeHashMap<FixedString32, int>(2, Allocator.Temp);
                         for (var stateId = 0; stateId < states.Length; stateId++)
                         {
                             if ((node.PreconditionsBitmask & (ulong) 1 << stateId) <= 0) continue;
@@ -51,7 +51,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                             if (precondition.Trait != actionType) continue;
                             cookerEntity = precondition.Target;
                             var itemName = precondition.ValueString;
-                            Assert.IsFalse(itemName.Equals(new NativeString32()));
+                            Assert.IsFalse(itemName.Equals(new FixedString32()));
                             if (!inputItemNames.ContainsKey(itemName))
                             {
                                 inputItemNames.TryAdd(itemName, 1);
@@ -62,12 +62,12 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                             }
                         }
                         //从effect获取产物
-                        var outputItemName = new NativeString32();
+                        var outputItemName = new FixedString32();
                         for (var stateId = 0; stateId < states.Length; stateId++)
                         {
                             if ((node.EffectsBitmask & (ulong) 1 << stateId) <= 0) continue;
                             var itemName = states[stateId].ValueString;
-                            Assert.IsFalse(itemName.Equals(default));
+                            Assert.IsFalse(itemName.Equals(new FixedString32()));
                             outputItemName = itemName;
                             break;
                         }
@@ -101,7 +101,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                 }).Schedule(inputDeps);
         }
 
-        protected override NativeString32 GetNameOfAction()
+        protected override FixedString32 GetNameOfAction()
         {
             return nameof(CookAction);
         }
