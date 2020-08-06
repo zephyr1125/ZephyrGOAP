@@ -19,7 +19,7 @@ namespace Zephyr.GOAP.Tests
         [Test]
         public void IsCountable_Amount()
         {
-            Assert.IsFalse(_aState.IsCountable());
+            Assert.IsFalse(_aState.IsCountable());                              
 
             _aState.Amount = 3;
             Assert.IsTrue(_aState.IsCountable());

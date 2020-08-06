@@ -9,10 +9,10 @@ namespace Zephyr.GOAP.Editor
 {
     public class Utils
     {
-        public const string WindowFilePath = "Packages/zephyr.goap/Editor/UXML/window.uxml";
-        public const string NodeFilePath = "Packages/zephyr.goap/Editor/UXML/node.uxml";
-        public const string StateFilePath = "Packages/zephyr.goap/Editor/UXML/states.uxml";
-        public const string TimeLineNodeFilePath = "Packages/zephyr.goap/Editor/UXML/timeline_node.uxml";
+        public const string WindowFilePath = "Assets/Zephyr/GOAP/Editor/UXML/window.uxml";
+        public const string NodeFilePath = "Assets/Zephyr/GOAP/Editor/UXML/node.uxml";
+        public const string StateFilePath = "Assets/Zephyr/GOAP/Editor/UXML/states.uxml";
+        public const string TimeLineNodeFilePath = "Assets/Zephyr/GOAP/Editor/UXML/timeline_node.uxml";
         
         public const float DoubleClickThreshold = 0.2f;
         
