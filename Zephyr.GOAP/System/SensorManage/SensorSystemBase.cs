@@ -1,7 +1,7 @@
 using Unity.Entities;
 using Unity.Jobs;
 
-namespace Zephyr.GOAP.System
+namespace Zephyr.GOAP.System.SensorManage
 {
     [UpdateInGroup(typeof(SensorSystemGroup))]
     public abstract class SensorSystemBase : JobComponentSystem
@@ -11,7 +11,7 @@ namespace Zephyr.GOAP.System
         protected override void OnCreate()
         {
             base.OnCreate();
-            EcbSystem = World.GetOrCreateSystem<EndInitializationEntityCommandBufferSystem>();
+            EcbSystem = World.GetOrCreateSystem<SensorECBSystem>();
         }
         
         protected override JobHandle OnUpdate(JobHandle inputDeps)

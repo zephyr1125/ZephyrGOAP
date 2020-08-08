@@ -2,6 +2,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Struct;
+using Zephyr.GOAP.System.SensorManage;
 
 namespace Zephyr.GOAP.System
 {
