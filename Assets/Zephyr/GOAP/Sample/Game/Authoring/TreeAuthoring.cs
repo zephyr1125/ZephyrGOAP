@@ -7,13 +7,14 @@ using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
 namespace Zephyr.GOAP.Sample.Game.Authoring
 {
     [RequiresEntityConversion]
-    [ConverterVersion("Zephyr", 0)]
     public class TreeAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     {
         public string Name;
 
         [ValueDropdown("FruitNames")]
         public string FruitName;
+
+        public byte Amount;
 
         private static string[] FruitNames = {
             ItemNames.Instance().RawAppleName.ToString(),
@@ -26,7 +27,8 @@ namespace Zephyr.GOAP.Sample.Game.Authoring
 #if UNITY_EDITOR
             dstManager.SetName(entity, Name);
 #endif
-            dstManager.AddComponentData(entity, new RawSourceTrait{RawName = FruitName});
+            dstManager.AddComponentData(entity, 
+                new RawSourceTrait{RawName = FruitName, Amount = Amount});
         }
     }
 }

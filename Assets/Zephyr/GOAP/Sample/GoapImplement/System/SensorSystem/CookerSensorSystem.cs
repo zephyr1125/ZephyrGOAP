@@ -4,7 +4,7 @@ using Unity.Transforms;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Sample.Game.Component;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
-using Zephyr.GOAP.System;
+using Zephyr.GOAP.System.SensorManage;
 
 namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
 {

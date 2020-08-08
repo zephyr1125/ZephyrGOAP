@@ -4,7 +4,7 @@ using Unity.Transforms;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Sample.Game.Component;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
-using Zephyr.GOAP.System;
+using Zephyr.GOAP.System.SensorManage;
 
 namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
 {
@@ -23,9 +23,10 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
                     in ItemContainer itemContainer, in Translation translation) =>
                 {
                     if (!itemContainer.IsTransferSource) return;
-                    
-                    foreach (var itemRef in itemRefs)
+
+                    for (var i = 0; i < itemRefs.Length; i++)
                     {
+                        var itemRef = itemRefs[i];
                         ecb.AppendToBuffer(entityInQueryIndex, baseStateEntity, new State
                         {
                             Target = itemContainerEntity,

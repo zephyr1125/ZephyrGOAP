@@ -100,13 +100,14 @@ namespace Zephyr.GOAP.Logger
         /// <returns></returns>
         public string[] NodeAgentInfos()
         {
-            var sorted = new SortedSet<NodeAgentInfoLog>(nodeAgentInfos);
             var texts = new List<string>();
+            if (nodeAgentInfos == null) return texts.ToArray();
+            
+            var sorted = new SortedSet<NodeAgentInfoLog>(nodeAgentInfos);
             foreach (var log in sorted)
             {
                 texts.Add(log.ToString());
             }
-
             return texts.ToArray();
         }
     }

@@ -1,14 +1,13 @@
 using NUnit.Framework;
 using Unity.Entities;
 using Unity.Mathematics;
+using UnityEngine;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.GoalManage;
 using Zephyr.GOAP.Sample.GoapImplement;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Action;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
-using Zephyr.GOAP.Struct;
 using Zephyr.GOAP.System;
-using Zephyr.GOAP.Tests;
 
 namespace Zephyr.GOAP.Sample.Tests.ActionExpand
 {

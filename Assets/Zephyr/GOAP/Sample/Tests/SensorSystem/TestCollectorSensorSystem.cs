@@ -33,16 +33,11 @@ namespace Zephyr.GOAP.Sample.Tests.SensorSystem
             
             EntityManager.AddComponentData(_collectorEntity, new CollectorTrait());
             EntityManager.AddComponentData(_collectorEntity, new Translation());
-            
-            var baseStateBuffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);
-            baseStateBuffer.Add(new State
-            {
-                Target = _rawSourceEntity,
-                Position = new float3(5,0,0),
-                Trait = TypeManager.GetTypeIndex<RawSourceTrait>(),
-                ValueString = ItemNames.Instance().RawPeachName,
-                Amount = 1
-            });
+
+            EntityManager.AddComponentData(_rawSourceEntity,
+                new RawSourceTrait {RawName = ItemNames.Instance().RawPeachName});
+            EntityManager.AddComponentData(_rawSourceEntity,
+                new Translation {Value = new float3(5, 0, 0)});
         }
 
         //写入collector和潜在物品源
@@ -54,40 +49,38 @@ namespace Zephyr.GOAP.Sample.Tests.SensorSystem
             EntityManager.CompleteAllJobs();
 
             var buffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);
-            Assert.AreEqual(3, buffer.Length);    //1 raw + 1 collector + 1 item potential source
+            Assert.AreEqual(2, buffer.Length);    //1 collector + 1 item potential source
             Assert.AreEqual(new State
             {
                 Target = _collectorEntity,
                 Trait = TypeManager.GetTypeIndex<CollectorTrait>(),
-            }, buffer[1]);
+            }, buffer[0]);
             Assert.AreEqual(new State
             {
                 Target = _collectorEntity,
                 Trait = TypeManager.GetTypeIndex<ItemPotentialSourceTrait>(),
                 ValueString = ItemNames.Instance().RawPeachName
-            }, buffer[2]);
+            }, buffer[1]);
         }
         
         //太远的原料不计入
         [Test]
         public void RawSourceTooFar_NoState()
         {
-            var baseStateBuffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);
-            var rawState = baseStateBuffer[0];
-            rawState.Position = new float3(CollectorSensorSystem.CollectorRange+1, 0 ,0);
-            baseStateBuffer[0] = rawState;
+            EntityManager.SetComponentData(_rawSourceEntity,
+                new Translation {Value = new float3(CollectorSensorSystem.CollectorRange+1, 0, 0)});
             
             _system.Update();
             _system.EcbSystem.Update();
             EntityManager.CompleteAllJobs();
             
             var buffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);
-            Assert.AreEqual(2, buffer.Length);    //1 raw + 1 collector
+            Assert.AreEqual(1, buffer.Length);    //1 collector
             Assert.AreEqual(new State
             {
                 Target = _collectorEntity,
                 Trait = TypeManager.GetTypeIndex<CollectorTrait>(),
-            }, buffer[1]);
+            }, buffer[0]);
         }
     }
 }

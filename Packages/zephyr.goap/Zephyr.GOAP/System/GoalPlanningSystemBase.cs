@@ -12,10 +12,11 @@ using Zephyr.GOAP.Lib;
 using Zephyr.GOAP.Struct;
 using Zephyr.GOAP.System.GoalManage;
 using Zephyr.GOAP.System.GoapPlanningJob;
+using Zephyr.GOAP.System.SensorManage;
 
 namespace Zephyr.GOAP.System
 {
-    [UpdateInGroup(typeof(InitializationSystemGroup))]
+    [UpdateInGroup(typeof(InitializationSystemGroup), OrderLast = true)]
     [UpdateAfter(typeof(SensorSystemGroup))]
     [UpdateAfter(typeof(AgentGoalMonitorSystemGroup))]
     public abstract class GoalPlanningSystemBase : ComponentSystem
@@ -441,33 +442,34 @@ namespace Zephyr.GOAP.System
             var checkTime = DateTime.Now;
             bool foundPlan = false;
             var nodes = uncheckedNodes.GetValueArray(Allocator.Temp);
-            foreach (var uncheckedNode in nodes)
+            for (var nodeId = 0; nodeId < nodes.Length; nodeId++)
             {
-                Debugger?.Log("check node: "+uncheckedNode.Name);
+                var uncheckedNode = nodes[nodeId];
+                Debugger?.Log("check node: " + uncheckedNode.Name);
                 nodeGraph.CleanAllDuplicateStates(uncheckedNode);
-                
+
                 var uncheckedRequires = nodeGraph.GetRequires(uncheckedNode, Allocator.Temp);
 
                 //为了避免没有state的node(例如wander)与startNode有相同的hash，这种node被强制给了一个空state
                 //因此在只有1个state且内容为空时，也应视为找到了plan
-                if (uncheckedRequires.Length<= 0 ||
-                    (uncheckedRequires.Length==1 && uncheckedRequires[0].Equals(default)))
+                if (uncheckedRequires.Length <= 0 ||
+                    (uncheckedRequires.Length == 1 && uncheckedRequires[0].Equals(default)))
                 {
                     //找到Plan，追加起点Node
-                    Debugger?.Log("found plan: "+uncheckedNode.Name);
+                    Debugger?.Log("found plan: " + uncheckedNode.Name);
                     nodeGraph.LinkStartNode(uncheckedNode);
                     foundPlan = true;
                     //todo Early Exit
                 }
-                
+
                 //检查uncheckedNodes的parent是否已经存在于其children之中
                 //如果出现这种情况说明产生了循环，移去新得到的edge
                 //并且不不把此uncheckedNode加入待展开列表
                 var loop = false;
-                
+
                 var parents = nodeGraph.GetNodeParents(uncheckedNode.HashCode, Allocator.Temp);
-                
-                
+
+
                 for (var parentId = 0; parentId < parents.Length; parentId++)
                 {
                     var parentHash = parents[parentId];
@@ -492,6 +494,7 @@ namespace Zephyr.GOAP.System
                     //否则的话此node进入dead end 列表，以供debug查看
                     nodeGraph.AddDeadEndNode(uncheckedNode.HashCode);
                 }
+
                 uncheckedRequires.Dispose();
             }
 
@@ -508,9 +511,10 @@ namespace Zephyr.GOAP.System
             var children = nodeGraph.GetChildren(nodeHash, Allocator.Temp);
             for (var childId = 0; childId < children.Length; childId++)
             {
-                if (!parentHash.Equals(children[childId]))
+                var childHash = children[childId];
+                if (!parentHash.Equals(childHash))
                 {
-                    RemoveLoop(nodeGraph, children[childId], parentHash);
+                    RemoveLoop(nodeGraph, childHash, parentHash);
                     continue;   
                 }
                 nodeGraph.RemoveConnection(nodeHash, parentHash);
