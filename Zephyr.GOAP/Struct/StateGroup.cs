@@ -148,13 +148,12 @@ namespace Zephyr.GOAP.Struct
 
         /// <summary>
         /// 表示对左侧期望的满足计算，因此结构只有1种可能：
-        /// 期望And实现
         /// 会移除掉左侧满足的State，可数的减数量，不可数的移除
         /// </summary>
         /// <param name="other"></param>
         /// <param name="outputChangedOtherStates">是否输出右侧被变动的state，不可数不会被移除</param>
         /// <param name="allocator"></param>
-        public StateGroup AND(StateGroup other, bool outputChangedOtherStates = false, Allocator allocator = Allocator.Temp)
+        public StateGroup MINUS(StateGroup other, bool outputChangedOtherStates = false, Allocator allocator = Allocator.Temp)
         {
             StateGroup changedOtherStates = default;
             if (outputChangedOtherStates)

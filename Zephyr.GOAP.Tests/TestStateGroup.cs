@@ -102,87 +102,87 @@ namespace Zephyr.GOAP.Tests
 
         #endregion
 
-        #region AND
+        #region MINUS
 
         //不可数左右Equal的，移除左侧
         [Test]
-        public void AND_NonCountable_Equal_RemoveLeft()
+        public void MINUS_NonCountable_Equal_RemoveLeft()
         {
             _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitA>()});
             
-            _aStates.AND(_bStates);
+            _aStates.MINUS(_bStates);
             Assert.AreEqual(1, _aStates.Length());
             Assert.AreEqual(TypeManager.GetTypeIndex<MockTraitB>(), _aStates[0].Trait);
         }
 
         //右 belong to 左，移除左侧
         [Test]
-        public void AND_NonCountable_BelongTo_RemoveLeft()
+        public void MINUS_NonCountable_BelongTo_RemoveLeft()
         {
             _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitA>(), ValueString = "a"});
             
-            _aStates.AND(_bStates);
+            _aStates.MINUS(_bStates);
             Assert.AreEqual(1, _aStates.Length());
             Assert.AreEqual(TypeManager.GetTypeIndex<MockTraitB>(), _aStates[0].Trait);
         }
         
         //可数左右Same的，减少左侧数量
         [Test]
-        public void AND_Countable_Same_ReduceLeft() {
+        public void MINUS_Countable_Same_ReduceLeft() {
             _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitB>(), Amount = 1});
             
-            _aStates.AND(_bStates);
+            _aStates.MINUS(_bStates);
             Assert.AreEqual(2, _aStates.Length());
             Assert.AreEqual(2, _aStates[1].Amount);
         }
 
         //可数右 belong to 左，减少左侧数量
         [Test]
-        public void AND_Countable_BelongTo_ReduceLeft()
+        public void MINUS_Countable_BelongTo_ReduceLeft()
         {
             _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0},
                 Trait = TypeManager.GetTypeIndex<MockTraitB>(), ValueString = "b", Amount = 1});
             
-            _aStates.AND(_bStates);
+            _aStates.MINUS(_bStates);
             Assert.AreEqual(2, _aStates.Length());
             Assert.AreEqual(2, _aStates[1].Amount);
         }
         
         //可数右侧有多个符合的，要多次减少数量
         [Test]
-        public void AND_Countable_MultiFit_ReduceLeft()
+        public void MINUS_Countable_MultiFit_ReduceLeft()
         {
             _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitB>(), Amount = 1});
             _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0},
                 Trait = TypeManager.GetTypeIndex<MockTraitB>(), ValueString = "b", Amount = 1});
             
-            _aStates.AND(_bStates);
+            _aStates.MINUS(_bStates);
             Assert.AreEqual(2, _aStates.Length());
             Assert.AreEqual(1, _aStates[1].Amount);
         }
 
-        //对于在And中被完全满足的可数State，要直接移除，以避免变成Amount=0与不可数State混淆
+        //对于在MINUS中被完全满足的可数State，要直接移除，以避免变成Amount=0与不可数State混淆
         [Test]
-        public void AND_Zero_Countable_RemoveState()
+        public void MINUS_Zero_Countable_RemoveState()
         {
             _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0},
                 Trait = TypeManager.GetTypeIndex<MockTraitB>(), ValueString = "b", Amount = 3});
             
-            _aStates.AND(_bStates);
+            _aStates.MINUS(_bStates);
             Assert.AreEqual(1, _aStates.Length());
             Assert.AreEqual(TypeManager.GetTypeIndex<MockTraitA>(), _aStates[0].Trait);
         }
 
         //多个state的整体测试
         [Test]
-        public void AND_MultiState()
+        public void MINUS_MultiState()
         {
             var belongState = new State {Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitA>(), ValueString = "b"};
             var sameState = new State{Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitB>(), Amount = 2};
             _bStates.Add(belongState);
             _bStates.Add(sameState);
             
-            _aStates.AND(_bStates);
+            _aStates.MINUS(_bStates);
             Assert.AreEqual(1, _aStates.Length());
             Assert.AreEqual(1, _aStates[0].Amount);
             Assert.AreEqual(2, _bStates.Length());
@@ -191,12 +191,12 @@ namespace Zephyr.GOAP.Tests
 
         //要输出被移除了的右侧state
         [Test]
-        public void AND_OutputOtherRemovedStates()
+        public void MINUS_OutputOtherRemovedStates()
         {
             var sameState = new State{Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitB>(), Amount = 2};
             _bStates.Add(sameState);
 
-            var removedOther = _aStates.AND(_bStates, true);
+            var removedOther = _aStates.MINUS(_bStates, true);
             Assert.AreEqual(1, removedOther.Length());
             Assert.AreEqual(sameState, removedOther[0]);
             removedOther.Dispose();
@@ -204,12 +204,12 @@ namespace Zephyr.GOAP.Tests
         
         //要输出被减少的右侧state的正确数量
         [Test]
-        public void AND_OutputOtherReducedAmount()
+        public void MINUS_OutputOtherReducedAmount()
         {
             var sameState = new State{Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitB>(), Amount = 5};
             _bStates.Add(sameState);
 
-            var removedOther = _aStates.AND(_bStates, true);
+            var removedOther = _aStates.MINUS(_bStates, true);
             Assert.AreEqual(1, removedOther.Length());
             Assert.IsTrue(removedOther[0].SameTo(sameState));
             Assert.AreEqual(3, removedOther[0].Amount);
