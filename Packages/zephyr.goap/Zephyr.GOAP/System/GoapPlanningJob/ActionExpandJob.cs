@@ -67,7 +67,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
 
             var deltas = new StateGroup(Deltas, expandingNodeHash, Allocator.Temp);
             var currentStates = new StateGroup(StackData.BaseStates, Allocator.Temp);
-            currentStates.AND(deltas);
+            currentStates.MINUS(deltas);
             
             if (action.CheckTargetRequire(targetRequire, agentEntity, StackData, currentStates))
             {
@@ -89,9 +89,9 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     {
                         var requires = new StateGroup(leftRequires, Allocator.Temp);
                         
-                        requires.AND(effects);
+                        requires.MINUS(effects);
                         requires.OR(preconditions);
-                        var newDeltas = requires.AND(currentStates, true);
+                        var newDeltas = requires.MINUS(currentStates, true);
                         newDeltas.OR(deltas);
 
                         var reward =
