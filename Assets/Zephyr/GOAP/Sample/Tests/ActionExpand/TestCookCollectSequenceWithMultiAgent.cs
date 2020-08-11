@@ -9,8 +9,8 @@ using Zephyr.GOAP.Component.AgentState;
 using Zephyr.GOAP.Sample.GoapImplement;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Action;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
+using Zephyr.GOAP.Sample.GoapImplement.System;
 using Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem;
-using Zephyr.GOAP.Struct;
 using Zephyr.GOAP.System;
 using Zephyr.GOAP.Tests;
 
@@ -21,7 +21,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
     /// 预期：规划出ECook-Sequence序列
     /// 并且需要多人合作实现
     /// </summary>
-    public class TestCookCollectSequenceWithMultiAgent : TestActionExpandBase
+    public class TestCookCollectSequenceWithMultiAgent : TestActionExpandBase<GoalPlanningSystem>
     {
         private Entity _cookerEntity, _diningTableEntity, _collector0Entity, _collector1Entity, _rawAppleEntity, _rawPeachEntity;
         private Entity _agentBEntity;

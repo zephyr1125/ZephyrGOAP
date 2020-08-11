@@ -7,8 +7,10 @@ using Zephyr.GOAP.Component.GoalManage;
 using Zephyr.GOAP.Sample.GoapImplement;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Action;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
+using Zephyr.GOAP.Sample.GoapImplement.System;
 using Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem;
 using Zephyr.GOAP.System;
+using Zephyr.GOAP.Tests;
 
 namespace Zephyr.GOAP.Sample.Tests.ActionExpand
 {
@@ -16,7 +18,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
     /// 目标：获得体力
     /// 预期：规划出Eat
     /// </summary>
-    public class TestCookAction : TestActionExpandBase
+    public class TestCookAction : TestActionExpandBase<GoalPlanningSystem>
     {
         private Entity _cookerEntity;
         

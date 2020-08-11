@@ -6,7 +6,7 @@ using Zephyr.GOAP.Component.GoalManage;
 using Zephyr.GOAP.Sample.GoapImplement;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Action;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
-using Zephyr.GOAP.Struct;
+using Zephyr.GOAP.Sample.GoapImplement.System;
 using Zephyr.GOAP.System;
 using Zephyr.GOAP.Tests;
 
@@ -16,7 +16,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
     /// 目标：Collector提供指定物品
     /// 期望：PickRaw + DropRaw + Collect
     /// </summary>
-    public class TestPickDropCollectRawSequence : TestActionExpandBase
+    public class TestPickDropCollectRawSequence : TestActionExpandBase<GoalPlanningSystem>
     {
         private Entity _collectorEntity, _rawSourceEntity;
         

@@ -1,13 +1,14 @@
 using NUnit.Framework;
 using Unity.Entities;
 using Unity.Mathematics;
-using UnityEngine;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.GoalManage;
 using Zephyr.GOAP.Sample.GoapImplement;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Action;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
+using Zephyr.GOAP.Sample.GoapImplement.System;
 using Zephyr.GOAP.System;
+using Zephyr.GOAP.Tests;
 
 namespace Zephyr.GOAP.Sample.Tests.ActionExpand
 {
@@ -16,7 +17,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
     /// 目标：目标容器有物品
     /// 期望：Collect+Pick+Drop
     /// </summary>
-    public class TestCollectAction : TestActionExpandBase
+    public class TestCollectAction : TestActionExpandBase<GoalPlanningSystem>
     {
         private Entity _collectorEntity, _itemDestinationEntity;
         

@@ -5,14 +5,12 @@ using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.AgentState;
 using Zephyr.GOAP.Component.GoalManage;
 using Zephyr.GOAP.Component.GoalManage.GoalState;
-using Zephyr.GOAP.Sample.GoapImplement.System;
 using Zephyr.GOAP.System;
-using Zephyr.GOAP.Tests;
 using Zephyr.GOAP.Tests.Debugger;
 
-namespace Zephyr.GOAP.Sample.Tests
+namespace Zephyr.GOAP.Tests
 {
-    public class TestActionExpandBase : TestBase
+    public class TestActionExpandBase<T> : TestBase where T: GoalPlanningSystemBase
     {
         protected GoalPlanningSystemBase _system;
         protected Entity _agentEntity, _goalEntity;
@@ -25,7 +23,7 @@ namespace Zephyr.GOAP.Sample.Tests
             base.SetUp();
             
             _debugger = new TestGoapDebugger(); 
-            _system = World.GetOrCreateSystem<GoalPlanningSystem>();
+            _system = World.GetOrCreateSystem<T>();
             _system.Debugger = _debugger;
             
             _agentEntity = EntityManager.CreateEntity();

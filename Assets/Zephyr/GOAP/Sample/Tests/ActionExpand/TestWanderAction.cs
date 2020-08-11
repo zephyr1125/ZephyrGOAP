@@ -5,8 +5,8 @@ using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Sample.GoapImplement;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Action;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
+using Zephyr.GOAP.Sample.GoapImplement.System;
 using Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem;
-using Zephyr.GOAP.Struct;
 using Zephyr.GOAP.System;
 using Zephyr.GOAP.Tests;
 
@@ -16,7 +16,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
     /// 目标：wander
     /// 预期：规划出wander
     /// </summary>
-    public class TestWanderAction : TestActionExpandBase
+    public class TestWanderAction : TestActionExpandBase<GoalPlanningSystem>
     {
         [SetUp]
         public override void SetUp()

@@ -4,7 +4,9 @@ using Unity.Entities;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Action;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
+using Zephyr.GOAP.Sample.GoapImplement.System;
 using Zephyr.GOAP.System;
+using Zephyr.GOAP.Tests;
 
 namespace Zephyr.GOAP.Sample.Tests.ActionExpand
 {
@@ -12,7 +14,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
     /// 目标：获得体力
     /// 预期：规划出Eat
     /// </summary>
-    public class TestEatAction : TestActionExpandBase
+    public class TestEatAction : TestActionExpandBase<GoalPlanningSystem>
     {
         private Entity _diningTableEntity;
         

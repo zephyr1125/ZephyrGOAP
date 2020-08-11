@@ -1,12 +1,11 @@
 using NUnit.Framework;
 using Unity.Entities;
-using UnityEngine;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Sample.GoapImplement;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Action;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
+using Zephyr.GOAP.Sample.GoapImplement.System;
 using Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem;
-using Zephyr.GOAP.Struct;
 using Zephyr.GOAP.System;
 using Zephyr.GOAP.Tests;
 
@@ -16,7 +15,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
     /// 目标：获得体力
     /// 预期：规划出Eat-Cook序列
     /// </summary>
-    public class TestEatCookSequence : TestActionExpandBase
+    public class TestEatCookSequence : TestActionExpandBase<GoalPlanningSystem>
     {
 
         private Entity _cookerEntity, _diningTableEntity, _itemSourceEntity;
