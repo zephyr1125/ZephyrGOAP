@@ -2,12 +2,13 @@ using NUnit.Framework;
 using Unity.Collections;
 using Unity.Entities;
 using Zephyr.GOAP.Component;
+using Zephyr.GOAP.Component.GoalManage.GoalState;
 using Zephyr.GOAP.System;
 using Zephyr.GOAP.Tests.Mock;
 
 namespace Zephyr.GOAP.Tests
 {
-    public class TestGoalPlanningSystemSaveDelta : TestActionExpandBase<MockGoalPlanningSystem>
+    public class TestGoalPlanningSystemDelta : TestActionExpandBase<MockGoalPlanningSystem>
     {
         private EntityQuery _deltaQuery;
 
@@ -62,6 +63,20 @@ namespace Zephyr.GOAP.Tests
             
             deltas.Dispose();
             deltaEntities.Dispose();
+        }
+
+        [Test]
+        public void BaseState_Minus_Delta()
+        {
+            _system.Update();
+            EntityManager.CompleteAllJobs();
+            
+            Utils.NextGoalState<ExecutingGoal, IdleGoal>(_goalEntity, EntityManager, 0);
+            
+            _system.Update();
+            EntityManager.CompleteAllJobs();
+            
+            Assert.IsFalse(_debugger.IsPlanSuccess());
         }
     }
 }

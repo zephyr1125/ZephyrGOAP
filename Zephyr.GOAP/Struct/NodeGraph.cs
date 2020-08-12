@@ -44,7 +44,7 @@ namespace Zephyr.GOAP.Struct
         
         public int GoalNodeHash { get; private set; }
 
-        public NodeGraph(int initialCapacity, DynamicBuffer<State> startRequires, Allocator allocator) : this()
+        public NodeGraph(int initialCapacity, StateGroup startRequires, Allocator allocator) : this()
         {
             _nodes = new NativeHashMap<int, Node>(initialCapacity, allocator);
             
@@ -61,7 +61,7 @@ namespace Zephyr.GOAP.Struct
             var startNode = new Node {Name = "start"};
             StartNodeHash = startNode.HashCode;
             _nodes.Add(StartNodeHash, startNode);
-            for (var i = 0; i < startRequires.Length; i++)
+            for (var i = 0; i < startRequires.Length(); i++)
             {
                AddEffect(startRequires[i], StartNodeHash);
             }
