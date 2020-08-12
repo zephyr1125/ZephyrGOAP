@@ -38,7 +38,7 @@ namespace Zephyr.GOAP.System
         /// </summary>
         public int AgentAmountForPlanning = 3;
 
-        private EntityQuery _allAgentQuery, _idleAgentQuery, _goalQuery;
+        private EntityQuery _allAgentQuery, _idleAgentQuery, _goalQuery, _deltaQuery;
 
         public IGoapDebugger Debugger;
 
@@ -70,6 +70,8 @@ namespace Zephyr.GOAP.System
             {
                 All = new[] {ComponentType.ReadOnly<Goal>(), ComponentType.ReadOnly<IdleGoal>(), },
             });
+            _deltaQuery = GetEntityQuery(ComponentType.ReadOnly<DeltaStates>(),
+                ComponentType.ReadOnly<State>());
         }
 
         protected override void OnUpdate()
@@ -104,16 +106,15 @@ namespace Zephyr.GOAP.System
             var agentAmount = planningAgents.Length;
             idleAgents.Dispose();
 
-            //从baseState的存储Entity上拿取base states
-            var baseStateBuffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);
-            
             var agentTranslations = _idleAgentQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
             var agentMoveSpeeds = _idleAgentQuery.ToComponentDataArray<MaxMoveSpeed>(Allocator.TempJob);
             var agentStartTimes = new NativeArray<float>(agentTranslations.Length, Allocator.TempJob);
             
+            //从baseState的存储Entity上拿取base states，减去delta states，以得到实际的base states
+            var baseStates = CalcBaseStates();
+            
             //组织StackData
-            var stackData = new StackData(planningAgents, agentTranslations,
-                new StateGroup(baseStateBuffer, Allocator.TempJob));
+            var stackData = new StackData(planningAgents, agentTranslations, baseStates);
             agentTranslations.Dispose();
 
             Debugger?.StartLog(EntityManager);
@@ -124,7 +125,7 @@ namespace Zephyr.GOAP.System
             var unexpandedNodes = new NativeList<Node>(Allocator.TempJob);
             var expandedNodes = new NativeList<Node>(Allocator.TempJob);
 
-            var nodeGraph = new NodeGraph(128*agentAmount, baseStateBuffer, Allocator.TempJob);
+            var nodeGraph = new NodeGraph(128*agentAmount, baseStates, Allocator.TempJob);
 
             var goalPrecondition = new StateGroup();
             var goalEffects = new StateGroup();
@@ -238,6 +239,27 @@ namespace Zephyr.GOAP.System
             agentStartTimes.Dispose();
             stackData.Dispose();
             planningAgents.Dispose();
+        }
+
+        private StateGroup CalcBaseStates()
+        {
+            var baseStateBuffer = EntityManager.GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);
+            var result = new StateGroup(baseStateBuffer, Allocator.TempJob);
+            var deltas = new StateGroup(4, Allocator.Temp);
+            var deltaEntities = _deltaQuery.ToEntityArray(Allocator.TempJob);
+            for (var deltaId = 0; deltaId < deltaEntities.Length; deltaId++)
+            {
+                var deltaEntity = deltaEntities[deltaId];
+                var states = EntityManager.GetBuffer<State>(deltaEntity);
+                for (var stateId = 0; stateId < states.Length; stateId++)
+                {
+                    deltas.Add(states[stateId]);
+                }
+            }
+
+            deltaEntities.Dispose();
+            result.MINUS(deltas);
+            return result;
         }
 
         /// <summary>
