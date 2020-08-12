@@ -352,12 +352,14 @@ namespace Zephyr.GOAP.System
 
                 var entity = EntityManager.CreateEntity();
                 pathEntities[i] = entity;
+                var preconditions = new StateGroup(1, Allocator.Temp);
                 // add states & dependencies
                 var stateBuffer = EntityManager.AddBuffer<State>(entity);
                 //precondition不从NodeGraph来，而是用寻路时得到的明确版本
                 for (var j = 0; j < pathNodeSpecifiedPreconditionIndices.Length; j++)
                 {
                     var specifiedPrecondition = pathNodeSpecifiedPreconditions[j];
+                    preconditions.Add(specifiedPrecondition);
                     if (!pathNodeSpecifiedPreconditionIndices[j].Equals(node.HashCode)) continue;
                     stateBuffer.Add(specifiedPrecondition);
                     node.PreconditionsBitmask |= (ulong) 1 << stateBuffer.Length - 1;
@@ -368,7 +370,7 @@ namespace Zephyr.GOAP.System
                     stateBuffer.Add(effects[j]);
                     node.EffectsBitmask |= (ulong) 1 << stateBuffer.Length - 1;
                 }
-                
+
                 //save estimate start time
                 if (pathNodesEstimateNavigateTime.ContainsKey(node.HashCode))
                 {
@@ -384,6 +386,26 @@ namespace Zephyr.GOAP.System
                 pathNodes[i] = node;
                 EntityManager.AddComponentData(entity, node);
                 
+                //save delta for base states
+                var deltas = nodeGraph.GetDeltas(node, Allocator.Temp);
+                var deltasStateGroup = new StateGroup(deltas, Allocator.Temp);
+                deltasStateGroup.AND(preconditions);    //filter my deltas
+                
+                if (deltasStateGroup.Length() > 0)
+                {
+                    var deltaEntity = EntityManager.CreateEntity();
+                    EntityManager.AddComponentData(deltaEntity,
+                        new DeltaStates {ActionNodeEntity = entity});
+                    var buffer = EntityManager.AddBuffer<State>(deltaEntity);
+                    for (var deltaId = 0; deltaId < deltasStateGroup.Length(); deltaId++)
+                    {
+                        buffer.Add(deltasStateGroup[deltaId]);
+                    }
+                }
+                deltasStateGroup.Dispose();
+                deltas.Dispose();
+                
+                preconditions.Dispose();
                 effects.Dispose();
             }
 

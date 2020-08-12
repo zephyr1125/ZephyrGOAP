@@ -217,6 +217,73 @@ namespace Zephyr.GOAP.Tests
         }
         
         #endregion
+
+        #region AND
+
+        //可数SameTo，右侧较小,取右侧
+        [Test]
+        public void AND_Countable_SameTo_RightLess_GetRightAmount()
+        {
+            _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitB>(), Amount = 2});
+            
+            _aStates.AND(_bStates);
+            Assert.AreEqual(1, _aStates.Length());
+            Assert.AreEqual(TypeManager.GetTypeIndex<MockTraitB>(), _aStates[0].Trait);
+            Assert.AreEqual(2, _aStates[0].Amount);
+        }
         
+        //可数SameTo，左侧较小,取左侧
+        [Test]
+        public void AND_Countable_SameTo_LeftLess_GetLeftAmount()
+        {
+            _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitB>(), Amount = 4});
+            
+            _aStates.AND(_bStates);
+            Assert.AreEqual(1, _aStates.Length());
+            Assert.AreEqual(TypeManager.GetTypeIndex<MockTraitB>(), _aStates[0].Trait);
+            Assert.AreEqual(3, _aStates[0].Amount);
+        }
+        
+        //可数不Same,移除
+        [Test]
+        public void AND_Countable_NoSame_Remove()
+        {
+            _bStates.Add(new State {Target = new Entity{Index = 2, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitB>(), Amount = 2});
+            
+            _aStates.AND(_bStates);
+            Assert.AreEqual(0, _aStates.Length());
+        }
+        
+        //可数Equal，保留
+        public void AND_Countable_Equal_Keep()
+        {
+            _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitB>(), Amount = 3});
+            
+            _aStates.AND(_bStates);
+            Assert.AreEqual(1, _aStates.Length());
+            Assert.AreEqual(TypeManager.GetTypeIndex<MockTraitB>(), _aStates[0].Trait);
+            Assert.AreEqual(3, _aStates[0].Amount);
+        }
+        
+        //不可数Equal，保留
+        public void AND_Uncountable_Equal_Keep()
+        {
+            _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitA>()});
+            
+            _aStates.AND(_bStates);
+            Assert.AreEqual(1, _aStates.Length());
+            Assert.AreEqual(TypeManager.GetTypeIndex<MockTraitA>(), _aStates[0].Trait);
+        }
+        
+        //不可数不Equal，移除
+        public void AND_Uncountable_NotEqual_Remove()
+        {
+            _bStates.Add(new State {Target = new Entity{Index = 2, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitA>()});
+            
+            _aStates.AND(_bStates);
+            Assert.AreEqual(0, _aStates.Length());
+        }
+        
+        #endregion
     }
 }
