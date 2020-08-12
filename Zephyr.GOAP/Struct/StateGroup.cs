@@ -28,7 +28,7 @@ namespace Zephyr.GOAP.Struct
             }
         }
         
-        public StateGroup(NativeArray<State> copyFrom, Allocator allocator)
+        public StateGroup(NativeList<State> copyFrom, Allocator allocator)
         {
             _states = new NativeList<State>(copyFrom.Length, allocator);
             for (var i = 0; i < copyFrom.Length; i++)
@@ -146,8 +146,14 @@ namespace Zephyr.GOAP.Struct
             _states.Add(state);
         }
 
+        public void RemoveAtSwapBack(int index)
+        {
+            _states.RemoveAtSwapBack(index);
+        }
+
         /// <summary>
         /// 表示对左侧期望的满足计算，因此结构只有1种可能：
+        /// 期望 MINUS 实现
         /// 会移除掉左侧满足的State，可数的减数量，不可数的移除
         /// </summary>
         /// <param name="other"></param>
@@ -212,11 +218,11 @@ namespace Zephyr.GOAP.Struct
         }
         
         /// <summary>
-        /// 2种可能：
-        /// 期望Or期望，实现Or实现
+        /// 左右累加，因此2种可能：
+        /// 期望OR期望，实现OR实现
         /// </summary>
         /// <param name="other"></param>
-        public void OR(StateGroup other)
+        public void OR([ReadOnly]StateGroup other)
         {
             for (var otherId = 0; otherId < other.Length(); otherId++)
             {
@@ -250,6 +256,49 @@ namespace Zephyr.GOAP.Struct
                 //左侧找不到相同项时需要追加
                 if(!contained)Add(otherState);
             }
+        }
+
+        /// <summary>
+        /// 左右求交集，因此2种可能
+        /// 期望AND期望，实现AND实现
+        /// </summary>
+        /// <param name="other"></param>
+        public void AND([ReadOnly]StateGroup other)
+        {
+            for (var thisId = Length() - 1; thisId >= 0; thisId--)
+            {
+                var thisState = this[thisId];
+                var contained = false;
+                for (var otherId = 0; otherId < other.Length(); otherId++)
+                {
+                    var otherState = other[otherId];
+
+                    if (otherState.IsCountable())
+                    {
+                        //可数，要取数量较小的一方
+                        if (!thisState.SameTo(otherState)) continue;
+
+                        contained = true;
+                        if (thisState.Amount > otherState.Amount)
+                        {
+                            thisState.Amount = otherState.Amount;
+                            this[thisId] = thisState;
+                        }
+                        break;
+                    }
+                    else
+                    {
+                        //不可数
+                        if (!thisState.Equals(otherState)) continue;
+
+                        contained = true;
+                        break;
+                    }
+                }
+                //右侧找不到相同项时，需移除
+                if(!contained)RemoveAtSwapBack(thisId);
+            }
+                
         }
 
         public State GetState(Func<State, bool> compare)
