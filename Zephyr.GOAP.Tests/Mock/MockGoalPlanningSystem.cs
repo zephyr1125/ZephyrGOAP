@@ -35,5 +35,11 @@ namespace Zephyr.GOAP.Tests.Mock
                 newlyCreatedNodesWriter, iteration);
             return handle;
         }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            _itemNames.Dispose();
+        }
     }
 }

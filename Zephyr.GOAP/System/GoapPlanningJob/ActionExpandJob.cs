@@ -98,7 +98,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                             action.GetReward(targetRequire, setting, StackData);
                         
                         var time =
-                            action.GetExecuteTime(targetRequire, setting, StackData);
+                            action.GetExecuteTime(setting);
 
                         action.GetNavigatingSubjectInfo(targetRequire, setting,
                             StackData, preconditions, out var subjectType, out var subjectId);
