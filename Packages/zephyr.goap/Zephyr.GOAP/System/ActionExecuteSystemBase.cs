@@ -3,7 +3,6 @@ using Unity.Entities;
 using Unity.Jobs;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.ActionNodeState;
-using Zephyr.GOAP.Struct;
 
 namespace Zephyr.GOAP.System
 {

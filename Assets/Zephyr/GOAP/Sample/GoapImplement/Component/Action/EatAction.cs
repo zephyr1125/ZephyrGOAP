@@ -85,7 +85,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return Utils.GetFoodReward(setting.ValueString, stackData.ItemNames);
         }
 
-        public float GetExecuteTime(State targetRequire, State setting, [ReadOnly]StackData stackData)
+        public float GetExecuteTime([ReadOnly]State setting)
         {
             return 2;
         }

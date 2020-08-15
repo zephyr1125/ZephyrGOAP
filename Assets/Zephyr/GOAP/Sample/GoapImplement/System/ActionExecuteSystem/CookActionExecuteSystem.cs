@@ -8,7 +8,6 @@ using Zephyr.GOAP.Component.AgentState;
 using Zephyr.GOAP.Sample.Game.Component;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Action;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
-using Zephyr.GOAP.Struct;
 using Zephyr.GOAP.System;
 
 namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
@@ -26,8 +25,8 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
             return Entities.WithName("CookActionExecuteJob")
                 .WithAll<ReadyToAct>()
                 .WithNativeDisableParallelForRestriction(allItems)
-                .WithDeallocateOnJobCompletion(waitingNodeEntities)
-                .WithDeallocateOnJobCompletion(waitingNodes)
+                .WithDisposeOnCompletion(waitingNodeEntities)
+                .WithDisposeOnCompletion(waitingNodes)
                 .WithReadOnly(waitingStates)
                 .ForEach((Entity agentEntity, int entityInQueryIndex,
                     in Agent agent, in CookAction action) =>

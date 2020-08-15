@@ -63,7 +63,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return 0;
         }
 
-        public float GetExecuteTime(State targetRequire, State setting, [ReadOnly]StackData stackData)
+        public float GetExecuteTime([ReadOnly]State setting)
         {
             return 0;
         }

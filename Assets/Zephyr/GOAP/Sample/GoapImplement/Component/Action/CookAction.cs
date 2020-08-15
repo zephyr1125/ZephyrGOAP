@@ -135,7 +135,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             [ReadOnly]StackData stackData, [ReadOnly]StateGroup currentStates, StateGroup preconditions)
         {
             //cooker有其生产所需原料
-            var targetRecipeInputFilter = new State
+            var targetRecipeOutputFilter = new State
             {
                 Trait = TypeManager.GetTypeIndex<RecipeOutputTrait>(),
                 ValueTrait = TypeManager.GetTypeIndex<CookerTrait>(),
@@ -143,7 +143,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                 Amount = setting.Amount
             };
             var inputs = Utils.GetRecipeInputInStateGroup(currentStates,
-                targetRecipeInputFilter, Allocator.Temp);
+                targetRecipeOutputFilter, Allocator.Temp, out var outputAmount);
             //把查到的配方转化为对此设施拥有的需求
             preconditions.Add(new State
             {
@@ -179,7 +179,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
             return -1;
         }
 
-        public float GetExecuteTime(State targetRequire, State setting, [ReadOnly]StackData stackData)
+        public float GetExecuteTime([ReadOnly]State setting)
         {
             return 4 / (float) (Level + 1);
         }
