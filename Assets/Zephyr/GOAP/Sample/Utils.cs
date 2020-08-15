@@ -13,21 +13,26 @@ namespace Zephyr.GOAP.Sample
         /// <summary>
         /// 根据传入的配方输出筛选，传出其对应的输入State组
         /// 能根据输出的数量要求给出成倍计算后的输入数量，如果出现配方产量超过需求，就产生富余
+        /// 如果输入的output数量为0，则假定为一次生产，并输出产物数量
         /// </summary>
         /// <param name="stateGroup"></param>
-        /// <param name="recipeOutFilter"></param>
+        /// <param name="recipeOutputFilter"></param>
         /// <param name="allocator"></param>
+        /// <param name="outputAmount">输出的outputAmount，在已经提供amount时为原值，没提供的话为一次生产的值</param>
         /// <returns></returns>
-        public static StateGroup GetRecipeInputInStateGroup(StateGroup stateGroup, State recipeOutFilter, Allocator allocator)
+        public static StateGroup GetRecipeInputInStateGroup(StateGroup stateGroup, State recipeOutputFilter,
+            Allocator allocator, out byte outputAmount)
         {
-            
+            outputAmount = recipeOutputFilter.Amount;
             var result = new StateGroup(2, allocator);
             for (var i = 0; i < stateGroup.Length(); i++)
             {
-                if (stateGroup[i].BelongTo(recipeOutFilter))
+                if (stateGroup[i].BelongTo(recipeOutputFilter))
                 {
+                    //如果输入的output数量为0，则假定为一次生产，并输出产物数量
+                    if (outputAmount == 0) outputAmount = stateGroup[i].Amount;
                     
-                    var multiply = math.ceil((float)recipeOutFilter.Amount / stateGroup[i].Amount);
+                    var multiply = math.ceil((float)outputAmount / stateGroup[i].Amount);
                     var input1 = stateGroup[i + 1];
                     var input2 = stateGroup[i + 2];
                     input1.Amount *= (byte) multiply;

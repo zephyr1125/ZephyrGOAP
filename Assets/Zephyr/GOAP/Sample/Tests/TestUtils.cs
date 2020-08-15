@@ -58,7 +58,7 @@ namespace Zephyr.GOAP.Sample.Tests
             };
 
             var inputs =
-                Utils.GetRecipeInputInStateGroup(_baseStates, output, Allocator.Temp);
+                Utils.GetRecipeInputInStateGroup(_baseStates, output, Allocator.Temp, out var outputAmount);
 
             Assert.AreEqual(3, inputs[0].Amount);
             Assert.AreEqual(9, inputs[1].Amount);
@@ -81,7 +81,7 @@ namespace Zephyr.GOAP.Sample.Tests
             };
 
             var inputs =
-                Utils.GetRecipeInputInStateGroup(_baseStates, output, Allocator.Temp);
+                Utils.GetRecipeInputInStateGroup(_baseStates, output, Allocator.Temp, out var outputAmount);
 
             Assert.AreEqual(1, inputs[0].Amount);
             Assert.AreEqual(3, inputs[1].Amount);
@@ -104,7 +104,7 @@ namespace Zephyr.GOAP.Sample.Tests
             };
 
             var inputs =
-                Utils.GetRecipeInputInStateGroup(_baseStates, output, Allocator.Temp);
+                Utils.GetRecipeInputInStateGroup(_baseStates, output, Allocator.Temp, out var outputAmount);
 
             Assert.AreEqual(2, inputs[0].Amount);
             Assert.AreEqual(6, inputs[1].Amount);
