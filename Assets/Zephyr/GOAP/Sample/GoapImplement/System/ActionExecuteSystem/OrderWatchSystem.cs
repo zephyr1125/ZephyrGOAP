@@ -12,7 +12,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
     /// Game的OrderCleanSystem会在order执行完毕后destroy他
     /// 而如果是来自action的order会被附加state component，得以监视到destroy
     /// </summary>
-    [UpdateInGroup(typeof(EndSimulationEntityCommandBufferSystem))]
+    [UpdateInGroup(typeof(LateSimulationSystemGroup))]
     public class OrderWatchSystem : SystemBase
     {
         /// <summary>
