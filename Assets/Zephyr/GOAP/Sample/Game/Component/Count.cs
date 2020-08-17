@@ -4,6 +4,6 @@ namespace Zephyr.GOAP.Sample.Game.Component
 {
     public struct Count : IComponentData
     {
-        public float Value;
+        public byte Value;
     }
 }

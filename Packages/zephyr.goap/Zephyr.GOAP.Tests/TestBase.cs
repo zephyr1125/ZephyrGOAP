@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using Unity.Entities;
+using Zephyr.GOAP.System;
 
 namespace Zephyr.GOAP.Tests
 {
@@ -16,6 +17,11 @@ namespace Zephyr.GOAP.Tests
 
             EntityManager = World.EntityManager;
             ManagerDebug = new EntityManager.EntityManagerDebug(EntityManager);
+
+            var baseStateHelper = World.GetOrCreateSystem<BaseStatesHelper>();
+            baseStateHelper.Update();
+            baseStateHelper._removeECBufferSystem.Update();
+            EntityManager.CompleteAllJobs();
         }
 
         [TearDown]
