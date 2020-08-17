@@ -4,10 +4,10 @@ using Unity.Collections;
 using Unity.Entities;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Sample.Game.Component;
+using Zephyr.GOAP.Sample.Game.Component.Order;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Action;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
 using Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem;
-using Zephyr.GOAP.Struct;
 using Zephyr.GOAP.Tests;
 
 namespace Zephyr.GOAP.Sample.Tests.ActionExecute
@@ -25,19 +25,6 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExecute
             _system = World.GetOrCreateSystem<CookActionExecuteSystem>();
             
             _cookerEntity = EntityManager.CreateEntity();
-            
-            //cooker预存好原料
-            var itemBuffer = EntityManager.AddBuffer<ContainedItemRef>(_cookerEntity);
-            itemBuffer.Add(new ContainedItemRef
-            {
-                ItemName = "input0",
-                ItemEntity = new Entity {Index = 99, Version = 9}
-            });
-            itemBuffer.Add(new ContainedItemRef
-            {
-                ItemName = "input1",
-                ItemEntity = new Entity {Index = 98, Version = 9}
-            });
             
             EntityManager.AddComponentData(_agentEntity, new CookAction());
             
@@ -70,29 +57,15 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExecute
         }
 
         [Test]
-        public void CookerRemoveInput()
+        public void CreateOrder()
         {
             _system.Update();
             _system.EcbSystem.Update();
             EntityManager.CompleteAllJobs();
 
-            var itemBuffer = EntityManager.GetBuffer<ContainedItemRef>(_cookerEntity);
-            var items = itemBuffer.ToNativeArray(Allocator.Temp);
-            Assert.IsFalse(items.Any(item => item.ItemName.Equals("input0")));
-            Assert.IsFalse(items.Any(item => item.ItemName.Equals("input1")));
-            items.Dispose();
-        }
-
-        [Test]
-        public void CookerGotOutput()
-        {
-            _system.Update();
-            _system.EcbSystem.Update();
-            EntityManager.CompleteAllJobs();
-            
-            var itemBuffer = EntityManager.GetBuffer<ContainedItemRef>(_cookerEntity);
-            Assert.AreEqual(1, itemBuffer.Length);
-            Assert.IsTrue(itemBuffer[0].ItemName.Equals("output"));
+            var orderQuery =
+                EntityManager.CreateEntityQuery(typeof(Order), typeof(OrderWatchSystem.OrderWatch));
+            Assert.AreEqual(1, orderQuery.CalculateEntityCount());
         }
     }
 }
