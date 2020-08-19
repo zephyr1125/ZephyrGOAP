@@ -16,16 +16,11 @@ namespace Zephyr.GOAP.Sample.Tests.SensorSystem
         private ItemSourceSensorSystem _system;
 
         private Entity _containerEntity;
-
-        private BaseStatesHelper _baseStatesHelper;
         
         [SetUp]
         public override void SetUp()
         {
             base.SetUp();
-
-            _baseStatesHelper = World.GetOrCreateSystem<BaseStatesHelper>();
-            _baseStatesHelper.Update();
 
             _system = World.GetOrCreateSystem<ItemSourceSensorSystem>();
             _containerEntity = EntityManager.CreateEntity();

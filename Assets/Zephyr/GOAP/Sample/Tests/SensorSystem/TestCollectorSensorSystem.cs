@@ -16,16 +16,11 @@ namespace Zephyr.GOAP.Sample.Tests.SensorSystem
         private CollectorSensorSystem _system;
 
         private Entity _collectorEntity, _rawSourceEntity;
-
-        private BaseStatesHelper _baseStatesHelper;
         
         [SetUp]
         public override void SetUp()
         {
             base.SetUp();
-
-            _baseStatesHelper = World.GetOrCreateSystem<BaseStatesHelper>();
-            _baseStatesHelper.Update();
 
             _system = World.GetOrCreateSystem<CollectorSensorSystem>();
             _collectorEntity = EntityManager.CreateEntity();
