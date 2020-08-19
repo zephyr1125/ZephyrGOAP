@@ -25,8 +25,6 @@ namespace Zephyr.GOAP.Tests
             EntityManager.AddComponentData(_agentEntity, new ReadyToAct());
             
             EntityManager.AddComponentData(_actionNodeEntity, new ActionNodeActing());
-            
-            World.GetOrCreateSystem<BaseStatesHelper>().Update();
         }
     }
 }
