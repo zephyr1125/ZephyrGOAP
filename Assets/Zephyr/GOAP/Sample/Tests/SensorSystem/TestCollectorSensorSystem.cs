@@ -1,8 +1,10 @@
 using NUnit.Framework;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Zephyr.GOAP.Component;
+using Zephyr.GOAP.Sample.Game.Component;
 using Zephyr.GOAP.Sample.GoapImplement;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
 using Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem;
@@ -13,26 +15,38 @@ namespace Zephyr.GOAP.Sample.Tests.SensorSystem
 {
     public class TestCollectorSensorSystem : TestBase
     {
+        private FixedString32 _rawName;
+        
         private CollectorSensorSystem _system;
 
-        private Entity _collectorEntity, _rawSourceEntity;
+        private Entity _collectorEntity, _rawSourceEntity, _rawItemEntity;
         
         [SetUp]
         public override void SetUp()
         {
             base.SetUp();
 
+            _rawName = ItemNames.Instance().RawPeachName;
+
             _system = World.GetOrCreateSystem<CollectorSensorSystem>();
             _collectorEntity = EntityManager.CreateEntity();
             _rawSourceEntity = EntityManager.CreateEntity();
+            _rawItemEntity = EntityManager.CreateEntity();
             
             EntityManager.AddComponentData(_collectorEntity, new CollectorTrait());
             EntityManager.AddComponentData(_collectorEntity, new Translation());
 
             EntityManager.AddComponentData(_rawSourceEntity,
-                new RawSourceTrait {RawName = ItemNames.Instance().RawPeachName});
+                new RawSourceTrait {RawName = _rawName});
             EntityManager.AddComponentData(_rawSourceEntity,
                 new Translation {Value = new float3(5, 0, 0)});
+            EntityManager.AddComponentData(_rawSourceEntity,
+                new ItemContainer {IsTransferSource = false});
+            var buffer = EntityManager.AddBuffer<ContainedItemRef>(_rawSourceEntity);
+            buffer.Add(new ContainedItemRef{ItemEntity = _rawItemEntity, ItemName = _rawName});
+            
+            EntityManager.AddComponentData(_rawItemEntity, new Item());
+            EntityManager.AddComponentData(_rawItemEntity, new Count{Value = 9});
         }
 
         //写入collector和潜在物品源
@@ -48,13 +62,16 @@ namespace Zephyr.GOAP.Sample.Tests.SensorSystem
             Assert.AreEqual(new State
             {
                 Target = _collectorEntity,
+                Position = new float3(5, 0, 0),
                 Trait = TypeManager.GetTypeIndex<CollectorTrait>(),
             }, buffer[0]);
             Assert.AreEqual(new State
             {
                 Target = _collectorEntity,
+                Position = new float3(5, 0, 0),
                 Trait = TypeManager.GetTypeIndex<ItemPotentialSourceTrait>(),
-                ValueString = ItemNames.Instance().RawPeachName
+                ValueString = _rawName,
+                Amount = 9
             }, buffer[1]);
         }
         

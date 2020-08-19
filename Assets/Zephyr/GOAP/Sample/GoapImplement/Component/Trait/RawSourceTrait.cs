@@ -10,6 +10,5 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Trait
     public struct RawSourceTrait : IComponentData, ITrait
     {
         public FixedString32 RawName;
-        public byte Amount;
     }
 }

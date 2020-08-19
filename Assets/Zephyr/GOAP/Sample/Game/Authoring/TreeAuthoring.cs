@@ -1,6 +1,7 @@
 using Sirenix.OdinInspector;
 using Unity.Entities;
 using UnityEngine;
+using Zephyr.GOAP.Sample.Game.Component;
 using Zephyr.GOAP.Sample.GoapImplement;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
 
@@ -28,7 +29,18 @@ namespace Zephyr.GOAP.Sample.Game.Authoring
             dstManager.SetName(entity, Name);
 #endif
             dstManager.AddComponentData(entity, 
-                new RawSourceTrait{RawName = FruitName, Amount = Amount});
+                new RawSourceTrait{RawName = FruitName});
+            
+            //生成物品与连接容器
+            var itemEntity = dstManager.CreateEntity();
+            dstManager.AddComponentData(itemEntity, new Item{});
+            dstManager.AddComponentData(itemEntity, new Name{Value = FruitName});
+            dstManager.AddComponentData(itemEntity, new Count{Value = Amount});
+            
+            dstManager.AddComponentData(entity, new ItemContainer {IsTransferSource = false});
+            var buffer = dstManager.AddBuffer<ContainedItemRef>(entity);
+            buffer.Add(new ContainedItemRef{ItemEntity = itemEntity, ItemName = FruitName});
+
         }
     }
 }
