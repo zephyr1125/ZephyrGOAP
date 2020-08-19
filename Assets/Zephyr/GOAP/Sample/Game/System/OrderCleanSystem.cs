@@ -1,10 +1,11 @@
 using Unity.Entities;
+using Unity.Jobs;
 using Zephyr.GOAP.Sample.Game.Component.Order;
 
 namespace Zephyr.GOAP.Sample.Game.System
 {
     [UpdateInGroup(typeof(LateSimulationSystemGroup))]
-    public class OrderCleanSystem : SystemBase
+    public class OrderCleanSystem : JobComponentSystem
     {
         public EntityCommandBufferSystem EcbSystem;
 
@@ -14,7 +15,7 @@ namespace Zephyr.GOAP.Sample.Game.System
             EcbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
         }
 
-        protected override void OnUpdate()
+        protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             var ecb = EcbSystem.CreateCommandBuffer().AsParallelWriter();
             var handle = Entities.WithName("OrderCleanJob")
@@ -22,8 +23,9 @@ namespace Zephyr.GOAP.Sample.Game.System
                 {
                     if (order.Amount > 0) return;
                     ecb.DestroyEntity(entityInQueryIndex, entity);
-                }).ScheduleParallel(Dependency);
+                }).Schedule(inputDeps);
             EcbSystem.AddJobHandleForProducer(handle);
+            return handle;
         }
     }
 }

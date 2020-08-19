@@ -4,6 +4,7 @@ using Unity.Jobs;
 using UnityEngine.Assertions;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.AgentState;
+using Zephyr.GOAP.Sample.Game.Component.Order;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Action;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
 using Zephyr.GOAP.System;
@@ -62,8 +63,12 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                         }
                         
                         //产生order
-                        OrderWatchSystem.CreateOrderAndWatch(ecb, entityInQueryIndex, agentEntity,
+                        OrderWatchSystem.CreateOrderAndWatch<CookOrder>(ecb, entityInQueryIndex, agentEntity,
                             cookerEntity, outputItemName, outputAmount, nodeEntity);
+                        
+                        //进入执行中状态
+                        Zephyr.GOAP.Utils.NextAgentState<ReadyToAct, Acting>(agentEntity, entityInQueryIndex,
+                            ecb, nodeEntity);
 
                         break;
                     }

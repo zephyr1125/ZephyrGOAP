@@ -3,6 +3,7 @@ using NUnit.Framework;
 using Unity.Collections;
 using Unity.Entities;
 using Zephyr.GOAP.Component;
+using Zephyr.GOAP.Component.AgentState;
 using Zephyr.GOAP.Sample.Game.Component;
 using Zephyr.GOAP.Sample.Game.Component.Order;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Action;
@@ -66,6 +67,17 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExecute
             var orderQuery =
                 EntityManager.CreateEntityQuery(typeof(Order), typeof(OrderWatchSystem.OrderWatch));
             Assert.AreEqual(1, orderQuery.CalculateEntityCount());
+        }
+
+        [Test]
+        public void AgentState_To_Acting()
+        {
+            _system.Update();
+            _system.EcbSystem.Update();
+            EntityManager.CompleteAllJobs();
+            
+            Assert.IsTrue(EntityManager.HasComponent<Acting>(_agentEntity));
+            Assert.IsFalse(EntityManager.HasComponent<ReadyToAct>(_agentEntity));
         }
     }
 }

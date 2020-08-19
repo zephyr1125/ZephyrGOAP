@@ -41,8 +41,8 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                     var agentEntity = orderWatch.AgentEntity;
                     var nodeEntity = orderWatch.NodeEntity;
 
-                    //通知执行完毕
-                    Zephyr.GOAP.Utils.NextAgentState<ReadyToAct, ActDone>(agentEntity, entityInQueryIndex,
+                    //通知执行完毕,注意此处默认agent应该是处于Acting状态了
+                    Zephyr.GOAP.Utils.NextAgentState<Acting, ActDone>(agentEntity, entityInQueryIndex,
                         ecb, nodeEntity);
                     
                     //node指示执行完毕 
@@ -54,9 +54,9 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
             EcbSystem.AddJobHandleForProducer(handle);
         }
         
-        public static void CreateOrderAndWatch(EntityCommandBuffer.ParallelWriter ecb, int entityInQueryIndex,
+        public static void CreateOrderAndWatch<T>(EntityCommandBuffer.ParallelWriter ecb, int entityInQueryIndex,
             Entity agentEntity, Entity facilityEntity, FixedString32 outputItemName, byte outputAmount,
-            Entity nodeEntity)
+            Entity nodeEntity) where T: struct, IComponentData, IOrder
         {
             var orderEntity = ecb.CreateEntity(entityInQueryIndex);
             ecb.AddComponent(entityInQueryIndex, orderEntity, new Order
@@ -71,6 +71,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                 NodeEntity = nodeEntity,
                 AgentEntity = agentEntity
             });
+            ecb.AddComponent<T>(entityInQueryIndex, orderEntity);
         }
     }
 }

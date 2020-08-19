@@ -1,5 +1,6 @@
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Sample.Game.Component;
 using Zephyr.GOAP.Sample.Game.Component.Order;
@@ -14,7 +15,7 @@ namespace Zephyr.GOAP.Sample.Game.System
     /// 执行订单生产
     /// </summary>
     [UpdateInGroup(typeof(SimulationSystemGroup))]
-    public class CookSystem : SystemBase
+    public class CookSystem : JobComponentSystem
     {
         public struct OrderInited : ISystemStateComponentData
         {
@@ -30,7 +31,7 @@ namespace Zephyr.GOAP.Sample.Game.System
             ECBSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
         }
 
-        protected override void OnUpdate()
+        protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             var ecb = ECBSystem.CreateCommandBuffer().AsParallelWriter();
             var cookActions = GetComponentDataFromEntity<CookAction>(true);
@@ -57,18 +58,19 @@ namespace Zephyr.GOAP.Sample.Game.System
                     //初始化完毕
                     ecb.AddComponent(entityInQueryIndex, orderEntity,
                         new OrderInited{ExecutePeriod = cookPeriod, StartTime = time});
-                }).ScheduleParallel(Dependency);
+                }).Schedule(inputDeps);
             
             //走完时间才正经执行
             var allItemRefs = GetBufferFromEntity<ContainedItemRef>(true);
             var allCounts = GetComponentDataFromEntity<Count>(true);
-            var baseStatesBuffer = GetBuffer<State>(BaseStatesHelper.BaseStatesEntity);
+            var stateBuffers = GetBufferFromEntity<State>(true);
+            
             var executeHandle = Entities
                 .WithName("CookExecuteJob")
                 .WithAll<CookOrder>()
+                .WithReadOnly(stateBuffers)
                 .WithReadOnly(allItemRefs)
                 .WithReadOnly(allCounts)
-                .WithReadOnly(baseStatesBuffer)
                 .ForEach((Entity orderEntity, int entityInQueryIndex, ref Order order, in OrderInited orderInited) =>
                 {
                      if (time - orderInited.StartTime < orderInited.ExecutePeriod)
@@ -82,6 +84,8 @@ namespace Zephyr.GOAP.Sample.Game.System
                          ValueTrait = TypeManager.GetTypeIndex<CookerTrait>(),
                          ValueString = order.OutputName
                      };
+                     
+                     var baseStatesBuffer = stateBuffers[BaseStatesHelper.BaseStatesEntity];
                      var baseStates = new StateGroup(baseStatesBuffer, Allocator.Temp);
                      var inputs =
                          Utils.GetRecipeInputInStateGroup(baseStates, outputFilter, Allocator.Temp, out var outputAmount);
@@ -119,8 +123,9 @@ namespace Zephyr.GOAP.Sample.Game.System
                      
                      baseStates.Dispose();
                      inputs.Dispose();
-            }).ScheduleParallel(initHandle);
+            }).Schedule(initHandle);
             ECBSystem.AddJobHandleForProducer(executeHandle);
+            return executeHandle;
         }
     }
 }

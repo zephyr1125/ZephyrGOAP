@@ -32,7 +32,7 @@ namespace Zephyr.GOAP.System
             var waitingNodeEntities = _waitingActionNodeQuery.ToEntityArray(Allocator.TempJob);
             var waitingNodes =
                 _waitingActionNodeQuery.ToComponentDataArray<Node>(Allocator.TempJob);
-            var waitingStates = GetBufferFromEntity<State>();
+            var waitingStates = GetBufferFromEntity<State>(true);
 
             var ecb = EcbSystem.CreateCommandBuffer().AsParallelWriter();
 
@@ -50,7 +50,7 @@ namespace Zephyr.GOAP.System
 
         protected abstract JobHandle ExecuteActionJob(FixedString32 nameOfAction,
             NativeArray<Entity> waitingNodeEntities,
-            NativeArray<Node> waitingNodes, BufferFromEntity<State> waitingStates,
+            NativeArray<Node> waitingNodes, [ReadOnly]BufferFromEntity<State> waitingStates,
             EntityCommandBuffer.ParallelWriter ecb, JobHandle inputDeps);
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace Zephyr.GOAP.System
         /// <returns></returns>
         protected virtual JobHandle ExecuteActionJob2(FixedString32 nameOfAction,
             NativeArray<Entity> waitingNodeEntities,
-            NativeArray<Node> waitingNodes, BufferFromEntity<State> waitingStates,
+            NativeArray<Node> waitingNodes, [ReadOnly]BufferFromEntity<State> waitingStates,
             EntityCommandBuffer.ParallelWriter ecb, JobHandle inputDeps)
         {
             return inputDeps;

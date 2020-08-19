@@ -29,7 +29,7 @@ namespace Zephyr.GOAP.Sample.Tests.Game
                 NodeEntity = _nodeEntity
             });
 
-            EntityManager.AddComponentData(_agentEntity, new ReadyToAct());
+            EntityManager.AddComponentData(_agentEntity, new Acting());
             EntityManager.AddComponentData(_nodeEntity, new ActionNodeActing());
             
             //模拟OrderCleanSystem的清理
@@ -44,7 +44,7 @@ namespace Zephyr.GOAP.Sample.Tests.Game
             EntityManager.CompleteAllJobs();
             
             Assert.IsTrue(EntityManager.HasComponent<ActDone>(_agentEntity));
-            Assert.IsFalse(EntityManager.HasComponent<ReadyToAct>(_agentEntity));
+            Assert.IsFalse(EntityManager.HasComponent<Acting>(_agentEntity));
             Assert.IsTrue(EntityManager.HasComponent<ActionNodeDone>(_nodeEntity));
             Assert.IsFalse(EntityManager.HasComponent<ActionNodeActing>(_nodeEntity));
         }
