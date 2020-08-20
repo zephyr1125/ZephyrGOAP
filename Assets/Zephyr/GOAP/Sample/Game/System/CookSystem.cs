@@ -17,12 +17,6 @@ namespace Zephyr.GOAP.Sample.Game.System
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public class CookSystem : JobComponentSystem
     {
-        public struct OrderInited : ISystemStateComponentData
-        {
-            public float ExecutePeriod;
-            public double StartTime;
-        }
-        
         public EntityCommandBufferSystem ECBSystem;
 
         protected override void OnCreate()
@@ -115,7 +109,7 @@ namespace Zephyr.GOAP.Sample.Game.System
                      ecb.AppendToBuffer(entityInQueryIndex, order.FacilityEntity,
                           new ContainedItemRef {ItemName = order.OutputName, ItemEntity = outputItemEntity});
                     
-                     //移除StateComponent
+                     //移除OrderInited
                      ecb.RemoveComponent<OrderInited>(entityInQueryIndex, orderEntity);
                      
                      //order减小需求的数量

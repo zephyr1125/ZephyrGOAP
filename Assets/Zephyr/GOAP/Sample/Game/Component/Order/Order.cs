@@ -4,7 +4,7 @@ using Unity.Entities;
 namespace Zephyr.GOAP.Sample.Game.Component.Order
 {
     /// <summary>
-    /// 用于生产类建筑的"订单"
+    /// 用于生产/采集设施的"订单"
     /// </summary>
     public struct Order : IComponentData
     {

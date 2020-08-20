@@ -77,7 +77,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
 
         public float GetExecuteTime([ReadOnly]State setting)
         {
-            return 0.5f;
+            return 1f;
         }
 
         public void GetNavigatingSubjectInfo(State targetRequire, State setting,

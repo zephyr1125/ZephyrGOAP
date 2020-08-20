@@ -147,16 +147,15 @@ namespace Zephyr.GOAP.Sample
         /// <param name="itemName"></param>
         /// <param name="amount">正为增加，负为移除</param>
         /// <returns>true:成功，增加物品总是成功的，false:失败，移除时没有对应物品或者数量不足</returns>
-        public static bool ModifyItemInContainer(int entityInQueryIndex, Entity containerEntity,
-            EntityCommandBuffer.ParallelWriter ecb,
-            DynamicBuffer<ContainedItemRef> containedItemRefBuffer,
+        public static bool ModifyItemInContainer(int entityInQueryIndex, EntityCommandBuffer.ParallelWriter ecb,
+            Entity containerEntity, DynamicBuffer<ContainedItemRef> containedItemRefBuffer,
             ComponentDataFromEntity<Count> allCounts,
             FixedString32 itemName, int amount)
         {
             if (amount > 0)
             {
-                return AddItemToContainer(entityInQueryIndex, containerEntity, ecb,
-                    containedItemRefBuffer, allCounts, itemName, amount);
+                return AddItemToContainer(entityInQueryIndex, ecb,
+                    containerEntity, containedItemRefBuffer, allCounts, itemName, amount);
             }
             if (amount < 0)
             {
@@ -167,10 +166,9 @@ namespace Zephyr.GOAP.Sample
             return true;
         }
 
-        private static bool AddItemToContainer(int entityInQueryIndex, Entity containerEntity,
-            EntityCommandBuffer.ParallelWriter ecb, 
-            DynamicBuffer<ContainedItemRef> containedItemRefBuffer, ComponentDataFromEntity<Count> allCounts, 
-            FixedString32 itemName, int amount)
+        private static bool AddItemToContainer(int entityInQueryIndex, EntityCommandBuffer.ParallelWriter ecb, 
+            Entity containerEntity, DynamicBuffer<ContainedItemRef> containedItemRefBuffer,
+            ComponentDataFromEntity<Count> allCounts, FixedString32 itemName, int amount)
         {
             var existed = false;
             for (var containedItemId = 0; containedItemId < containedItemRefBuffer.Length; containedItemId++)

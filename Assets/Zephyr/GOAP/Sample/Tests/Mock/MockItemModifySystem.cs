@@ -33,8 +33,8 @@ namespace Zephyr.GOAP.Sample.Tests.Mock
                 .ForEach((Entity containerEntity, int entityInQueryIndex,
                     DynamicBuffer<ContainedItemRef> containedItemRefs) =>
                 {
-                    Utils.ModifyItemInContainer(entityInQueryIndex, containerEntity, ecb,
-                        containedItemRefs, allCounts, itemName, amount);
+                    Utils.ModifyItemInContainer(entityInQueryIndex, ecb,
+                        containerEntity, containedItemRefs, allCounts, itemName, amount);
                 }).Schedule(inputDeps);
             EcbSystem.AddJobHandleForProducer(handle);
             return handle;
