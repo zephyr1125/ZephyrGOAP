@@ -29,18 +29,9 @@ namespace Zephyr.GOAP.Sample.Game.Authoring
             dstManager.SetName(entity, Name);
 #endif
             dstManager.AddComponentData(entity, 
-                new RawSourceTrait{RawName = FruitName});
+                new RawSourceTrait{RawName = FruitName, InitialAmount =  Amount});
             
-            //生成物品与连接容器
-            var itemEntity = dstManager.CreateEntity();
-            dstManager.AddComponentData(itemEntity, new Item{});
-            dstManager.AddComponentData(itemEntity, new Name{Value = FruitName});
-            dstManager.AddComponentData(itemEntity, new Count{Value = Amount});
-            
-            dstManager.AddComponentData(entity, new ItemContainer {IsTransferSource = false});
-            var buffer = dstManager.AddBuffer<ContainedItemRef>(entity);
-            buffer.Add(new ContainedItemRef{ItemEntity = itemEntity, ItemName = FruitName});
-
+            //在RawSourceItemCreationSystem中生成物品与连接容器
         }
     }
 }
