@@ -2,6 +2,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Zephyr.GOAP.Component;
+using Zephyr.GOAP.Sample.Game.Component;
 using Zephyr.GOAP.Sample.GoapImplement;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
 using Zephyr.GOAP.Struct;
@@ -133,6 +134,35 @@ namespace Zephyr.GOAP.Sample
             }
 
             return 0;
+        }
+        
+        public static void AddItemToContainer(int entityInQueryIndex, Entity containerEntity,
+            EntityCommandBuffer.ParallelWriter ecb, 
+            DynamicBuffer<ContainedItemRef> containedItemRefBuffer, ComponentDataFromEntity<Count> allCounts, 
+            FixedString32 itemName, byte amount)
+        {
+            var existed = false;
+            for (var containedItemId = 0; containedItemId < containedItemRefBuffer.Length; containedItemId++)
+            {
+                var itemRef = containedItemRefBuffer[containedItemId];
+                if (!itemRef.ItemName.Equals(itemName)) continue;
+                var itemEntity = itemRef.ItemEntity;
+                var originalAmount = allCounts[itemEntity].Value;
+                ecb.SetComponent(entityInQueryIndex, itemEntity,
+                    new Count {Value = (byte) (originalAmount + amount)});
+                existed = true;
+            }
+
+            if (!existed)
+            {
+                var itemEntity = ecb.CreateEntity(entityInQueryIndex);
+                ecb.AddComponent(entityInQueryIndex, itemEntity, new Item());
+                ecb.AddComponent(entityInQueryIndex, itemEntity, new Name {Value = itemName});
+                ecb.AddComponent(entityInQueryIndex, itemEntity, new Count {Value = amount});
+
+                ecb.AppendToBuffer(entityInQueryIndex, containerEntity,
+                    new ContainedItemRef {ItemName = itemName, ItemEntity = itemEntity});
+            }
         }
     }
 }
