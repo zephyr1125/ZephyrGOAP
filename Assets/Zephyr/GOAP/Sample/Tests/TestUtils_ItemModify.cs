@@ -37,7 +37,7 @@ namespace Zephyr.GOAP.Sample.Tests
         }
 
         [Test]
-        public void AlreadyHasSameItem_AddAmount()
+        public void Add_AlreadyHasSameItem_AddAmount()
         {
             _system.ItemName = _itemName;
             _system.Amount = 5;
@@ -50,7 +50,7 @@ namespace Zephyr.GOAP.Sample.Tests
         }
 
         [Test]
-        public void NoSameItem_AddNewItem()
+        public void Add_NoSameItem_AddNewItem()
         {
             var newItemName = ItemNames.Instance().RawAppleName;
             _system.ItemName = newItemName;
@@ -65,7 +65,45 @@ namespace Zephyr.GOAP.Sample.Tests
             Assert.AreEqual(newItemName, buffer[1].ItemName);
             var rawAppleCount = EntityManager.GetComponentData<Count>(buffer[1].ItemEntity);
             Assert.AreEqual(5, rawAppleCount.Value);
+        }
+
+        [Test]
+        public void Sub_HasItem_ReduceAmount()
+        {
+            _system.ItemName = _itemName;
+            _system.Amount = -2;
             
+            _system.Update();
+            _system.EcbSystem.Update();
+            EntityManager.CompleteAllJobs();
+            
+            Assert.AreEqual(1, EntityManager.GetComponentData<Count>(_itemEntity).Value);
+        }
+
+        [Test]
+        public void Sub_NotEnough_Fail()
+        {
+            _system.ItemName = _itemName;
+            _system.Amount = -4;
+            
+            _system.Update();
+            _system.EcbSystem.Update();
+            EntityManager.CompleteAllJobs();
+            
+            Assert.AreEqual(3, EntityManager.GetComponentData<Count>(_itemEntity).Value);
+        }
+
+        [Test]
+        public void Sub_NoSuchItem_Fail()
+        {
+            _system.ItemName = ItemNames.Instance().RawAppleName;
+            _system.Amount = -2;
+            
+            _system.Update();
+            _system.EcbSystem.Update();
+            EntityManager.CompleteAllJobs();
+            
+            Assert.AreEqual(3, EntityManager.GetComponentData<Count>(_itemEntity).Value);
         }
     }
 }

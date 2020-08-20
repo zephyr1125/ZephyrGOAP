@@ -135,11 +135,42 @@ namespace Zephyr.GOAP.Sample
 
             return 0;
         }
-        
-        public static void AddItemToContainer(int entityInQueryIndex, Entity containerEntity,
+
+        /// <summary>
+        /// 变动容器内的物品数量
+        /// </summary>
+        /// <param name="entityInQueryIndex"></param>
+        /// <param name="containerEntity"></param>
+        /// <param name="ecb"></param>
+        /// <param name="containedItemRefBuffer"></param>
+        /// <param name="allCounts"></param>
+        /// <param name="itemName"></param>
+        /// <param name="amount">正为增加，负为移除</param>
+        /// <returns>true:成功，增加物品总是成功的，false:失败，移除时没有对应物品或者数量不足</returns>
+        public static bool ModifyItemInContainer(int entityInQueryIndex, Entity containerEntity,
+            EntityCommandBuffer.ParallelWriter ecb,
+            DynamicBuffer<ContainedItemRef> containedItemRefBuffer,
+            ComponentDataFromEntity<Count> allCounts,
+            FixedString32 itemName, int amount)
+        {
+            if (amount > 0)
+            {
+                return AddItemToContainer(entityInQueryIndex, containerEntity, ecb,
+                    containedItemRefBuffer, allCounts, itemName, amount);
+            }
+            if (amount < 0)
+            {
+                return RemoveItemFromContainer(entityInQueryIndex, ecb, containedItemRefBuffer,
+                    allCounts, itemName, amount);
+            }
+
+            return true;
+        }
+
+        private static bool AddItemToContainer(int entityInQueryIndex, Entity containerEntity,
             EntityCommandBuffer.ParallelWriter ecb, 
             DynamicBuffer<ContainedItemRef> containedItemRefBuffer, ComponentDataFromEntity<Count> allCounts, 
-            FixedString32 itemName, byte amount)
+            FixedString32 itemName, int amount)
         {
             var existed = false;
             for (var containedItemId = 0; containedItemId < containedItemRefBuffer.Length; containedItemId++)
@@ -158,11 +189,47 @@ namespace Zephyr.GOAP.Sample
                 var itemEntity = ecb.CreateEntity(entityInQueryIndex);
                 ecb.AddComponent(entityInQueryIndex, itemEntity, new Item());
                 ecb.AddComponent(entityInQueryIndex, itemEntity, new Name {Value = itemName});
-                ecb.AddComponent(entityInQueryIndex, itemEntity, new Count {Value = amount});
+                ecb.AddComponent(entityInQueryIndex, itemEntity, new Count {Value = (byte)amount});
 
                 ecb.AppendToBuffer(entityInQueryIndex, containerEntity,
                     new ContainedItemRef {ItemName = itemName, ItemEntity = itemEntity});
             }
+
+            return true;
+        }
+
+        /// <summary>
+        /// 从物品容器里移除一定数量的指定物品
+        /// </summary>
+        /// <param name="entityInQueryIndex"></param>
+        /// <param name="ecb"></param>
+        /// <param name="containedItemRefBuffer"></param>
+        /// <param name="allCounts"></param>
+        /// <param name="itemName"></param>
+        /// <param name="amount">始终为负值</param>
+        /// <returns>true:成功，false:失败，没有对应物品或者数量不足</returns>
+        private static bool RemoveItemFromContainer(int entityInQueryIndex,
+            EntityCommandBuffer.ParallelWriter ecb,
+            DynamicBuffer<ContainedItemRef> containedItemRefBuffer,
+            ComponentDataFromEntity<Count> allCounts,
+            FixedString32 itemName, int amount)
+        {
+            for (var containedItemId = 0; containedItemId < containedItemRefBuffer.Length; containedItemId++)
+            {
+                var itemRef = containedItemRefBuffer[containedItemId];
+                if (!itemRef.ItemName.Equals(itemName)) continue;
+                var itemEntity = itemRef.ItemEntity;
+                var originalAmount = allCounts[itemEntity].Value;
+                if (originalAmount < -amount)
+                {
+                    return false;    //数量不足
+                }
+                ecb.SetComponent(entityInQueryIndex, itemEntity,
+                    new Count {Value = (byte) (originalAmount + amount)});
+                return true;
+            }
+
+            return false;    //没找到物品
         }
     }
 }

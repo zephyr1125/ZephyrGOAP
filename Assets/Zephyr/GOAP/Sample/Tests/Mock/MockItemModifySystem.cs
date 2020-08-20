@@ -10,7 +10,7 @@ namespace Zephyr.GOAP.Sample.Tests.Mock
     {
         public EntityCommandBufferSystem EcbSystem;
         
-        public byte Amount { set; get; }
+        public int Amount { set; get; }
         public FixedString32 ItemName { set; get; }
         
 
@@ -33,7 +33,7 @@ namespace Zephyr.GOAP.Sample.Tests.Mock
                 .ForEach((Entity containerEntity, int entityInQueryIndex,
                     DynamicBuffer<ContainedItemRef> containedItemRefs) =>
                 {
-                    Utils.AddItemToContainer(entityInQueryIndex, containerEntity, ecb,
+                    Utils.ModifyItemInContainer(entityInQueryIndex, containerEntity, ecb,
                         containedItemRefs, allCounts, itemName, amount);
                 }).Schedule(inputDeps);
             EcbSystem.AddJobHandleForProducer(handle);
