@@ -4,7 +4,7 @@ namespace Zephyr.GOAP.Sample.Game.UI
 {
     public class FacilityProgress : MonoBehaviour
     {
-        public RectTransform BackgroundTransform, BarTransform;
+        public RectTransform backgroundTransform, barTransform;
 
         private Transform _transform;
         
@@ -13,19 +13,29 @@ namespace Zephyr.GOAP.Sample.Game.UI
         private void OnEnable()
         {
             _transform = transform;
-            _fullWidth = BackgroundTransform.rect.width-2;
+            _fullWidth = backgroundTransform.rect.width-2;
         }
 
         /// <summary>
         /// 范围0-1
         /// </summary>
         /// <param name="progress"></param>
+        /// <param name="position"></param>
         public void SetProgress(float progress, Vector3 position)
         {
-            var rect = BarTransform.rect;
-            BarTransform.sizeDelta = new Vector2(_fullWidth*progress, rect.height);
+            var rect = barTransform.rect;
+            barTransform.sizeDelta = new Vector2(_fullWidth*progress, rect.height);
 
-            transform.position = position;
+            _transform.position = position;
+
+            if (progress <= 0.001 || progress >= 0.999)
+            {
+                gameObject.SetActive(false);
+            }
+            else
+            {
+                gameObject.SetActive(true);
+            }
         }
     }
 }

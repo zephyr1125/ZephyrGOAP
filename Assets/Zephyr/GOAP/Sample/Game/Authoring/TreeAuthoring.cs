@@ -1,7 +1,6 @@
 using Sirenix.OdinInspector;
 using Unity.Entities;
 using UnityEngine;
-using Zephyr.GOAP.Sample.Game.Component;
 using Zephyr.GOAP.Sample.GoapImplement;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
 

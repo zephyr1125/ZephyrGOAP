@@ -18,7 +18,7 @@ namespace Zephyr.GOAP.Sample.Game.System
             {
                 var facilityEntity = order.FacilityEntity;
                 var translations = GetComponentDataFromEntity<Translation>(true);
-                var position = translations[facilityEntity].Value + new float3(0, -1, 0);
+                var position = translations[facilityEntity].Value + new float3(0, -2, 0);
                 var progress = (time - orderInited.StartTime) / orderInited.ExecutePeriod;
                 FacilityProgressManager.Instance.UpdateFacilityProgress(facilityEntity, (float)progress, position);
             }).Run();
