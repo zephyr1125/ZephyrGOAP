@@ -14,7 +14,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExecute
     {
         private DropRawActionExecuteSystem _system;
 
-        private Entity _containerEntity; 
+        private Entity _containerEntity, _itemEntity; 
 
         [SetUp]
         public override void SetUp()
@@ -23,21 +23,21 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExecute
 
             _system = World.GetOrCreateSystem<DropRawActionExecuteSystem>();
             _containerEntity = EntityManager.CreateEntity();
+            _itemEntity = EntityManager.CreateEntity();
             
             EntityManager.AddComponentData(_agentEntity, new DropRawAction());
             var buffer = EntityManager.AddBuffer<ContainedItemRef>(_agentEntity);
             buffer.Add(new ContainedItemRef
             {
-                ItemEntity = new Entity {Index = 9, Version = 9},
+                ItemEntity = _itemEntity,
                 ItemName = "item"
             });
+
+            EntityManager.AddComponentData(_itemEntity, new Item());
+            EntityManager.AddComponentData(_itemEntity, new Name{Value = "item"});
+            EntityManager.AddComponentData(_itemEntity, new Count{Value = 1});
             
-            buffer = EntityManager.AddBuffer<ContainedItemRef>(_containerEntity);
-            buffer.Add(new ContainedItemRef
-            {
-                ItemEntity = new Entity {Index = 8, Version = 9},
-                ItemName = "origin"
-            });
+            EntityManager.AddBuffer<ContainedItemRef>(_containerEntity);
             
             EntityManager.AddComponentData(_actionNodeEntity, new Node
             {
@@ -52,12 +52,14 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExecute
                 Target = _agentEntity,
                 Trait = TypeManager.GetTypeIndex<RawTransferTrait>(),
                 ValueString = "item",
+                Amount = 1
             });
             bufferStates.Add(new State
             {
                 Target = _containerEntity,
                 Trait = TypeManager.GetTypeIndex<RawDestinationTrait>(),
                 ValueString = "item",
+                Amount = 1
             });
         }
 
@@ -67,19 +69,16 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExecute
             _system.Update();
             _system.EcbSystem.Update();
             EntityManager.CompleteAllJobs();
+
+            //agent的物品减少数量
+            Assert.Zero(EntityManager.GetComponentData<Count>(_itemEntity).Value);
             
+            //目标容器增加物品
             var itemBuffer = EntityManager.GetBuffer<ContainedItemRef>(_containerEntity);
-            Assert.AreEqual(2, itemBuffer.Length);
-            Assert.AreEqual(new ContainedItemRef
-            {
-                ItemEntity = new Entity {Index = 8, Version = 9},
-                ItemName = "origin"
-            }, itemBuffer[0]);
-            Assert.AreEqual(new ContainedItemRef
-            {
-                ItemEntity = new Entity {Index = 9, Version = 9},
-                ItemName = "item"
-            }, itemBuffer[1]);
+            Assert.AreEqual(1, itemBuffer.Length);
+            var newItemEntity = itemBuffer[0].ItemEntity;
+            Assert.AreEqual("item", EntityManager.GetComponentData<Name>(newItemEntity).Value);
+            Assert.AreEqual(1, EntityManager.GetComponentData<Count>(newItemEntity).Value);
         }
     }
 }

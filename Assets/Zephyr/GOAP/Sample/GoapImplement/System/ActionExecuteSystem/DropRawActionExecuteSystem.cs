@@ -17,12 +17,14 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
         protected override JobHandle ExecuteActionJob(FixedString32 nameOfAction, NativeArray<Entity> waitingNodeEntities,
             NativeArray<Node> waitingNodes, BufferFromEntity<State> waitingStates, EntityCommandBuffer.ParallelWriter ecb, JobHandle inputDeps)
         {
-            var allBufferItems = GetBufferFromEntity<ContainedItemRef>();
+            var allContainedItemRefs = GetBufferFromEntity<ContainedItemRef>(true);
+            var allCounts = GetComponentDataFromEntity<Count>(true);
             return Entities.WithName("DropRawActionExecuteJob")
                 .WithAll<ReadyToAct>()
-                .WithNativeDisableParallelForRestriction(allBufferItems)
-                .WithDeallocateOnJobCompletion(waitingNodeEntities)
-                .WithDeallocateOnJobCompletion(waitingNodes)
+                .WithDisposeOnCompletion(waitingNodeEntities)
+                .WithDisposeOnCompletion(waitingNodes)
+                .WithReadOnly(allContainedItemRefs)
+                .WithReadOnly(allCounts)
                 .WithReadOnly(waitingStates)
                 .ForEach((Entity agentEntity, int entityInQueryIndex,
                     in Agent agent, in DropRawAction action) =>
@@ -39,6 +41,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                         //从effect里找目标.
                         var targetEntity = Entity.Null;
                         var targetItemName = new FixedString32();
+                        byte targetAmount = 0;
                         for (var stateId = 0; stateId < states.Length; stateId++)
                         {
                             if ((node.EffectsBitmask & (ulong) 1 << stateId) <= 0) continue;
@@ -47,23 +50,18 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                         
                             targetEntity = effect.Target;
                             targetItemName = effect.ValueString;
+                            targetAmount = effect.Amount;
                             break;
                         }
-                        //从自身找到物品引用，并移除
-                        var agentItems = allBufferItems[agentEntity];
-                        var itemRef = new ContainedItemRef();
-                        for (var itemId = 0; itemId < agentItems.Length; itemId++)
-                        {
-                            var containedItemRef = agentItems[itemId];
-                            if (!containedItemRef.ItemName.Equals(targetItemName)) continue;
-                            itemRef = containedItemRef;
-                            agentItems.RemoveAt(itemId);
-                            break;
-                        }
+                        //自身减少物品
+                        var agentItems = allContainedItemRefs[agentEntity];
+                        Utils.ModifyItemInContainer(entityInQueryIndex, ecb, agentEntity,
+                            agentItems, allCounts, targetItemName, -targetAmount);
 
-                        //目标获得物品
-                        var targetItems = allBufferItems[targetEntity];
-                        targetItems.Add(itemRef);
+                        //目标增加物品
+                        var targetItems = allContainedItemRefs[targetEntity];
+                        Utils.ModifyItemInContainer(entityInQueryIndex, ecb, targetEntity,
+                            targetItems, allCounts, targetItemName, targetAmount);
 
                         //通知执行完毕
                         Zephyr.GOAP.Utils.NextAgentState<ReadyToAct, ActDone>(agentEntity, entityInQueryIndex,
