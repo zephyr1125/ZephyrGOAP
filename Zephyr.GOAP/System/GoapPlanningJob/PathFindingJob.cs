@@ -246,6 +246,8 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                         var childEffect = childEffects[effectId];
                         if (!childEffect.BelongTo(precondition)) continue;
                         childSpecificEffect = childEffect;
+                        //数量需要以precondition为准，因为start的effect里的数量是全部现场数量
+                        childSpecificEffect.Amount = precondition.Amount;
                         break;
                     }
 
