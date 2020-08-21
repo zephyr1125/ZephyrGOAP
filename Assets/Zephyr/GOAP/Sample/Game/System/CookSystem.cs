@@ -113,6 +113,7 @@ namespace Zephyr.GOAP.Sample.Game.System
                      ecb.RemoveComponent<OrderInited>(entityInQueryIndex, orderEntity);
                      
                      //order减小需求的数量
+                     if (outputAmount > order.Amount) outputAmount = order.Amount;    //避免减小到负值，byte不支持
                      order.Amount -= outputAmount;
                      
                      baseStates.Dispose();
