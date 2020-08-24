@@ -53,6 +53,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                             targetAmount = effect.Amount;
                             break;
                         }
+                        
                         //自身减少物品
                         var agentItems = allContainedItemRefs[agentEntity];
                         Utils.ModifyItemInContainer(entityInQueryIndex, ecb, agentEntity,

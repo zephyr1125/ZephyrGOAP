@@ -1,11 +1,12 @@
 using NUnit.Framework;
 using Unity.Entities;
 using Zephyr.GOAP.Component;
+using Zephyr.GOAP.Component.AgentState;
 using Zephyr.GOAP.Sample.Game.Component;
+using Zephyr.GOAP.Sample.Game.Component.Order;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Action;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
 using Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem;
-using Zephyr.GOAP.Struct;
 using Zephyr.GOAP.Tests;
 
 namespace Zephyr.GOAP.Sample.Tests.ActionExecute
@@ -40,26 +41,38 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExecute
                 Target = _rawEntity,
                 Trait = TypeManager.GetTypeIndex<RawSourceTrait>(),
                 ValueString = "item",
+                Amount = 1
             });
             bufferStates.Add(new State
             {
                 Target = _agentEntity,
                 Trait = TypeManager.GetTypeIndex<RawTransferTrait>(),
                 ValueString = "item",
+                Amount = 1
             });
         }
 
         [Test]
-        public void AgentGotItem()
+        public void CreateOrder()
+        {
+            _system.Update();
+            _system.EcbSystem.Update();
+            EntityManager.CompleteAllJobs();
+
+            var orderQuery =
+                EntityManager.CreateEntityQuery(typeof(Order), typeof(OrderWatchSystem.OrderWatch));
+            Assert.AreEqual(1, orderQuery.CalculateEntityCount());
+        }
+
+        [Test]
+        public void AgentState_To_Acting()
         {
             _system.Update();
             _system.EcbSystem.Update();
             EntityManager.CompleteAllJobs();
             
-            var itemBuffer = EntityManager.GetBuffer<ContainedItemRef>(_agentEntity);
-            Assert.AreEqual(1, itemBuffer.Length);
-            Assert.AreEqual(new ContainedItemRef
-                {ItemName = "item"}, itemBuffer[0]);
+            Assert.IsTrue(EntityManager.HasComponent<Acting>(_agentEntity));
+            Assert.IsFalse(EntityManager.HasComponent<ReadyToAct>(_agentEntity));
         }
     }
 }

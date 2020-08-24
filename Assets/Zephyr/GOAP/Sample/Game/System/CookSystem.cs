@@ -86,28 +86,20 @@ namespace Zephyr.GOAP.Sample.Game.System
                      
                     
                      //从cooker容器找到原料物品引用，并移除相应数目
+                     var facilityEntity = order.FacilityEntity;
                      var itemsInCooker = allItemRefs[order.FacilityEntity];
                      for (var inputId = 0; inputId < inputs.Length(); inputId++)
                      {
-                          var input = inputs[inputId];
-                          for (var itemRefId = itemsInCooker.Length - 1; itemRefId >= 0; itemRefId--)
-                          {
-                              var containedItemRef = itemsInCooker[itemRefId];
-                              if (!containedItemRef.ItemName.Equals(input.ValueString)) continue;
-                              //移去相应数量
-                              var valueBefore = allCounts[containedItemRef.ItemEntity].Value;
-                              ecb.SetComponent(entityInQueryIndex, containedItemRef.ItemEntity,
-                                  new Count{Value = (byte)(valueBefore - input.Amount)});
-                              break;
-                          }
+                         var input = inputs[inputId];
+                         var inputName = input.ValueString;
+                         var inputAmount = input.Amount;
+                         Utils.ModifyItemInContainer(entityInQueryIndex, ecb, facilityEntity,
+                             itemsInCooker, allCounts, inputName, -inputAmount);
                      }
                     
                      //cooker容器获得产物
-                     var outputItemEntity = ecb.CreateEntity(entityInQueryIndex);
-                     ecb.AddComponent(entityInQueryIndex, outputItemEntity, new Item());
-                     ecb.AddComponent(entityInQueryIndex, outputItemEntity, new Count{Value = outputAmount});
-                     ecb.AppendToBuffer(entityInQueryIndex, order.FacilityEntity,
-                          new ContainedItemRef {ItemName = order.OutputName, ItemEntity = outputItemEntity});
+                     Utils.ModifyItemInContainer(entityInQueryIndex, ecb, facilityEntity,
+                         itemsInCooker, allCounts, order.OutputName, outputAmount);
                     
                      //移除OrderInited
                      ecb.RemoveComponent<OrderInited>(entityInQueryIndex, orderEntity);

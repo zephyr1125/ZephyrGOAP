@@ -24,13 +24,13 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
             EntityCommandBuffer.ParallelWriter ecb, JobHandle inputDeps)
         {
             return Entities.WithName("PickRawActionExecuteJob")
+                .WithAll<Agent>()
+                .WithAll<PickRawAction>()
                 .WithAll<ReadyToAct>()
                 .WithDisposeOnCompletion(waitingNodeEntities)
                 .WithDisposeOnCompletion(waitingNodes)
                 .WithReadOnly(waitingStates)
-                .ForEach((Entity agentEntity, int entityInQueryIndex,
-                    DynamicBuffer<ContainedItemRef> containedItemRefs,
-                    in Agent agent, in PickRawAction action) =>
+                .ForEach((Entity agentEntity, int entityInQueryIndex) =>
                 {
                     for (var nodeId = 0; nodeId < waitingNodeEntities.Length; nodeId++)
                     {
@@ -48,9 +48,9 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                         for (var stateId = 0; stateId < states.Length; stateId++)
                         {
                             if ((node.PreconditionsBitmask & (ulong) 1 << stateId) <= 0) continue;
-
                             var precondition = states[stateId];
                             Assert.IsTrue(precondition.Target != Entity.Null);
+                            
                             rawEntity = precondition.Target;
                             rawItemName = precondition.ValueString;
                             rawAmount = precondition.Amount;

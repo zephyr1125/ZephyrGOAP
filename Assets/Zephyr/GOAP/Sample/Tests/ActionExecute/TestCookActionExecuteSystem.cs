@@ -42,18 +42,21 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExecute
                 Target = _cookerEntity,
                 Trait = TypeManager.GetTypeIndex<ItemDestinationTrait>(),
                 ValueString = "input0",
+                Amount = 1
             });
             bufferStates.Add(new State
             {
                 Target = _cookerEntity,
                 Trait = TypeManager.GetTypeIndex<ItemDestinationTrait>(),
                 ValueString = "input1",
+                Amount = 1
             });
             bufferStates.Add(new State
             {
                 Target = _cookerEntity,
                 Trait = TypeManager.GetTypeIndex<ItemSourceTrait>(),
                 ValueString = "output",
+                Amount = 1
             });
         }
 
