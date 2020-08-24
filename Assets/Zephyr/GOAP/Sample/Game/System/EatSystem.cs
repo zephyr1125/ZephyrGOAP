@@ -1,14 +1,21 @@
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Sample.Game.Component;
 using Zephyr.GOAP.Sample.Game.Component.Order;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Action;
+using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
+using Zephyr.GOAP.Struct;
+using Zephyr.GOAP.System;
 
 namespace Zephyr.GOAP.Sample.Game.System
 {
+    /// <summary>
+    /// 执行订单食用
+    /// </summary>
     [UpdateInGroup(typeof(SimulationSystemGroup))]
-    public class PickRawSystem : JobComponentSystem
+    public class EatSystem : JobComponentSystem
     {
         public EntityCommandBufferSystem ECBSystem;
 
@@ -17,16 +24,16 @@ namespace Zephyr.GOAP.Sample.Game.System
             base.OnCreate();
             ECBSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
         }
-        
+
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             var ecb = ECBSystem.CreateCommandBuffer().AsParallelWriter();
-            var actions = GetComponentDataFromEntity<PickRawAction>(true);
+            var actions = GetComponentDataFromEntity<EatAction>(true);
             var time = Time.ElapsedTime;
             
             //先走时间+播动画
-            var initHandle = Entities.WithName("PickRawInitJob")
-                .WithAll<PickRawOrder>()
+            var initHandle = Entities.WithName("EatInitJob")
+                .WithAll<EatOrder>()
                 .WithNone<OrderInited>()
                 .WithReadOnly(actions)
                 .ForEach((Entity orderEntity, int entityInQueryIndex, in Order order) =>
@@ -46,42 +53,43 @@ namespace Zephyr.GOAP.Sample.Game.System
             //走完时间才正经执行
             var allItemRefs = GetBufferFromEntity<ContainedItemRef>(true);
             var allCounts = GetComponentDataFromEntity<Count>(true);
+            var allStaminas = GetComponentDataFromEntity<Stamina>(true);
             
             var executeHandle = Entities
-                .WithName("PickRawExecuteJob")
-                .WithAll<PickRawOrder>()
+                .WithName("EatExecuteJob")
+                .WithAll<EatOrder>()
                 .WithReadOnly(allItemRefs)
                 .WithReadOnly(allCounts)
+                .WithReadOnly(allStaminas)
                 .ForEach((Entity orderEntity, int entityInQueryIndex, ref Order order, in OrderInited orderInited) =>
                 {
-                     if (time - orderInited.StartTime < orderInited.ExecutePeriod)
-                         return;
+                    if (time - orderInited.StartTime < orderInited.ExecutePeriod)
+                        return;
 
-                     var itemName = order.ItemName;
-                     var amount = order.Amount;
-                     
-                     //执行者获得物品
-                     var executorEntity = order.ExecutorEntity;
-                     var executorBuffer = allItemRefs[executorEntity];
-                     Utils.ModifyItemInContainer(entityInQueryIndex, ecb, executorEntity, executorBuffer,
-                         allCounts, itemName, amount);
-
-                     //原料容器失去物品
-                     var rawEntity = order.FacilityEntity;
-                     var rawBuffer = allItemRefs[rawEntity];
-                     Utils.ModifyItemInContainer(entityInQueryIndex, ecb, rawEntity, rawBuffer,
-                         allCounts, itemName, -amount);
+                    var executorEntity = order.ExecutorEntity;
+                    var itemName = order.ItemName;
+                    var amount = order.Amount;
+                    var containerEntity = order.FacilityEntity;
                     
-                     //移除OrderInited
-                     ecb.RemoveComponent<OrderInited>(entityInQueryIndex, orderEntity);
+                    //物品容器失去物品
+                    var itemBuffer = allItemRefs[containerEntity];
+                    Utils.ModifyItemInContainer(entityInQueryIndex, ecb, containerEntity, itemBuffer,
+                        allCounts, itemName, -amount);
+                    
+                    //获得体力
+                    var stamina = allStaminas[executorEntity];
+                    //todo 正式游戏应当从食物数据中确认应该获得多少体力
+                    stamina.Value += Utils.GetFoodStamina(itemName);
+                    ecb.SetComponent(entityInQueryIndex, executorEntity, stamina);
+                    
+                    //移除OrderInited
+                    ecb.RemoveComponent<OrderInited>(entityInQueryIndex, orderEntity);
                      
-                     //order减小需求的数量
-                     order.Amount -= amount;
-            }).Schedule(initHandle);
+                    //order减小需求的数量
+                    order.Amount -= amount;
+                }).Schedule(initHandle);
             ECBSystem.AddJobHandleForProducer(executeHandle);
             return executeHandle;
         }
-
-        
     }
 }

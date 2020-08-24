@@ -6,6 +6,7 @@ using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.ActionNodeState;
 using Zephyr.GOAP.Component.AgentState;
 using Zephyr.GOAP.Sample.Game.Component;
+using Zephyr.GOAP.Sample.Game.Component.Order;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Action;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
 using Zephyr.GOAP.Struct;
@@ -19,13 +20,11 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
             NativeArray<Node> waitingNodes, BufferFromEntity<State> waitingStates, EntityCommandBuffer.ParallelWriter ecb, JobHandle inputDeps)
         {
             var itemDestType = TypeManager.GetTypeIndex<ItemDestinationTrait>();
-            var allBufferItems = GetBufferFromEntity<ContainedItemRef>();
             return Entities.WithName("EatActionExecuteJob")
                 .WithoutBurst()    //由于示例里要用到string的物品名称，只能关闭burst
                 .WithAll<ReadyToAct>()
-                .WithNativeDisableParallelForRestriction(allBufferItems)
-                .WithDeallocateOnJobCompletion(waitingNodeEntities)
-                .WithDeallocateOnJobCompletion(waitingNodes)
+                .WithDisposeOnCompletion(waitingNodeEntities)
+                .WithDisposeOnCompletion(waitingNodes)
                 .WithReadOnly(waitingStates)
                 .ForEach((Entity agentEntity, int entityInQueryIndex, ref Stamina stamina,
                     in Agent agent, in EatAction action) =>
@@ -42,6 +41,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                         //从precondition里找食物.此时餐桌应该已经具有指定的食物
                         var targetItemName = new FixedString32();
                         var tableEntity = Entity.Null;
+                        byte amount = 0;
                         for (var stateId = 0; stateId < states.Length; stateId++)
                         {
                             if ((node.PreconditionsBitmask & (ulong) 1 << stateId) <= 0) continue;
@@ -51,32 +51,19 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                         
                             targetItemName = precondition.ValueString;
                             tableEntity = precondition.Target;
+                            amount = precondition.Amount;
                             break;
                         }
                         Assert.AreNotEqual(default, targetItemName);
                         
-                        //从餐桌找到物品引用，并移除
-                        var buffer = allBufferItems[tableEntity];
-                        for (var itemId = 0; itemId < buffer.Length; itemId++)
-                        {
-                            var containedItemRef = buffer[itemId];
-                            if (!containedItemRef.ItemName.Equals(targetItemName)) continue;
-                            buffer.RemoveAt(itemId);
-                            break;
-                        }
-                
-                        //获得体力
-                        //todo 正式游戏应当从食物数据中确认应该获得多少体力，并且由专用system负责吃的行为
-                        stamina.Value += Utils.GetFoodStamina(targetItemName);
-
-                        //通知执行完毕
-                        Zephyr.GOAP.Utils.NextAgentState<ReadyToAct, ActDone>(agentEntity, entityInQueryIndex,
+                        //产生order
+                        OrderWatchSystem.CreateOrderAndWatch<EatOrder>(ecb, entityInQueryIndex, agentEntity,
+                            tableEntity, targetItemName, amount, nodeEntity);
+                        
+                        //进入执行中状态
+                        Zephyr.GOAP.Utils.NextAgentState<ReadyToAct, Acting>(agentEntity, entityInQueryIndex,
                             ecb, nodeEntity);
-
-                        //node指示执行完毕 
-                        Zephyr.GOAP.Utils.NextActionNodeState<ActionNodeActing, ActionNodeDone>(nodeEntity,
-                            entityInQueryIndex,
-                            ecb, agentEntity);
+                        
                         break;
                     }
                 }).Schedule(inputDeps);

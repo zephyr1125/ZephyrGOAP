@@ -33,7 +33,7 @@ namespace Zephyr.GOAP.Sample.Tests.Game
             {
                 ExecutorEntity = _executorEntity,
                 FacilityEntity = _rawContainerEntity,
-                OutputName = ItemNames.Instance().RawAppleName,
+                ItemName = ItemNames.Instance().RawAppleName,
                 Amount = 1
             });
             EntityManager.AddComponentData(_orderEntity, new PickRawOrder());

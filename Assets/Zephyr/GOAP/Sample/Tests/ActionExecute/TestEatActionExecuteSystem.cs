@@ -2,7 +2,9 @@ using NUnit.Framework;
 using Unity.Collections;
 using Unity.Entities;
 using Zephyr.GOAP.Component;
+using Zephyr.GOAP.Component.AgentState;
 using Zephyr.GOAP.Sample.Game.Component;
+using Zephyr.GOAP.Sample.Game.Component.Order;
 using Zephyr.GOAP.Sample.GoapImplement;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Action;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
@@ -58,6 +60,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExecute
                 Target = _diningTableEntity,
                 Trait = TypeManager.GetTypeIndex<ItemDestinationTrait>(),
                 ValueString = "roast_apple",
+                Amount = 1
             });
             //effect
             bufferStates.Add(new State
@@ -68,25 +71,26 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExecute
         }
 
         [Test]
-        public void TableRemoveFood()
+        public void CreateOrder()
         {
             _system.Update();
             _system.EcbSystem.Update();
             EntityManager.CompleteAllJobs();
 
-            var itemBuffer = EntityManager.GetBuffer<ContainedItemRef>(_diningTableEntity);
-            Assert.Zero(itemBuffer.Length);
+            var orderQuery =
+                EntityManager.CreateEntityQuery(typeof(Order), typeof(OrderWatchSystem.OrderWatch));
+            Assert.AreEqual(1, orderQuery.CalculateEntityCount());
         }
 
         [Test]
-        public void AgentGotStamina()
+        public void AgentState_To_Acting()
         {
             _system.Update();
             _system.EcbSystem.Update();
             EntityManager.CompleteAllJobs();
             
-            Assert.AreEqual(Sample.Utils.GetFoodStamina(ItemNames.Instance().RoastAppleName), 
-                EntityManager.GetComponentData<Stamina>(_agentEntity).Value);
+            Assert.IsTrue(EntityManager.HasComponent<Acting>(_agentEntity));
+            Assert.IsFalse(EntityManager.HasComponent<ReadyToAct>(_agentEntity));
         }
     }
 }

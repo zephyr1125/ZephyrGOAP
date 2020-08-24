@@ -28,14 +28,14 @@ namespace Zephyr.GOAP.Sample.Game.System
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             var ecb = ECBSystem.CreateCommandBuffer().AsParallelWriter();
-            var cookActions = GetComponentDataFromEntity<CookAction>(true);
+            var actions = GetComponentDataFromEntity<CookAction>(true);
             var time = Time.ElapsedTime;
             
             //先走时间+播动画
             var initHandle = Entities.WithName("CookInitJob")
                 .WithAll<CookOrder>()
                 .WithNone<OrderInited>()
-                .WithReadOnly(cookActions)
+                .WithReadOnly(actions)
                 .ForEach((Entity orderEntity, int entityInQueryIndex, in Order order) =>
                 {
                     var executorEntity = order.ExecutorEntity;
@@ -43,15 +43,15 @@ namespace Zephyr.GOAP.Sample.Game.System
                     var setting = new State
                     {
                         Trait = TypeManager.GetTypeIndex<ItemSourceTrait>(),
-                        ValueString = order.OutputName
+                        ValueString = order.ItemName
                     };
-                    var cookPeriod = cookActions[executorEntity].GetExecuteTime(setting);
+                    var actionPeriod = actions[executorEntity].GetExecuteTime(setting);
                     
                     //todo 播放动态
                     
                     //初始化完毕
                     ecb.AddComponent(entityInQueryIndex, orderEntity,
-                        new OrderInited{ExecutePeriod = cookPeriod, StartTime = time});
+                        new OrderInited{ExecutePeriod = actionPeriod, StartTime = time});
                 }).Schedule(inputDeps);
             
             //走完时间才正经执行
@@ -76,7 +76,7 @@ namespace Zephyr.GOAP.Sample.Game.System
                      {
                          Trait = TypeManager.GetTypeIndex<RecipeOutputTrait>(),
                          ValueTrait = TypeManager.GetTypeIndex<CookerTrait>(),
-                         ValueString = order.OutputName
+                         ValueString = order.ItemName
                      };
                      
                      var baseStatesBuffer = stateBuffers[BaseStatesHelper.BaseStatesEntity];
@@ -99,7 +99,7 @@ namespace Zephyr.GOAP.Sample.Game.System
                     
                      //cooker容器获得产物
                      Utils.ModifyItemInContainer(entityInQueryIndex, ecb, facilityEntity,
-                         itemsInCooker, allCounts, order.OutputName, outputAmount);
+                         itemsInCooker, allCounts, order.ItemName, outputAmount);
                     
                      //移除OrderInited
                      ecb.RemoveComponent<OrderInited>(entityInQueryIndex, orderEntity);

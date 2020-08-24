@@ -63,7 +63,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
             {
                 ExecutorEntity = agentEntity,
                 FacilityEntity = facilityEntity,
-                OutputName = outputItemName,
+                ItemName = outputItemName,
                 Amount = outputAmount
             });
             ecb.AddComponent(entityInQueryIndex, orderEntity, new OrderWatch

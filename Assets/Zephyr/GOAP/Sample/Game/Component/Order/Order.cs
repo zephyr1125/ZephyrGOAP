@@ -10,7 +10,7 @@ namespace Zephyr.GOAP.Sample.Game.Component.Order
     {
         public Entity ExecutorEntity;
         public Entity FacilityEntity;
-        public FixedString32 OutputName;
+        public FixedString32 ItemName;
         public byte Amount;
     }
 }

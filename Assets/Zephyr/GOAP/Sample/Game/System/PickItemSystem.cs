@@ -21,20 +21,20 @@ namespace Zephyr.GOAP.Sample.Game.System
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             var ecb = ECBSystem.CreateCommandBuffer().AsParallelWriter();
-            var pickItemActions = GetComponentDataFromEntity<PickItemAction>(true);
+            var actions = GetComponentDataFromEntity<PickItemAction>(true);
             var time = Time.ElapsedTime;
             
             //先走时间+播动画
             var initHandle = Entities.WithName("PickItemInitJob")
                 .WithAll<PickItemOrder>()
                 .WithNone<OrderInited>()
-                .WithReadOnly(pickItemActions)
+                .WithReadOnly(actions)
                 .ForEach((Entity orderEntity, int entityInQueryIndex, in Order order) =>
                 {
                     var executorEntity = order.ExecutorEntity;
                     //获取执行时间
                     var setting = new State();
-                    var actionPeriod = pickItemActions[executorEntity].GetExecuteTime(setting);
+                    var actionPeriod = actions[executorEntity].GetExecuteTime(setting);
                     
                     //todo 播放动态
                     
@@ -57,7 +57,7 @@ namespace Zephyr.GOAP.Sample.Game.System
                     if (time - orderInited.StartTime < orderInited.ExecutePeriod)
                         return;
 
-                    var itemName = order.OutputName;
+                    var itemName = order.ItemName;
                     var amount = order.Amount;
                      
                     //执行者获得物品
