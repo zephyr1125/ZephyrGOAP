@@ -1,32 +1,32 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
-    <ui:VisualElement name="main-frame" class="main-frame" style="flex-grow: 3;&#10;">
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="main-frame" class="main-frame" style="flex-grow: 3; background-color: rgba(24, 24, 24, 255);">
         <Style src="window.uss" />
-        <ui:VisualElement name="node-container" style="position: absolute;&#10;left: 0;&#10;top: 26px;&#10;width: 100%;&#10;height: 543px;&#10;" />
-        <ui:VisualElement name="toolbar" class="toolbar" style="align-items: auto;&#10;flex-direction: row;&#10;height: auto;&#10;">
-            <ui:Button text="Load" name="load-button" class="toolbar-button" style="align-items: auto;&#10;flex-shrink: 0;&#10;flex-direction: column;&#10;" />
+        <ui:VisualElement name="node-container" style="position: absolute; left: 0; top: 26px; width: 100%; height: 543px;" />
+        <ui:VisualElement name="toolbar" class="toolbar" style="align-items: auto; flex-direction: row; height: auto;">
+            <ui:Button text="Load" name="load-button" class="toolbar-button" style="align-items: auto; flex-shrink: 0; flex-direction: column;" />
             <ui:Button text="Editor|OFF" name="editor-button" class="toolbar-button" />
             <ui:Button text="Auto|OFF" name="auto-button" class="toolbar-button" />
-            <ui:VisualElement name="space" style="flex-grow: 1;&#10;" />
+            <ui:VisualElement name="space" style="flex-grow: 1;" />
             <ui:Button text="-" name="prev-button" class="toolbar-button" />
-            <ui:Label text="9/99" name="page" style="height: 100%;&#10;-unity-text-align: middle-left;&#10;" />
+            <ui:Label text="9/99" name="page" style="height: 100%; -unity-text-align: middle-left;" />
             <ui:Button text="+" name="next-button" class="toolbar-button" />
-            <ui:VisualElement name="space" style="flex-grow: 1;&#10;" />
-            <ui:Button text="Reset" name="reset-button" class="toolbar-button" style="align-items: auto;&#10;flex-shrink: 0;&#10;flex-grow: 0;&#10;flex-direction: column;&#10;flex-wrap: no-wrap;&#10;flex-basis: auto;&#10;" />
+            <ui:VisualElement name="space" style="flex-grow: 1;" />
+            <ui:Button text="Reset" name="reset-button" class="toolbar-button" style="align-items: auto; flex-shrink: 0; flex-grow: 0; flex-direction: column; flex-wrap: no-wrap; flex-basis: auto;" />
         </ui:VisualElement>
-        <ui:VisualElement name="current-states" style="position: absolute;&#10;height: auto;&#10;width: 322px;&#10;top: auto;&#10;left: auto;&#10;right: 8px;&#10;bottom: 8px;&#10;flex-direction: column;&#10;">
-            <ui:Foldout text="Current States" style="background-color: rgb(136, 136, 136);&#10;color: rgb(0, 0, 0);&#10;" />
+        <ui:VisualElement name="current-states" style="position: absolute; height: auto; width: 322px; top: auto; left: auto; right: 8px; bottom: 8px; flex-direction: column; color: rgba(0, 0, 0, 255); background-color: rgb(58, 58, 58);">
+            <ui:Foldout text="Current States" style="background-color: rgb(51, 51, 51); color: rgb(0, 0, 0);" />
         </ui:VisualElement>
     </ui:VisualElement>
-    <ui:VisualElement name="timeline" style="background-color: rgb(38, 38, 38);&#10;flex-grow: 1;&#10;overflow: hidden;&#10;">
+    <ui:VisualElement name="timeline" style="background-color: rgb(38, 38, 38); flex-grow: 1; overflow: hidden;">
         <Style src="window.uss" />
-        <ui:VisualElement name="timeline-container" style="flex-grow: 1;&#10;overflow: hidden;&#10;position: absolute;&#10;left: 0;&#10;top: 14px;&#10;right: 0;&#10;bottom: 0;&#10;" />
-        <ui:VisualElement name="timeline-title" style="background-color: rgb(96, 96, 96);&#10;flex-direction: row;&#10;margin-left: 0;&#10;margin-right: 0;&#10;margin-top: 0;&#10;">
-            <ui:Label text="Timeline" style="flex-grow: 1;&#10;padding-top: 0;&#10;" />
+        <ui:VisualElement name="timeline-container" style="flex-grow: 1; overflow: hidden; position: absolute; left: 0; top: 14px; right: 0; bottom: 0;" />
+        <ui:VisualElement name="timeline-title" style="background-color: rgb(96, 96, 96); flex-direction: row; margin-left: 0; margin-right: 0; margin-top: 0;">
+            <ui:Label text="Timeline" style="flex-grow: 1; padding-top: 0;" />
             <ui:Label text="-" />
         </ui:VisualElement>
     </ui:VisualElement>
-    <ui:VisualElement name="status_bar" style="align-items: stretch;&#10;justify-content: flex-start;&#10;bottom: auto;&#10;position: relative;&#10;height: auto;&#10;width: auto;&#10;background-color: rgb(96, 96, 96);&#10;margin-left: 0;&#10;margin-right: 0;&#10;margin-top: 0;&#10;margin-bottom: 0;&#10;padding-left: 4px;&#10;padding-right: 4px;&#10;padding-top: 4px;&#10;padding-bottom: 4px;&#10;top: auto;&#10;left: auto;&#10;flex-grow: 0;&#10;">
+    <ui:VisualElement name="status_bar" style="align-items: stretch; justify-content: flex-start; bottom: auto; position: relative; height: auto; width: auto; background-color: rgb(96, 96, 96); margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; padding-left: 4px; padding-right: 4px; padding-top: 4px; padding-bottom: 4px; top: auto; left: auto; flex-grow: 0;">
         <Style src="window.uss" />
-        <ui:Label text="name" name="agent-name" binding-path="AgentName" style="align-items: auto;&#10;justify-content: flex-start;&#10;" />
+        <ui:Label text="name" name="agent-name" binding-path="AgentName" style="align-items: auto; justify-content: flex-start;" />
     </ui:VisualElement>
 </ui:UXML>

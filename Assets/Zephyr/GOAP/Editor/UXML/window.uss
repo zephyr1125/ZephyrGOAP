@@ -15,13 +15,16 @@
     padding-right: 2px;
     padding-top: 2px;
     padding-bottom: 2px;
+    color: rgba(0, 0, 0, 255);
 }
 
 .toolbar-button {
     width: auto;
     background-color: rgb(200, 200, 200);
+    color: rgba(0, 0, 0, 255);
 }
 
 .toolbar-button:hover {
     background-color: rgb(238, 238, 238);
+    color: rgba(0, 0, 0, 255);
 }
