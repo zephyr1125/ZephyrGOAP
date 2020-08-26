@@ -143,7 +143,7 @@ namespace Zephyr.GOAP.Editor
             {
                 foreach (var precondition in Node.preconditions)
                 {
-                    preconditionContainer.Add(new Label(precondition.ToString()));
+                    preconditionContainer.Add(CreateNewLabel(precondition.ToString()));
                 }
             }
 
@@ -153,7 +153,7 @@ namespace Zephyr.GOAP.Editor
             {
                 foreach (var effect in Node.effects)
                 {
-                    effectContainer.Add(new Label(effect.ToString()));
+                    effectContainer.Add(CreateNewLabel(effect.ToString()));
                 }
             }
             
@@ -163,7 +163,7 @@ namespace Zephyr.GOAP.Editor
             {
                 foreach (var delta in Node.deltas)
                 {
-                    deltaContainer.Add(new Label(delta.ToString()));
+                    deltaContainer.Add(CreateNewLabel(delta.ToString()));
                 }
             }
 
@@ -174,7 +174,7 @@ namespace Zephyr.GOAP.Editor
             {
                 foreach (var timeLog in nodeTimeLogs)
                 {
-                    agentsContainer.Add(new Label(timeLog));
+                    agentsContainer.Add(CreateNewLabel(timeLog));
                 }
             }
         }
@@ -183,6 +183,13 @@ namespace Zephyr.GOAP.Editor
         {
             _statesTip.style.left = mousePos.x + 8;
             _statesTip.style.top = mousePos.y + 8;
+        }
+
+        private Label CreateNewLabel(string text)
+        {
+            var lable = new Label(text);
+            lable.style.color = Color.black;
+            return lable;
         }
     }
 }
