@@ -29,7 +29,7 @@ namespace Zephyr.GOAP.Tests.Mock
         {
             stackData.ItemNames = _itemNames;
             
-            handle = ScheduleActionExpand<MockAction>(handle, stackData,
+            handle = ScheduleActionExpand<MockProduceAction>(handle, stackData,
                 nodeAgentPairs, existedNodesHash, requires, deltas, nodesWriter, nodeToParentsWriter, 
                 statesWriter, preconditionHashesWriter, effectHashesWriter, requireHashesWriter, deltaHashesWriter,
                 newlyCreatedNodesWriter, iteration);

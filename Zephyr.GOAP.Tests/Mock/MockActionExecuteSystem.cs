@@ -19,7 +19,7 @@ namespace Zephyr.GOAP.Tests.Mock
                 .WithDeallocateOnJobCompletion(waitingNodeEntities)
                 .WithDeallocateOnJobCompletion(waitingNodes)
                 .ForEach((Entity agentEntity, int entityInQueryIndex,
-                    in Agent agent, in MockAction action) =>
+                    in Agent agent, in MockProduceAction action) =>
                 {
                     for (var i = 0; i < waitingNodeEntities.Length; i++)
                     {
@@ -47,7 +47,7 @@ namespace Zephyr.GOAP.Tests.Mock
 
         protected override FixedString32 GetNameOfAction()
         {
-            return nameof(MockAction);
+            return nameof(MockProduceAction);
         }
     }
 }

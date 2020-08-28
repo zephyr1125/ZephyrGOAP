@@ -20,12 +20,12 @@ namespace Zephyr.GOAP.Tests.ActionExecute
 
             _system = World.GetOrCreateSystem<MockActionExecuteSystem>();
             
-            EntityManager.AddComponentData(_agentEntity, new MockAction());
+            EntityManager.AddComponentData(_agentEntity, new MockProduceAction());
             
             EntityManager.AddComponentData(_actionNodeEntity, new Node
             {
                 AgentExecutorEntity = _agentEntity,
-                Name = nameof(MockAction),
+                Name = nameof(MockProduceAction),
             });
         }
 
