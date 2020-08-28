@@ -18,7 +18,7 @@ namespace Zephyr.GOAP.Logger
         public string valueString;
         public string valueTrait;
         public bool isNegative;
-        public byte amount;
+        public int amount;
 
         public StateLog(EntityManager entityManager, State state)
         {
