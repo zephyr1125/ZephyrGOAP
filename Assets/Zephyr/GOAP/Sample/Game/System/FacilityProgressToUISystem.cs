@@ -14,7 +14,9 @@ namespace Zephyr.GOAP.Sample.Game.System
         protected override void OnUpdate()
         {
             var time = Time.ElapsedTime;
-            Entities.ForEach((in Order order, in OrderInited orderInited) =>
+            Entities
+                .WithoutBurst()
+                .ForEach((in Order order, in OrderInited orderInited) =>
             {
                 var facilityEntity = order.FacilityEntity;
                 var translations = GetComponentDataFromEntity<Translation>(true);

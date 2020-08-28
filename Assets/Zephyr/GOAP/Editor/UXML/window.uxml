@@ -1,5 +1,5 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
-    <ui:VisualElement name="main-frame" class="main-frame" style="flex-grow: 3; background-color: rgba(24, 24, 24, 255);">
+    <ui:VisualElement name="main-frame" class="main-frame" style="flex-grow: 3; background-color: rgb(24, 24, 24);">
         <Style src="window.uss" />
         <ui:VisualElement name="node-container" style="position: absolute; left: 0; top: 26px; width: 100%; height: 543px;" />
         <ui:VisualElement name="toolbar" class="toolbar" style="align-items: auto; flex-direction: row; height: auto;">
@@ -13,7 +13,7 @@
             <ui:VisualElement name="space" style="flex-grow: 1;" />
             <ui:Button text="Reset" name="reset-button" class="toolbar-button" style="align-items: auto; flex-shrink: 0; flex-grow: 0; flex-direction: column; flex-wrap: no-wrap; flex-basis: auto;" />
         </ui:VisualElement>
-        <ui:VisualElement name="current-states" style="position: absolute; height: auto; width: 322px; top: auto; left: auto; right: 8px; bottom: 8px; flex-direction: column; color: rgba(0, 0, 0, 255); background-color: rgb(58, 58, 58);">
+        <ui:VisualElement name="current-states" style="position: absolute; height: auto; width: 400px; top: auto; left: auto; right: 8px; bottom: 8px; flex-direction: column; color: rgb(0, 0, 0); background-color: rgb(58, 58, 58);">
             <ui:Foldout text="Current States" style="background-color: rgb(51, 51, 51); color: rgb(0, 0, 0);" />
         </ui:VisualElement>
     </ui:VisualElement>

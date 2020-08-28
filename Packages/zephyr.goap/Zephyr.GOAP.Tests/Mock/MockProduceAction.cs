@@ -6,7 +6,7 @@ using Zephyr.GOAP.Struct;
 namespace Zephyr.GOAP.Tests.Mock
 {
     //effect 为 mock A 1个，precondition 为 mock B 2个
-    public struct MockAction : IComponentData, IAction
+    public struct MockProduceAction : IComponentData, IAction
     {
         public int Level;
         

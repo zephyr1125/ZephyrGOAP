@@ -141,6 +141,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
                 ValueString = ItemNames.Instance().RawAppleName,
                 Amount = 255
             });
+
             buffer.Add(new State
             {
                 Target = _rawPeachEntity,
