@@ -41,7 +41,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                         //从effect里找目标.
                         var targetEntity = Entity.Null;
                         var targetItemName = new FixedString32();
-                        byte targetAmount = 0;
+                        var targetAmount = 0;
                         for (var stateId = 0; stateId < states.Length; stateId++)
                         {
                             if ((node.EffectsBitmask & (ulong)1 << stateId) > 0)

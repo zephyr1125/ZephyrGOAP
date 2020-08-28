@@ -55,7 +55,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
         }
         
         public static void CreateOrderAndWatch<T>(EntityCommandBuffer.ParallelWriter ecb, int entityInQueryIndex,
-            Entity agentEntity, Entity facilityEntity, FixedString32 outputItemName, byte outputAmount,
+            Entity agentEntity, Entity facilityEntity, FixedString32 outputItemName, int outputAmount,
             Entity nodeEntity) where T: struct, IComponentData, IOrder
         {
             var orderEntity = ecb.CreateEntity(entityInQueryIndex);

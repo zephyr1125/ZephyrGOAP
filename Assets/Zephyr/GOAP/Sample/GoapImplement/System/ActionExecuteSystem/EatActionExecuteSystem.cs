@@ -41,7 +41,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                         //从precondition里找食物.此时餐桌应该已经具有指定的食物
                         var targetItemName = new FixedString32();
                         var tableEntity = Entity.Null;
-                        byte amount = 0;
+                        var amount = 0;
                         for (var stateId = 0; stateId < states.Length; stateId++)
                         {
                             if ((node.PreconditionsBitmask & (ulong) 1 << stateId) <= 0) continue;

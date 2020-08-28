@@ -12,7 +12,7 @@ namespace Zephyr.GOAP.Component
         public int Trait;
         public FixedString32 ValueString;
         public int ValueTrait;
-        public byte Amount;
+        public int Amount;
         /// <summary>
         /// true时表示这个state表达反面意义，比如“目标不拥有指定物品”
         /// </summary>

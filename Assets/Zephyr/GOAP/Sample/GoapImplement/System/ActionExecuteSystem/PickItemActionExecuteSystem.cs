@@ -39,7 +39,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                         //从precondition里找信息.
                         var targetEntity = Entity.Null;
                         var targetItemName = new FixedString32();
-                        byte itemAmount = 0;
+                        var itemAmount = 0;
                         for (var stateId = 0; stateId < states.Length; stateId++)
                         {
                             if ((node.PreconditionsBitmask & (ulong) 1 << stateId) <= 0) continue;

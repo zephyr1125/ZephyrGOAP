@@ -22,7 +22,7 @@ namespace Zephyr.GOAP.Sample
         /// <param name="outputAmount">输出的outputAmount，在已经提供amount时为原值，没提供的话为一次生产的值</param>
         /// <returns></returns>
         public static StateGroup GetRecipeInputInStateGroup(StateGroup stateGroup, State recipeOutputFilter,
-            Allocator allocator, out byte outputAmount)
+            Allocator allocator, out int outputAmount)
         {
             outputAmount = recipeOutputFilter.Amount;
             var result = new StateGroup(2, allocator);

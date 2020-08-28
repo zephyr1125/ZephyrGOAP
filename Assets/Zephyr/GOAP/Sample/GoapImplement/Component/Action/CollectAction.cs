@@ -61,7 +61,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                     currentStates.GetBelongingStates(collectorState, Allocator.Temp);
                 var nearestCollectorState = default(State);
                 var nearestDistance = float.MaxValue;
-                byte nearestAmount = 0;
+                var nearestAmount = 0;
                 for (var collectorId = 0; collectorId < collectors.Length(); collectorId++)
                 {
                     var collector = collectors[collectorId];

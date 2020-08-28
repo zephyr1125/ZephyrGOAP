@@ -50,7 +50,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                         }
                         //从effect获取产物
                         var outputItemName = new FixedString32();
-                        byte outputAmount = 0;
+                        var outputAmount = 0;
                         for (var stateId = 0; stateId < states.Length; stateId++)
                         {
                             if ((node.EffectsBitmask & (ulong) 1 << stateId) <= 0) continue;
