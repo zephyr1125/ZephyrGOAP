@@ -227,35 +227,43 @@ namespace Zephyr.GOAP.Struct
             for (var otherId = 0; otherId < other.Length(); otherId++)
             {
                 var otherState = other[otherId];
-                var contained = false;
-
-                for (var thisId = 0; thisId < Length(); thisId++)
-                {
-                    var thisState = this[thisId];
-
-                    if (otherState.IsCountable())
-                    {
-                        //可数
-                        if (!thisState.SameTo(otherState)) continue;
-                        
-                        //找到了则直接增加数量
-                        contained = true;
-                        thisState.Amount += otherState.Amount;
-                        this[thisId] = thisState;
-                        break;
-                    }
-                    else
-                    {
-                        //不可数
-                        if (!thisState.Equals(otherState)) continue;
-                        
-                        contained = true;
-                        break;
-                    }
-                }
-                //左侧找不到相同项时需要追加
-                if(!contained)Add(otherState);
+                OR(otherState);
             }
+        }
+
+        /// <summary>
+        /// 累加一个state
+        /// </summary>
+        /// <param name="other"></param>
+        public void OR([ReadOnly] State other)
+        {
+            var contained = false;
+            for (var thisId = 0; thisId < Length(); thisId++)
+            {
+                var thisState = this[thisId];
+
+                if (other.IsCountable())
+                {
+                    //可数
+                    if (!thisState.SameTo(other)) continue;
+                        
+                    //找到了则直接增加数量
+                    contained = true;
+                    thisState.Amount += other.Amount;
+                    this[thisId] = thisState;
+                    break;
+                }
+                else
+                {
+                    //不可数
+                    if (!thisState.Equals(other)) continue;
+                        
+                    contained = true;
+                    break;
+                }
+            }
+            //左侧找不到相同项时需要追加
+            if(!contained)Add(other);
         }
 
         /// <summary>

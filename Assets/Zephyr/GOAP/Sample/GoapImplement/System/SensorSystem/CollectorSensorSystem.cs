@@ -6,6 +6,7 @@ using Unity.Transforms;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Sample.Game.Component;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
+using Zephyr.GOAP.Struct;
 using Zephyr.GOAP.System.SensorManage;
 
 namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
@@ -62,6 +63,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
                         });
 
                         //基于附近原料，写入潜在物品源
+                        var tempStates = new StateGroup(1, Allocator.Temp);
                         for (var rawId = 0; rawId < raws.Length; rawId++)
                         {
                             if (math.distance(rawTranslations[rawId].Value, position) > CollectorRange) continue;
@@ -69,16 +71,27 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
                             //找到raw的物品容器里的那个物品以确定数量
                             var bufferContainedItemRef = containedItemRefs[rawEntities[rawId]];
                             var itemEntity = bufferContainedItemRef[0].ItemEntity;
-                            
-                            ecb.AppendToBuffer(entityInQueryIndex, baseStateEntity, new State
+
+                            var newState = new State
                             {
                                 Target = collectorEntity,
                                 Position = position,
                                 Trait = TypeManager.GetTypeIndex<ItemPotentialSourceTrait>(),
                                 ValueString = raws[rawId].RawName,
                                 Amount = counts[itemEntity].Value
-                            });
+                            };
+                            
+                            tempStates.OR(newState);
                         }
+
+                        for (var i = 0; i < tempStates.Length(); i++)
+                        {
+                            var state = tempStates[i];
+                            ecb.AppendToBuffer(entityInQueryIndex, baseStateEntity, state);
+                        }
+                        
+                        tempStates.Dispose();
+                        
                     }).Schedule(inputDeps);;
         }
     }

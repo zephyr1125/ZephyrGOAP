@@ -1,6 +1,7 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using UnityEngine.Assertions;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Sample.Game.Component;
 using Zephyr.GOAP.Sample.GoapImplement;
@@ -218,10 +219,7 @@ namespace Zephyr.GOAP.Sample
                 if (!itemRef.ItemName.Equals(itemName)) continue;
                 var itemEntity = itemRef.ItemEntity;
                 var originalAmount = allCounts[itemEntity].Value;
-                if (originalAmount < -amount)
-                {
-                    return false;    //数量不足
-                }
+                Assert.IsTrue(originalAmount >= -amount);
                 ecb.SetComponent(entityInQueryIndex, itemEntity,
                     new Count {Value = (byte) (originalAmount + amount)});
                 return true;

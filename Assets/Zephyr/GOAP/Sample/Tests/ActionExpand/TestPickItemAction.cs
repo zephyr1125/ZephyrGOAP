@@ -57,7 +57,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             }
         }
         
-        //一个目标源无法满足时要多次Pick(Pick的delta为多个)
+        //一个目标源无法满足时要多次Pick(Pick的delta和precondition都为多个)
         [Test]
         public void MultiSourceFulfilRequire()
         {
@@ -84,6 +84,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             Assert.IsTrue(_debugger.IsPlanSuccess());
             
             Assert.AreEqual(2, _debugger.PathResult[0].deltas.Length);
+            Assert.AreEqual(2, _debugger.PathResult[0].preconditions.Length);
         }
     }
 }

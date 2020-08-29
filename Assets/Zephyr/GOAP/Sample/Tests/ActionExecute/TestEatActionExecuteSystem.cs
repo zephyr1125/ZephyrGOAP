@@ -78,7 +78,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExecute
             EntityManager.CompleteAllJobs();
 
             var orderQuery =
-                EntityManager.CreateEntityQuery(typeof(Order), typeof(OrderWatchSystem.OrderWatch));
+                EntityManager.CreateEntityQuery(typeof(Order), typeof(OrderWatchSystem.OrderWatched));
             Assert.AreEqual(1, orderQuery.CalculateEntityCount());
         }
 

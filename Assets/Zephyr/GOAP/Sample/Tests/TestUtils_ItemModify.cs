@@ -81,19 +81,6 @@ namespace Zephyr.GOAP.Sample.Tests
         }
 
         [Test]
-        public void Sub_NotEnough_Fail()
-        {
-            _system.ItemName = _itemName;
-            _system.Amount = -4;
-            
-            _system.Update();
-            _system.EcbSystem.Update();
-            EntityManager.CompleteAllJobs();
-            
-            Assert.AreEqual(3, EntityManager.GetComponentData<Count>(_itemEntity).Value);
-        }
-
-        [Test]
         public void Sub_NoSuchItem_Fail()
         {
             _system.ItemName = ItemNames.Instance().RawAppleName;

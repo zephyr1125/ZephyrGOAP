@@ -3,13 +3,15 @@ using UnityEngine;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.AgentState;
 using Zephyr.GOAP.Sample.Game.Component;
+using Zephyr.GOAP.Sample.GoapImplement.Component;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Action;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
+using Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem;
 
 namespace Zephyr.GOAP.Sample.Game.Authoring
 {
     [RequiresEntityConversion]
-    [ConverterVersion("Zephyr", 7)]
+    [ConverterVersion("Zephyr", 8)]
     public class AgentAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     {
         public string Name;
@@ -42,6 +44,8 @@ namespace Zephyr.GOAP.Sample.Game.Authoring
             dstManager.AddComponentData(entity, 
                 new ItemContainer{Capacity = 99, IsTransferSource = false});
             var buffer = dstManager.AddBuffer<ContainedItemRef>(entity);
+
+            dstManager.AddBuffer<WatchingOrder>(entity);
         }
     }
 }

@@ -3,6 +3,7 @@ using Unity.Entities;
 using Zephyr.GOAP.Component.ActionNodeState;
 using Zephyr.GOAP.Component.AgentState;
 using Zephyr.GOAP.Sample.Game.Component.Order;
+using Zephyr.GOAP.Sample.GoapImplement.Component;
 
 namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
 {
@@ -16,9 +17,9 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
     public class OrderWatchSystem : SystemBase
     {
         /// <summary>
-        /// 监控Order
+        /// 位于Order上表示被监控
         /// </summary>
-        public struct OrderWatch : ISystemStateComponentData
+        public struct OrderWatched : ISystemStateComponentData
         {
             public Entity AgentEntity, NodeEntity;
         }
@@ -34,22 +35,40 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
         protected override void OnUpdate()
         {
             var ecb = EcbSystem.CreateCommandBuffer().AsParallelWriter();
+            var allWatchingOrders = GetBufferFromEntity<WatchingOrder>(true);
             var handle = Entities.WithName("OrderWatchJob")
                 .WithNone<Order>()
-                .ForEach((Entity orderEntity, int entityInQueryIndex, in OrderWatch orderWatch) =>
+                .WithReadOnly(allWatchingOrders)
+                .ForEach((Entity orderEntity, int entityInQueryIndex, in OrderWatched orderWatch) =>
                 {
                     var agentEntity = orderWatch.AgentEntity;
                     var nodeEntity = orderWatch.NodeEntity;
 
-                    //通知执行完毕,注意此处默认agent应该是处于Acting状态了
-                    Zephyr.GOAP.Utils.NextAgentState<Acting, ActDone>(agentEntity, entityInQueryIndex,
-                        ecb, nodeEntity);
+                    //移除当前watchingOrder
+                    var watchingOrders = allWatchingOrders[agentEntity];
+                    //因为ecb没有直接移除某buffer的办法，因此通过把不符合的重新赋值，留空符合的，这样来绕过
+                    var buffer = ecb.SetBuffer<WatchingOrder>(entityInQueryIndex, agentEntity);
+                    for (var watchingOrderId = 0; watchingOrderId < watchingOrders.Length; watchingOrderId++)
+                    {
+                        if (!watchingOrders[watchingOrderId].OrderEntity.Equals(orderEntity))
+                        {
+                            buffer.Add(watchingOrders[watchingOrderId]);
+                        }
+                    }
+
+                    //如果这个order是watching的最后一个，则agent与node执行完毕
+                    if (watchingOrders.Length == 1)
+                    {
+                        //通知执行完毕,注意此处默认agent应该是处于Acting状态了
+                        Zephyr.GOAP.Utils.NextAgentState<Acting, ActDone>(agentEntity, entityInQueryIndex,
+                            ecb, nodeEntity);
                     
-                    //node指示执行完毕 
-                    Zephyr.GOAP.Utils.NextActionNodeState<ActionNodeActing, ActionNodeDone>(nodeEntity,
-                        entityInQueryIndex, ecb, agentEntity);
-                    
-                    ecb.RemoveComponent<OrderWatch>(entityInQueryIndex, orderEntity);
+                        //node指示执行完毕 
+                        Zephyr.GOAP.Utils.NextActionNodeState<ActionNodeActing, ActionNodeDone>(nodeEntity,
+                            entityInQueryIndex, ecb, agentEntity);
+                    }
+
+                    ecb.RemoveComponent<OrderWatched>(entityInQueryIndex, orderEntity);
                 }).Schedule(Dependency);
             EcbSystem.AddJobHandleForProducer(handle);
         }
@@ -66,12 +85,14 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                 ItemName = outputItemName,
                 Amount = outputAmount
             });
-            ecb.AddComponent(entityInQueryIndex, orderEntity, new OrderWatch
+            ecb.AddComponent(entityInQueryIndex, orderEntity, new OrderWatched
             {
                 NodeEntity = nodeEntity,
                 AgentEntity = agentEntity
             });
             ecb.AddComponent<T>(entityInQueryIndex, orderEntity);
+            
+            ecb.AppendToBuffer(entityInQueryIndex, agentEntity, new WatchingOrder{OrderEntity = orderEntity});
         }
     }
 }

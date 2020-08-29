@@ -41,25 +41,22 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                         if (!node.Name.Equals(nameOfAction)) continue;
 
                         var states = waitingStates[nodeEntity];
-                        //从precondition里找信息.
-                        var rawEntity = Entity.Null;
-                        var rawItemName = new FixedString32();
-                        var rawAmount = 0;
+                        //从precondition里找信息，可能因为多重来源被拆分为多个
                         for (var stateId = 0; stateId < states.Length; stateId++)
                         {
                             if ((node.PreconditionsBitmask & (ulong) 1 << stateId) <= 0) continue;
                             var precondition = states[stateId];
                             Assert.IsTrue(precondition.Target != Entity.Null);
                             
-                            rawEntity = precondition.Target;
-                            rawItemName = precondition.ValueString;
-                            rawAmount = precondition.Amount;
-                            break;
+                            var rawEntity = precondition.Target;
+                            var rawItemName = precondition.ValueString;
+                            var rawAmount = precondition.Amount;
+                            
+                            //产生order
+                            OrderWatchSystem.CreateOrderAndWatch<PickRawOrder>(ecb, entityInQueryIndex, agentEntity,
+                                rawEntity, rawItemName, rawAmount, nodeEntity);
                         }
                         
-                        //产生order
-                        OrderWatchSystem.CreateOrderAndWatch<PickRawOrder>(ecb, entityInQueryIndex, agentEntity,
-                            rawEntity, rawItemName, rawAmount, nodeEntity);
                         
                         //进入执行中状态
                         Zephyr.GOAP.Utils.NextAgentState<ReadyToAct, Acting>(agentEntity, entityInQueryIndex,
