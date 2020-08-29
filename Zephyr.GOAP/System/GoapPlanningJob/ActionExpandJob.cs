@@ -88,10 +88,15 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                     if (effects.Length() > 0)
                     {
                         var requires = new StateGroup(leftRequires, Allocator.Temp);
+
+                        //precondition-current得到new delta
+                        //而precondition会因此变小，需要重新补上这个new delta
+                        var newDeltas = preconditions.MINUS(currentStates, true);
+                        preconditions.OR(newDeltas);
                         
                         requires.MINUS(effects);
                         requires.OR(preconditions);
-                        var newDeltas = requires.MINUS(currentStates, true);
+                        requires.MINUS(currentStates);
                         newDeltas.OR(deltas);
 
                         var reward =
@@ -164,7 +169,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                 if (!effects.Equals(default))
                 {
                     //目前effect不可能超过1个
-                    Assert.IsTrue(effects.Length()<2, "[AddRouteNode] Too much effects!");
+                    Assert.IsTrue(effects.Length()<2);
                     for(var i=0; i<effects.Length(); i++)
                     {
                         var state = effects[i];
