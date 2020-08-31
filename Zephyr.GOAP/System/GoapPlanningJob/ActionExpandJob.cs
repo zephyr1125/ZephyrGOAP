@@ -65,6 +65,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
             //只考虑node的首个require
             var targetRequire = leftRequires[0];
 
+            //currentState构建：BaseState - Deltas
             var deltas = new StateGroup(Deltas, expandingNodeHash, Allocator.Temp);
             var currentStates = new StateGroup(StackData.BaseStates, Allocator.Temp);
             currentStates.MINUS(deltas);
@@ -90,13 +91,13 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
                         var requires = new StateGroup(leftRequires, Allocator.Temp);
 
                         //precondition-current得到new delta
-                        //而precondition会因此变小，需要重新补上这个new delta
-                        var newDeltas = preconditions.MINUS(currentStates, true);
-                        preconditions.OR(newDeltas);
-                        
+                        var newDeltas = preconditions.MINUS(currentStates,
+                            true);
+
                         requires.MINUS(effects);
                         requires.OR(preconditions);
-                        requires.MINUS(currentStates);
+                        //补上newDelta给precondition是为了在ActionExecution的时候从中找目标
+                        preconditions.OR(newDeltas);
                         newDeltas.OR(deltas);
 
                         var reward =
