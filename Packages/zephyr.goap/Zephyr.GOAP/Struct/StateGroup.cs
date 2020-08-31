@@ -155,9 +155,10 @@ namespace Zephyr.GOAP.Struct
         /// 表示对左侧期望的满足计算，因此结构只有1种可能：
         /// 期望 MINUS 实现
         /// 会移除掉左侧满足的State，可数的减数量，不可数的移除
+        /// 右边不会变化
         /// </summary>
         /// <param name="other"></param>
-        /// <param name="outputChangedOtherStates">是否输出右侧被变动的state，不可数不会被移除</param>
+        /// <param name="outputChangedOtherStates">是否输出右侧符合了左边的state，不可数不会被输出</param>
         /// <param name="allocator"></param>
         public StateGroup MINUS(StateGroup other, bool outputChangedOtherStates = false, Allocator allocator = Allocator.Temp)
         {

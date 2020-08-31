@@ -108,7 +108,8 @@ namespace Zephyr.GOAP.Tests
         [Test]
         public void MINUS_NonCountable_Equal_RemoveLeft()
         {
-            _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitA>()});
+            _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0},
+                Trait = TypeManager.GetTypeIndex<MockTraitA>()});
             
             _aStates.MINUS(_bStates);
             Assert.AreEqual(1, _aStates.Length());
@@ -119,7 +120,8 @@ namespace Zephyr.GOAP.Tests
         [Test]
         public void MINUS_NonCountable_BelongTo_RemoveLeft()
         {
-            _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitA>(), ValueString = "a"});
+            _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0},
+                Trait = TypeManager.GetTypeIndex<MockTraitA>(), ValueString = "a"});
             
             _aStates.MINUS(_bStates);
             Assert.AreEqual(1, _aStates.Length());
@@ -129,7 +131,8 @@ namespace Zephyr.GOAP.Tests
         //可数左右Same的，减少左侧数量
         [Test]
         public void MINUS_Countable_Same_ReduceLeft() {
-            _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitB>(), Amount = 1});
+            _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0},
+                Trait = TypeManager.GetTypeIndex<MockTraitB>(), Amount = 1});
             
             _aStates.MINUS(_bStates);
             Assert.AreEqual(2, _aStates.Length());
@@ -152,7 +155,8 @@ namespace Zephyr.GOAP.Tests
         [Test]
         public void MINUS_Countable_MultiFit_ReduceLeft()
         {
-            _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitB>(), Amount = 1});
+            _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0},
+                Trait = TypeManager.GetTypeIndex<MockTraitB>(), Amount = 1});
             _bStates.Add(new State {Target = new Entity{Index = 1, Version = 0},
                 Trait = TypeManager.GetTypeIndex<MockTraitB>(), ValueString = "b", Amount = 1});
             
@@ -177,8 +181,10 @@ namespace Zephyr.GOAP.Tests
         [Test]
         public void MINUS_MultiState()
         {
-            var belongState = new State {Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitA>(), ValueString = "b"};
-            var sameState = new State{Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitB>(), Amount = 2};
+            var belongState = new State {Target = new Entity{Index = 1, Version = 0},
+                Trait = TypeManager.GetTypeIndex<MockTraitA>(), ValueString = "b"};
+            var sameState = new State{Target = new Entity{Index = 1, Version = 0},
+                Trait = TypeManager.GetTypeIndex<MockTraitB>(), Amount = 2};
             _bStates.Add(belongState);
             _bStates.Add(sameState);
             
@@ -193,7 +199,8 @@ namespace Zephyr.GOAP.Tests
         [Test]
         public void MINUS_OutputOtherRemovedStates()
         {
-            var sameState = new State{Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitB>(), Amount = 2};
+            var sameState = new State{Target = new Entity{Index = 1, Version = 0},
+                Trait = TypeManager.GetTypeIndex<MockTraitB>(), Amount = 2};
             _bStates.Add(sameState);
 
             var removedOther = _aStates.MINUS(_bStates, true);
@@ -206,10 +213,12 @@ namespace Zephyr.GOAP.Tests
         [Test]
         public void MINUS_OutputOtherReducedAmount()
         {
-            var sameState = new State{Target = new Entity{Index = 1, Version = 0}, Trait = TypeManager.GetTypeIndex<MockTraitB>(), Amount = 5};
+            var sameState = new State{Target = new Entity{Index = 1, Version = 0},
+                Trait = TypeManager.GetTypeIndex<MockTraitB>(), Amount = 5};
             _bStates.Add(sameState);
 
             var removedOther = _aStates.MINUS(_bStates, true);
+            
             Assert.AreEqual(1, removedOther.Length());
             Assert.IsTrue(removedOther[0].SameTo(sameState));
             Assert.AreEqual(3, removedOther[0].Amount);
