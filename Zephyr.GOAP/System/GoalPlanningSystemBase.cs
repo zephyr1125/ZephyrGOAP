@@ -6,7 +6,7 @@ using Unity.Transforms;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.AgentState;
 using Zephyr.GOAP.Component.GoalManage;
-using Zephyr.GOAP.Component.GoalManage.GoalState;
+using Zephyr.GOAP.Component.GoalState;
 using Zephyr.GOAP.Debugger;
 using Zephyr.GOAP.Lib;
 using Zephyr.GOAP.Struct;
@@ -202,7 +202,7 @@ namespace Zephyr.GOAP.System
                 
                 //保存总预测时间
                 var totalTime = nodeTotalTimes[pathNodes[0].HashCode];
-                goal.EstimateTimeLength = totalTime;
+                goal.EstimatePeriod = totalTime;
                 EntityManager.SetComponentData(goal.GoalEntity, goal);
 
                 Debugger?.SetNodeGraph(nodeGraph, EntityManager);

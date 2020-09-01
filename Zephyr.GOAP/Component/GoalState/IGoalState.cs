@@ -1,4 +1,4 @@
-namespace Zephyr.GOAP.Component.GoalManage.GoalState
+namespace Zephyr.GOAP.Component.GoalState
 {
     public interface IGoalState
     {

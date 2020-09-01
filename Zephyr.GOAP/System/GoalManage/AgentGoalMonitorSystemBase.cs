@@ -2,14 +2,16 @@ using Unity.Collections;
 using Unity.Entities;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.GoalManage;
-using Zephyr.GOAP.Component.GoalManage.GoalState;
-using Zephyr.GOAP.Struct;
+using Zephyr.GOAP.Component.GoalState;
 
 namespace Zephyr.GOAP.System.GoalManage
 {
+    /// <summary>
+    /// 监控一些参数，在设定的条件下产生新Goal的System基类
+    /// </summary>
     [UpdateInGroup(typeof(AgentGoalMonitorSystemGroup))]
     [AlwaysUpdateSystem]
-    public abstract class AgentGoalMonitorComponentSystem : ComponentSystem
+    public abstract class AgentGoalMonitorSystemBase : ComponentSystem
     {
         private float _timeInterval;
         private double _timeLastUpdate;
