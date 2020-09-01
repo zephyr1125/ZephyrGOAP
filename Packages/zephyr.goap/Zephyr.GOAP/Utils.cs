@@ -2,7 +2,7 @@ using System;
 using Unity.Entities;
 using Zephyr.GOAP.Component.ActionNodeState;
 using Zephyr.GOAP.Component.AgentState;
-using Zephyr.GOAP.Component.GoalManage.GoalState;
+using Zephyr.GOAP.Component.GoalState;
 
 namespace Zephyr.GOAP
 {

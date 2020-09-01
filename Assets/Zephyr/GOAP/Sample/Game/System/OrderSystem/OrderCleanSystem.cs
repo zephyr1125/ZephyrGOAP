@@ -2,7 +2,7 @@ using Unity.Entities;
 using Unity.Jobs;
 using Zephyr.GOAP.Sample.Game.Component.Order;
 
-namespace Zephyr.GOAP.Sample.Game.System
+namespace Zephyr.GOAP.Sample.Game.System.OrderSystem
 {
     [UpdateInGroup(typeof(LateSimulationSystemGroup))]
     public class OrderCleanSystem : JobComponentSystem

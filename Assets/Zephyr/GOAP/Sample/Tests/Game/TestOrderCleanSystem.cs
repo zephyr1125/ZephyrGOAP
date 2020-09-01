@@ -2,6 +2,7 @@ using NUnit.Framework;
 using Unity.Entities;
 using Zephyr.GOAP.Sample.Game.Component.Order;
 using Zephyr.GOAP.Sample.Game.System;
+using Zephyr.GOAP.Sample.Game.System.OrderSystem;
 using Zephyr.GOAP.Tests;
 
 namespace Zephyr.GOAP.Sample.Tests.Game

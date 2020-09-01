@@ -6,7 +6,7 @@ using Zephyr.GOAP.System.GoalManage;
 
 namespace Zephyr.GOAP.Sample.Game.System.AgentGoalMonitor
 {
-    public class StaminaGoalMonitorSystem : AgentGoalMonitorComponentSystem
+    public class StaminaGoalMonitorSystem : AgentGoalMonitorSystemBase
     {
         private const float StaminaThreshold = 0.5f;
 

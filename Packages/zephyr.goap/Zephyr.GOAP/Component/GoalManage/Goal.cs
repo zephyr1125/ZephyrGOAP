@@ -17,7 +17,7 @@ namespace Zephyr.GOAP.Component.GoalManage
         /// <summary>
         /// 预计执行时长
         /// </summary>
-        public float EstimateTimeLength;
+        public float EstimatePeriod;
 
         public int CompareTo(Goal other)
         {

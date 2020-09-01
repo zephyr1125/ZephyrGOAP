@@ -2,7 +2,7 @@ using NUnit.Framework;
 using Unity.Entities;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.GoalManage;
-using Zephyr.GOAP.Component.GoalManage.GoalState;
+using Zephyr.GOAP.Component.GoalState;
 using Zephyr.GOAP.System.ActionExecuteManage;
 
 namespace Zephyr.GOAP.Tests.ActionExecuteManage
