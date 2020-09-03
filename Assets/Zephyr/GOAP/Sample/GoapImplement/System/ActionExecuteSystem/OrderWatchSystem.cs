@@ -3,6 +3,7 @@ using Unity.Entities;
 using Zephyr.GOAP.Component.ActionNodeState;
 using Zephyr.GOAP.Component.AgentState;
 using Zephyr.GOAP.Sample.Game.Component.Order;
+using Zephyr.GOAP.Sample.Game.Component.Order.OrderState;
 using Zephyr.GOAP.Sample.GoapImplement.Component;
 
 namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
@@ -91,6 +92,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                 AgentEntity = agentEntity
             });
             ecb.AddComponent<T>(entityInQueryIndex, orderEntity);
+            ecb.AddComponent(entityInQueryIndex, orderEntity, new OrderReadyToNavigate());
             
             ecb.AppendToBuffer(entityInQueryIndex, agentEntity, new WatchingOrder{OrderEntity = orderEntity});
         }

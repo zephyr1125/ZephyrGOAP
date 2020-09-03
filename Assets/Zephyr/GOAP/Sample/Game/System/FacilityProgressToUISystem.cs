@@ -2,6 +2,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Zephyr.GOAP.Sample.Game.Component.Order;
+using Zephyr.GOAP.Sample.Game.Component.Order.OrderState;
 using Zephyr.GOAP.Sample.Game.UI;
 
 namespace Zephyr.GOAP.Sample.Game.System
@@ -16,7 +17,7 @@ namespace Zephyr.GOAP.Sample.Game.System
             var time = Time.ElapsedTime;
             Entities
                 .WithoutBurst()
-                .ForEach((in Order order, in OrderInited orderInited) =>
+                .ForEach((in Order order, in OrderExecuting orderInited) =>
             {
                 var facilityEntity = order.FacilityEntity;
                 var translations = GetComponentDataFromEntity<Translation>(true);

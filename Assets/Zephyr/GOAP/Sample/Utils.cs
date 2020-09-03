@@ -4,6 +4,7 @@ using Unity.Mathematics;
 using UnityEngine.Assertions;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Sample.Game.Component;
+using Zephyr.GOAP.Sample.Game.Component.Order.OrderState;
 using Zephyr.GOAP.Sample.GoapImplement;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
 using Zephyr.GOAP.Struct;
@@ -226,6 +227,14 @@ namespace Zephyr.GOAP.Sample
             }
 
             return false;    //没找到物品
+        }
+        
+        public static void NextOrderState<T, TU>(Entity orderEntity, int jobIndex,
+            EntityCommandBuffer.ParallelWriter eCBuffer) 
+            where T : struct, IComponentData, IOrderState where TU : struct, IComponentData, IOrderState
+        {
+            eCBuffer.RemoveComponent<T>(jobIndex, orderEntity);
+            eCBuffer.AddComponent(jobIndex, orderEntity, new TU());
         }
     }
 }

@@ -3,7 +3,9 @@ using Unity.Core;
 using Unity.Entities;
 using Zephyr.GOAP.Sample.Game.Component;
 using Zephyr.GOAP.Sample.Game.Component.Order;
+using Zephyr.GOAP.Sample.Game.Component.Order.OrderState;
 using Zephyr.GOAP.Sample.Game.System;
+using Zephyr.GOAP.Sample.Game.System.OrderSystem.OrderExecuteSystem;
 using Zephyr.GOAP.Sample.GoapImplement;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Action;
 using Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem;
@@ -62,7 +64,7 @@ namespace Zephyr.GOAP.Sample.Tests.Game
             _system.ECBSystem.Update();
             EntityManager.CompleteAllJobs();
             
-            Assert.IsTrue(EntityManager.HasComponent<OrderInited>(_orderEntity));
+            Assert.IsTrue(EntityManager.HasComponent<OrderExecuting>(_orderEntity));
         }
 
         [Test]
@@ -85,7 +87,7 @@ namespace Zephyr.GOAP.Sample.Tests.Game
             Assert.AreEqual(1, buffer.Length);
             Assert.AreEqual(ItemNames.Instance().RawAppleName, buffer[0].ItemName);
             //移除StateComponent
-            Assert.IsFalse(EntityManager.HasComponent<OrderInited>(_orderEntity));
+            Assert.IsFalse(EntityManager.HasComponent<OrderExecuting>(_orderEntity));
             //Order减少需求数量
             Assert.Zero(EntityManager.GetComponentData<Order>(_orderEntity).Amount);
         }

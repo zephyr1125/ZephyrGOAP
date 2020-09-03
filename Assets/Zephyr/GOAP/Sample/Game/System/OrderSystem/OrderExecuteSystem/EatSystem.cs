@@ -1,15 +1,12 @@
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Sample.Game.Component;
 using Zephyr.GOAP.Sample.Game.Component.Order;
+using Zephyr.GOAP.Sample.Game.Component.Order.OrderState;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Action;
-using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
-using Zephyr.GOAP.Struct;
-using Zephyr.GOAP.System;
 
-namespace Zephyr.GOAP.Sample.Game.System
+namespace Zephyr.GOAP.Sample.Game.System.OrderSystem.OrderExecuteSystem
 {
     /// <summary>
     /// 执行订单食用
@@ -34,7 +31,7 @@ namespace Zephyr.GOAP.Sample.Game.System
             //先走时间+播动画
             var initHandle = Entities.WithName("EatInitJob")
                 .WithAll<EatOrder>()
-                .WithNone<OrderInited>()
+                .WithNone<OrderExecuting>()
                 .WithReadOnly(actions)
                 .ForEach((Entity orderEntity, int entityInQueryIndex, in Order order) =>
                 {
@@ -47,7 +44,7 @@ namespace Zephyr.GOAP.Sample.Game.System
                     
                     //初始化完毕
                     ecb.AddComponent(entityInQueryIndex, orderEntity,
-                        new OrderInited{ExecutePeriod = actionPeriod, StartTime = time});
+                        new OrderExecuting{ExecutePeriod = actionPeriod, StartTime = time});
                 }).Schedule(inputDeps);
             
             //走完时间才正经执行
@@ -61,9 +58,9 @@ namespace Zephyr.GOAP.Sample.Game.System
                 .WithReadOnly(allItemRefs)
                 .WithReadOnly(allCounts)
                 .WithReadOnly(allStaminas)
-                .ForEach((Entity orderEntity, int entityInQueryIndex, ref Order order, in OrderInited orderInited) =>
+                .ForEach((Entity orderEntity, int entityInQueryIndex, ref Order order, in OrderExecuting orderExecuting) =>
                 {
-                    if (time - orderInited.StartTime < orderInited.ExecutePeriod)
+                    if (time - orderExecuting.StartTime < orderExecuting.ExecutePeriod)
                         return;
 
                     var executorEntity = order.ExecutorEntity;
@@ -83,7 +80,7 @@ namespace Zephyr.GOAP.Sample.Game.System
                     ecb.SetComponent(entityInQueryIndex, executorEntity, stamina);
                     
                     //移除OrderInited
-                    ecb.RemoveComponent<OrderInited>(entityInQueryIndex, orderEntity);
+                    ecb.RemoveComponent<OrderExecuting>(entityInQueryIndex, orderEntity);
                      
                     //order减小需求的数量
                     order.Amount -= amount;
