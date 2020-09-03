@@ -34,27 +34,24 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
 
                         if (!node.AgentExecutorEntity.Equals(agentEntity)) continue;
                         if (!node.Name.Equals(nameOfAction)) continue;
-
+                        
                         var states = waitingStates[nodeEntity];
-                        //从precondition里找信息.
-                        var targetEntity = Entity.Null;
-                        var targetItemName = new FixedString32();
-                        var itemAmount = 0;
+                        var prevOrderEntity = Entity.Null;
+                        //从precondition里找信息，可能因为多重来源被拆分为多个
                         for (var stateId = 0; stateId < states.Length; stateId++)
                         {
                             if ((node.PreconditionsBitmask & (ulong) 1 << stateId) <= 0) continue;
                             var precondition = states[stateId];
-                            Assert.IsTrue(precondition.Target!=null);
-                        
-                            targetEntity = precondition.Target;
-                            targetItemName = precondition.ValueString;
-                            itemAmount = precondition.Amount;
-                            break;
+                            Assert.IsTrue(precondition.Target != Entity.Null);
+                            
+                            var itemEntity = precondition.Target;
+                            var itemName = precondition.ValueString;
+                            var amount = precondition.Amount;
+                            
+                            //产生order
+                            prevOrderEntity = OrderWatchSystem.CreateOrderAndWatch<PickItemOrder>(ecb, entityInQueryIndex, agentEntity,
+                                itemEntity, itemName, amount, nodeEntity, prevOrderEntity);
                         }
-                        
-                        //产生order
-                        OrderWatchSystem.CreateOrderAndWatch<PickItemOrder>(ecb, entityInQueryIndex, agentEntity,
-                            targetEntity, targetItemName, itemAmount, nodeEntity);
                         
                         //进入执行中状态
                         Zephyr.GOAP.Utils.NextAgentState<ReadyToAct, Acting>(agentEntity, entityInQueryIndex,

@@ -64,7 +64,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                         
                         //产生order
                         OrderWatchSystem.CreateOrderAndWatch<CookOrder>(ecb, entityInQueryIndex, agentEntity,
-                            cookerEntity, outputItemName, outputAmount, nodeEntity);
+                            cookerEntity, outputItemName, outputAmount, nodeEntity, Entity.Null);
                         
                         //进入执行中状态
                         Zephyr.GOAP.Utils.NextAgentState<ReadyToAct, Acting>(agentEntity, entityInQueryIndex,

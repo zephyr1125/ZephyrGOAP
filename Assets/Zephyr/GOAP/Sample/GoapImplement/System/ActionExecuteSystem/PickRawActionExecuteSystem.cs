@@ -41,6 +41,8 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                         if (!node.Name.Equals(nameOfAction)) continue;
 
                         var states = waitingStates[nodeEntity];
+
+                        var prevOrderEntity = Entity.Null;
                         //从precondition里找信息，可能因为多重来源被拆分为多个
                         for (var stateId = 0; stateId < states.Length; stateId++)
                         {
@@ -53,8 +55,8 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                             var rawAmount = precondition.Amount;
                             
                             //产生order
-                            OrderWatchSystem.CreateOrderAndWatch<PickRawOrder>(ecb, entityInQueryIndex, agentEntity,
-                                rawEntity, rawItemName, rawAmount, nodeEntity);
+                            prevOrderEntity = OrderWatchSystem.CreateOrderAndWatch<PickRawOrder>(ecb, entityInQueryIndex, agentEntity,
+                                rawEntity, rawItemName, rawAmount, nodeEntity, prevOrderEntity);
                         }
                         
                         

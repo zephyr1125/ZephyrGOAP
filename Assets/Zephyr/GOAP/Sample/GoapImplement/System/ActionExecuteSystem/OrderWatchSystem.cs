@@ -74,9 +74,9 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
             EcbSystem.AddJobHandleForProducer(handle);
         }
         
-        public static void CreateOrderAndWatch<T>(EntityCommandBuffer.ParallelWriter ecb, int entityInQueryIndex,
+        public static Entity CreateOrderAndWatch<T>(EntityCommandBuffer.ParallelWriter ecb, int entityInQueryIndex,
             Entity agentEntity, Entity facilityEntity, FixedString32 outputItemName, int outputAmount,
-            Entity nodeEntity) where T: struct, IComponentData, IOrder
+            Entity nodeEntity, Entity dependentOrderEntity) where T: struct, IComponentData, IOrder
         {
             var orderEntity = ecb.CreateEntity(entityInQueryIndex);
             ecb.AddComponent(entityInQueryIndex, orderEntity, new Order
@@ -95,6 +95,14 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
             ecb.AddComponent(entityInQueryIndex, orderEntity, new OrderReadyToNavigate());
             
             ecb.AppendToBuffer(entityInQueryIndex, agentEntity, new WatchingOrder{OrderEntity = orderEntity});
+
+            if (dependentOrderEntity != Entity.Null)
+            {
+                ecb.AddComponent(entityInQueryIndex, orderEntity,
+                    new DependentOrder{dependentOrderEntity = dependentOrderEntity});
+            }
+
+            return orderEntity;
         }
     }
 }

@@ -24,6 +24,7 @@ namespace Zephyr.GOAP.Sample.Game.System.OrderSystem
             var translations = GetComponentDataFromEntity<Translation>(true);
             var startHandle = Entities
                 .WithAll<OrderReadyToNavigate>()
+                .WithNone<DependentOrder>()
                 .WithReadOnly(translations)
                 .ForEach((Entity orderEntity, int entityInQueryIndex, in Order order) =>
                 {
