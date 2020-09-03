@@ -27,6 +27,8 @@ namespace Zephyr.GOAP.Sample.Game.System.OrderSystem
                 .WithReadOnly(translations)
                 .ForEach((Entity orderEntity, int entityInQueryIndex, in Order order) =>
                 {
+                    if (order.Amount <= 0) return;
+                    
                     var executorEntity = order.ExecutorEntity;
                     var targetEntity = order.FacilityEntity;
                     

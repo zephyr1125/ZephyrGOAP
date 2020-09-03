@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using Unity.Entities;
 using Zephyr.GOAP.Sample.Game.Component.Order;
+using Zephyr.GOAP.Sample.Game.Component.Order.OrderState;
 using Zephyr.GOAP.Sample.Game.System;
 using Zephyr.GOAP.Sample.Game.System.OrderSystem;
 using Zephyr.GOAP.Tests;
@@ -20,6 +21,7 @@ namespace Zephyr.GOAP.Sample.Tests.Game
             _orderEntity = EntityManager.CreateEntity();
 
             EntityManager.AddComponentData(_orderEntity, new Order{Amount = 0});
+            EntityManager.AddComponentData(_orderEntity, new OrderReadyToNavigate());
         }
 
         [Test]

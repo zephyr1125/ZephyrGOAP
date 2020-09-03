@@ -31,20 +31,11 @@ namespace Zephyr.GOAP.Sample.Game.System.OrderSystem.OrderExecuteSystem
             //先走时间+播动画
             var initHandle = Entities.WithName("EatInitJob")
                 .WithAll<EatOrder>()
-                .WithNone<OrderExecuting>()
+                .WithAll<OrderReadyToExecute>()
                 .WithReadOnly(actions)
                 .ForEach((Entity orderEntity, int entityInQueryIndex, in Order order) =>
                 {
-                    var executorEntity = order.ExecutorEntity;
-                    //获取执行时间
-                    var setting = new State();
-                    var actionPeriod = actions[executorEntity].GetExecuteTime(setting);
-                    
-                    //todo 播放动态
-                    
-                    //初始化完毕
-                    ecb.AddComponent(entityInQueryIndex, orderEntity,
-                        new OrderExecuting{ExecutePeriod = actionPeriod, StartTime = time});
+                    Utils.OrderExecuteStart(order, actions, orderEntity, entityInQueryIndex, ecb, time);
                 }).Schedule(inputDeps);
             
             //走完时间才正经执行
@@ -55,12 +46,13 @@ namespace Zephyr.GOAP.Sample.Game.System.OrderSystem.OrderExecuteSystem
             var executeHandle = Entities
                 .WithName("EatExecuteJob")
                 .WithAll<EatOrder>()
+                .WithAll<OrderExecuting>()
                 .WithReadOnly(allItemRefs)
                 .WithReadOnly(allCounts)
                 .WithReadOnly(allStaminas)
-                .ForEach((Entity orderEntity, int entityInQueryIndex, ref Order order, in OrderExecuting orderExecuting) =>
+                .ForEach((Entity orderEntity, int entityInQueryIndex, ref Order order, in OrderExecuteTime orderExecuteTime) =>
                 {
-                    if (time - orderExecuting.StartTime < orderExecuting.ExecutePeriod)
+                    if (time - orderExecuteTime.StartTime < orderExecuteTime.ExecutePeriod)
                         return;
 
                     var executorEntity = order.ExecutorEntity;
@@ -79,11 +71,11 @@ namespace Zephyr.GOAP.Sample.Game.System.OrderSystem.OrderExecuteSystem
                     stamina.Value += Utils.GetFoodStamina(itemName);
                     ecb.SetComponent(entityInQueryIndex, executorEntity, stamina);
                     
-                    //移除OrderInited
-                    ecb.RemoveComponent<OrderExecuting>(entityInQueryIndex, orderEntity);
-                     
                     //order减小需求的数量
                     order.Amount -= amount;
+                    
+                    //下一阶段
+                    Utils.NextOrderState<OrderExecuting, OrderReadyToNavigate>(orderEntity, entityInQueryIndex, ecb);
                 }).Schedule(initHandle);
             ECBSystem.AddJobHandleForProducer(executeHandle);
             return executeHandle;

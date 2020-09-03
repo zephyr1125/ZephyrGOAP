@@ -3,6 +3,7 @@ using Unity.Core;
 using Unity.Entities;
 using Zephyr.GOAP.Sample.Game.Component;
 using Zephyr.GOAP.Sample.Game.Component.Order;
+using Zephyr.GOAP.Sample.Game.Component.Order.OrderState;
 using Zephyr.GOAP.Sample.Game.System;
 using Zephyr.GOAP.Sample.Game.System.OrderSystem.OrderExecuteSystem;
 using Zephyr.GOAP.Sample.GoapImplement;
@@ -40,6 +41,7 @@ namespace Zephyr.GOAP.Sample.Tests.Game
                 Amount = 1
             });
             EntityManager.AddComponentData(_orderEntity, new EatOrder());
+            EntityManager.AddComponentData(_orderEntity, new OrderReadyToExecute());
             
             //executor上要有EatAction
             EntityManager.AddComponentData(_executorEntity, new EatAction{Level = 1});

@@ -1,9 +1,12 @@
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Entities.CodeGeneratedJobForEach;
+using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine.Assertions;
 using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Sample.Game.Component;
+using Zephyr.GOAP.Sample.Game.Component.Order;
 using Zephyr.GOAP.Sample.Game.Component.Order.OrderState;
 using Zephyr.GOAP.Sample.GoapImplement;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
@@ -235,6 +238,26 @@ namespace Zephyr.GOAP.Sample
         {
             eCBuffer.RemoveComponent<T>(jobIndex, orderEntity);
             eCBuffer.AddComponent(jobIndex, orderEntity, new TU());
+        }
+        
+        public static void OrderExecuteStart<T>(Order order, ComponentDataFromEntity<T> actions, Entity orderEntity,
+            int entityInQueryIndex, EntityCommandBuffer.ParallelWriter ecb, double time) where T:struct, IComponentData, IAction
+        {
+            var executorEntity = order.ExecutorEntity;
+            //获取执行时间
+            var setting = new State
+            {
+                Trait = TypeManager.GetTypeIndex<ItemSourceTrait>(),
+                ValueString = order.ItemName
+            };
+            var actionPeriod = actions[executorEntity].GetExecuteTime(setting);
+
+            //todo 播放动态
+
+            NextOrderState<OrderReadyToExecute, OrderExecuting>(orderEntity,
+                entityInQueryIndex, ecb);
+            ecb.AddComponent(entityInQueryIndex, orderEntity,
+                new OrderExecuteTime {ExecutePeriod = actionPeriod, StartTime = time});
         }
     }
 }

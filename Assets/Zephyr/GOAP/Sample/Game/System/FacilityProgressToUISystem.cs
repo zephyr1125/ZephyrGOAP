@@ -17,12 +17,12 @@ namespace Zephyr.GOAP.Sample.Game.System
             var time = Time.ElapsedTime;
             Entities
                 .WithoutBurst()
-                .ForEach((in Order order, in OrderExecuting orderInited) =>
+                .ForEach((in Order order, in OrderExecuteTime orderExecuteTime) =>
             {
                 var facilityEntity = order.FacilityEntity;
                 var translations = GetComponentDataFromEntity<Translation>(true);
                 var position = translations[facilityEntity].Value + new float3(0, -2, 0);
-                var progress = (time - orderInited.StartTime) / orderInited.ExecutePeriod;
+                var progress = (time - orderExecuteTime.StartTime) / orderExecuteTime.ExecutePeriod;
                 FacilityProgressManager.Instance.UpdateFacilityProgress(facilityEntity, (float)progress, position);
             }).Run();
         }

@@ -1,6 +1,7 @@
 using Unity.Entities;
 using Unity.Jobs;
 using Zephyr.GOAP.Sample.Game.Component.Order;
+using Zephyr.GOAP.Sample.Game.Component.Order.OrderState;
 
 namespace Zephyr.GOAP.Sample.Game.System.OrderSystem
 {
@@ -19,6 +20,7 @@ namespace Zephyr.GOAP.Sample.Game.System.OrderSystem
         {
             var ecb = EcbSystem.CreateCommandBuffer().AsParallelWriter();
             var handle = Entities.WithName("OrderCleanJob")
+                .WithAll<OrderReadyToNavigate>()    //只在ReadyToNavigate状态下检查
                 .ForEach((Entity entity, int entityInQueryIndex, in Order order) =>
                 {
                     if (order.Amount > 0) return;

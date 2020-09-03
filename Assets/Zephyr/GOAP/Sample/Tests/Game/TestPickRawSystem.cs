@@ -39,6 +39,7 @@ namespace Zephyr.GOAP.Sample.Tests.Game
                 Amount = 1
             });
             EntityManager.AddComponentData(_orderEntity, new PickRawOrder());
+            EntityManager.AddComponentData(_orderEntity, new OrderReadyToExecute());
             
             //executor上要有PickRawAction
             EntityManager.AddComponentData(_executorEntity, new PickRawAction{Level = 1});

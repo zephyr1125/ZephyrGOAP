@@ -55,7 +55,7 @@ namespace Zephyr.GOAP.Tests.ActionExecuteManage
             EntityManager.CompleteAllJobs();
 
             Assert.AreEqual(_availableNodeEntityOlder, 
-                EntityManager.GetComponentData<ReadyToNavigate>(_agentEntity).NodeEntity);
+                EntityManager.GetComponentData<ReadyToAct>(_agentEntity).NodeEntity);
             
             Assert.AreEqual(_agentEntity,
                 EntityManager.GetComponentData<ActionNodeActing>(_availableNodeEntityOlder).AgentEntity);

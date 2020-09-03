@@ -39,6 +39,7 @@ namespace Zephyr.GOAP.Sample.Tests.Game
                 Amount = 1
             });
             EntityManager.AddComponentData(_orderEntity, new CookOrder());
+            EntityManager.AddComponentData(_orderEntity, new OrderReadyToExecute());
             
             //executor上要有CookAction
             EntityManager.AddComponentData(_executorEntity, new CookAction{Level = 1});
@@ -60,7 +61,7 @@ namespace Zephyr.GOAP.Sample.Tests.Game
         }
 
         [Test]
-        public void StateToInited_After_First_Update()
+        public void StateToExecuting_After_First_Update()
         {
             _system.Update();
             _system.ECBSystem.Update();

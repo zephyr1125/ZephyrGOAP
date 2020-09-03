@@ -35,24 +35,11 @@ namespace Zephyr.GOAP.Sample.Game.System.OrderSystem.OrderExecuteSystem
             //先走时间+播动画
             var initHandle = Entities.WithName("CookInitJob")
                 .WithAll<CookOrder>()
-                .WithNone<OrderExecuting>()
+                .WithAll<OrderReadyToExecute>()
                 .WithReadOnly(actions)
                 .ForEach((Entity orderEntity, int entityInQueryIndex, in Order order) =>
                 {
-                    var executorEntity = order.ExecutorEntity;
-                    //获取执行时间
-                    var setting = new State
-                    {
-                        Trait = TypeManager.GetTypeIndex<ItemSourceTrait>(),
-                        ValueString = order.ItemName
-                    };
-                    var actionPeriod = actions[executorEntity].GetExecuteTime(setting);
-                    
-                    //todo 播放动态
-                    
-                    //初始化完毕
-                    ecb.AddComponent(entityInQueryIndex, orderEntity,
-                        new OrderExecuting{ExecutePeriod = actionPeriod, StartTime = time});
+                    Utils.OrderExecuteStart(order, actions, orderEntity, entityInQueryIndex, ecb, time);
                 }).Schedule(inputDeps);
             
             //走完时间才正经执行
@@ -63,12 +50,13 @@ namespace Zephyr.GOAP.Sample.Game.System.OrderSystem.OrderExecuteSystem
             var executeHandle = Entities
                 .WithName("CookExecuteJob")
                 .WithAll<CookOrder>()
+                .WithAll<OrderExecuting>()
                 .WithReadOnly(stateBuffers)
                 .WithReadOnly(allItemRefs)
                 .WithReadOnly(allCounts)
-                .ForEach((Entity orderEntity, int entityInQueryIndex, ref Order order, in OrderExecuting orderExecuting) =>
+                .ForEach((Entity orderEntity, int entityInQueryIndex, ref Order order, in OrderExecuteTime orderExecuteTime) =>
                 {
-                     if (time - orderExecuting.StartTime < orderExecuting.ExecutePeriod)
+                     if (time - orderExecuteTime.StartTime < orderExecuteTime.ExecutePeriod)
                          return;
                     
                      // 查询配方，获取input
@@ -101,13 +89,13 @@ namespace Zephyr.GOAP.Sample.Game.System.OrderSystem.OrderExecuteSystem
                      //cooker容器获得产物
                      Utils.ModifyItemInContainer(entityInQueryIndex, ecb, facilityEntity,
                          itemsInCooker, allCounts, order.ItemName, outputAmount);
-                    
-                     //移除OrderInited
-                     ecb.RemoveComponent<OrderExecuting>(entityInQueryIndex, orderEntity);
                      
                      //order减小需求的数量
                      order.Amount -= outputAmount;
-                     
+                    
+                     //下一阶段
+                     Utils.NextOrderState<OrderExecuting, OrderReadyToNavigate>(orderEntity, entityInQueryIndex, ecb);
+
                      baseStates.Dispose();
                      inputs.Dispose();
             }).Schedule(initHandle);
