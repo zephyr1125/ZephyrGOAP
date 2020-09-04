@@ -5,15 +5,18 @@ using Zephyr.GOAP.Sample.Game.UI;
 
 namespace Zephyr.GOAP.Sample.Game.System
 {
-    public class AgentsPositionToUISystem : ComponentSystem
+    public class AgentsPositionToUISystem : SystemBase
     {
         protected override void OnUpdate()
         {
-            Entities.WithAll<Agent, Translation>().ForEach(
+            Entities
+                .WithoutBurst()
+                .WithAll<Agent, Translation>()
+                .ForEach(
                 (Entity entity, ref Translation translation) =>
                 {
                     AgentInfoManager.Instance.UpdateAgentPosition(entity, translation);
-                });
+                }).Run();
         }
     }
 }

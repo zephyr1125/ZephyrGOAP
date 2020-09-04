@@ -16,6 +16,7 @@ namespace Zephyr.GOAP.Sample.Game.System
         {
             var counts = GetComponentDataFromEntity<Count>(true); 
             Entities
+                .WithoutBurst()
                 .WithReadOnly(counts)
                 .ForEach((Entity containerEntity, in DynamicBuffer<ContainedItemRef> containedItemRefs,
                     in Translation translation) =>
