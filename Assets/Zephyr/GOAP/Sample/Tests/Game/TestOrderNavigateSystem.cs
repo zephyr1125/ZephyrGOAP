@@ -36,7 +36,8 @@ namespace Zephyr.GOAP.Sample.Tests.Game
             EntityManager.AddComponentData(_orderEntity, new Order
             {
                 ExecutorEntity = _executorEntity,
-                FacilityEntity = _facilityEntity
+                FacilityEntity = _facilityEntity,
+                Amount = 1
             });
         }
 

@@ -21,12 +21,12 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
         {
             var itemDestType = TypeManager.GetTypeIndex<ItemDestinationTrait>();
             return Entities.WithName("EatActionExecuteJob")
-                .WithoutBurst()    //由于示例里要用到string的物品名称，只能关闭burst
+                //.WithoutBurst()    //由于示例里要用到string的物品名称，只能关闭burst
                 .WithAll<ReadyToAct>()
                 .WithDisposeOnCompletion(waitingNodeEntities)
                 .WithDisposeOnCompletion(waitingNodes)
                 .WithReadOnly(waitingStates)
-                .ForEach((Entity agentEntity, int entityInQueryIndex, ref Stamina stamina,
+                .ForEach((Entity agentEntity, int entityInQueryIndex,
                     in Agent agent, in EatAction action) =>
                 {
                     for (var nodeId = 0; nodeId < waitingNodeEntities.Length; nodeId++)

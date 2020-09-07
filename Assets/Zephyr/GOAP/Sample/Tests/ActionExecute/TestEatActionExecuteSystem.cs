@@ -6,6 +6,7 @@ using Zephyr.GOAP.Component.AgentState;
 using Zephyr.GOAP.Sample.Game.Component;
 using Zephyr.GOAP.Sample.Game.Component.Order;
 using Zephyr.GOAP.Sample.GoapImplement;
+using Zephyr.GOAP.Sample.GoapImplement.Component;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Action;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
 using Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem;
@@ -28,18 +29,9 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExecute
             _system = World.GetOrCreateSystem<EatActionExecuteSystem>();
 
             _diningTableEntity = EntityManager.CreateEntity();
-            EntityManager.AddComponentData(_diningTableEntity, new DiningTableTrait());
-            EntityManager.AddComponentData(_diningTableEntity, new ItemContainer{IsTransferSource = true});
-            var buffer = EntityManager.AddBuffer<ContainedItemRef>(_diningTableEntity);
-            //diningTable预存好食物
-            buffer.Add(new ContainedItemRef
-            {
-                ItemName = new FixedString32("roast_apple"),
-                ItemEntity = new Entity {Index = 99, Version = 9}
-            });
             
-            EntityManager.AddComponentData(_agentEntity, new Stamina {Value = 0});
             EntityManager.AddComponentData(_agentEntity, new EatAction());
+            EntityManager.AddBuffer<WatchingOrder>(_agentEntity);
             
             EntityManager.AddComponentData(_actionNodeEntity, new Node
             {
