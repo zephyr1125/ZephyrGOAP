@@ -3,12 +3,9 @@ using Unity.Entities;
 using Unity.Jobs;
 using UnityEngine.Assertions;
 using Zephyr.GOAP.Component;
-using Zephyr.GOAP.Component.ActionNodeState;
 using Zephyr.GOAP.Component.AgentState;
-using Zephyr.GOAP.Sample.Game.Component;
 using Zephyr.GOAP.Sample.Game.Component.Order;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Action;
-using Zephyr.GOAP.Struct;
 using Zephyr.GOAP.System;
 
 namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem

@@ -1,7 +1,10 @@
 using NUnit.Framework;
 using Unity.Entities;
 using Zephyr.GOAP.Component;
+using Zephyr.GOAP.Component.AgentState;
 using Zephyr.GOAP.Sample.Game.Component;
+using Zephyr.GOAP.Sample.Game.Component.Order;
+using Zephyr.GOAP.Sample.GoapImplement.Component;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Action;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
 using Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem;
@@ -14,7 +17,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExecute
     {
         private DropRawActionExecuteSystem _system;
 
-        private Entity _containerEntity, _itemEntity; 
+        private Entity _containerEntity; 
 
         [SetUp]
         public override void SetUp()
@@ -23,21 +26,9 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExecute
 
             _system = World.GetOrCreateSystem<DropRawActionExecuteSystem>();
             _containerEntity = EntityManager.CreateEntity();
-            _itemEntity = EntityManager.CreateEntity();
             
             EntityManager.AddComponentData(_agentEntity, new DropRawAction());
-            var buffer = EntityManager.AddBuffer<ContainedItemRef>(_agentEntity);
-            buffer.Add(new ContainedItemRef
-            {
-                ItemEntity = _itemEntity,
-                ItemName = "item"
-            });
-
-            EntityManager.AddComponentData(_itemEntity, new Item());
-            EntityManager.AddComponentData(_itemEntity, new Name{Value = "item"});
-            EntityManager.AddComponentData(_itemEntity, new Count{Value = 1});
-            
-            EntityManager.AddBuffer<ContainedItemRef>(_containerEntity);
+            EntityManager.AddBuffer<WatchingOrder>(_agentEntity);
             
             EntityManager.AddComponentData(_actionNodeEntity, new Node
             {
@@ -64,21 +55,26 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExecute
         }
 
         [Test]
-        public void TargetGotItem()
+        public void CreateOrder()
         {
             _system.Update();
             _system.EcbSystem.Update();
             EntityManager.CompleteAllJobs();
 
-            //agent的物品减少数量
-            Assert.Zero(EntityManager.GetComponentData<Count>(_itemEntity).Value);
+            var orderQuery =
+                EntityManager.CreateEntityQuery(typeof(Order), typeof(OrderWatchSystem.OrderWatched));
+            Assert.AreEqual(1, orderQuery.CalculateEntityCount());
+        }
+
+        [Test]
+        public void AgentState_To_Acting()
+        {
+            _system.Update();
+            _system.EcbSystem.Update();
+            EntityManager.CompleteAllJobs();
             
-            //目标容器增加物品
-            var itemBuffer = EntityManager.GetBuffer<ContainedItemRef>(_containerEntity);
-            Assert.AreEqual(1, itemBuffer.Length);
-            var newItemEntity = itemBuffer[0].ItemEntity;
-            Assert.AreEqual("item", EntityManager.GetComponentData<Name>(newItemEntity).Value);
-            Assert.AreEqual(1, EntityManager.GetComponentData<Count>(newItemEntity).Value);
+            Assert.IsTrue(EntityManager.HasComponent<Acting>(_agentEntity));
+            Assert.IsFalse(EntityManager.HasComponent<ReadyToAct>(_agentEntity));
         }
     }
 }
