@@ -6,6 +6,7 @@ using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.AgentState;
 using Zephyr.GOAP.Sample.Game.Component;
 using Zephyr.GOAP.Sample.Game.Component.Order;
+using Zephyr.GOAP.Sample.GoapImplement.Component;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Action;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
 using Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem;
@@ -28,6 +29,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExecute
             _cookerEntity = EntityManager.CreateEntity();
             
             EntityManager.AddComponentData(_agentEntity, new CookAction());
+            EntityManager.AddBuffer<WatchingOrder>(_agentEntity);
             
             EntityManager.AddComponentData(_actionNodeEntity, new Node
             {

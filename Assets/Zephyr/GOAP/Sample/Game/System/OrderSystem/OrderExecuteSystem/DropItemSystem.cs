@@ -8,7 +8,7 @@ using Zephyr.GOAP.Sample.GoapImplement.Component.Action;
 namespace Zephyr.GOAP.Sample.Game.System.OrderSystem.OrderExecuteSystem
 {
     [UpdateInGroup(typeof(SimulationSystemGroup))]
-    public class PickItemSystem : JobComponentSystem
+    public class DropItemSystem : JobComponentSystem
     {
         public EntityCommandBufferSystem ECBSystem;
 
@@ -21,12 +21,12 @@ namespace Zephyr.GOAP.Sample.Game.System.OrderSystem.OrderExecuteSystem
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             var ecb = ECBSystem.CreateCommandBuffer().AsParallelWriter();
-            var actions = GetComponentDataFromEntity<PickItemAction>(true);
+            var actions = GetComponentDataFromEntity<DropItemAction>(true);
             var time = Time.ElapsedTime;
             
             //先走时间+播动画
-            var initHandle = Entities.WithName("PickItemInitJob")
-                .WithAll<PickItemOrder>()
+            var initHandle = Entities.WithName("DropItemInitJob")
+                .WithAll<DropItemOrder>()
                 .WithAll<OrderReadyToExecute>()
                 .WithReadOnly(actions)
                 .ForEach((Entity orderEntity, int entityInQueryIndex, in Order order) =>
@@ -39,8 +39,8 @@ namespace Zephyr.GOAP.Sample.Game.System.OrderSystem.OrderExecuteSystem
             var allCounts = GetComponentDataFromEntity<Count>(true);
             
             var executeHandle = Entities
-                .WithName("PickItemExecuteJob")
-                .WithAll<PickItemOrder>()
+                .WithName("DropItemExecuteJob")
+                .WithAll<DropItemOrder>()
                 .WithAll<OrderExecuting>()
                 .WithReadOnly(allItemRefs)
                 .WithReadOnly(allCounts)
@@ -52,17 +52,17 @@ namespace Zephyr.GOAP.Sample.Game.System.OrderSystem.OrderExecuteSystem
                     var itemName = order.ItemName;
                     var amount = order.Amount;
                      
-                    //执行者获得物品
+                    //执行者减少物品
                     var executorEntity = order.ExecutorEntity;
                     var executorBuffer = allItemRefs[executorEntity];
                     Utils.ModifyItemInContainer(entityInQueryIndex, ecb, executorEntity, executorBuffer,
-                        allCounts, itemName, amount);
+                        allCounts, itemName, -amount);
 
-                    //物品容器失去物品
+                    //物品容器得到物品
                     var containerEntity = order.FacilityEntity;
                     var itemBuffer = allItemRefs[containerEntity];
                     Utils.ModifyItemInContainer(entityInQueryIndex, ecb, containerEntity, itemBuffer,
-                        allCounts, itemName, -amount);
+                        allCounts, itemName, amount);
                     
                     //order减小需求的数量
                     order.Amount -= amount;

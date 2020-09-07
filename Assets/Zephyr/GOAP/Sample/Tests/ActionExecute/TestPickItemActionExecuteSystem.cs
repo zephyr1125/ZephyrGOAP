@@ -4,6 +4,7 @@ using Zephyr.GOAP.Component;
 using Zephyr.GOAP.Component.AgentState;
 using Zephyr.GOAP.Sample.Game.Component;
 using Zephyr.GOAP.Sample.Game.Component.Order;
+using Zephyr.GOAP.Sample.GoapImplement.Component;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Action;
 using Zephyr.GOAP.Sample.GoapImplement.Component.Trait;
 using Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem;
@@ -26,16 +27,8 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExecute
             
             _containerEntity = EntityManager.CreateEntity();
             
-            //container预先存好物品
-            var itemBuffer = EntityManager.AddBuffer<ContainedItemRef>(_containerEntity);
-            itemBuffer.Add(new ContainedItemRef
-            {
-                ItemName = "item",
-                ItemEntity = new Entity {Index = 99, Version = 9}
-            });
-            
             EntityManager.AddComponentData(_agentEntity, new PickItemAction());
-            EntityManager.AddBuffer<ContainedItemRef>(_agentEntity);
+            EntityManager.AddBuffer<WatchingOrder>(_agentEntity);
             
             //任务
             EntityManager.AddComponentData(_actionNodeEntity, new Node
