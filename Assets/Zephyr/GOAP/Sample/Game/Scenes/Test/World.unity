@@ -1049,7 +1049,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Name: AppleTree0
   FruitName: raw_apple
-  Amount: 1
+  Amount: 255
 --- !u!23 &987326976
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1720,7 +1720,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Name: AppleTree1
   FruitName: raw_apple
-  Amount: 1
+  Amount: 255
 --- !u!23 &1955853071
 MeshRenderer:
   m_ObjectHideFlags: 0

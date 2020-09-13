@@ -46,6 +46,7 @@ namespace Zephyr.GOAP.Sample.Game.System.OrderSystem.OrderExecuteSystem
             var allItemRefs = GetBufferFromEntity<ContainedItemRef>(true);
             var allCounts = GetComponentDataFromEntity<Count>(true);
             var stateBuffers = GetBufferFromEntity<State>(true);
+            var baseStateEntity = BaseStatesHelper.BaseStatesEntity;
             
             var executeHandle = Entities
                 .WithName("CookExecuteJob")
@@ -68,7 +69,7 @@ namespace Zephyr.GOAP.Sample.Game.System.OrderSystem.OrderExecuteSystem
                          ValueString = order.ItemName
                      };
                      
-                     var baseStatesBuffer = stateBuffers[BaseStatesHelper.BaseStatesEntity];
+                     var baseStatesBuffer = stateBuffers[baseStateEntity];
                      var baseStates = new StateGroup(baseStatesBuffer, Allocator.Temp);
                      var inputs =
                          Utils.GetRecipeInputInStateGroup(baseStates, outputFilter, Allocator.Temp, out var outputAmount);
