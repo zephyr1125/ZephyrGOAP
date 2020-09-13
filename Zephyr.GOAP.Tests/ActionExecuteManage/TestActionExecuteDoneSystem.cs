@@ -85,5 +85,19 @@ namespace Zephyr.GOAP.Tests.ActionExecuteManage
             Assert.IsFalse(EntityManager.HasComponent<Idle>(notDoneAgentEntity));
             Assert.IsTrue(EntityManager.HasComponent<Acting>(notDoneAgentEntity));
         }
+
+        [Test]
+        public void Clean_DeltaStates()
+        {
+            var deltaStatesEntity = EntityManager.CreateEntity();
+            EntityManager.AddComponentData(deltaStatesEntity,
+                new DeltaStates{ActionNodeEntity = doneNodeEntity0});
+            
+            _system.Update();
+            _system.EcbSystem.Update();
+            EntityManager.CompleteAllJobs();
+            
+            Assert.IsFalse(EntityManager.Exists(deltaStatesEntity));
+        }
     }
 }

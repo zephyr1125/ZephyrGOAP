@@ -31,7 +31,7 @@ namespace Zephyr.GOAP.System.ActionExecuteManage
             var doneNodesCount = _doneNodesQuery.CalculateEntityCount();
             var agentEntities = new NativeArray<Entity>(doneNodesCount, Allocator.TempJob);
             
-            //计划移除nodes
+            //移除nodes
             var removeHandle = Entities.WithName("RemoveDoneNodeJob")
                 .WithAll<ActionNodeDone>()
                 .WithStoreEntityQueryInField(ref _doneNodesQuery)
@@ -46,7 +46,6 @@ namespace Zephyr.GOAP.System.ActionExecuteManage
             var doneNodeEntities = _doneNodesQuery.ToEntityArray(Allocator.TempJob);
             var cleanDependencyHandle = Entities.WithName("CleanDependencyJob")
                 .WithReadOnly(doneNodeEntities)
-                .WithDeallocateOnJobCompletion(doneNodeEntities)
                 .ForEach((Entity nodeEntity, int entityInQueryIndex,
                 DynamicBuffer<NodeDependency> bufferDependency) =>
             {
@@ -61,18 +60,29 @@ namespace Zephyr.GOAP.System.ActionExecuteManage
                 if (bufferDependency.Length > 0) return;
                 ecbConcurrent.RemoveComponent<NodeDependency>(entityInQueryIndex, nodeEntity);
             }).Schedule(removeHandle);
-            EcbSystem.AddJobHandleForProducer(cleanDependencyHandle);
+            
+            //清理对应的delta states
+            var cleanDeltaStatesHandle = Entities.WithName("CleanDeltaStatesJob")
+                .WithReadOnly(doneNodeEntities)
+                .WithDisposeOnCompletion(doneNodeEntities)
+                .ForEach((Entity deltaStatesEntity, int entityInQueryIndex, in DeltaStates deltaStates) =>
+                {
+                    if (!doneNodeEntities.Contains(deltaStates.ActionNodeEntity)) return;
+                    ecbConcurrent.DestroyEntity(entityInQueryIndex, deltaStatesEntity);
+                }).Schedule(cleanDependencyHandle);
+            
+            EcbSystem.AddJobHandleForProducer(cleanDeltaStatesHandle);
             
             //复位agent状态
             var resetAgentHandle = Job.WithName("ResetAgentStateJob")
-                .WithDeallocateOnJobCompletion(agentEntities)
+                .WithDisposeOnCompletion(agentEntities)
                 .WithCode(() =>
                 {
                     for (var i = 0; i < agentEntities.Length; i++)
                     {
                         Utils.NextAgentState<ActDone, Idle>(agentEntities[i], ecb, Entity.Null);
                     }
-                }).Schedule(cleanDependencyHandle);
+                }).Schedule(cleanDeltaStatesHandle);
             EcbSystem.AddJobHandleForProducer(resetAgentHandle);
             
             return resetAgentHandle;
