@@ -90,7 +90,8 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
                 
                 collectors.Dispose();
             }
-            if(settingRequire.Target!=Entity.Null)settings.Add(settingRequire);
+            //没有collector或者数量为0时，都没有setting
+            if(settingRequire.Target!=Entity.Null && settingRequire.Amount > 0)settings.Add(settingRequire);
             return settings;
         }
 
@@ -129,7 +130,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.Component.Action
 
         public float GetExecuteTime([ReadOnly]State setting)
         {
-            return 4 / (float)(Level + 1);
+            return 0;
         }
 
         public void GetNavigatingSubjectInfo([ReadOnly]State targetRequire, [ReadOnly]State setting,
