@@ -110,8 +110,9 @@ namespace Zephyr.GOAP.Struct
             Allocator allocator)
         {
             _states = new NativeList<State>(statesBuffer.Length, allocator);
-            foreach (var state in statesBuffer)
+            for (var i = 0; i < statesBuffer.Length; i++)
             {
+                var state = statesBuffer[i];
                 _states.Add(state);
             }
         }
