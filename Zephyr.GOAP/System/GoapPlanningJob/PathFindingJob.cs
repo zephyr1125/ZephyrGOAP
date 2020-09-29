@@ -26,7 +26,7 @@ namespace Zephyr.GOAP.System.GoapPlanningJob
         [ReadOnly]
         public NativeArray<float> AgentStartTime;
         [ReadOnly]
-        public NativeArray<MaxMoveSpeed> AgentMoveSpeeds;
+        public NativeArray<AgentMoveSpeed> AgentMoveSpeeds;
 
         public int IterationLimit;
 
