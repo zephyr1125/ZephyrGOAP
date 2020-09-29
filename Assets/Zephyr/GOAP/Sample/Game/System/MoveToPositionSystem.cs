@@ -19,18 +19,18 @@ namespace Zephyr.GOAP.Sample.Game.System
         }
 
         // [BurstCompile]
-        public struct MoveToPositionJob : IJobForEachWithEntity<Translation, MaxMoveSpeed, TargetPosition>
+        public struct MoveToPositionJob : IJobForEachWithEntity<Translation, AgentMoveSpeed, TargetPosition>
         {
             public EntityCommandBuffer.ParallelWriter ECBuffer;
             
             public float deltaSecond;
             
             public void Execute(Entity entity, int jobIndex, ref Translation position,
-                [ReadOnly]ref MaxMoveSpeed maxMoveSpeed, ref TargetPosition targetPosition)
+                [ReadOnly]ref AgentMoveSpeed agentMoveSpeed, ref TargetPosition targetPosition)
             {
                 var targetPos = targetPosition.Value;
                 
-                var speed = maxMoveSpeed.value;
+                var speed = agentMoveSpeed.value;
                 var pos = position.Value;
                 var newPosition = Vector3.MoveTowards(pos, targetPos,
                     speed * deltaSecond);

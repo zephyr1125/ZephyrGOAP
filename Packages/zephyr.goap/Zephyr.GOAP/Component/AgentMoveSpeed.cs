@@ -7,7 +7,7 @@ namespace Zephyr.GOAP.Component
     /// 最大移动速度
     /// </summary>
     [Serializable]
-    public struct MaxMoveSpeed : IComponentData
+    public struct AgentMoveSpeed : IComponentData
     {
         public float value;
     }

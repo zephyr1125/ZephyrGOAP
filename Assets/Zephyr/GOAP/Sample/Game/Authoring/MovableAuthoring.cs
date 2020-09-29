@@ -12,7 +12,7 @@ namespace Zephyr.GOAP.Sample.Game.Authoring
         
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
-            dstManager.AddComponentData(entity, new MaxMoveSpeed{value = MaxMoveSpeed});
+            dstManager.AddComponentData(entity, new AgentMoveSpeed{value = MaxMoveSpeed});
         }
     }
 }

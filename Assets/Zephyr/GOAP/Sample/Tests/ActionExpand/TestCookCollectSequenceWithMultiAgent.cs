@@ -46,7 +46,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             EntityManager.AddComponentData(_agentEntity, new CollectAction{Level = 1});
             EntityManager.AddComponentData(_agentEntity, new PickRawAction());
             EntityManager.AddComponentData(_agentEntity, new DropRawAction());
-            EntityManager.AddComponentData(_agentEntity, new MaxMoveSpeed{value = 1});
+            EntityManager.AddComponentData(_agentEntity, new AgentMoveSpeed{value = 1});
             
             EntityManager.AddComponentData(_agentBEntity, new Agent());
             EntityManager.AddComponentData(_agentBEntity, new Idle());
@@ -58,7 +58,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             EntityManager.AddComponentData(_agentBEntity, new CollectAction{Level = 0});
             EntityManager.AddComponentData(_agentBEntity, new PickRawAction());
             EntityManager.AddComponentData(_agentBEntity, new DropRawAction());
-            EntityManager.AddComponentData(_agentBEntity, new MaxMoveSpeed{value = 2});
+            EntityManager.AddComponentData(_agentBEntity, new AgentMoveSpeed{value = 2});
             
             // SetGoal(new State
             // {

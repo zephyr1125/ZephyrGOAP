@@ -62,7 +62,7 @@ namespace Zephyr.GOAP.System
                 {
                     ComponentType.ReadOnly<Agent>(),
                     ComponentType.ReadOnly<Translation>(), 
-                    ComponentType.ReadOnly<MaxMoveSpeed>(), 
+                    ComponentType.ReadOnly<AgentMoveSpeed>(), 
                     ComponentType.ReadOnly<Idle>(), 
                 }
             });
@@ -107,7 +107,7 @@ namespace Zephyr.GOAP.System
             idleAgents.Dispose();
 
             var agentTranslations = _idleAgentQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
-            var agentMoveSpeeds = _idleAgentQuery.ToComponentDataArray<MaxMoveSpeed>(Allocator.TempJob);
+            var agentMoveSpeeds = _idleAgentQuery.ToComponentDataArray<AgentMoveSpeed>(Allocator.TempJob);
             var agentStartTimes = new NativeArray<float>(agentTranslations.Length, Allocator.TempJob);
             
             //从baseState的存储Entity上拿取base states，减去delta states，以得到实际的base states
@@ -323,7 +323,7 @@ namespace Zephyr.GOAP.System
         }
         
         private NativeList<Node> FindPath(NodeGraph nodeGraph, StackData stackData,
-            NativeArray<MaxMoveSpeed> agentMoveSpeed, NativeArray<float> agentStartTime,
+            NativeArray<AgentMoveSpeed> agentMoveSpeed, NativeArray<float> agentStartTime,
             NativeMultiHashMap<int, NodeAgentInfo> nodeAgentInfos,
             NativeHashMap<int, float> nodeTotalTimes, NativeHashMap<int, float> nodeNavigateStartTimes,
             NativeHashMap<int, Entity> nodeNavigateSubjects,

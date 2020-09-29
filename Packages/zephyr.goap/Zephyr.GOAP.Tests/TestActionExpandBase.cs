@@ -31,7 +31,7 @@ namespace Zephyr.GOAP.Tests
             
             EntityManager.AddComponentData(_agentEntity, new Agent());
             EntityManager.AddComponentData(_agentEntity, new Translation());
-            EntityManager.AddComponentData(_agentEntity, new MaxMoveSpeed{value = 1});
+            EntityManager.AddComponentData(_agentEntity, new AgentMoveSpeed{value = 1});
             EntityManager.AddComponentData(_agentEntity, new Idle());
         }
 

@@ -36,7 +36,7 @@ namespace Zephyr.GOAP.Sample.Tests.ActionExpand
             EntityManager.AddComponentData(_agentEntity, new CollectAction{Level = 1});
             EntityManager.AddComponentData(_agentEntity, new PickRawAction());
             EntityManager.AddComponentData(_agentEntity, new DropRawAction());
-            EntityManager.AddComponentData(_agentEntity, new MaxMoveSpeed{value = 1});
+            EntityManager.AddComponentData(_agentEntity, new AgentMoveSpeed{value = 1});
             
             SetGoal(new State
             {
