@@ -23,6 +23,8 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
             return Entities.WithName("EatActionExecuteJob")
                 //.WithoutBurst()    //由于示例里要用到string的物品名称，只能关闭burst
                 .WithAll<ReadyToAct>()
+                .WithReadOnly(waitingNodeEntities)
+                .WithReadOnly(waitingNodes)
                 .WithDisposeOnCompletion(waitingNodeEntities)
                 .WithDisposeOnCompletion(waitingNodes)
                 .WithReadOnly(waitingStates)

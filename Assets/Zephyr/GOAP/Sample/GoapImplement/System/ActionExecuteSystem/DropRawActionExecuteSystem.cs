@@ -20,6 +20,8 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
         {
             return Entities.WithName("DropRawActionExecuteJob")
                 .WithAll<ReadyToAct>()
+                .WithReadOnly(waitingNodeEntities)
+                .WithReadOnly(waitingNodes)
                 .WithDisposeOnCompletion(waitingNodeEntities)
                 .WithDisposeOnCompletion(waitingNodes)
                 .WithReadOnly(waitingStates)

@@ -40,6 +40,8 @@ namespace Zephyr.GOAP.System.ActionExecuteManage
 
             var handle = Entities.WithName("ActionChooseJob")
                 .WithAll<Idle, Agent>()
+                .WithReadOnly(waitingNodeEntities)
+                .WithReadOnly(waitingNodes)
                 .WithDisposeOnCompletion(waitingNodeEntities)
                 .WithDisposeOnCompletion(waitingNodes)
                 .WithReadOnly(allDependencies)

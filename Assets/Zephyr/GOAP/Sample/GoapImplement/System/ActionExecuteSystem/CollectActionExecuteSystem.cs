@@ -17,6 +17,8 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
         {
             return Entities.WithName("CollectActionExecuteJob")
                 .WithAll<ReadyToAct>()
+                .WithReadOnly(waitingNodeEntities)
+                .WithReadOnly(waitingNodes)
                 .WithDisposeOnCompletion(waitingNodeEntities)
                 .WithDisposeOnCompletion(waitingNodes)
                 .ForEach((Entity agentEntity, int entityInQueryIndex,

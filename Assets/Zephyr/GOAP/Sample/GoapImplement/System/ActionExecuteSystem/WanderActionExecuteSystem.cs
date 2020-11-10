@@ -27,6 +27,8 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
         {
             return Entities.WithName("WanderActionExecuteJob")
                 .WithAll<ReadyToAct>()
+                .WithReadOnly(waitingNodeEntities)
+                .WithReadOnly(waitingNodes)
                 .ForEach((Entity agentEntity, int entityInQueryIndex,
                     in Agent agent, in WanderAction action) =>
                 {
@@ -65,8 +67,10 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
             return Entities.WithName("WanderActionDoneJob")
                 .WithAll<Acting>()
                 .WithNone<Wander>()
-                .WithDeallocateOnJobCompletion(waitingNodeEntities)
-                .WithDeallocateOnJobCompletion(waitingNodes)
+                .WithReadOnly(waitingNodeEntities)
+                .WithReadOnly(waitingNodes)
+                .WithDisposeOnCompletion(waitingNodeEntities)
+                .WithDisposeOnCompletion(waitingNodes)
                 .ForEach((Entity agentEntity, int entityInQueryIndex,
                     in Agent agent, in WanderAction action) =>
                 {

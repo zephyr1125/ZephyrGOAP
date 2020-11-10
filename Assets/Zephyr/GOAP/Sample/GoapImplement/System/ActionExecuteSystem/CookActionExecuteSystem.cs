@@ -24,6 +24,8 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
             var actionType = TypeManager.GetTypeIndex<ItemDestinationTrait>();
             return Entities.WithName("CookActionExecuteStartJob")
                 .WithAll<ReadyToAct>()
+                .WithReadOnly(waitingNodeEntities)
+                .WithReadOnly(waitingNodes)
                 .WithDisposeOnCompletion(waitingNodeEntities)
                 .WithDisposeOnCompletion(waitingNodes)
                 .WithReadOnly(waitingStates)

@@ -27,6 +27,8 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                 .WithAll<Agent>()
                 .WithAll<PickRawAction>()
                 .WithAll<ReadyToAct>()
+                .WithReadOnly(waitingNodeEntities)
+                .WithReadOnly(waitingNodes)
                 .WithDisposeOnCompletion(waitingNodeEntities)
                 .WithDisposeOnCompletion(waitingNodes)
                 .WithReadOnly(waitingStates)

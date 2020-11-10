@@ -42,6 +42,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.SensorSystem
             var containedItemRefs = GetBufferFromEntity<ContainedItemRef>(true);
             
             return Entities.WithAll<CollectorTrait>()
+                .WithReadOnly(rawEntities)
                 .WithReadOnly(raws)
                 .WithReadOnly(rawTranslations)
                 .WithReadOnly(counts)
