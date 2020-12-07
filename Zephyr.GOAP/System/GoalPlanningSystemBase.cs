@@ -464,8 +464,11 @@ namespace Zephyr.GOAP.System
             {
                 goalBuffer.Add(new ActionNodeOfGoal {ActionNodeEntity = pathEntities[i]});
             }
-            //从node到goal的链接只存于起始node，用于通知path开始执行时间
-            EntityManager.AddComponentData(pathEntities[pathEntities.Length-1], new GoalRefForNode{GoalEntity = goalEntity});
+
+            for (var i = 0; i < pathEntities.Length; i++)
+            {
+                EntityManager.AddComponentData(pathEntities[i], new GoalRefForNode{GoalEntity = goalEntity});
+            }
 
             pathPreconditionHashes.Dispose();
         }
