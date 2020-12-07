@@ -21,7 +21,11 @@ namespace Zephyr.GOAP.System
             base.OnCreate();
             _nameOfAction = GetNameOfAction();
             _waitingActionNodeQuery = GetEntityQuery(new EntityQueryDesc{
-                All =  new []{ComponentType.ReadOnly<Node>(), ComponentType.ReadOnly<ActionNodeActing>(), },
+                All =  new []
+                {
+                    ComponentType.ReadOnly<Node>(), ComponentType.ReadOnly<ActionNodeActing>(),
+                    ComponentType.ReadOnly<GoalRefForNode>(), 
+                },
                 None = new []{ComponentType.ReadOnly<NodeDependency>()}});
             EcbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
         }
