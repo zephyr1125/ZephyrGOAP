@@ -17,7 +17,8 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
     public class EatActionExecuteSystem : ActionExecuteSystemBase
     {
         protected override JobHandle ExecuteActionJob(FixedString32 nameOfAction, NativeArray<Entity> waitingNodeEntities,
-            NativeArray<Node> waitingNodes, BufferFromEntity<State> waitingStates, EntityCommandBuffer.ParallelWriter ecb, JobHandle inputDeps)
+            NativeArray<Node> waitingNodes, NativeArray<GoalRefForNode> waitingNodeGoalRefs,
+            BufferFromEntity<State> waitingStates, EntityCommandBuffer.ParallelWriter ecb, JobHandle inputDeps)
         {
             var itemDestType = TypeManager.GetTypeIndex<ItemDestinationTrait>();
             return Entities.WithName("EatActionExecuteJob")
@@ -25,8 +26,10 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                 .WithAll<ReadyToAct>()
                 .WithReadOnly(waitingNodeEntities)
                 .WithReadOnly(waitingNodes)
+                .WithReadOnly(waitingNodeGoalRefs)
                 .WithDisposeOnCompletion(waitingNodeEntities)
                 .WithDisposeOnCompletion(waitingNodes)
+                .WithDisposeOnCompletion(waitingNodeGoalRefs)
                 .WithReadOnly(waitingStates)
                 .ForEach((Entity agentEntity, int entityInQueryIndex,
                     in Agent agent, in EatAction action) =>
@@ -57,6 +60,8 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                             break;
                         }
                         Assert.AreNotEqual(default, targetItemName);
+                        
+                        var goalEntity = waitingNodeGoalRefs[nodeId].GoalEntity;
                         
                         //产生order
                         OrderWatchSystem.CreateOrderAndWatch<EatOrder>(ecb, entityInQueryIndex, agentEntity,

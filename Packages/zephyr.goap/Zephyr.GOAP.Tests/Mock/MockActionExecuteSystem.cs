@@ -12,23 +12,30 @@ namespace Zephyr.GOAP.Tests.Mock
     public class MockActionExecuteSystem : ActionExecuteSystemBase
     {
         protected override JobHandle ExecuteActionJob(FixedString32 nameOfAction, NativeArray<Entity> waitingNodeEntities,
-            NativeArray<Node> waitingNodes, BufferFromEntity<State> waitingStates, EntityCommandBuffer.ParallelWriter ecb, JobHandle inputDeps)
+            NativeArray<Node> waitingNodes, NativeArray<GoalRefForNode> waitingNodeGoalRefs,
+            BufferFromEntity<State> waitingStates, EntityCommandBuffer.ParallelWriter ecb, JobHandle inputDeps)
         {
             return Entities.WithName("PickRawActionExecuteJob")
                 .WithAll<ReadyToAct>()
-                .WithDeallocateOnJobCompletion(waitingNodeEntities)
-                .WithDeallocateOnJobCompletion(waitingNodes)
+                .WithReadOnly(waitingNodeEntities)
+                .WithReadOnly(waitingNodes)
+                .WithReadOnly(waitingNodeGoalRefs)
+                .WithDisposeOnCompletion(waitingNodeEntities)
+                .WithDisposeOnCompletion(waitingNodes)
+                .WithDisposeOnCompletion(waitingNodeGoalRefs)
                 .ForEach((Entity agentEntity, int entityInQueryIndex,
                     in Agent agent, in MockProduceAction action) =>
                 {
-                    for (var i = 0; i < waitingNodeEntities.Length; i++)
+                    for (var nodeId = 0; nodeId < waitingNodeEntities.Length; nodeId++)
                     {
-                        var nodeEntity = waitingNodeEntities[i];
-                        var node = waitingNodes[i];
+                        var nodeEntity = waitingNodeEntities[nodeId];
+                        var node = waitingNodes[nodeId];
 
                         if (!node.AgentExecutorEntity.Equals(agentEntity)) continue;
                         if (!node.Name.Equals(nameOfAction)) continue;
 
+                        var goalEntity = waitingNodeGoalRefs[nodeId].GoalEntity;
+                        
                         //没有具体的事情做
 
                         //通知执行完毕

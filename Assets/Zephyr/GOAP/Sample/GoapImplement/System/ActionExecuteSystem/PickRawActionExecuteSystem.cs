@@ -20,8 +20,8 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
 
         protected override JobHandle ExecuteActionJob(FixedString32 nameOfAction,
             NativeArray<Entity> waitingNodeEntities,
-            NativeArray<Node> waitingNodes, BufferFromEntity<State> waitingStates,
-            EntityCommandBuffer.ParallelWriter ecb, JobHandle inputDeps)
+            NativeArray<Node> waitingNodes, NativeArray<GoalRefForNode> waitingNodeGoalRefs,
+            BufferFromEntity<State> waitingStates, EntityCommandBuffer.ParallelWriter ecb, JobHandle inputDeps)
         {
             return Entities.WithName("PickRawActionExecuteJob")
                 .WithAll<Agent>()
@@ -29,8 +29,10 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                 .WithAll<ReadyToAct>()
                 .WithReadOnly(waitingNodeEntities)
                 .WithReadOnly(waitingNodes)
+                .WithReadOnly(waitingNodeGoalRefs)
                 .WithDisposeOnCompletion(waitingNodeEntities)
                 .WithDisposeOnCompletion(waitingNodes)
+                .WithDisposeOnCompletion(waitingNodeGoalRefs)
                 .WithReadOnly(waitingStates)
                 .ForEach((Entity agentEntity, int entityInQueryIndex) =>
                 {
@@ -61,6 +63,7 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                                 rawEntity, rawItemName, rawAmount, nodeEntity, prevOrderEntity);
                         }
                         
+                        var goalEntity = waitingNodeGoalRefs[nodeId].GoalEntity;
                         
                         //进入执行中状态
                         Zephyr.GOAP.Utils.NextAgentState<ReadyToAct, Acting>(agentEntity, entityInQueryIndex,

@@ -13,14 +13,17 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
     public class CollectActionExecuteSystem : ActionExecuteSystemBase
     {
         protected override JobHandle ExecuteActionJob(FixedString32 nameOfAction, NativeArray<Entity> waitingNodeEntities,
-            NativeArray<Node> waitingNodes, BufferFromEntity<State> waitingStates, EntityCommandBuffer.ParallelWriter ecb, JobHandle inputDeps)
+            NativeArray<Node> waitingNodes, NativeArray<GoalRefForNode> waitingNodeGoalRefs,
+            BufferFromEntity<State> waitingStates, EntityCommandBuffer.ParallelWriter ecb, JobHandle inputDeps)
         {
             return Entities.WithName("CollectActionExecuteJob")
                 .WithAll<ReadyToAct>()
                 .WithReadOnly(waitingNodeEntities)
                 .WithReadOnly(waitingNodes)
+                .WithReadOnly(waitingNodeGoalRefs)
                 .WithDisposeOnCompletion(waitingNodeEntities)
                 .WithDisposeOnCompletion(waitingNodes)
+                .WithDisposeOnCompletion(waitingNodeGoalRefs)
                 .ForEach((Entity agentEntity, int entityInQueryIndex,
                     in Agent agent, in CollectAction action) =>
                 {
@@ -32,6 +35,8 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                         if (!node.AgentExecutorEntity.Equals(agentEntity)) continue;
                         if (!node.Name.Equals(nameOfAction)) continue;
 
+                        var goalEntity = waitingNodeGoalRefs[nodeId].GoalEntity;
+                        
                         //CollectAction现在没有什么具体要做的事情，因为DropRawAction已经把物品放进去了
                         //而后续也有PickItemAction处理
 

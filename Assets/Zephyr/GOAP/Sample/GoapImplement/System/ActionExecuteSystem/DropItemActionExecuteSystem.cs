@@ -13,14 +13,17 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
     public class DropItemActionExecuteSystem : ActionExecuteSystemBase
     {
         protected override JobHandle ExecuteActionJob(FixedString32 nameOfAction, NativeArray<Entity> waitingNodeEntities,
-            NativeArray<Node> waitingNodes, BufferFromEntity<State> waitingStates, EntityCommandBuffer.ParallelWriter ecb, JobHandle inputDeps)
+            NativeArray<Node> waitingNodes, NativeArray<GoalRefForNode> waitingNodeGoalRefs,
+            BufferFromEntity<State> waitingStates, EntityCommandBuffer.ParallelWriter ecb, JobHandle inputDeps)
         {
             return Entities.WithName("DropItemActionExecuteJob")
                 .WithAll<ReadyToAct>()
                 .WithReadOnly(waitingNodeEntities)
                 .WithReadOnly(waitingNodes)
+                .WithReadOnly(waitingNodeGoalRefs)
                 .WithDisposeOnCompletion(waitingNodeEntities)
                 .WithDisposeOnCompletion(waitingNodes)
+                .WithDisposeOnCompletion(waitingNodeGoalRefs)
                 .WithReadOnly(waitingStates)
                 .ForEach((Entity agentEntity, int entityInQueryIndex,
                     in Agent agent, in DropItemAction action) =>
@@ -51,6 +54,8 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                                 break;
                             }
                         }
+                        
+                        var goalEntity = waitingNodeGoalRefs[nodeId].GoalEntity;
                         
                         //产生order
                         OrderWatchSystem.CreateOrderAndWatch<DropItemOrder>(ecb, entityInQueryIndex, agentEntity,

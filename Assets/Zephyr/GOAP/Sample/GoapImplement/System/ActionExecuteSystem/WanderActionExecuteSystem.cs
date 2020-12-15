@@ -23,12 +23,15 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
         public const float WanderTime = 5;
 
         protected override JobHandle ExecuteActionJob(FixedString32 nameOfAction, NativeArray<Entity> waitingNodeEntities,
-            NativeArray<Node> waitingNodes, BufferFromEntity<State> waitingStates, EntityCommandBuffer.ParallelWriter ecb, JobHandle inputDeps)
+            NativeArray<Node> waitingNodes, NativeArray<GoalRefForNode> waitingNodeGoalRefs,
+            BufferFromEntity<State> waitingStates, EntityCommandBuffer.ParallelWriter ecb, JobHandle inputDeps)
         {
             return Entities.WithName("WanderActionExecuteJob")
                 .WithAll<ReadyToAct>()
                 .WithReadOnly(waitingNodeEntities)
                 .WithReadOnly(waitingNodes)
+                .WithReadOnly(waitingNodeGoalRefs)
+                .WithDisposeOnCompletion(waitingNodeGoalRefs)
                 .ForEach((Entity agentEntity, int entityInQueryIndex,
                     in Agent agent, in WanderAction action) =>
                 {
@@ -42,6 +45,8 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
 
                         ecb.AddComponent(entityInQueryIndex, agentEntity, new Wander{Time = WanderTime});
 
+                        var goalEntity = waitingNodeGoalRefs[nodeId].GoalEntity;
+                        
                         //进入执行中状态
                         Zephyr.GOAP.Utils.NextAgentState<ReadyToAct, Acting>(agentEntity, entityInQueryIndex,
                             ecb, nodeEntity);
@@ -62,7 +67,8 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
         /// <param name="inputDeps"></param>
         /// <returns></returns>
         protected override JobHandle ExecuteActionJob2(FixedString32 nameOfAction, NativeArray<Entity> waitingNodeEntities,
-            NativeArray<Node> waitingNodes, BufferFromEntity<State> waitingStates, EntityCommandBuffer.ParallelWriter ecb, JobHandle inputDeps)
+            NativeArray<Node> waitingNodes, NativeArray<GoalRefForNode> waitingNodeGoalRefs,
+            BufferFromEntity<State> waitingStates, EntityCommandBuffer.ParallelWriter ecb, JobHandle inputDeps)
         {
             return Entities.WithName("WanderActionDoneJob")
                 .WithAll<Acting>()
@@ -74,14 +80,14 @@ namespace Zephyr.GOAP.Sample.GoapImplement.System.ActionExecuteSystem
                 .ForEach((Entity agentEntity, int entityInQueryIndex,
                     in Agent agent, in WanderAction action) =>
                 {
-                    for (var i = 0; i < waitingNodeEntities.Length; i++)
+                    for (var nodeId = 0; nodeId < waitingNodeEntities.Length; nodeId++)
                     {
-                        var nodeEntity = waitingNodeEntities[i];
-                        var node = waitingNodes[i];
+                        var nodeEntity = waitingNodeEntities[nodeId];
+                        var node = waitingNodes[nodeId];
 
                         if (!node.AgentExecutorEntity.Equals(agentEntity)) continue;
                         if (!node.Name.Equals(nameOfAction)) continue;
-
+                        
                         //agent指示执行完毕
                         Zephyr.GOAP.Utils.NextAgentState<Acting, ActDone>(agentEntity, entityInQueryIndex,
                             ecb, nodeEntity);
