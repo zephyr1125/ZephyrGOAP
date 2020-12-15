@@ -54,22 +54,11 @@ namespace Zephyr.GOAP.System
             return handle2;
         }
 
-        protected virtual JobHandle ExecuteActionJob(FixedString32 nameOfAction,
-            NativeArray<Entity> waitingNodeEntities,
-            NativeArray<Node> waitingNodes, [ReadOnly] BufferFromEntity<State> waitingStates,
-            EntityCommandBuffer.ParallelWriter ecb, JobHandle inputDeps)
-        {
-            return inputDeps;
-        }
-
-        protected virtual JobHandle ExecuteActionJob(FixedString32 nameOfAction,
+        protected abstract JobHandle ExecuteActionJob(FixedString32 nameOfAction,
             NativeArray<Entity> waitingNodeEntities, NativeArray<Node> waitingNodes,
             NativeArray<GoalRefForNode> waitingNodeGoalRefs,
             [ReadOnly] BufferFromEntity<State> waitingStates,
-            EntityCommandBuffer.ParallelWriter ecb, JobHandle inputDeps)
-        {
-            return inputDeps;
-        }
+            EntityCommandBuffer.ParallelWriter ecb, JobHandle inputDeps);
 
         /// <summary>
         /// 额外一个job，有的会需要
@@ -77,18 +66,11 @@ namespace Zephyr.GOAP.System
         /// <param name="nameOfAction"></param>
         /// <param name="waitingNodeEntities"></param>
         /// <param name="waitingNodes"></param>
+        /// <param name="waitingNodeGoalRefs"></param>
         /// <param name="waitingStates"></param>
         /// <param name="ecb"></param>
         /// <param name="inputDeps"></param>
         /// <returns></returns>
-        protected virtual JobHandle ExecuteActionJob2(FixedString32 nameOfAction,
-            NativeArray<Entity> waitingNodeEntities,
-            NativeArray<Node> waitingNodes, [ReadOnly]BufferFromEntity<State> waitingStates,
-            EntityCommandBuffer.ParallelWriter ecb, JobHandle inputDeps)
-        {
-            return inputDeps;
-        }
-        
         protected virtual JobHandle ExecuteActionJob2(FixedString32 nameOfAction,
             NativeArray<Entity> waitingNodeEntities, NativeArray<Node> waitingNodes,
             NativeArray<GoalRefForNode> waitingNodeGoalRefs,[ReadOnly]BufferFromEntity<State> waitingStates,
